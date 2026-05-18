@@ -2,7 +2,7 @@
 
 ## Overview
 
-Wave Terminal's AI modes configuration system allows users to define custom AI assistants with different providers, models, and capabilities. The configuration is stored in `~/.waveterm/config/waveai.json` and provides a flexible way to configure multiple AI modes that appear in the Wave AI panel.
+Dora Terminal's AI modes configuration system allows users to define custom AI assistants with different providers, models, and capabilities. The configuration is stored in `~/.doraterm/config/waveai.json` and provides a flexible way to configure multiple AI modes that appear in the Wave AI panel.
 
 **Key Design Decisions:**
 - Visual editor works on **valid JSON only** - if JSON is invalid, fall back to JSON editor
@@ -62,7 +62,7 @@ Keys follow pattern: `provider@modename` (e.g., `waveai@quick`, `openai@gpt4`)
 
 1. **wave** - Wave AI Cloud service
    - Auto-sets: `waveai:cloud = true`, endpoint from env or default
-   - Default endpoint: `https://cfapi.waveterm.dev/api/waveai`
+   - Default endpoint: `https://cfapi.doraterm.dev/api/waveai`
    - Used for Wave's hosted AI modes
 
 2. **openai** - OpenAI API

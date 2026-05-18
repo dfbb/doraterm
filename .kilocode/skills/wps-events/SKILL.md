@@ -1,13 +1,13 @@
 ---
 name: wps-events
-description: Guide for working with Wave Terminal's WPS (Wave PubSub) event system. Use when implementing new event types, publishing events, subscribing to events, or adding asynchronous communication between components.
+description: Guide for working with Dora Terminal's WPS (Wave PubSub) event system. Use when implementing new event types, publishing events, subscribing to events, or adding asynchronous communication between components.
 ---
 
 # WPS Events Guide
 
 ## Overview
 
-WPS (Wave PubSub) is Wave Terminal's publish-subscribe event system that enables different parts of the application to communicate asynchronously. The system uses a broker pattern to route events from publishers to subscribers based on event types and scopes.
+WPS (Wave PubSub) is Dora Terminal's publish-subscribe event system that enables different parts of the application to communicate asynchronously. The system uses a broker pattern to route events from publishers to subscribers based on event types and scopes.
 
 ## Key Files
 
@@ -119,7 +119,7 @@ This will update `frontend/types/gotypes.d.ts` with TypeScript definitions for y
 To publish an event, use the global broker:
 
 ```go
-import "github.com/wavetermdev/waveterm/pkg/wps"
+import "github.com/doratermdev/doraterm/pkg/wps"
 
 wps.Broker.Publish(wps.WaveEvent{
     Event: wps.Event_YourNewEvent,
@@ -190,7 +190,7 @@ const (
 In `pkg/aiusechat/usechat.go`:
 
 ```go
-import "github.com/wavetermdev/waveterm/pkg/wps"
+import "github.com/doratermdev/doraterm/pkg/wps"
 
 func updateRateLimit(info *uctypes.RateLimitInfo) {
     if info == nil {

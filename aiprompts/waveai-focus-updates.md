@@ -1,4 +1,4 @@
-# Wave Terminal Focus System - Wave AI Integration
+# Dora Terminal Focus System - Wave AI Integration
 
 ## Problem
 

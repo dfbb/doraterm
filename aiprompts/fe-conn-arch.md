@@ -1,4 +1,4 @@
-# Wave Terminal Frontend Connection Architecture
+# Dora Terminal Frontend Connection Architecture
 
 ## Overview
 

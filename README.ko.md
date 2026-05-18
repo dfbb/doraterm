@@ -1,15 +1,15 @@
 <p align="center">
-  <a href="https://www.waveterm.dev">
+  <a href="https://www.doraterm.dev">
 	<picture>
 		<source media="(prefers-color-scheme: dark)" srcset="./assets/wave-dark.png">
 		<source media="(prefers-color-scheme: light)" srcset="./assets/wave-light.png">
-		<img alt="Wave Terminal Logo" src="./assets/wave-light.png" width="240">
+		<img alt="Dora Terminal Logo" src="./assets/wave-light.png" width="240">
 	</picture>
   </a>
   <br/>
 </p>
 
-# Wave Terminal
+# Dora Terminal
 
 <div align="center">
 
@@ -17,7 +17,7 @@
 
 </div>
 
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwavetermdev%2Fwaveterm.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwavetermdev%2Fwaveterm?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdoratermdev%2Fdoraterm.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdoratermdev%2Fdoraterm?ref=badge_shield)
 
 > 이 문서는 커뮤니티 한국어 번역본입니다. 최신 원문은 [README.md](README.md)에서 확인하세요.
 
@@ -55,19 +55,19 @@ Wave AI는 워크스페이스 맥락을 이해하는 터미널 어시스턴트�
 - **무료 베타**: 경험 개선 기간 동안 AI 크레딧이 제공됩니다.
 - **곧 제공 예정**: 명령 실행 기능 (사용자 승인 기반)
 
-자세한 내용은 [Wave AI 문서](https://docs.waveterm.dev/waveai)와 [Wave AI Modes 문서](https://docs.waveterm.dev/waveai-modes)를 참고하세요.
+자세한 내용은 [Wave AI 문서](https://docs.doraterm.dev/waveai)와 [Wave AI Modes 문서](https://docs.doraterm.dev/waveai-modes)를 참고하세요.
 
 ## 설치
 
-Wave Terminal은 macOS, Linux, Windows에서 동작합니다.
+Dora Terminal은 macOS, Linux, Windows에서 동작합니다.
 
-플랫폼별 설치 방법은 [여기](https://docs.waveterm.dev/gettingstarted)에서 확인할 수 있습니다.
+플랫폼별 설치 방법은 [여기](https://docs.doraterm.dev/gettingstarted)에서 확인할 수 있습니다.
 
-직접 다운로드하여 설치하려면 [www.waveterm.dev/download](https://www.waveterm.dev/download)을 이용하세요.
+직접 다운로드하여 설치하려면 [www.doraterm.dev/download](https://www.doraterm.dev/download)을 이용하세요.
 
 ### 최소 요구 사항
 
-Wave Terminal은 다음 플랫폼에서 실행됩니다.
+Dora Terminal은 다음 플랫폼에서 실행됩니다.
 
 - macOS 11 이상 (arm64, x64)
 - Windows 10 1809 이상 (x64)
@@ -83,19 +83,19 @@ WSH 헬퍼는 다음 플랫폼에서 실행됩니다.
 
 Wave는 계속 발전하고 있습니다. 로드맵은 릴리스 목표에 맞춰 지속적으로 업데이트됩니다. [여기](./ROADMAP.md)에서 확인하세요.
 
-향후 릴리스 방향에 의견을 주고 싶다면 [Discord](https://discord.gg/XfvZ334gwU)에 참여하거나 [Feature Request](https://github.com/wavetermdev/waveterm/issues/new/choose)를 등록해 주세요.
+향후 릴리스 방향에 의견을 주고 싶다면 [Discord](https://discord.gg/XfvZ334gwU)에 참여하거나 [Feature Request](https://github.com/doratermdev/doraterm/issues/new/choose)를 등록해 주세요.
 
 ## 링크
 
-- 홈페이지 &mdash; https://www.waveterm.dev
-- 다운로드 페이지 &mdash; https://www.waveterm.dev/download
-- 문서 &mdash; https://docs.waveterm.dev
-- X &mdash; https://x.com/wavetermdev
+- 홈페이지 &mdash; https://www.doraterm.dev
+- 다운로드 페이지 &mdash; https://www.doraterm.dev/download
+- 문서 &mdash; https://docs.doraterm.dev
+- X &mdash; https://x.com/doratermdev
 - Discord 커뮤니티 &mdash; https://discord.gg/XfvZ334gwU
 
 ## 소스에서 빌드
 
-[Building Wave Terminal](BUILD.md)을 참고하세요.
+[Building Dora Terminal](BUILD.md)을 참고하세요.
 
 ## 기여하기
 
@@ -108,4 +108,4 @@ Wave는 GitHub Issues를 이슈 추적에 사용합니다.
 
 ## 라이선스
 
-Wave Terminal은 Apache-2.0 라이선스를 따릅니다. 의존성 정보는 [여기](./ACKNOWLEDGEMENTS.md)에서 확인할 수 있습니다.
+Dora Terminal은 Apache-2.0 라이선스를 따릅니다. 의존성 정보는 [여기](./ACKNOWLEDGEMENTS.md)에서 확인할 수 있습니다.
