@@ -111,7 +111,7 @@ async function reinitWave() {
     await WOS.reloadDoraObject<LayoutState>(WOS.makeORef("layout", initialTab.layoutstate));
     reloadAllWorkspaceTabs(ws);
     document.title = `Wave Terminal - ${initialTab.name}`; // TODO update with tab name change
-    getApi().setWindowInitStatus("wave-ready");
+    getApi().setWindowInitStatus("dora-ready");
     globalStore.set(atoms.reinitVersion, globalStore.get(atoms.reinitVersion) + 1);
     globalStore.set(atoms.updaterStatusAtom, getApi().getUpdaterStatus());
     setTimeout(() => {
@@ -202,6 +202,6 @@ async function initWave(initOpts: DoraInitOpts) {
     root.render(reactElem);
     await firstRenderPromise;
     console.log("Wave First Render Done");
-    getApi().setWindowInitStatus("wave-ready");
+    getApi().setWindowInitStatus("dora-ready");
 }
 

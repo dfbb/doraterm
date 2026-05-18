@@ -305,7 +305,7 @@ export const DoraStreamdown = ({
         <Streamdown
             parseIncompleteMarkdown={parseIncompleteMarkdown}
             className={cn(
-                "wave-streamdown text-secondary [&>*:first-child]:mt-0 [&>*:first-child>*:first-child]:mt-0 space-y-2",
+                "dora-streamdown text-secondary [&>*:first-child]:mt-0 [&>*:first-child>*:first-child]:mt-0 space-y-2",
                 className
             )}
             shikiTheme={[ShikiTheme, ShikiTheme]}
