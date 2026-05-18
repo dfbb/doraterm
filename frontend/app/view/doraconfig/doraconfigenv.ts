@@ -3,7 +3,7 @@
 
 import type { MetaKeyAtomFnType, WaveEnv, WaveEnvSubset } from "@/app/waveenv/waveenv";
 
-export type WaveConfigEnv = WaveEnvSubset<{
+export type DoraConfigEnv = WaveEnvSubset<{
     electron: {
         getConfigDir: WaveEnv["electron"]["getConfigDir"];
         getPlatform: WaveEnv["electron"]["getPlatform"];

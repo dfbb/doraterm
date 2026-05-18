@@ -141,7 +141,7 @@ const SettingsFloatingWindow = memo(
                 onClick: () => {
                     const blockDef: BlockDef = {
                         meta: {
-                            view: "waveconfig",
+                            view: "doraconfig",
                         },
                     };
                     env.createBlock(blockDef, false, true);
@@ -154,7 +154,7 @@ const SettingsFloatingWindow = memo(
                 onClick: () => {
                     const blockDef: BlockDef = {
                         meta: {
-                            view: "waveconfig",
+                            view: "doraconfig",
                             file: "secrets",
                         },
                     };
@@ -275,7 +275,7 @@ const Widgets = memo(() => {
                     fireAndForget(async () => {
                         const blockDef: BlockDef = {
                             meta: {
-                                view: "waveconfig",
+                                view: "doraconfig",
                                 file: "widgets.json",
                             },
                         };

@@ -37,8 +37,8 @@ const unamePlatform = process.platform;
 const unameArch: string = process.arch;
 keyutil.setKeyUtilPlatform(unamePlatform);
 
-const WaveConfigHomeVarName = "DORATERM_CONFIG_HOME";
-const WaveDataHomeVarName = "DORATERM_DATA_HOME";
+const DoraConfigHomeVarName = "DORATERM_CONFIG_HOME";
+const DoraDataHomeVarName = "DORATERM_DATA_HOME";
 const DoraHomeVarName = "DORATERM_HOME";
 
 export function checkIfRunningUnderARM64Translation(fullConfig: FullConfigType) {
@@ -103,14 +103,14 @@ function ensurePathExists(path: string): string {
  * Handles backwards compatibility with the old Wave Home directory model, where configurations and data were stored together.
  * @returns The path where configurations should be stored.
  */
-function getWaveConfigDir(): string {
+function getDoraConfigDir(): string {
     // If wave home dir exists, use it for backwards compatibility
     const waveHomeDir = getWaveHomeDir();
     if (waveHomeDir) {
         return path.join(waveHomeDir, "config");
     }
 
-    const override = process.env[WaveConfigHomeVarName];
+    const override = process.env[DoraConfigHomeVarName];
     const xdgConfigHome = process.env.XDG_CONFIG_HOME;
     let retVal: string;
     if (override) {
@@ -135,7 +135,7 @@ function getWaveDataDir(): string {
         return waveHomeDir;
     }
 
-    const override = process.env[WaveDataHomeVarName];
+    const override = process.env[DoraDataHomeVarName];
     const xdgDataHome = process.env.XDG_DATA_HOME;
     let retVal: string;
     if (override) {
@@ -200,7 +200,7 @@ ipcMain.on("get-data-dir", (event) => {
     event.returnValue = getWaveDataDir();
 });
 ipcMain.on("get-config-dir", (event) => {
-    event.returnValue = getWaveConfigDir();
+    event.returnValue = getDoraConfigDir();
 });
 ipcMain.on("get-home-dir", (event) => {
     event.returnValue = app.getPath("home");
@@ -272,7 +272,7 @@ export {
     getElectronAppBasePath,
     getElectronAppResourcesPath,
     getElectronAppUnpackedBasePath,
-    getWaveConfigDir,
+    getDoraConfigDir,
     getWaveDataDir,
     getWaveSrvCwd,
     getWaveSrvPath,
@@ -281,6 +281,6 @@ export {
     isDevVite,
     unameArch,
     unamePlatform,
-    WaveConfigHomeVarName,
-    WaveDataHomeVarName,
+    DoraConfigHomeVarName,
+    DoraDataHomeVarName,
 };

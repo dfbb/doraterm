@@ -30,7 +30,7 @@ import {
     checkIfRunningUnderARM64Translation,
     getElectronAppBasePath,
     getElectronAppUnpackedBasePath,
-    getWaveConfigDir,
+    getDoraConfigDir,
     getWaveDataDir,
     isDev,
     unameArch,
@@ -60,7 +60,7 @@ const electronApp = electron.app;
 let confirmQuit = true;
 
 const waveDataDir = getWaveDataDir();
-const waveConfigDir = getWaveConfigDir();
+const doraConfigDir = getDoraConfigDir();
 
 electron.nativeTheme.themeSource = "dark";
 
@@ -69,7 +69,7 @@ console.log(
     sprintf(
         "waveterm-app starting, data_dir=%s, config_dir=%s electronpath=%s gopath=%s arch=%s/%s electron=%s",
         waveDataDir,
-        waveConfigDir,
+        doraConfigDir,
         getElectronAppBasePath(),
         getElectronAppUnpackedBasePath(),
         unamePlatform,

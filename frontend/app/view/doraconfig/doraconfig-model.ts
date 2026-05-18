@@ -6,9 +6,9 @@ import { globalStore } from "@/app/store/jotaiStore";
 import type { TabModel } from "@/app/store/tab-model";
 import { makeORef } from "@/app/store/wos";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
-import { SecretsContent } from "@/app/view/waveconfig/secretscontent";
-import { WaveConfigView } from "@/app/view/waveconfig/waveconfig";
-import type { WaveConfigEnv } from "@/app/view/waveconfig/waveconfigenv";
+import { SecretsContent } from "@/app/view/doraconfig/secretscontent";
+import { DoraConfigView } from "@/app/view/doraconfig/doraconfig";
+import type { DoraConfigEnv } from "@/app/view/doraconfig/doraconfigenv";
 import { base64ToString, stringToBase64 } from "@/util/util";
 import { atom, type Atom, type PrimitiveAtom } from "jotai";
 import type * as MonacoTypes from "monaco-editor";
@@ -27,7 +27,7 @@ export type ConfigFile = {
     validator?: ConfigValidator;
     isSecrets?: boolean;
     hasJsonView?: boolean;
-    visualComponent?: React.ComponentType<{ model: WaveConfigViewModel }>;
+    visualComponent?: React.ComponentType<{ model: DoraConfigViewModel }>;
 };
 
 export const SecretNameRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
@@ -125,16 +125,16 @@ const deprecatedConfigFiles: ConfigFile[] = [
     },
 ];
 
-export class WaveConfigViewModel implements ViewModel {
+export class DoraConfigViewModel implements ViewModel {
     blockId: string;
-    viewType = "waveconfig";
+    viewType = "doraconfig";
     viewIcon = atom("gear");
     viewName = atom("Wave Config");
-    viewComponent = WaveConfigView;
+    viewComponent = DoraConfigView;
     noPadding = atom(true);
     nodeModel: BlockNodeModel;
     tabModel: TabModel;
-    env: WaveConfigEnv;
+    env: DoraConfigEnv;
 
     selectedFileAtom: PrimitiveAtom<ConfigFile>;
     fileContentAtom: PrimitiveAtom<string>;
@@ -166,7 +166,7 @@ export class WaveConfigViewModel implements ViewModel {
         this.blockId = blockId;
         this.nodeModel = nodeModel;
         this.tabModel = tabModel;
-        this.env = waveEnv as WaveConfigEnv;
+        this.env = waveEnv as DoraConfigEnv;
         this.configDir = this.env.electron.getConfigDir();
         const platform = this.env.electron.getPlatform();
         this.saveShortcut = platform === "darwin" ? "Cmd+S" : "Alt+S";
@@ -494,7 +494,7 @@ export class WaveConfigViewModel implements ViewModel {
                 {
                     event: "action:other",
                     props: {
-                        "action:type": "waveconfig:savesecret",
+                        "action:type": "doraconfig:savesecret",
                     },
                 },
                 { noresponse: true }
@@ -575,7 +575,7 @@ export class WaveConfigViewModel implements ViewModel {
                 {
                     event: "action:other",
                     props: {
-                        "action:type": "waveconfig:savesecret",
+                        "action:type": "doraconfig:savesecret",
                     },
                 },
                 { noresponse: true }

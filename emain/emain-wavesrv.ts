@@ -10,13 +10,13 @@ import { setForceQuit, setUserConfirmedQuit } from "./emain-activity";
 import {
     getElectronAppResourcesPath,
     getElectronAppUnpackedBasePath,
-    getWaveConfigDir,
+    getDoraConfigDir,
     getWaveDataDir,
     getWaveSrvCwd,
     getWaveSrvPath,
     getXdgCurrentDesktop,
-    WaveConfigHomeVarName,
-    WaveDataHomeVarName,
+    DoraConfigHomeVarName,
+    DoraDataHomeVarName,
 } from "./emain-platform";
 import {
     getElectronExecPath,
@@ -68,8 +68,8 @@ export function runWaveSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promis
     envCopy[WaveAppResourcesPathVarName] = getElectronAppResourcesPath();
     envCopy[WaveAppElectronExecPath] = getElectronExecPath();
     envCopy[WaveAuthKeyEnv] = AuthKey;
-    envCopy[WaveDataHomeVarName] = getWaveDataDir();
-    envCopy[WaveConfigHomeVarName] = getWaveConfigDir();
+    envCopy[DoraDataHomeVarName] = getWaveDataDir();
+    envCopy[DoraConfigHomeVarName] = getDoraConfigDir();
     const waveSrvCmd = getWaveSrvPath();
     console.log("trying to run local server", waveSrvCmd);
     const proc = child_process.spawn(getWaveSrvPath(), {
