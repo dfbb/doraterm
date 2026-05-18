@@ -18,7 +18,7 @@ const (
 var waveSrvClient_Singleton *dshutil.DshRpc
 var waveSrvClient_Once = &sync.Once{}
 
-// returns the wavesrv main rpc client singleton
+// returns the dorasrv main rpc client singleton
 func GetMainRpcClient() *dshutil.DshRpc {
 	waveSrvClient_Once.Do(func() {
 		waveSrvClient_Singleton = dshutil.MakeDshRpc(dshrpc.RpcContext{}, &DshServerImpl, "main-client")

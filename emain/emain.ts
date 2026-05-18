@@ -37,7 +37,7 @@ import {
     unamePlatform,
 } from "./emain-platform";
 import { ensureHotSpareTab, setMaxTabCacheSize } from "./emain-tabview";
-import { getIsWaveSrvDead, getWaveSrvProc, getWaveSrvReady, runWaveSrv } from "./emain-wavesrv";
+import { getIsDoraSrvDead, getDoraSrvProc, getDoraSrvReady, runDoraSrv } from "./emain-dorasrv";
 import {
     createBrowserWindow,
     createNewDoraWindow,
@@ -251,7 +251,7 @@ electronApp.on("before-quit", (e) => {
         !getForceQuit() &&
         !getUserConfirmedQuit() &&
         allWindows.length > 0 &&
-        !getIsWaveSrvDead() &&
+        !getIsDoraSrvDead() &&
         !process.env.DORATERM_NOCONFIRMQUIT
     ) {
         e.preventDefault();
@@ -274,10 +274,10 @@ electronApp.on("before-quit", (e) => {
     updater?.stop();
     if (unamePlatform == "win32") {
         // win32 doesn't have a SIGINT, so we just let electron die, which
-        // ends up killing wavesrv via closing it's stdin.
+        // ends up killing dorasrv via closing it's stdin.
         return;
     }
-    getWaveSrvProc()?.kill("SIGINT");
+    getDoraSrvProc()?.kill("SIGINT");
     shutdownWshrpc();
     if (getForceQuit()) {
         return;
@@ -286,14 +286,14 @@ electronApp.on("before-quit", (e) => {
     for (const window of allWindows) {
         hideWindowWithCatch(window);
     }
-    if (getIsWaveSrvDead()) {
-        console.log("wavesrv is dead, quitting immediately");
+    if (getIsDoraSrvDead()) {
+        console.log("dorasrv is dead, quitting immediately");
         setForceQuit(true);
         electronApp.quit();
         return;
     }
     setTimeout(() => {
-        console.log("waiting for wavesrv to exit...");
+        console.log("waiting for dorasrv to exit...");
         setForceQuit(true);
         electronApp.quit();
     }, 3000);
@@ -365,17 +365,17 @@ async function appMain() {
         fireAndForget(createNewDoraWindow);
     });
     try {
-        await runWaveSrv(handleWSEvent);
+        await runDoraSrv(handleWSEvent);
     } catch (e) {
         console.log(e.toString());
     }
-    const ready = await getWaveSrvReady();
-    console.log("wavesrv ready signal received", ready, Date.now() - startTs, "ms");
+    const ready = await getDoraSrvReady();
+    console.log("dorasrv ready signal received", ready, Date.now() - startTs, "ms");
     await electronApp.whenReady();
     configureAuthKeyRequestInjection(electron.session.defaultSession);
     initIpcHandlers();
 
-    await sleep(10); // wait a bit for wavesrv to be ready
+    await sleep(10); // wait a bit for dorasrv to be ready
     try {
         initElectronDshClient();
         initElectronWshrpc(ElectronDshClient, { authKey: AuthKey });

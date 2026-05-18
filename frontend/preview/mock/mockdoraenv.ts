@@ -6,7 +6,7 @@ import { globalStore } from "@/app/store/jotaiStore";
 import { AllServiceTypes } from "@/app/store/services";
 import { handleDoraEvent } from "@/app/store/wps";
 import { RpcApiType } from "@/app/store/dshclientapi";
-import { DoraEnv } from "@/app/waveenv/waveenv";
+import { DoraEnv } from "@/app/doraenv/doraenv";
 import { PlatformLinux, PlatformMacOS, PlatformWindows } from "@/util/platformutil";
 import { NullAtom } from "@/util/util";
 import { Atom, atom, PrimitiveAtom, useAtomValue } from "jotai";
@@ -159,8 +159,6 @@ function makeMockGlobalAtoms(
         return get(getDoraObjectAtom<Workspace>("workspace:" + wsId));
     });
     const defaults: GlobalAtomsType = {
-        builderId: atom(""),
-        builderAppId: atom("") as any,
         uiContext: atom({ windowid: "", activetabid: tabId ?? "" } as UIContext),
         workspaceId: workspaceIdAtom,
         workspace: workspaceAtom,
@@ -180,7 +178,6 @@ function makeMockGlobalAtoms(
         modalOpen: atom(false) as any,
         allConnStatus: atom([] as ConnStatus[]),
         reinitVersion: atom(0) as any,
-        waveAIRateLimitInfoAtom: atom(null) as any,
     };
     if (!atomOverrides) {
         return defaults;

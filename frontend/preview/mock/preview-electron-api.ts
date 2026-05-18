@@ -16,7 +16,6 @@ const previewElectronApi: ElectronApi = {
     getAboutModalDetails: () => ({}) as AboutModalDetails,
     getZoomFactor: () => 1.0,
     showWorkspaceAppMenu: (_workspaceId: string) => {},
-    showBuilderAppMenu: (_builderId: string) => {},
     showContextMenu: (_workspaceId: string, _menu: ElectronContextMenuItem[]) => {},
     onContextMenuClick: (_callback: (id: string | null) => void) => {},
     onNavigate: (_callback: (url: string) => void) => {},

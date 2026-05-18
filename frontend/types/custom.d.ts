@@ -1,15 +1,13 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DoraEnv } from "@/app/waveenv/waveenv";
+import type { DoraEnv } from "@/app/doraenv/doraenv";
 import { type Placement } from "@floating-ui/react";
 import type * as jotai from "jotai";
 import type * as rxjs from "rxjs";
 
 declare global {
     type GlobalAtomsType = {
-        builderId: jotai.Atom<string>; // readonly (for builder mode)
-        builderAppId: jotai.PrimitiveAtom<string>; // app being edited in builder mode
         uiContext: jotai.Atom<UIContext>; // driven from windowId, tabId
         workspaceId: jotai.Atom<string>; // derived from window WOS object
         workspace: jotai.Atom<Workspace>; // driven from workspaceId via WOS
@@ -26,7 +24,6 @@ declare global {
         modalOpen: jotai.PrimitiveAtom<boolean>;
         allConnStatus: jotai.Atom<ConnStatus[]>;
         reinitVersion: jotai.PrimitiveAtom<number>;
-        waveAIRateLimitInfoAtom: jotai.PrimitiveAtom<RateLimitInfo>;
     };
 
     type ThrottledValueAtom<T> = jotai.WritableAtom<T, [update: jotai.SetStateAction<T>], void>;
@@ -57,7 +54,6 @@ declare global {
         clientId: string;
         environment: "electron" | "renderer";
         primaryTabStartup?: boolean;
-        builderId?: string;
         isPreview?: boolean;
     };
 
@@ -67,12 +63,6 @@ declare global {
         windowId: string;
         activate: boolean;
         primaryTabStartup?: boolean;
-    };
-
-    type BuilderInitOpts = {
-        builderId: string;
-        clientId: string;
-        windowId: string;
     };
 
     type ElectronApi = {
@@ -90,7 +80,6 @@ declare global {
         getAboutModalDetails: () => AboutModalDetails; // get-about-modal-details
         getZoomFactor: () => number; // get-zoom-factor
         showWorkspaceAppMenu: (workspaceId: string) => void; // workspace-appmenu-show
-        showBuilderAppMenu: (builderId: string) => void; // builder-appmenu-show
         showContextMenu: (workspaceId: string, menu: ElectronContextMenuItem[]) => void; // contextmenu-show
         onContextMenuClick: (callback: (id: string | null) => void) => void; // contextmenu-click
         onNavigate: (callback: (url: string) => void) => void;
@@ -116,8 +105,7 @@ declare global {
         createTab: () => void; // create-tab
         closeTab: (workspaceId: string, tabId: string, confirmClose: boolean) => Promise<boolean>; // close-tab
         setWindowInitStatus: (status: "ready" | "dora-ready") => void; // set-window-init-status
-        onDoraInit: (callback: (initOpts: DoraInitOpts) => void) => void; // wave-init
-        onBuilderInit: (callback: (initOpts: BuilderInitOpts) => void) => void; // builder-init
+        onDoraInit: (callback: (initOpts: DoraInitOpts) => void) => void; // dora-init
         sendLog: (log: string) => void; // fe-log
         onQuicklook: (filePath: string) => void; // quicklook
         openNativePath(filePath: string): void; // open-native-path

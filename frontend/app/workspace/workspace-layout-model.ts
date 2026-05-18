@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { globalStore } from "@/app/store/jotaiStore";
-import { isBuilderWindow } from "@/app/store/windowtype";
 import * as WOS from "@/app/store/wos";
 import { RpcApi } from "@/app/store/dshclientapi";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
@@ -100,7 +99,7 @@ class WorkspaceLayoutModel {
                 this.vtabWidth = savedVTabWidth;
             }
             const tabBarPosition = globalStore.get(getSettingsKeyAtom("app:tabbar")) ?? "top";
-            const showLeftTabBar = tabBarPosition === "left" && !isBuilderWindow();
+            const showLeftTabBar = tabBarPosition === "left";
             this.vtabVisible = showLeftTabBar;
         } catch (e) {
             console.warn("Failed to initialize from tab meta:", e);
@@ -220,7 +219,7 @@ class WorkspaceLayoutModel {
     // ---- Initial percentage helpers (used by workspace.tsx for defaultSize) ----
 
     getLeftGroupInitialPercentage(windowWidth: number, showLeftTabBar: boolean): number {
-        const vtabW = showLeftTabBar && !isBuilderWindow() ? this.getResolvedVTabWidth() : 0;
+        const vtabW = showLeftTabBar ? this.getResolvedVTabWidth() : 0;
         return (vtabW / windowWidth) * 100;
     }
 

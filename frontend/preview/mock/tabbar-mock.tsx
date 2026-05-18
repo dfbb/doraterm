@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { globalStore } from "@/app/store/jotaiStore";
-import { useDoraEnv, DoraEnv, DoraEnvContext } from "@/app/waveenv/waveenv";
-import { applyMockEnvOverrides, MockDoraEnv } from "@/preview/mock/mockwaveenv";
+import { useDoraEnv, DoraEnv, DoraEnvContext } from "@/app/doraenv/doraenv";
+import { applyMockEnvOverrides, MockDoraEnv } from "@/preview/mock/mockdoraenv";
 import { PlatformMacOS } from "@/util/platformutil";
 import { atom } from "jotai";
 import React, { useMemo, useRef } from "react";

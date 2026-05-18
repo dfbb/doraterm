@@ -46,10 +46,10 @@ var (
 	BashStartup_Preexec string
 
 	//go:embed shellintegration/fish_dorafish.sh
-	FishStartup_Wavefish string
+	FishStartup_Dorafish string
 
 	//go:embed shellintegration/pwsh_dorapwsh.sh
-	PwshStartup_wavepwsh string
+	PwshStartup_dorapwsh string
 
 	ZshExtendedHistoryPattern = regexp.MustCompile(`^: [0-9]+:`)
 )
@@ -283,11 +283,11 @@ func GetLocalBashRcFileOverride() string {
 }
 
 func GetLocalWaveFishFilePath() string {
-	return filepath.Join(dorabase.GetDoraDataDir(), FishIntegrationDir, "wave.fish")
+	return filepath.Join(dorabase.GetDoraDataDir(), FishIntegrationDir, "dora.fish")
 }
 
 func GetLocalWavePowershellEnv() string {
-	return filepath.Join(dorabase.GetDoraDataDir(), PwshIntegrationDir, "wavepwsh.ps1")
+	return filepath.Join(dorabase.GetDoraDataDir(), PwshIntegrationDir, "dorapwsh.ps1")
 }
 
 func GetLocalZshZDotDir() string {
@@ -414,13 +414,13 @@ func InitRcFiles(waveHome string, absDshBinDir string) error {
 	if err != nil {
 		return fmt.Errorf("error writing bash-integration bash_preexec.sh: %v", err)
 	}
-	err = utilfn.WriteTemplateToFile(filepath.Join(fishDir, "wave.fish"), FishStartup_Wavefish, params)
+	err = utilfn.WriteTemplateToFile(filepath.Join(fishDir, "dora.fish"), FishStartup_Dorafish, params)
 	if err != nil {
-		return fmt.Errorf("error writing fish-integration wave.fish: %v", err)
+		return fmt.Errorf("error writing fish-integration dora.fish: %v", err)
 	}
-	err = utilfn.WriteTemplateToFile(filepath.Join(pwshDir, "wavepwsh.ps1"), PwshStartup_wavepwsh, params)
+	err = utilfn.WriteTemplateToFile(filepath.Join(pwshDir, "dorapwsh.ps1"), PwshStartup_dorapwsh, params)
 	if err != nil {
-		return fmt.Errorf("error writing pwsh-integration wavepwsh.ps1: %v", err)
+		return fmt.Errorf("error writing pwsh-integration dorapwsh.ps1: %v", err)
 	}
 
 	return nil
@@ -449,7 +449,7 @@ func initCustomShellStartupFilesInternal() error {
 		log.Printf("error (non-fatal), could not resolve wsh binary %q: %v\n", wshFullPath, err)
 		return nil
 	}
-	wshDstPath := filepath.Join(binDir, "wsh")
+	wshDstPath := filepath.Join(binDir, "dsh")
 	if runtime.GOOS == "windows" {
 		wshDstPath = wshDstPath + ".exe"
 	}
@@ -548,7 +548,7 @@ func getShellVersion(shellPath string, shellType string) (string, error) {
 	return matches[1], nil
 }
 
-func FixupWaveZshHistory() error {
+func FixupDoraZshHistory() error {
 	if runtime.GOOS != "darwin" {
 		return nil
 	}

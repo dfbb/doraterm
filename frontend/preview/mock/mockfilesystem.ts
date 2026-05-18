@@ -65,7 +65,7 @@ function normalizeMockPath(path: string, basePath = MockHomePath): string {
     if (path == null || path === "") {
         return basePath;
     }
-    if (path.startsWith("wsh://")) {
+    if (path.startsWith("dsh://")) {
         const url = new URL(path);
         path = url.pathname.replace(/^\/+/, "/");
     }
@@ -280,7 +280,7 @@ function createMockFilesystemEntries(): MockFsEntryInput[] {
         makeMockFsInput(`${MockHomePath}/waveterm/tsconfig.json`),
         makeMockFsInput(`${MockHomePath}/waveterm/Taskfile.yml`),
         makeMockFsInput(`${MockHomePath}/waveterm/preview-model.tsx`),
-        makeMockFsInput(`${MockHomePath}/waveterm/mockwaveenv.ts`),
+        makeMockFsInput(`${MockHomePath}/waveterm/mockdoraenv.ts`),
         makeMockFsInput(`${MockHomePath}/waveterm/vite.config.ts`),
         makeMockFsInput(`${MockHomePath}/waveterm/CHANGELOG.md`),
         makeMockFsInput(

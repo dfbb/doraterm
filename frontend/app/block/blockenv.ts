@@ -7,7 +7,7 @@ import {
     SettingsKeyAtomFnType,
     DoraEnv,
     DoraEnvSubset,
-} from "@/app/waveenv/waveenv";
+} from "@/app/doraenv/doraenv";
 
 export type BlockEnv = DoraEnvSubset<{
     getSettingsKeyAtom: SettingsKeyAtomFnType<

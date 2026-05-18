@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { MetaKeyAtomFnType, DoraEnv, DoraEnvSubset } from "@/app/waveenv/waveenv";
+import type { MetaKeyAtomFnType, DoraEnv, DoraEnvSubset } from "@/app/doraenv/doraenv";
 
 export type DoraConfigEnv = DoraEnvSubset<{
     electron: {

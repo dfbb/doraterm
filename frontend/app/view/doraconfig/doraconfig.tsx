@@ -7,7 +7,7 @@ import { tryReinjectKey } from "@/app/store/keymodel";
 import { CodeEditor } from "@/app/view/codeeditor/codeeditor";
 import type { ConfigFile, DoraConfigViewModel } from "@/app/view/doraconfig/doraconfig-model";
 import type { DoraConfigEnv } from "@/app/view/doraconfig/doraconfigenv";
-import { useDoraEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/doraenv/doraenv";
 import { adaptFromReactOrNativeKeyEvent, checkKeyPressed, keydownWrapper } from "@/util/keyutil";
 import { cn } from "@/util/util";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";

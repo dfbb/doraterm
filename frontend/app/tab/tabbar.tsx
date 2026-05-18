@@ -3,7 +3,7 @@
 
 import { Tooltip } from "@/app/element/tooltip";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
-import { useDoraEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/doraenv/doraenv";
 import { WorkspaceLayoutModel } from "@/app/workspace/workspace-layout-model";
 import { deleteLayoutModelForTab } from "@/layout/index";
 import { isMacOSTahoeOrLater } from "@/util/platformutil";

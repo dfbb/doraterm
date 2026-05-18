@@ -99,7 +99,7 @@ func (impl *DshRouterControlImpl) AuthenticateCommand(ctx context.Context, data 
 
 	newCtx, err := ValidateAndExtractRpcContextFromToken(data)
 	if err != nil {
-		log.Printf("wshrouter authenticate error linkid=%d: %v", linkId, err)
+		log.Printf("dshrouter authenticate error linkid=%d: %v", linkId, err)
 		return dshrpc.CommandAuthenticateRtnData{}, fmt.Errorf("error validating token: %w", err)
 	}
 	routeId, err := validateRpcContextFromAuth(newCtx)
@@ -109,10 +109,10 @@ func (impl *DshRouterControlImpl) AuthenticateCommand(ctx context.Context, data 
 
 	rtnData := dshrpc.CommandAuthenticateRtnData{RouteId: routeId}
 	if newCtx.IsRouter {
-		log.Printf("wshrouter authenticate success linkid=%d (router)", linkId)
+		log.Printf("dshrouter authenticate success linkid=%d (router)", linkId)
 		impl.Router.trustLink(linkId, LinkKind_Router)
 	} else {
-		log.Printf("wshrouter authenticate success linkid=%d routeid=%q", linkId, routeId)
+		log.Printf("dshrouter authenticate success linkid=%d routeid=%q", linkId, routeId)
 		impl.Router.trustLink(linkId, LinkKind_Leaf)
 		impl.Router.bindRoute(linkId, routeId, true)
 	}
@@ -154,11 +154,11 @@ func (impl *DshRouterControlImpl) AuthenticateTokenVerifyCommand(ctx context.Con
 
 	rtnData, err := extractTokenData(data.Token)
 	if err != nil {
-		log.Printf("wshrouter authenticate-token-verify error: %v", err)
+		log.Printf("dshrouter authenticate-token-verify error: %v", err)
 		return dshrpc.CommandAuthenticateRtnData{}, err
 	}
 
-	log.Printf("wshrouter authenticate-token-verify success routeid=%q", rtnData.RouteId)
+	log.Printf("dshrouter authenticate-token-verify success routeid=%q", rtnData.RouteId)
 	return rtnData, nil
 }
 
@@ -182,17 +182,17 @@ func (impl *DshRouterControlImpl) AuthenticateTokenCommand(ctx context.Context, 
 	if impl.Router.IsRootRouter() {
 		rtnData, err = extractTokenData(data.Token)
 		if err != nil {
-			log.Printf("wshrouter authenticate-token error linkid=%d: %v", linkId, err)
+			log.Printf("dshrouter authenticate-token error linkid=%d: %v", linkId, err)
 			return dshrpc.CommandAuthenticateRtnData{}, err
 		}
 	} else {
 		wshRpc := GetDshRpcFromContext(ctx)
 		if wshRpc == nil {
-			return dshrpc.CommandAuthenticateRtnData{}, fmt.Errorf("no wshrpc in context")
+			return dshrpc.CommandAuthenticateRtnData{}, fmt.Errorf("no dshrpc in context")
 		}
 		respData, err := wshRpc.SendRpcRequest(dshrpc.Command_AuthenticateTokenVerify, data, &dshrpc.RpcOpts{Route: ControlRootRoute})
 		if err != nil {
-			log.Printf("wshrouter authenticate-token error linkid=%d: failed to verify token: %v", linkId, err)
+			log.Printf("dshrouter authenticate-token error linkid=%d: failed to verify token: %v", linkId, err)
 			return dshrpc.CommandAuthenticateRtnData{}, fmt.Errorf("failed to verify token: %w", err)
 		}
 		err = utilfn.ReUnmarshal(&rtnData, respData)
@@ -207,7 +207,7 @@ func (impl *DshRouterControlImpl) AuthenticateTokenCommand(ctx context.Context, 
 	if rtnData.RouteId == "" {
 		return dshrpc.CommandAuthenticateRtnData{}, fmt.Errorf("no routeid in token response")
 	}
-	log.Printf("wshrouter authenticate-token success linkid=%d routeid=%q", linkId, rtnData.RouteId)
+	log.Printf("dshrouter authenticate-token success linkid=%d routeid=%q", linkId, rtnData.RouteId)
 	impl.Router.trustLink(linkId, LinkKind_Leaf)
 	impl.Router.bindRoute(linkId, rtnData.RouteId, true)
 
@@ -228,16 +228,16 @@ func (impl *DshRouterControlImpl) AuthenticateJobManagerVerifyCommand(ctx contex
 
 	job, err := dstore.DBMustGet[*doraobj.Job](ctx, data.JobId)
 	if err != nil {
-		log.Printf("wshrouter authenticate-jobmanager-verify error jobid=%q: failed to get job: %v", data.JobId, err)
+		log.Printf("dshrouter authenticate-jobmanager-verify error jobid=%q: failed to get job: %v", data.JobId, err)
 		return fmt.Errorf("failed to get job: %w", err)
 	}
 
 	if job.JobAuthToken != data.JobAuthToken {
-		log.Printf("wshrouter authenticate-jobmanager-verify error jobid=%q: invalid jobauthtoken", data.JobId)
+		log.Printf("dshrouter authenticate-jobmanager-verify error jobid=%q: invalid jobauthtoken", data.JobId)
 		return fmt.Errorf("invalid jobauthtoken")
 	}
 
-	log.Printf("wshrouter authenticate-jobmanager-verify success jobid=%q", data.JobId)
+	log.Printf("dshrouter authenticate-jobmanager-verify success jobid=%q", data.JobId)
 	return nil
 }
 
@@ -261,28 +261,28 @@ func (impl *DshRouterControlImpl) AuthenticateJobManagerCommand(ctx context.Cont
 	if impl.Router.IsRootRouter() {
 		job, err := dstore.DBMustGet[*doraobj.Job](ctx, data.JobId)
 		if err != nil {
-			log.Printf("wshrouter authenticate-jobmanager error linkid=%d jobid=%q: failed to get job: %v", linkId, data.JobId, err)
+			log.Printf("dshrouter authenticate-jobmanager error linkid=%d jobid=%q: failed to get job: %v", linkId, data.JobId, err)
 			return fmt.Errorf("failed to get job: %w", err)
 		}
 
 		if job.JobAuthToken != data.JobAuthToken {
-			log.Printf("wshrouter authenticate-jobmanager error linkid=%d jobid=%q: invalid jobauthtoken", linkId, data.JobId)
+			log.Printf("dshrouter authenticate-jobmanager error linkid=%d jobid=%q: invalid jobauthtoken", linkId, data.JobId)
 			return fmt.Errorf("invalid jobauthtoken")
 		}
 	} else {
 		wshRpc := GetDshRpcFromContext(ctx)
 		if wshRpc == nil {
-			return fmt.Errorf("no wshrpc in context")
+			return fmt.Errorf("no dshrpc in context")
 		}
 		_, err := wshRpc.SendRpcRequest(dshrpc.Command_AuthenticateJobManagerVerify, data, &dshrpc.RpcOpts{Route: ControlRootRoute})
 		if err != nil {
-			log.Printf("wshrouter authenticate-jobmanager error linkid=%d jobid=%q: failed to verify job auth token: %v", linkId, data.JobId, err)
+			log.Printf("dshrouter authenticate-jobmanager error linkid=%d jobid=%q: failed to verify job auth token: %v", linkId, data.JobId, err)
 			return fmt.Errorf("failed to verify job auth token: %w", err)
 		}
 	}
 
 	routeId := MakeJobRouteId(data.JobId)
-	log.Printf("wshrouter authenticate-jobmanager success linkid=%d jobid=%q routeid=%q", linkId, data.JobId, routeId)
+	log.Printf("dshrouter authenticate-jobmanager success linkid=%d jobid=%q routeid=%q", linkId, data.JobId, routeId)
 	impl.Router.trustLink(linkId, LinkKind_Leaf)
 	impl.Router.bindRoute(linkId, routeId, true)
 

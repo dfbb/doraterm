@@ -20,7 +20,7 @@ import {
 import { callWithOriginalXdgCurrentDesktopAsync, unamePlatform } from "./emain-platform";
 import { getDoraTabViewByWebContentsId } from "./emain-tabview";
 import { handleCtrlShiftState } from "./emain-util";
-import { getDoraVersion } from "./emain-wavesrv";
+import { getDoraVersion } from "./emain-dorasrv";
 import { createNewDoraWindow, getDoraWindowByWebContentsId } from "./emain-window";
 import { ElectronDshClient } from "./emain-wsh";
 
@@ -398,7 +398,7 @@ export function initIpcHandlers() {
                 tabView.initResolve();
                 if (tabView.savedInitOpts) {
                     console.log("savedInitOpts calling wave-init", tabView.waveTabId);
-                    tabView.webContents.send("wave-init", tabView.savedInitOpts);
+                    tabView.webContents.send("dora-init", tabView.savedInitOpts);
                 }
             } else if (status === "wave-ready") {
                 tabView.waveReadyResolve();

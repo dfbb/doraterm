@@ -1,27 +1,23 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// waveWindowType is set once at startup and never changes.
-let waveWindowType: "tab" | "builder" | "preview" = "tab";
+// doraWindowType is set once at startup and never changes.
+let doraWindowType: "tab" | "preview" = "tab";
 
-function getDoraWindowType(): "tab" | "builder" | "preview" {
-    return waveWindowType;
-}
-
-function isBuilderWindow(): boolean {
-    return waveWindowType === "builder";
+function getDoraWindowType(): "tab" | "preview" {
+    return doraWindowType;
 }
 
 function isTabWindow(): boolean {
-    return waveWindowType === "tab";
+    return doraWindowType === "tab";
 }
 
 function isPreviewWindow(): boolean {
-    return waveWindowType === "preview";
+    return doraWindowType === "preview";
 }
 
-function setDoraWindowType(windowType: "tab" | "builder" | "preview") {
-    waveWindowType = windowType;
+function setDoraWindowType(windowType: "tab" | "preview") {
+    doraWindowType = windowType;
 }
 
-export { getDoraWindowType, isBuilderWindow, isPreviewWindow, isTabWindow, setDoraWindowType };
+export { getDoraWindowType, isPreviewWindow, isTabWindow, setDoraWindowType };

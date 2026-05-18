@@ -165,18 +165,18 @@ function getElectronAppResourcesPath(): string {
     return process.resourcesPath;
 }
 
-const wavesrvBinName = `wavesrv.${unameArch}`;
+const dorasrvBinName = `dorasrv.${unameArch}`;
 
-function getWaveSrvPath(): string {
+function getDoraSrvPath(): string {
     if (process.platform === "win32") {
-        const winBinName = `${wavesrvBinName}.exe`;
+        const winBinName = `${dorasrvBinName}.exe`;
         const appPath = path.join(getElectronAppUnpackedBasePath(), "bin", winBinName);
         return `${appPath}`;
     }
-    return path.join(getElectronAppUnpackedBasePath(), "bin", wavesrvBinName);
+    return path.join(getElectronAppUnpackedBasePath(), "bin", dorasrvBinName);
 }
 
-function getWaveSrvCwd(): string {
+function getDoraSrvCwd(): string {
     return getDoraDataDir();
 }
 
@@ -274,8 +274,8 @@ export {
     getElectronAppUnpackedBasePath,
     getDoraConfigDir,
     getDoraDataDir,
-    getWaveSrvCwd,
-    getWaveSrvPath,
+    getDoraSrvCwd,
+    getDoraSrvPath,
     getXdgCurrentDesktop,
     isDev,
     isDevVite,

@@ -3,7 +3,7 @@
 
 import { RpcApi } from "@/app/store/dshclientapi";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
-import { DoraEnv, DoraEnvSubset } from "@/app/waveenv/waveenv";
+import { DoraEnv, DoraEnvSubset } from "@/app/doraenv/doraenv";
 import { fireAndForget, NullAtom } from "@/util/util";
 import { atom, Atom, PrimitiveAtom } from "jotai";
 import { v7 as uuidv7, version as uuidVersion } from "uuid";

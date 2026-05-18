@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { DoraEnv, DoraEnvSubset } from "@/app/waveenv/waveenv";
+import { DoraEnv, DoraEnvSubset } from "@/app/doraenv/doraenv";
 import { atom, Atom, PrimitiveAtom } from "jotai";
 import { createContext, useContext } from "react";
 import { globalStore } from "./jotaiStore";
