@@ -1,7 +1,7 @@
-# add wsh to path, source dynamic script from wsh token
+# add dsh to path, source dynamic script from dsh token
 DORATERM_DSHBINDIR={{.WSHBINDIR}}
 export PATH="$DORATERM_DSHBINDIR:$PATH"
-source <(wsh token "$DORATERM_SWAPTOKEN" zsh 2>/dev/null)
+source <(dsh token "$DORATERM_SWAPTOKEN" zsh 2>/dev/null)
 unset DORATERM_SWAPTOKEN
 
 # Source the original zshrc only if ZDOTDIR has not been changed
@@ -15,7 +15,7 @@ fi
 unset DORATERM_DSHBINDIR
 
 if [[ -n ${_comps+x} ]]; then
-  source <(wsh completion zsh)
+  source <(dsh completion zsh)
 fi
 
 # fix history (macos)
