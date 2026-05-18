@@ -53,17 +53,11 @@ export class ClientServiceType {
     FocusWindow(arg2: string): Promise<void> {
         return callBackendService(this?.waveEnv, "client", "FocusWindow", Array.from(arguments))
     }
-    GetAllConnStatus(): Promise<ConnStatus[]> {
-        return callBackendService(this?.waveEnv, "client", "GetAllConnStatus", Array.from(arguments))
-    }
     GetClientData(): Promise<Client> {
         return callBackendService(this?.waveEnv, "client", "GetClientData", Array.from(arguments))
     }
     GetTab(arg1: string): Promise<Tab> {
         return callBackendService(this?.waveEnv, "client", "GetTab", Array.from(arguments))
-    }
-    TelemetryUpdate(arg2: boolean): Promise<void> {
-        return callBackendService(this?.waveEnv, "client", "TelemetryUpdate", Array.from(arguments))
     }
 }
 
