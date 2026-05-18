@@ -6,14 +6,14 @@ import type { TabModel } from "@/app/store/tab-model";
 import { LauncherViewModel } from "@/app/view/launcher/launcher";
 import { WaveEnv } from "@/app/waveenv/waveenv";
 import { atom } from "jotai";
-import { WaveConfigViewModel } from "../view/waveconfig/waveconfig-model";
+import { DoraConfigViewModel } from "../view/doraconfig/doraconfig-model";
 import { blockViewToIcon, blockViewToName } from "./blockutil";
 import { TermViewModel } from "@/view/term/term-model";
 
 const BlockRegistry: Map<string, ViewModelClass> = new Map();
 BlockRegistry.set("term", TermViewModel);
 BlockRegistry.set("launcher", LauncherViewModel);
-BlockRegistry.set("waveconfig", WaveConfigViewModel);
+BlockRegistry.set("doraconfig", DoraConfigViewModel);
 
 function makeDefaultViewModel(viewType: string): ViewModel {
     const viewModel: ViewModel = {

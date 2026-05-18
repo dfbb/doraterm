@@ -1,11 +1,11 @@
 // Copyright 2025, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { WaveConfigViewModel } from "@/app/view/waveconfig/waveconfig-model";
+import type { DoraConfigViewModel } from "@/app/view/doraconfig/doraconfig-model";
 import { memo } from "react";
 
 interface WaveAIVisualContentProps {
-    model: WaveConfigViewModel;
+    model: DoraConfigViewModel;
 }
 
 export const WaveAIVisualContent = memo(({ model }: WaveAIVisualContentProps) => {

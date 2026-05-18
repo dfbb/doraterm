@@ -3,7 +3,7 @@
 
 import fs from "fs";
 import path from "path";
-import { getWaveConfigDir } from "./emain-platform";
+import { getDoraConfigDir } from "./emain-platform";
 
 /**
  * Get settings directly from the Wave Home directory on launch.
@@ -11,7 +11,7 @@ import { getWaveConfigDir } from "./emain-platform";
  * @returns The initial launch settings for the application.
  */
 export function getLaunchSettings(): SettingsType {
-    const settingsPath = path.join(getWaveConfigDir(), "settings.json");
+    const settingsPath = path.join(getDoraConfigDir(), "settings.json");
     try {
         const settingsContents = fs.readFileSync(settingsPath, "utf8");
         return JSON.parse(settingsContents);

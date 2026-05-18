@@ -185,7 +185,7 @@ func secretUiRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		TabId: tabId,
 		BlockDef: &doraobj.BlockDef{
 			Meta: map[string]interface{}{
-				doraobj.MetaKey_View: "waveconfig",
+				doraobj.MetaKey_View: "doraconfig",
 				doraobj.MetaKey_File: "secrets",
 			},
 		},

@@ -5,8 +5,8 @@ import { Tooltip } from "@/app/element/tooltip";
 import { globalStore } from "@/app/store/jotaiStore";
 import { tryReinjectKey } from "@/app/store/keymodel";
 import { CodeEditor } from "@/app/view/codeeditor/codeeditor";
-import type { ConfigFile, WaveConfigViewModel } from "@/app/view/waveconfig/waveconfig-model";
-import type { WaveConfigEnv } from "@/app/view/waveconfig/waveconfigenv";
+import type { ConfigFile, DoraConfigViewModel } from "@/app/view/doraconfig/doraconfig-model";
+import type { DoraConfigEnv } from "@/app/view/doraconfig/doraconfigenv";
 import { useWaveEnv } from "@/app/waveenv/waveenv";
 import { adaptFromReactOrNativeKeyEvent, checkKeyPressed, keydownWrapper } from "@/util/keyutil";
 import { cn } from "@/util/util";
@@ -15,7 +15,7 @@ import type * as MonacoTypes from "monaco-editor";
 import { memo, useCallback, useEffect } from "react";
 
 interface ConfigSidebarProps {
-    model: WaveConfigViewModel;
+    model: DoraConfigViewModel;
 }
 
 const ConfigSidebar = memo(({ model }: ConfigSidebarProps) => {
@@ -99,8 +99,8 @@ const ConfigSidebar = memo(({ model }: ConfigSidebarProps) => {
 
 ConfigSidebar.displayName = "ConfigSidebar";
 
-const WaveConfigView = memo(({ blockId, model }: ViewComponentProps<WaveConfigViewModel>) => {
-    const env = useWaveEnv<WaveConfigEnv>();
+const DoraConfigView = memo(({ blockId, model }: ViewComponentProps<DoraConfigViewModel>) => {
+    const env = useWaveEnv<DoraConfigEnv>();
     const selectedFile = useAtomValue(model.selectedFileAtom);
     const [fileContent, setFileContent] = useAtom(model.fileContentAtom);
     const isLoading = useAtomValue(model.isLoadingAtom);
@@ -192,7 +192,7 @@ const WaveConfigView = memo(({ blockId, model }: ViewComponentProps<WaveConfigVi
                                     {selectedFile.docsUrl && (
                                         <Tooltip content="View documentation">
                                             <a
-                                                href={`${selectedFile.docsUrl}?ref=waveconfig`}
+                                                href={`${selectedFile.docsUrl}?ref=doraconfig`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="!text-muted-foreground hover:!text-primary transition-colors ml-1 shrink-0 cursor-pointer"
@@ -324,6 +324,6 @@ const WaveConfigView = memo(({ blockId, model }: ViewComponentProps<WaveConfigVi
     );
 });
 
-WaveConfigView.displayName = "WaveConfigView";
+DoraConfigView.displayName = "DoraConfigView";
 
-export { WaveConfigView };
+export { DoraConfigView };

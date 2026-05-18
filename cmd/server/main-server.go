@@ -23,15 +23,12 @@ import (
 	"github.com/dfbb/doraterm/pkg/remote/fileshare/wshfs"
 	"github.com/dfbb/doraterm/pkg/secretstore"
 	"github.com/dfbb/doraterm/pkg/service"
-	"github.com/dfbb/doraterm/pkg/telemetry"
-	"github.com/dfbb/doraterm/pkg/telemetry/telemetrydata"
 	"github.com/dfbb/doraterm/pkg/util/envutil"
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
 	"github.com/dfbb/doraterm/pkg/util/sigutil"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
 	"github.com/dfbb/doraterm/pkg/dorabase"
 	"github.com/dfbb/doraterm/pkg/doraobj"
-	"github.com/dfbb/doraterm/pkg/wcloud"
 	"github.com/dfbb/doraterm/pkg/dconfig"
 	"github.com/dfbb/doraterm/pkg/dcore"
 	"github.com/dfbb/doraterm/pkg/web"
@@ -51,13 +48,6 @@ import (
 var DoraVersion = "0.0.0"
 var BuildTime = "0"
 
-const InitialTelemetryWait = 10 * time.Second
-const TelemetryTick = 2 * time.Minute
-const TelemetryInterval = 4 * time.Hour
-const TelemetryInitialCountsWait = 5 * time.Second
-const TelemetryCountsInterval = 1 * time.Hour
-const InitialDiagnosticWait = 5 * time.Minute
-const DiagnosticTick = 10 * time.Minute
 
 var shutdownOnce sync.Once
 
@@ -75,8 +65,6 @@ func doShutdown(reason string) {
 		ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancelFn()
 		go blockcontroller.StopAllBlockControllersForShutdown()
-		shutdownActivityUpdate()
-		sendTelemetryWrapper()
 		// TODO deal with flush in progress
 		clearTempFiles()
 		filestore.WFS.FlushCache(ctx)
@@ -111,250 +99,6 @@ func startConfigWatcher() {
 		watcher.Start()
 	}
 }
-
-func telemetryLoop() {
-	defer func() {
-		panichandler.PanicHandler("telemetryLoop", recover())
-	}()
-	var nextSend int64
-	time.Sleep(InitialTelemetryWait)
-	for {
-		if time.Now().Unix() > nextSend {
-			nextSend = time.Now().Add(TelemetryInterval).Unix()
-			sendTelemetryWrapper()
-		}
-		time.Sleep(TelemetryTick)
-	}
-}
-
-func diagnosticLoop() {
-	defer func() {
-		panichandler.PanicHandler("diagnosticLoop", recover())
-	}()
-	if os.Getenv("DORATERM_NOPING") != "" {
-		log.Printf("DORATERM_NOPING set, disabling diagnostic ping\n")
-		return
-	}
-	var lastSentDate string
-	time.Sleep(InitialDiagnosticWait)
-	for {
-		currentDate := time.Now().Format("2006-01-02")
-		if lastSentDate == "" || lastSentDate != currentDate {
-			if sendDiagnosticPing() {
-				lastSentDate = currentDate
-			}
-		}
-		time.Sleep(DiagnosticTick)
-	}
-}
-
-func sendDiagnosticPing() bool {
-	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelFn()
-
-	rpcClient := dshclient.GetBareRpcClient()
-	isOnline, err := dshclient.NetworkOnlineCommand(rpcClient, &dshrpc.RpcOpts{Route: "electron", Timeout: 2000})
-	if err != nil || !isOnline {
-		return false
-	}
-	clientId := dstore.GetClientId()
-	usageTelemetry := telemetry.IsTelemetryEnabled()
-	wcloud.SendDiagnosticPing(ctx, clientId, usageTelemetry)
-	return true
-}
-
-func setupTelemetryConfigHandler() {
-	watcher := dconfig.GetWatcher()
-	if watcher == nil {
-		return
-	}
-	currentConfig := watcher.GetFullConfig()
-	currentTelemetryEnabled := currentConfig.Settings.TelemetryEnabled
-
-	watcher.RegisterUpdateHandler(func(newConfig dconfig.FullConfigType) {
-		newTelemetryEnabled := newConfig.Settings.TelemetryEnabled
-		if newTelemetryEnabled != currentTelemetryEnabled {
-			currentTelemetryEnabled = newTelemetryEnabled
-			dcore.GoSendNoTelemetryUpdate(newTelemetryEnabled)
-		}
-	})
-}
-
-func panicTelemetryHandler(panicName string) {
-	activity := dshrpc.ActivityUpdate{NumPanics: 1}
-	err := telemetry.UpdateActivity(context.Background(), activity)
-	if err != nil {
-		log.Printf("error updating activity (panicTelemetryHandler): %v\n", err)
-	}
-	telemetry.RecordTEvent(context.Background(), telemetrydata.MakeTEvent("debug:panic", telemetrydata.TEventProps{
-		PanicType: panicName,
-	}))
-}
-
-func sendTelemetryWrapper() {
-	defer func() {
-		panichandler.PanicHandler("sendTelemetryWrapper", recover())
-	}()
-	ctx, cancelFn := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancelFn()
-	beforeSendActivityUpdate(ctx)
-	clientId := dstore.GetClientId()
-	err := wcloud.SendAllTelemetry(clientId)
-	if err != nil {
-		log.Printf("[error] sending telemetry: %v\n", err)
-	}
-}
-
-func updateTelemetryCounts(lastCounts telemetrydata.TEventProps) telemetrydata.TEventProps {
-	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelFn()
-	var props telemetrydata.TEventProps
-	props.CountBlocks, _ = dstore.DBGetCount[*doraobj.Block](ctx)
-	props.CountTabs, _ = dstore.DBGetCount[*doraobj.Tab](ctx)
-	props.CountWindows, _ = dstore.DBGetCount[*doraobj.Window](ctx)
-	props.CountWorkspaces, _, _ = dstore.DBGetWSCounts(ctx)
-	props.CountJobs = jobcontroller.GetNumJobsRunning()
-	props.CountJobsConnected = jobcontroller.GetNumJobsConnected()
-	props.CountViews, _ = dstore.DBGetBlockViewCounts(ctx)
-
-	fullConfig := dconfig.GetWatcher().GetFullConfig()
-	customWidgets := fullConfig.CountCustomWidgets()
-	customAIPresets := fullConfig.CountCustomAIPresets()
-	customSettings := dconfig.CountCustomSettings()
-	customAIModes := fullConfig.CountCustomAIModes()
-
-	props.UserSet = &telemetrydata.TEventUserProps{
-		SettingsCustomWidgets:   customWidgets,
-		SettingsCustomAIPresets: customAIPresets,
-		SettingsCustomSettings:  customSettings,
-		SettingsCustomAIModes:   customAIModes,
-	}
-
-	secretsCount, err := secretstore.CountSecrets()
-	if err == nil {
-		props.UserSet.SettingsSecretsCount = secretsCount
-	}
-
-	if utilfn.CompareAsMarshaledJson(props, lastCounts) {
-		return lastCounts
-	}
-	tevent := telemetrydata.MakeTEvent("app:counts", props)
-	err = telemetry.RecordTEvent(ctx, tevent)
-	if err != nil {
-		log.Printf("error recording counts tevent: %v\n", err)
-	}
-	return props
-}
-
-func updateTelemetryCountsLoop() {
-	defer func() {
-		panichandler.PanicHandler("updateTelemetryCountsLoop", recover())
-	}()
-	var nextSend int64
-	var lastCounts telemetrydata.TEventProps
-	time.Sleep(TelemetryInitialCountsWait)
-	for {
-		if time.Now().Unix() > nextSend {
-			nextSend = time.Now().Add(TelemetryCountsInterval).Unix()
-			lastCounts = updateTelemetryCounts(lastCounts)
-		}
-		time.Sleep(TelemetryTick)
-	}
-}
-
-func beforeSendActivityUpdate(ctx context.Context) {
-	activity := dshrpc.ActivityUpdate{}
-	activity.NumTabs, _ = dstore.DBGetCount[*doraobj.Tab](ctx)
-	activity.NumBlocks, _ = dstore.DBGetCount[*doraobj.Block](ctx)
-	activity.Blocks, _ = dstore.DBGetBlockViewCounts(ctx)
-	activity.NumWindows, _ = dstore.DBGetCount[*doraobj.Window](ctx)
-	activity.NumWSNamed, activity.NumWS, _ = dstore.DBGetWSCounts(ctx)
-	err := telemetry.UpdateActivity(ctx, activity)
-	if err != nil {
-		log.Printf("error updating before activity: %v\n", err)
-	}
-}
-
-func startupActivityUpdate(firstLaunch bool) {
-	defer func() {
-		panichandler.PanicHandler("startupActivityUpdate", recover())
-	}()
-	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancelFn()
-	activity := dshrpc.ActivityUpdate{Startup: 1}
-	err := telemetry.UpdateActivity(ctx, activity) // set at least one record into activity (don't use go routine wrap here)
-	if err != nil {
-		log.Printf("error updating startup activity: %v\n", err)
-	}
-	autoUpdateChannel := telemetry.AutoUpdateChannel()
-	autoUpdateEnabled := telemetry.IsAutoUpdateEnabled()
-	shellType, shellVersion, shellErr := shellutil.DetectShellTypeAndVersion()
-	if shellErr != nil {
-		shellType = "error"
-		shellVersion = ""
-	}
-	userSetOnce := &telemetrydata.TEventUserProps{
-		ClientInitialVersion: "v" + DoraVersion,
-	}
-	tosTs := telemetry.GetTosAgreedTs()
-	var cohortTime time.Time
-	if tosTs > 0 {
-		cohortTime = time.UnixMilli(tosTs)
-	} else {
-		cohortTime = time.Now()
-	}
-	cohortMonth := cohortTime.Format("2006-01")
-	year, week := cohortTime.ISOWeek()
-	cohortISOWeek := fmt.Sprintf("%04d-W%02d", year, week)
-	userSetOnce.CohortMonth = cohortMonth
-	userSetOnce.CohortISOWeek = cohortISOWeek
-	fullConfig := dconfig.GetWatcher().GetFullConfig()
-	props := telemetrydata.TEventProps{
-		UserSet: &telemetrydata.TEventUserProps{
-			ClientVersion:       "v" + dorabase.DoraVersion,
-			ClientBuildTime:     dorabase.BuildTime,
-			ClientArch:          dorabase.ClientArch(),
-			ClientOSRelease:     dorabase.UnameKernelRelease(),
-			ClientIsDev:         dorabase.IsDevMode(),
-			ClientPackageType:   dorabase.ClientPackageType(),
-			ClientMacOSVersion:  dorabase.ClientMacOSVersion(),
-			AutoUpdateChannel:   autoUpdateChannel,
-			AutoUpdateEnabled:   autoUpdateEnabled,
-			LocalShellType:      shellType,
-			LocalShellVersion:   shellVersion,
-			SettingsTransparent: fullConfig.Settings.WindowTransparent,
-		},
-		UserSetOnce: userSetOnce,
-	}
-	if firstLaunch {
-		props.AppFirstLaunch = true
-	}
-	tevent := telemetrydata.MakeTEvent("app:startup", props)
-	err = telemetry.RecordTEvent(ctx, tevent)
-	if err != nil {
-		log.Printf("error recording startup event: %v\n", err)
-	}
-}
-
-func shutdownActivityUpdate() {
-	ctx, cancelFn := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancelFn()
-	activity := dshrpc.ActivityUpdate{Shutdown: 1}
-	err := telemetry.UpdateActivity(ctx, activity) // do NOT use the go routine wrap here (this needs to be synchronous)
-	if err != nil {
-		log.Printf("error updating shutdown activity: %v\n", err)
-	}
-	err = telemetry.TruncateActivityTEventForShutdown(ctx)
-	if err != nil {
-		log.Printf("error truncating activity t-event for shutdown: %v\n", err)
-	}
-	tevent := telemetrydata.MakeTEvent("app:shutdown", telemetrydata.TEventProps{})
-	err = telemetry.RecordTEvent(ctx, tevent)
-	if err != nil {
-		log.Printf("error recording shutdown event: %v\n", err)
-	}
-}
-
 func createMainWshClient() {
 	rpc := dshserver.GetMainRpcClient()
 	dshutil.DefaultRouter.RegisterTrustedLeaf(rpc, dshutil.DefaultRoute)
@@ -377,11 +121,6 @@ func grabAndRemoveEnvVars() error {
 	if err != nil {
 		return err
 	}
-	err = wcloud.CacheAndRemoveEnvVars()
-	if err != nil {
-		return err
-	}
-
 	// Remove WAVETERM env vars that leak from prod => dev
 	os.Unsetenv("DORATERM_CLIENTID")
 	os.Unsetenv("DORATERM_WORKSPACEID")
@@ -497,7 +236,6 @@ func main() {
 		log.Printf("error initializing wstore: %v\n", err)
 		return
 	}
-	panichandler.PanicTelemetryHandler = panicTelemetryHandler
 	go func() {
 		defer func() {
 			panichandler.PanicHandler("InitCustomShellStartupFiles", recover())
@@ -537,11 +275,6 @@ func main() {
 	startConfigWatcher()
 	maybeStartPprofServer()
 	go stdinReadWatch()
-	go telemetryLoop()
-	go diagnosticLoop()
-	setupTelemetryConfigHandler()
-	go updateTelemetryCountsLoop()
-	go startupActivityUpdate(firstLaunch) // must be after startConfigWatcher()
 	blocklogger.InitBlockLogger()
 	jobcontroller.InitJobController()
 	blockcontroller.InitBlockController()
@@ -584,3 +317,4 @@ func main() {
 	web.RunWebServer(webListener) // blocking
 	runtime.KeepAlive(waveLock)
 }
+
