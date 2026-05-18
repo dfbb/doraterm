@@ -5,8 +5,6 @@ import { waveEventSubscribeSingle } from "@/app/store/wps";
 import { RpcApi } from "@/app/store/wshclientapi";
 import * as electron from "electron";
 import { fireAndForget } from "../frontend/util/util";
-import { focusedBuilderWindow, getBuilderWindowById } from "./emain-builder";
-import { openBuilderWindow } from "./emain-ipc";
 import { isDev, unamePlatform } from "./emain-platform";
 import { clearTabCache } from "./emain-tabview";
 import { decreaseZoomLevel, increaseZoomLevel, resetZoomLevel } from "./emain-util";
@@ -144,14 +142,6 @@ function makeFileMenu(
             },
         },
     ];
-    const featureWaveAppBuilder = fullConfig?.settings?.["feature:waveappbuilder"];
-    if (isDev || featureWaveAppBuilder) {
-        fileMenu.splice(1, 0, {
-            label: "New WaveApp Builder Window",
-            accelerator: unamePlatform === "darwin" ? "Command+Shift+B" : "Alt+Shift+B",
-            click: () => openBuilderWindow(""),
-        });
-    }
     if (numWaveWindows == 0) {
         fileMenu.push({
             label: "New Window (hidden-1)",
@@ -203,13 +193,12 @@ function makeAppMenuItems(webContents: electron.WebContents): Electron.MenuItemC
 function makeViewMenu(
     webContents: electron.WebContents,
     callbacks: AppMenuCallbacks,
-    isBuilderWindowFocused: boolean,
     fullscreenOnLaunch: boolean
 ): Electron.MenuItemConstructorOptions[] {
     const devToolsAccel = unamePlatform === "darwin" ? "Option+Command+I" : "Alt+Shift+I";
     return [
         {
-            label: isBuilderWindowFocused ? "Reload Window" : "Reload Tab",
+            label: "Reload Tab",
             accelerator: "Shift+CommandOrControl+R",
             click: (_, window) => {
                 (getWindowWebContents(window) ?? webContents)?.reloadIgnoringCache();
@@ -333,7 +322,6 @@ async function makeFullAppMenu(callbacks: AppMenuCallbacks, workspaceOrBuilderId
     const webContents = workspaceOrBuilderId && getWebContentsByWorkspaceOrBuilderId(workspaceOrBuilderId);
     const appMenuItems = makeAppMenuItems(webContents);
 
-    const isBuilderWindowFocused = focusedBuilderWindow != null;
     let fullscreenOnLaunch = false;
     let fullConfig: FullConfigType = null;
     try {
@@ -344,7 +332,7 @@ async function makeFullAppMenu(callbacks: AppMenuCallbacks, workspaceOrBuilderId
     }
     const editMenu = makeEditMenu(fullConfig);
     const fileMenu = makeFileMenu(numWaveWindows, callbacks, fullConfig);
-    const viewMenu = makeViewMenu(webContents, callbacks, isBuilderWindowFocused, fullscreenOnLaunch);
+    const viewMenu = makeViewMenu(webContents, callbacks, fullscreenOnLaunch);
     let workspaceMenu: Electron.MenuItemConstructorOptions[] = null;
     try {
         workspaceMenu = await getWorkspaceMenu();
@@ -363,7 +351,7 @@ async function makeFullAppMenu(callbacks: AppMenuCallbacks, workspaceOrBuilderId
         { role: "editMenu", submenu: editMenu },
         { role: "viewMenu", submenu: viewMenu },
     ];
-    if (workspaceMenu != null && !isBuilderWindowFocused) {
+    if (workspaceMenu != null) {
         menuTemplate.push({
             label: "Workspace",
             id: "workspace-menu",
@@ -409,11 +397,6 @@ function getWebContentsByWorkspaceOrBuilderId(workspaceOrBuilderId: string): ele
     const ww = getWaveWindowByWorkspaceId(workspaceOrBuilderId);
     if (ww) {
         return ww.activeTabView?.webContents;
-    }
-
-    const bw = getBuilderWindowById(workspaceOrBuilderId);
-    if (bw) {
-        return bw.webContents;
     }
 
     return null;
