@@ -401,7 +401,7 @@ func GenerateMethodSignature(serviceName string, method reflect.Method, meta tsg
 }
 
 func GenerateMethodBody(serviceName string, method reflect.Method, meta tsgenmeta.MethodMeta) string {
-	return fmt.Sprintf("        return callBackendService(this?.waveEnv, %q, %q, Array.from(arguments))\n", serviceName, method.Name)
+	return fmt.Sprintf("        return callBackendService(this?.doraEnv, %q, %q, Array.from(arguments))\n", serviceName, method.Name)
 }
 
 func GenerateServiceClass(serviceName string, serviceObj any, tsTypesMap map[reflect.Type]string) string {
@@ -414,7 +414,7 @@ func GenerateServiceClass(serviceName string, serviceObj any, tsTypesMap map[ref
 	sb.WriteString(" {\n")
 	sb.WriteString("    doraEnv: DoraEnv;\n\n")
 	sb.WriteString("    constructor(doraEnv?: DoraEnv) {\n")
-	sb.WriteString("        this.doraEnv = waveEnv;\n")
+	sb.WriteString("        this.doraEnv = doraEnv;\n")
 	sb.WriteString("    }\n\n")
 	isFirst := true
 	for midx := 0; midx < serviceType.NumMethod(); midx++ {

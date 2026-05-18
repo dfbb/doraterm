@@ -6,7 +6,6 @@ import { BlockFrame_Header } from "@/app/block/blockframe-header";
 import { blockViewToIcon, getViewIconElem, useTabBackground } from "@/app/block/blockutil";
 import { useTabModel } from "@/app/store/tab-model";
 import { useDoraEnv } from "@/app/doraenv/doraenv";
-import { WorkspaceLayoutModel } from "@/app/workspace/workspace-layout-model";
 import { ErrorBoundary } from "@/element/errorboundary";
 import { NodeModel } from "@/layout/index";
 import { makeORef } from "@/store/wos";
@@ -91,7 +90,6 @@ const BlockFrame_Default_Component = (props: BlockFrameProps) => {
     const waveEnv = useDoraEnv<BlockEnv>();
     const { nodeModel, viewModel, blockModel, preview, numBlocksInTab, children } = props;
     const isFocused = jotai.useAtomValue(nodeModel.isFocused);
-    const aiPanelVisible = jotai.useAtomValue(WorkspaceLayoutModel.getInstance().panelVisibleAtom);
     const metaView = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view"));
     const viewIconUnion = util.useAtomValueSafe(viewModel?.viewIcon) ?? blockViewToIcon(metaView);
     const customBg = util.useAtomValueSafe(viewModel?.blockBg);
@@ -123,7 +121,7 @@ const BlockFrame_Default_Component = (props: BlockFrameProps) => {
             className={clsx("block", "block-frame-default", "block-" + nodeModel.blockId, {
                 "block-focused": isFocused || preview,
                 "block-preview": preview,
-                "block-no-highlight": numBlocksInTab === 1 && !aiPanelVisible,
+                "block-no-highlight": numBlocksInTab === 1,
                 ephemeral: isEphemeral,
                 magnified: isMagnified,
             })}

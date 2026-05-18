@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import { DoraEnv, DoraEnvSubset } from "@/app/doraenv/doraenv";
 import { fireAndForget, NullAtom } from "@/util/util";
 import { atom, Atom, PrimitiveAtom } from "jotai";

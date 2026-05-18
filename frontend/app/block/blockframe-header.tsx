@@ -19,7 +19,7 @@ import {
 } from "@/app/store/global";
 import { globalStore } from "@/app/store/jotaiStore";
 import { uxCloseBlock } from "@/app/store/keymodel";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import { useDoraEnv } from "@/app/doraenv/doraenv";
 import { IconButton } from "@/element/iconbutton";
 import { NodeModel } from "@/layout/index";
@@ -232,7 +232,6 @@ const BlockFrame_Header = ({
 
     React.useEffect(() => {
         if (magnified && !preview && !prevMagifiedState.current) {
-            waveEnv.rpc.ActivityCommand(TabRpcClient, { nummagnify: 1 });
             recordTEvent("action:magnify", { "block:view": viewName });
         }
         prevMagifiedState.current = magnified;

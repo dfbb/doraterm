@@ -11,7 +11,7 @@ import { disableGlobalKeybindings, enableGlobalKeybindings, globalRefocus } from
 import { modalsModel } from "@/app/store/modalmodel";
 import * as WOS from "@/app/store/wos";
 import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import * as services from "@/store/services";
 import { fireAndForget } from "@/util/util";
 import { atom, PrimitiveAtom, useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -34,14 +34,6 @@ const InitPage = ({
     const setPageName = useSetAtom(pageNameAtom);
 
     const handleStarClick = async () => {
-        RpcApi.RecordTEventCommand(
-            TabRpcClient,
-            {
-                event: "onboarding:githubstar",
-                props: { "onboarding:githubstar": "star", "onboarding:page": "init" },
-            },
-            { noresponse: true }
-        );
         const clientId = ClientModel.getInstance().clientId;
         await RpcApi.SetMetaCommand(TabRpcClient, {
             oref: WOS.makeORef("client", clientId),

@@ -16,7 +16,7 @@ import { makeDoraEnvImpl } from "@/app/doraenv/doraenvimpl";
 import { Workspace } from "@/app/workspace/workspace";
 import { getLayoutModelForStaticTab } from "@/layout/index";
 import { ContextMenuModel } from "@/store/contextmenu";
-import { atoms, createBlock, getSettingsPrefixAtom, refocusNode } from "@/store/global";
+import { atoms, createBlock, getApi, getSettingsPrefixAtom, refocusNode } from "@/store/global";
 import { appHandleKeyDown, keyboardMouseDownHandler } from "@/store/keymodel";
 import { getElemAsStr } from "@/util/focusutil";
 import * as keyutil from "@/util/keyutil";

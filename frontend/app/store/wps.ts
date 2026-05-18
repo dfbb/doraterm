@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DshClient } from "@/app/store/wshclient";
+import type { DshClient } from "@/app/store/dshclient";
 import { RpcApi } from "@/app/store/dshclientapi";
 import { isPreviewWindow } from "@/app/store/windowtype";
 import { isBlank } from "@/util/util";

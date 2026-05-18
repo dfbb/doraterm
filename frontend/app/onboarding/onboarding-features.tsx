@@ -7,7 +7,7 @@ import { MagnifyIcon } from "@/app/element/magnify";
 import { ClientModel } from "@/app/store/client-model";
 import * as WOS from "@/app/store/wos";
 import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import { isMacOS } from "@/util/platformutil";
 import { useEffect, useState } from "react";
 import { EditBashrcCommand, ViewLogoCommand, ViewShortcutsCommand } from "./onboarding-command";
@@ -33,15 +33,6 @@ export const MagnifyBlocksPage = ({
 
     const handleFireClick = () => {
         setFireClicked(!fireClicked);
-        if (!fireClicked) {
-            RpcApi.RecordTEventCommand(TabRpcClient, {
-                event: "onboarding:fire",
-                props: {
-                    "onboarding:feature": "magnify",
-                    "onboarding:version": CurrentOnboardingVersion,
-                },
-            });
-        }
     };
 
     return (
@@ -91,15 +82,6 @@ export const FilesPage = ({ onFinish, onPrev }: { onFinish: () => void; onPrev?:
 
     const handleFireClick = () => {
         setFireClicked(!fireClicked);
-        if (!fireClicked) {
-            RpcApi.RecordTEventCommand(TabRpcClient, {
-                event: "onboarding:fire",
-                props: {
-                    "onboarding:feature": "dsh",
-                    "onboarding:version": CurrentOnboardingVersion,
-                },
-            });
-        }
     };
 
     const commands = [
@@ -185,12 +167,6 @@ export const OnboardingFeatures = ({ onComplete }: { onComplete: () => void }) =
             oref: WOS.makeORef("client", clientId),
             meta: { "onboarding:lastversion": CurrentOnboardingVersion },
         });
-        RpcApi.RecordTEventCommand(TabRpcClient, {
-            event: "onboarding:start",
-            props: {
-                "onboarding:version": CurrentOnboardingVersion,
-            },
-        });
     }, []);
 
     const handleNext = () => {
@@ -210,10 +186,6 @@ export const OnboardingFeatures = ({ onComplete }: { onComplete: () => void }) =
     };
 
     const handleSkip = () => {
-        RpcApi.RecordTEventCommand(TabRpcClient, {
-            event: "onboarding:skip",
-            props: {},
-        });
         onComplete();
     };
 

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import { getWebServerEndpoint } from "@/util/endpoints";
 import { formatRemoteUri } from "@/util/waveutil";
 import parseSrcSet from "parse-srcset";

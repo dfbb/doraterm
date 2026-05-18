@@ -8,7 +8,7 @@ import * as child_process from "node:child_process";
 import * as path from "path";
 import { PNG } from "pngjs";
 import { Readable } from "stream";
-import { RpcApi } from "../frontend/app/store/wshclientapi";
+import { RpcApi } from "../frontend/app/store/dshclientapi";
 import { getWebServerEndpoint } from "../frontend/util/endpoints";
 import * as keyutil from "../frontend/util/keyutil";
 import { fireAndForget, parseDataUrl } from "../frontend/util/util";
@@ -22,7 +22,7 @@ import { getDoraTabViewByWebContentsId } from "./emain-tabview";
 import { handleCtrlShiftState } from "./emain-util";
 import { getDoraVersion } from "./emain-dorasrv";
 import { createNewDoraWindow, getDoraWindowByWebContentsId } from "./emain-window";
-import { ElectronDshClient } from "./emain-wsh";
+import { ElectronDshClient } from "./emain-dsh";
 
 const electronApp = electron.app;
 

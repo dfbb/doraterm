@@ -20,8 +20,8 @@ import (
 var (
 	rootCmd = &cobra.Command{
 		Use:          "dsh",
-		Short:        "CLI tool to control Wave Terminal",
-		Long:         `wsh is a small utility that lets you do cool things with Wave Terminal, right from the command line`,
+		Short:        "CLI tool to control Dora Terminal",
+		Long:         `dsh is a small utility that lets you do cool things with Dora Terminal, right from the command line`,
 		SilenceUsage: true,
 	}
 )
@@ -213,21 +213,8 @@ func getTabIdFromEnv() string {
 	return os.Getenv("DORATERM_TABID")
 }
 
-// this will send wsh activity to the client running on *your* local machine (it does not contact any wave cloud infrastructure)
-// if you've turned off telemetry in your local client, this data never gets sent to us
-// no parameters or timestamps are sent, as you can see below, it just sends the name of the command (and if there was an error)
-// (e.g. "wsh ai ..." would send "ai")
-// this helps us understand which commands are actually being used so we know where to concentrate our effort
-func sendActivity(wshCmdName string, success bool) {
-	if RpcClient == nil || wshCmdName == "" {
-		return
-	}
-	dataMap := make(map[string]int)
-	dataMap[wshCmdName] = 1
-	if !success {
-		dataMap[wshCmdName+"#"+"error"] = 1
-	}
-	dshclient.DshActivityCommand(RpcClient, dataMap, nil)
+// telemetry removed; sendActivity is a no-op kept for ABI compatibility with activityWrap callers
+func sendActivity(_ string, _ bool) {
 }
 
 // Execute executes the root command.

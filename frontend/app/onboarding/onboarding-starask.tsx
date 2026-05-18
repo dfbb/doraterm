@@ -6,7 +6,7 @@ import { Button } from "@/app/element/button";
 import { ClientModel } from "@/app/store/client-model";
 import * as WOS from "@/app/store/wos";
 import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 
 type StarAskPageProps = {
     onClose: () => void;
@@ -15,14 +15,6 @@ type StarAskPageProps = {
 
 export function StarAskPage({ onClose, page = "upgrade" }: StarAskPageProps) {
     const handleStarClick = async () => {
-        RpcApi.RecordTEventCommand(
-            TabRpcClient,
-            {
-                event: "onboarding:githubstar",
-                props: { "onboarding:githubstar": "star", "onboarding:page": page },
-            },
-            { noresponse: true }
-        );
         const clientId = ClientModel.getInstance().clientId;
         await RpcApi.SetMetaCommand(TabRpcClient, {
             oref: WOS.makeORef("client", clientId),
@@ -33,14 +25,6 @@ export function StarAskPage({ onClose, page = "upgrade" }: StarAskPageProps) {
     };
 
     const handleAlreadyStarred = async () => {
-        RpcApi.RecordTEventCommand(
-            TabRpcClient,
-            {
-                event: "onboarding:githubstar",
-                props: { "onboarding:githubstar": "already", "onboarding:page": page },
-            },
-            { noresponse: true }
-        );
         const clientId = ClientModel.getInstance().clientId;
         await RpcApi.SetMetaCommand(TabRpcClient, {
             oref: WOS.makeORef("client", clientId),
@@ -50,26 +34,10 @@ export function StarAskPage({ onClose, page = "upgrade" }: StarAskPageProps) {
     };
 
     const handleRepoLinkClick = () => {
-        RpcApi.RecordTEventCommand(
-            TabRpcClient,
-            {
-                event: "action:link",
-                props: { "action:type": "githubrepo", "onboarding:page": page },
-            },
-            { noresponse: true }
-        );
         window.open("https://github.com/dfbb/doraterm", "_blank");
     };
 
     const handleMaybeLater = async () => {
-        RpcApi.RecordTEventCommand(
-            TabRpcClient,
-            {
-                event: "onboarding:githubstar",
-                props: { "onboarding:githubstar": "later", "onboarding:page": page },
-            },
-            { noresponse: true }
-        );
         const clientId = ClientModel.getInstance().clientId;
         await RpcApi.SetMetaCommand(TabRpcClient, {
             oref: WOS.makeORef("client", clientId),

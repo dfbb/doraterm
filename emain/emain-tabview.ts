@@ -1,7 +1,7 @@
 // Copyright 2025, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcApi } from "@/app/store/dshclientapi";
 import { adaptFromElectronKeyEvent, checkKeyPressed } from "@/util/keyutil";
 import { CHORD_TIMEOUT } from "@/util/sharedconst";
 import { Rectangle, shell, WebContentsView } from "electron";
@@ -19,7 +19,7 @@ import {
     shFrameNavHandler,
     shNavHandler,
 } from "./emain-util";
-import { ElectronDshClient } from "./emain-wsh";
+import { ElectronDshClient } from "./emain-dsh";
 
 function handleWindowsMenuAccelerators(
     waveEvent: DoraKeyboardEvent,

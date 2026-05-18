@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { setWpsRpcClient, wpsReconnectHandler } from "@/app/store/wps";
-import { DshClient } from "@/app/store/wshclient";
+import { DshClient } from "@/app/store/dshclient";
 import { DshRouter } from "@/app/store/wshrouter";
 import { getWSServerEndpoint } from "@/util/endpoints";
 import { addWSReconnectHandler, ElectronOverrideOpts, globalWS, initGlobalWS } from "./ws";

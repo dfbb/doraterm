@@ -14,7 +14,7 @@ import {
 import { modalsModel } from "@/app/store/modalmodel";
 import { RpcApi } from "@/app/store/dshclientapi";
 import { makeTabRouteId } from "@/app/store/wshrouter";
-import { initWshrpc, TabRpcClient } from "@/app/store/wshrpcutil";
+import { initWshrpc, TabRpcClient } from "@/app/store/dshrpcutil";
 import { getLayoutModelForStaticTab } from "@/layout/index";
 import { countersClear, countersPrint } from "@/store/counters";
 import {

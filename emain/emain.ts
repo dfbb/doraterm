@@ -1,12 +1,12 @@
 // Copyright 2025, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcApi } from "@/app/store/dshclientapi";
 import * as electron from "electron";
 import { globalEvents } from "emain/emain-events";
 import { sprintf } from "sprintf-js";
 import * as services from "../frontend/app/store/services";
-import { initElectronWshrpc, shutdownWshrpc } from "../frontend/app/store/wshrpcutil-base";
+import { initElectronWshrpc, shutdownWshrpc } from "../frontend/app/store/dshrpcutil-base";
 import { fireAndForget, sleep } from "../frontend/util/util";
 import { AuthKey, configureAuthKeyRequestInjection } from "./authkey";
 import {
@@ -51,7 +51,7 @@ import {
     relaunchBrowserWindows,
     DoraBrowserWindow,
 } from "./emain-window";
-import { ElectronDshClient, initElectronDshClient } from "./emain-wsh";
+import { ElectronDshClient, initElectronDshClient } from "./emain-dsh";
 import { getLaunchSettings } from "./launchsettings";
 import { configureAutoUpdater, updater } from "./updater";
 
@@ -116,109 +116,6 @@ function handleWSEvent(evtMsg: WSEventType) {
             console.log("unhandled electron ws eventtype", evtMsg.eventtype);
         }
     });
-}
-
-// we try to set the primary display as index [0]
-function getActivityDisplays(): ActivityDisplayType[] {
-    const displays = electron.screen.getAllDisplays();
-    const primaryDisplay = electron.screen.getPrimaryDisplay();
-    const rtn: ActivityDisplayType[] = [];
-    for (const display of displays) {
-        const adt = {
-            width: display.size.width,
-            height: display.size.height,
-            dpr: display.scaleFactor,
-            internal: display.internal,
-        };
-        if (display.id === primaryDisplay?.id) {
-            rtn.unshift(adt);
-        } else {
-            rtn.push(adt);
-        }
-    }
-    return rtn;
-}
-
-async function sendDisplaysTDataEvent() {
-    const displays = getActivityDisplays();
-    if (displays.length === 0) {
-        return;
-    }
-    const props: TEventProps = {};
-    props["display:count"] = displays.length;
-    props["display:height"] = displays[0].height;
-    props["display:width"] = displays[0].width;
-    props["display:dpr"] = displays[0].dpr;
-    props["display:all"] = displays;
-    try {
-        await RpcApi.RecordTEventCommand(
-            ElectronDshClient,
-            {
-                event: "app:display",
-                props,
-            },
-            { noresponse: true }
-        );
-    } catch (e) {
-        console.log("error sending display tdata event", e);
-    }
-}
-
-function logActiveState() {
-    fireAndForget(async () => {
-        const astate = getActivityState();
-        const activity: ActivityUpdate = { openminutes: 1 };
-        const ww = focusedDoraWindow;
-
-        if (astate.wasInFg) {
-            activity.fgminutes = 1;
-        }
-        if (astate.wasActive) {
-            activity.activeminutes = 1;
-        }
-        activity.displays = getActivityDisplays();
-
-        const termCmdCount = getAndClearTermCommandsRun();
-        if (termCmdCount > 0) {
-            activity.termcommandsrun = termCmdCount;
-        }
-        const termCmdDurableCount = getAndClearTermCommandsDurable();
-
-        const props: TEventProps = {
-            "activity:activeminutes": activity.activeminutes,
-            "activity:fgminutes": activity.fgminutes,
-            "activity:openminutes": activity.openminutes,
-        };
-        if (termCmdCount > 0) {
-            props["activity:termcommandsrun"] = termCmdCount;
-        }
-        if (termCmdDurableCount > 0) {
-            props["activity:termcommands:durable"] = termCmdDurableCount;
-        }
-
-        try {
-            await RpcApi.ActivityCommand(ElectronDshClient, activity, { noresponse: true });
-            await RpcApi.RecordTEventCommand(
-                ElectronDshClient,
-                {
-                    event: "app:activity",
-                    props,
-                },
-                { noresponse: true }
-            );
-        } catch (e) {
-            console.log("error logging active state", e);
-        } finally {
-            setWasInFg(ww?.isFocused() ?? false);
-            setWasActive(false);
-        }
-    });
-}
-
-// this isn't perfect, but gets the job done without being complicated
-function runActiveTimer() {
-    logActiveState();
-    setTimeout(runActiveTimer, 60000);
 }
 
 function hideWindowWithCatch(window: DoraBrowserWindow) {
@@ -390,8 +287,6 @@ async function appMain() {
     }
     ensureHotSpareTab(fullConfig);
     await relaunchBrowserWindows();
-    setTimeout(runActiveTimer, 5000); // start active timer, wait 5s just to be safe
-    setTimeout(sendDisplaysTDataEvent, 5000);
 
     makeAndSetAppMenu();
     makeDockTaskbar();
@@ -416,16 +311,6 @@ async function appMain() {
         if (allWindows.length === 0) {
             fireAndForget(createNewDoraWindow);
         }
-    });
-    electron.powerMonitor.on("resume", () => {
-        console.log("system resumed from sleep, notifying server");
-        fireAndForget(async () => {
-            try {
-                await RpcApi.NotifySystemResumeCommand(ElectronDshClient, { noresponse: true });
-            } catch (e) {
-                console.log("error calling NotifySystemResumeCommand", e);
-            }
-        });
     });
     const rawGlobalHotKey = launchSettings?.["app:globalhotkey"];
     if (rawGlobalHotKey) {

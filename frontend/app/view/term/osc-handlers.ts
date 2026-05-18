@@ -2,17 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import {
     getApi,
-    getBlockMetaKeyAtom,
     getBlockTermDurableAtom,
     getOverrideConfigAtom,
     globalStore,
     recordTEvent,
     WOS,
 } from "@/store/global";
-import { base64ToString, fireAndForget, isSshConnName, isWslConnName } from "@/util/util";
+import { base64ToString, fireAndForget } from "@/util/util";
 import debug from "debug";
 import type { TermWrap } from "./termwrap";
 
@@ -103,11 +102,8 @@ function handleShellIntegrationCommandStart(
 ): void {
     rtInfo["shell:state"] = "running-command";
     globalStore.set(termWrap.shellIntegrationStatusAtom, "running-command");
-    const connName = globalStore.get(getBlockMetaKeyAtom(blockId, "connection")) ?? "";
-    const isRemote = isSshConnName(connName);
-    const isWsl = isWslConnName(connName);
     const isDurable = globalStore.get(getBlockTermDurableAtom(blockId)) ?? false;
-    getApi().incrementTermCommands({ isRemote, isWsl, isDurable });
+    getApi().incrementTermCommands({ isDurable });
     if (cmd.data.cmd64) {
         const decodedLen = Math.ceil(cmd.data.cmd64.length * 0.75);
         if (decodedLen > 8192) {

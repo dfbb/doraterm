@@ -5,7 +5,7 @@ import { BlockNodeModel } from "@/app/block/blocktypes";
 import { globalStore } from "@/app/store/jotaiStore";
 import type { TabModel } from "@/app/store/tab-model";
 import { makeORef } from "@/app/store/wos";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import { SecretsContent } from "@/app/view/doraconfig/secretscontent";
 import { DoraConfigView } from "@/app/view/doraconfig/doraconfig";
 import type { DoraConfigEnv } from "@/app/view/doraconfig/doraconfigenv";

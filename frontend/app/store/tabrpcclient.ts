@@ -5,7 +5,7 @@ import { getApi, getBlockComponentModel, getConnStatusAtom, globalStore, WOS } f
 import type { TermViewModel } from "@/app/view/term/term-model";
 import { getLayoutModelForStaticTab } from "@/layout/index";
 import { RpcResponseHelper, DshClient } from "./dshclient";
-import { RpcApi } from "./wshclientapi";
+import { RpcApi } from "./dshclientapi";
 
 export class TabClient extends DshClient {
     constructor(routeId: string) {

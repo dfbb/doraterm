@@ -16,7 +16,6 @@ export type VTabBarEnv = DoraEnvSubset<{
     rpc: {
         UpdateWorkspaceTabIdsCommand: DoraEnv["rpc"]["UpdateWorkspaceTabIdsCommand"];
         UpdateTabNameCommand: DoraEnv["rpc"]["UpdateTabNameCommand"];
-        ActivityCommand: DoraEnv["rpc"]["ActivityCommand"];
         SetConfigCommand: DoraEnv["rpc"]["SetConfigCommand"];
         SetMetaCommand: DoraEnv["rpc"]["SetMetaCommand"];
     };

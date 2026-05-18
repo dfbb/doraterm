@@ -7,9 +7,8 @@ import { modalsModel } from "@/app/store/modalmodel";
 import type { TabModel } from "@/app/store/tab-model";
 import { waveEventSubscribeSingle } from "@/app/store/wps";
 import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import { TermClaudeIcon, TerminalView } from "@/app/view/term/term";
-import { WorkspaceLayoutModel } from "@/app/workspace/workspace-layout-model";
 import {
     atoms,
     createBlock,
@@ -225,12 +224,9 @@ export class TermViewModel implements ViewModel {
             const isCmd = get(this.isCmdController);
             const rtn: IconButtonDecl[] = [];
 
-            const isAIPanelOpen = get(WorkspaceLayoutModel.getInstance().panelVisibleAtom);
-            if (isAIPanelOpen) {
-                const shellIntegrationButton = this.getShellIntegrationIconButton(get);
-                if (shellIntegrationButton) {
-                    rtn.push(shellIntegrationButton);
-                }
+            const shellIntegrationButton = this.getShellIntegrationIconButton(get);
+            if (shellIntegrationButton) {
+                rtn.push(shellIntegrationButton);
             }
 
             if (get(getSettingsKeyAtom("debug:webglstatus"))) {
@@ -814,29 +810,6 @@ export class TermViewModel implements ViewModel {
         fullMenu.push({ type: "separator" });
 
         const lastCommand = globalStore.get(this.termRef?.current?.lastCommandAtom);
-        const cwd = blockData?.meta?.["cmd:cwd"];
-        const canShowFileBrowser = cwd != null && isLikelyOnSameHost(lastCommand);
-
-        if (canShowFileBrowser) {
-            fullMenu.push({
-                label: "File Browser",
-                click: () => {
-                    const blockData = globalStore.get(this.blockAtom);
-                    const connection = blockData?.meta?.connection;
-                    const cwd = blockData?.meta?.["cmd:cwd"];
-                    const meta: Record<string, any> = {
-                        view: "preview",
-                        file: cwd,
-                    };
-                    if (connection) {
-                        meta.connection = connection;
-                    }
-                    const blockDef: BlockDef = { meta };
-                    createBlock(blockDef);
-                },
-            });
-            fullMenu.push({ type: "separator" });
-        }
 
         fullMenu.push({
             label: "Save Session As...",
