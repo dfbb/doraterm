@@ -141,13 +141,6 @@ type WshRpcInterface interface {
 	WshRpcFileInterface
 	WaveFileReadStreamCommand(ctx context.Context, data CommandWaveFileReadStreamData) (*WaveFileInfo, error)
 
-	// builder
-	WshRpcBuilderInterface
-
-	// proc
-	VDomRenderCommand(ctx context.Context, data vdom.VDomFrontendUpdate) chan RespOrErrorUnion[*vdom.VDomBackendUpdate]
-	VDomUrlRequestCommand(ctx context.Context, data VDomUrlRequestData) chan RespOrErrorUnion[VDomUrlRequestResponse]
-
 	// streams
 	StreamDataCommand(ctx context.Context, data CommandStreamData) error
 	StreamDataAckCommand(ctx context.Context, data CommandStreamAckData) error
@@ -314,11 +307,6 @@ type CpuDataType struct {
 	Value float64 `json:"value"`
 }
 
-type CommandFileRestoreBackupData struct {
-	BackupFilePath    string `json:"backupfilepath"`
-	RestoreToFileName string `json:"restoretofilename"`
-}
-
 type CommandGetTempDirData struct {
 	FileName string `json:"filename,omitempty"`
 }
@@ -326,12 +314,6 @@ type CommandGetTempDirData struct {
 type CommandWriteTempFileData struct {
 	FileName string `json:"filename"`
 	Data64   string `json:"data64"`
-}
-
-type ConnRequest struct {
-	Host       string               `json:"host"`
-	Keywords   wconfig.ConnKeywords `json:"keywords,omitempty"`
-	LogBlockId string               `json:"logblockid,omitempty"`
 }
 
 type RemoteInfo struct {
@@ -368,11 +350,6 @@ func (m *MetaSettingsType) UnmarshalJSON(data []byte) error {
 
 func (m MetaSettingsType) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.MetaMapType)
-}
-
-type ConnConfigRequest struct {
-	Host        string              `json:"host"`
-	MetaMapType waveobj.MetaMapType `json:"metamaptype"`
 }
 
 type ConnStatus struct {
@@ -418,19 +395,6 @@ type WaveNotificationOptions struct {
 	Silent bool   `json:"silent,omitempty"`
 }
 
-type VDomUrlRequestData struct {
-	Method  string            `json:"method"`
-	URL     string            `json:"url"`
-	Headers map[string]string `json:"headers"`
-	Body    []byte            `json:"body,omitempty"`
-}
-
-type VDomUrlRequestResponse struct {
-	StatusCode int               `json:"statuscode,omitempty"`
-	Headers    map[string]string `json:"headers,omitempty"`
-	Body       []byte            `json:"body,omitempty"`
-}
-
 type WaveInfoData struct {
 	Version   string `json:"version"`
 	ClientId  string `json:"clientid"`
@@ -455,43 +419,6 @@ type BlocksListEntry struct {
 	TabId       string              `json:"tabid"`
 	BlockId     string              `json:"blockid"`
 	Meta        waveobj.MetaMapType `json:"meta"`
-}
-
-type AiMessageData struct {
-	Message string `json:"message,omitempty"`
-}
-
-type CommandGetWaveAIChatData struct {
-	ChatId string `json:"chatid"`
-}
-
-type CommandWaveAIToolApproveData struct {
-	ToolCallId string `json:"toolcallid"`
-	Approval   string `json:"approval,omitempty"`
-}
-
-type AIAttachedFile struct {
-	Name   string `json:"name"`
-	Type   string `json:"type"`
-	Size   int    `json:"size"`
-	Data64 string `json:"data64"`
-}
-
-type CommandWaveAIAddContextData struct {
-	Files   []AIAttachedFile `json:"files,omitempty"`
-	Text    string           `json:"text,omitempty"`
-	Submit  bool             `json:"submit,omitempty"`
-	NewChat bool             `json:"newchat,omitempty"`
-}
-
-type CommandWaveAIGetToolDiffData struct {
-	ChatId     string `json:"chatid"`
-	ToolCallId string `json:"toolcallid"`
-}
-
-type CommandWaveAIGetToolDiffRtnData struct {
-	OriginalContents64 string `json:"originalcontents64"`
-	ModifiedContents64 string `json:"modifiedcontents64"`
 }
 
 type CommandCaptureBlockScreenshotData struct {
@@ -563,47 +490,6 @@ type ActivityUpdate struct {
 	Blocks              map[string]int        `json:"blocks,omitempty"`
 	WshCmds             map[string]int        `json:"wshcmds,omitempty"`
 	Conn                map[string]int        `json:"conn,omitempty"`
-}
-
-type ConnExtData struct {
-	ConnName   string `json:"connname"`
-	LogBlockId string `json:"logblockid,omitempty"`
-}
-
-type CommandConnServerInitData struct {
-	ClientId string `json:"clientid"`
-}
-
-type FetchSuggestionsData struct {
-	SuggestionType string `json:"suggestiontype"`
-	Query          string `json:"query"`
-	WidgetId       string `json:"widgetid"`
-	ReqNum         int    `json:"reqnum"`
-	FileCwd        string `json:"file:cwd,omitempty"`
-	FileDirOnly    bool   `json:"file:dironly,omitempty"`
-	FileConnection string `json:"file:connection,omitempty"`
-}
-
-type FetchSuggestionsResponse struct {
-	ReqNum      int              `json:"reqnum"`
-	Suggestions []SuggestionType `json:"suggestions"`
-}
-
-type SuggestionType struct {
-	Type         string `json:"type"`
-	SuggestionId string `json:"suggestionid"`
-	Display      string `json:"display"`
-	SubText      string `json:"subtext,omitempty"`
-	Icon         string `json:"icon,omitempty"`
-	IconColor    string `json:"iconcolor,omitempty"`
-	IconSrc      string `json:"iconsrc,omitempty"`
-	MatchPos     []int  `json:"matchpos,omitempty"`
-	SubMatchPos  []int  `json:"submatchpos,omitempty"`
-	Score        int    `json:"score,omitempty"`
-	FileMimeType string `json:"file:mimetype,omitempty"`
-	FilePath     string `json:"file:path,omitempty"`
-	FileName     string `json:"file:name,omitempty"`
-	UrlUrl       string `json:"url:url,omitempty"`
 }
 
 type CommandGetRTInfoData struct {

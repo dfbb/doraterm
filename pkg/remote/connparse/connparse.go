@@ -21,7 +21,6 @@ const (
 )
 
 var windowsDriveRegex = regexp.MustCompile(`^[a-zA-Z]:`)
-var wslConnRegex = regexp.MustCompile(`^wsl://[^/]+`)
 
 type Connection struct {
 	Scheme string
@@ -121,12 +120,7 @@ func ParseURI(uri string) (*Connection, error) {
 		}
 	}
 	parseWshPath := func() {
-		if strings.HasPrefix(rest, "wsl://") {
-			host = wslConnRegex.FindString(rest)
-			remotePath = strings.TrimPrefix(rest, host)
-		} else {
-			parseGenericPath()
-		}
+		parseGenericPath()
 	}
 
 	addPrecedingSlash := true

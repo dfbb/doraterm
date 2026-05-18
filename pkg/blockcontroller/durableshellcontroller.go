@@ -15,8 +15,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/wavetermdev/waveterm/pkg/filestore"
 	"github.com/wavetermdev/waveterm/pkg/jobcontroller"
-	"github.com/wavetermdev/waveterm/pkg/remote"
-	"github.com/wavetermdev/waveterm/pkg/remote/conncontroller"
 	"github.com/wavetermdev/waveterm/pkg/shellexec"
 	"github.com/wavetermdev/waveterm/pkg/util/shellutil"
 	"github.com/wavetermdev/waveterm/pkg/utilds"
@@ -142,10 +140,6 @@ func (dsc *DurableShellController) Start(ctx context.Context, blockMeta waveobj.
 		return fmt.Errorf("error getting block: %w", err)
 	}
 
-	if conncontroller.IsLocalConnName(dsc.ConnName) {
-		return fmt.Errorf("durable shell controller requires a remote connection")
-	}
-
 	var jobId string
 	if blockData.JobId != "" {
 		status, err := jobcontroller.GetJobManagerStatus(ctx, blockData.JobId)
@@ -234,27 +228,17 @@ func (dsc *DurableShellController) startNewJob(ctx context.Context, blockMeta wa
 	}
 	cmdStr := blockMeta.GetString(waveobj.MetaKey_Cmd, "")
 	cwd := blockMeta.GetString(waveobj.MetaKey_CmdCwd, "")
-	opts, err := remote.ParseOpts(connName)
-	if err != nil {
-		return "", fmt.Errorf("invalid ssh remote name (%s): %w", connName, err)
+	shellPath := blockMeta.GetString(waveobj.MetaKey_TermLocalShellPath, "")
+	if shellPath == "" {
+		shellPath = shellutil.DetectLocalShellPath()
 	}
-	conn := conncontroller.MaybeGetConn(opts)
-	if conn == nil {
-		return "", fmt.Errorf("connection %q not found", connName)
-	}
-	connRoute := wshutil.MakeConnectionRouteId(connName)
-	remoteInfo, err := wshclient.RemoteGetInfoCommand(wshclient.GetBareRpcClient(), &wshrpc.RpcOpts{Route: connRoute, Timeout: 2000})
-	if err != nil {
-		return "", fmt.Errorf("unable to obtain remote info from connserver: %w", err)
-	}
-	shellType := shellutil.GetShellTypeFromShellPath(remoteInfo.Shell)
+	shellType := shellutil.GetShellTypeFromShellPath(shellPath)
 	swapToken := makeSwapToken(ctx, ctx, dsc.BlockId, blockMeta, connName, shellType)
-	sockName := wavebase.GetPersistentRemoteSockName(wstore.GetClientId())
+	sockName := wavebase.GetDomainSocketName()
 	rpcContext := wshrpc.RpcContext{
 		ProcRoute: true,
 		SockName:  sockName,
 		BlockId:   dsc.BlockId,
-		Conn:      connName,
 	}
 	jwtStr, err := wshutil.MakeClientJWTToken(rpcContext)
 	if err != nil {
@@ -266,10 +250,20 @@ func (dsc *DurableShellController) startNewJob(ctx context.Context, blockMeta wa
 		Interactive: true,
 		Login:       true,
 		Cwd:         cwd,
+		ShellPath:   shellPath,
 		SwapToken:   swapToken,
 		ForceJwt:    blockMeta.GetBool(waveobj.MetaKey_CmdJwt, false),
 	}
-	jobId, err := shellexec.StartRemoteShellJob(ctx, ctx, termSize, cmdStr, cmdOpts, conn, dsc.BlockId)
+	jobParams := jobcontroller.StartJobParams{
+		ConnName: connName,
+		JobKind:  jobcontroller.JobKind_Shell,
+		Cmd:      shellPath,
+		Args:     nil,
+		Env:      nil,
+		TermSize: &termSize,
+		BlockId:  dsc.BlockId,
+	}
+	jobId, err := jobcontroller.StartJob(ctx, jobParams)
 	if err != nil {
 		return "", fmt.Errorf("failed to start durable shell: %w", err)
 	}

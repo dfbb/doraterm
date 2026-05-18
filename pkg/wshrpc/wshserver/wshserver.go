@@ -21,30 +21,18 @@ import (
 	"time"
 
 	"github.com/skratchdot/open-golang/open"
-	"github.com/wavetermdev/waveterm/pkg/aiusechat"
-	"github.com/wavetermdev/waveterm/pkg/aiusechat/chatstore"
-	"github.com/wavetermdev/waveterm/pkg/aiusechat/uctypes"
 	"github.com/wavetermdev/waveterm/pkg/baseds"
 	"github.com/wavetermdev/waveterm/pkg/blockcontroller"
 	"github.com/wavetermdev/waveterm/pkg/blocklogger"
-	"github.com/wavetermdev/waveterm/pkg/buildercontroller"
-	"github.com/wavetermdev/waveterm/pkg/filebackup"
 	"github.com/wavetermdev/waveterm/pkg/filestore"
 	"github.com/wavetermdev/waveterm/pkg/genconn"
 	"github.com/wavetermdev/waveterm/pkg/jobcontroller"
 	"github.com/wavetermdev/waveterm/pkg/panichandler"
-	"github.com/wavetermdev/waveterm/pkg/remote"
-	"github.com/wavetermdev/waveterm/pkg/remote/conncontroller"
 	"github.com/wavetermdev/waveterm/pkg/remote/fileshare/wshfs"
 	"github.com/wavetermdev/waveterm/pkg/secretstore"
-	"github.com/wavetermdev/waveterm/pkg/suggestion"
 	"github.com/wavetermdev/waveterm/pkg/telemetry"
 	"github.com/wavetermdev/waveterm/pkg/telemetry/telemetrydata"
 	"github.com/wavetermdev/waveterm/pkg/util/envutil"
-	"github.com/wavetermdev/waveterm/pkg/util/shellutil"
-	"github.com/wavetermdev/waveterm/pkg/util/utilfn"
-	"github.com/wavetermdev/waveterm/pkg/waveappstore"
-	"github.com/wavetermdev/waveterm/pkg/waveapputil"
 	"github.com/wavetermdev/waveterm/pkg/wavebase"
 	"github.com/wavetermdev/waveterm/pkg/wavejwt"
 	"github.com/wavetermdev/waveterm/pkg/waveobj"
@@ -54,13 +42,9 @@ import (
 	"github.com/wavetermdev/waveterm/pkg/wps"
 	"github.com/wavetermdev/waveterm/pkg/wshrpc"
 	"github.com/wavetermdev/waveterm/pkg/wshutil"
-	"github.com/wavetermdev/waveterm/pkg/wsl"
-	"github.com/wavetermdev/waveterm/pkg/wslconn"
 	"github.com/wavetermdev/waveterm/pkg/wstore"
-	"github.com/wavetermdev/waveterm/tsunami/build"
 )
 
-var InvalidWslDistroNames = []string{"docker-desktop", "docker-desktop-data"}
 
 type WshServer struct{}
 
@@ -409,17 +393,6 @@ func (ws *WshServer) FileJoinCommand(ctx context.Context, paths []string) (*wshr
 	return wshfs.Join(ctx, paths[0], paths[1:]...)
 }
 
-func (ws *WshServer) FileRestoreBackupCommand(ctx context.Context, data wshrpc.CommandFileRestoreBackupData) error {
-	expandedBackupPath, err := wavebase.ExpandHomeDir(data.BackupFilePath)
-	if err != nil {
-		return fmt.Errorf("failed to expand backup file path: %w", err)
-	}
-	expandedRestorePath, err := wavebase.ExpandHomeDir(data.RestoreToFileName)
-	if err != nil {
-		return fmt.Errorf("failed to expand restore file path: %w", err)
-	}
-	return filebackup.RestoreBackup(expandedBackupPath, expandedRestorePath)
-}
 
 func (ws *WshServer) GetTempDirCommand(ctx context.Context, data wshrpc.CommandGetTempDirData) (string, error) {
 	tempDir := os.TempDir()
@@ -555,32 +528,12 @@ func (ws *WshServer) SetConfigCommand(ctx context.Context, data wshrpc.MetaSetti
 	return wconfig.SetBaseConfigValue(data.MetaMapType)
 }
 
-func (ws *WshServer) SetConnectionsConfigCommand(ctx context.Context, data wshrpc.ConnConfigRequest) error {
-	return wconfig.SetConnectionsConfigValue(data.Host, data.MetaMapType)
-}
-
-func (ws *WshServer) GetFullConfigCommand(ctx context.Context) (wconfig.FullConfigType, error) {
+func (ws *WshServer) func (ws *WshServer) GetFullConfigCommand(ctx context.Context) (wconfig.FullConfigType, error) {
 	watcher := wconfig.GetWatcher()
 	return watcher.GetFullConfig(), nil
 }
 
-func (ws *WshServer) GetWaveAIModeConfigCommand(ctx context.Context) (wconfig.AIModeConfigUpdate, error) {
-	fullConfig := wconfig.GetWatcher().GetFullConfig()
-	resolvedConfigs := aiusechat.ComputeResolvedAIModeConfigs(fullConfig)
-	return wconfig.AIModeConfigUpdate{Configs: resolvedConfigs}, nil
-}
-
-func (ws *WshServer) ConnStatusCommand(ctx context.Context) ([]wshrpc.ConnStatus, error) {
-	rtn := conncontroller.GetAllConnStatus()
-	return rtn, nil
-}
-
-func (ws *WshServer) WslStatusCommand(ctx context.Context) ([]wshrpc.ConnStatus, error) {
-	rtn := wslconn.GetAllConnStatus()
-	return rtn, nil
-}
-
-func termCtxWithLogBlockId(ctx context.Context, logBlockId string) context.Context {
+func (ws *WshServer) func (ws *WshServer) func (ws *WshServer) func termCtxWithLogBlockId(ctx context.Context, logBlockId string) context.Context {
 	if logBlockId == "" {
 		return ctx
 	}
@@ -595,201 +548,6 @@ func termCtxWithLogBlockId(ctx context.Context, logBlockId string) context.Conte
 	return blocklogger.ContextWithLogBlockId(ctx, logBlockId, connDebug == "debug")
 }
 
-func (ws *WshServer) ConnEnsureCommand(ctx context.Context, data wshrpc.ConnExtData) error {
-	ctx = genconn.ContextWithConnData(ctx, data.LogBlockId)
-	ctx = termCtxWithLogBlockId(ctx, data.LogBlockId)
-	if strings.HasPrefix(data.ConnName, "wsl://") {
-		distroName := strings.TrimPrefix(data.ConnName, "wsl://")
-		return wslconn.EnsureConnection(ctx, distroName)
-	}
-	return conncontroller.EnsureConnection(ctx, data.ConnName)
-}
-
-func (ws *WshServer) ConnDisconnectCommand(ctx context.Context, connName string) error {
-	if conncontroller.IsLocalConnName(connName) {
-		return nil
-	}
-	if strings.HasPrefix(connName, "wsl://") {
-		distroName := strings.TrimPrefix(connName, "wsl://")
-		conn := wslconn.GetWslConn(distroName)
-		if conn == nil {
-			return fmt.Errorf("distro not found: %s", connName)
-		}
-		return conn.Close()
-	}
-	connOpts, err := remote.ParseOpts(connName)
-	if err != nil {
-		return fmt.Errorf("error parsing connection name: %w", err)
-	}
-	conn := conncontroller.MaybeGetConn(connOpts)
-	if conn == nil {
-		return fmt.Errorf("connection not found: %s", connName)
-	}
-	return conn.Close()
-}
-
-func (ws *WshServer) ConnConnectCommand(ctx context.Context, connRequest wshrpc.ConnRequest) error {
-	if conncontroller.IsLocalConnName(connRequest.Host) {
-		return nil
-	}
-	ctx = genconn.ContextWithConnData(ctx, connRequest.LogBlockId)
-	ctx = termCtxWithLogBlockId(ctx, connRequest.LogBlockId)
-	connName := connRequest.Host
-	if strings.HasPrefix(connName, "wsl://") {
-		distroName := strings.TrimPrefix(connName, "wsl://")
-		conn := wslconn.GetWslConn(distroName)
-		if conn == nil {
-			return fmt.Errorf("connection not found: %s", connName)
-		}
-		return conn.Connect(ctx)
-	}
-	connOpts, err := remote.ParseOpts(connName)
-	if err != nil {
-		return fmt.Errorf("error parsing connection name: %w", err)
-	}
-	conn := conncontroller.GetConn(connOpts)
-	if conn == nil {
-		return fmt.Errorf("connection not found: %s", connName)
-	}
-	return conn.Connect(ctx, &connRequest.Keywords)
-}
-
-func (ws *WshServer) ConnReinstallWshCommand(ctx context.Context, data wshrpc.ConnExtData) error {
-	if conncontroller.IsLocalConnName(data.ConnName) {
-		return nil
-	}
-	ctx = genconn.ContextWithConnData(ctx, data.LogBlockId)
-	ctx = termCtxWithLogBlockId(ctx, data.LogBlockId)
-	connName := data.ConnName
-	if strings.HasPrefix(connName, "wsl://") {
-		distroName := strings.TrimPrefix(connName, "wsl://")
-		conn := wslconn.GetWslConn(distroName)
-		if conn == nil {
-			return fmt.Errorf("connection not found: %s", connName)
-		}
-		return conn.InstallWsh(ctx, "")
-	}
-	connOpts, err := remote.ParseOpts(connName)
-	if err != nil {
-		return fmt.Errorf("error parsing connection name: %w", err)
-	}
-	conn := conncontroller.GetConn(connOpts)
-	if conn == nil {
-		return fmt.Errorf("connection not found: %s", connName)
-	}
-	return conn.InstallWsh(ctx, "")
-}
-
-func (ws *WshServer) ConnUpdateWshCommand(ctx context.Context, remoteInfo wshrpc.RemoteInfo) (bool, error) {
-	handler := wshutil.GetRpcResponseHandlerFromContext(ctx)
-	if handler == nil {
-		return false, fmt.Errorf("could not determine handler from context")
-	}
-	connName := handler.GetRpcContext().Conn
-	if connName == "" {
-		return false, fmt.Errorf("invalid remote info: missing connection name")
-	}
-
-	log.Printf("checking wsh version for connection %s (current: %s)", connName, remoteInfo.ClientVersion)
-	upToDate, _, _, err := conncontroller.IsWshVersionUpToDate(ctx, remoteInfo.ClientVersion)
-	if err != nil {
-		return false, fmt.Errorf("unable to compare wsh version: %w", err)
-	}
-	if upToDate {
-		// no need to update
-		log.Printf("wsh is already up to date for connection %s", connName)
-		return false, nil
-	}
-
-	// todo: need to add user input code here for validation
-
-	if strings.HasPrefix(connName, "wsl://") {
-		return false, fmt.Errorf("connupdatewshcommand is not supported for wsl connections")
-	}
-	connOpts, err := remote.ParseOpts(connName)
-	if err != nil {
-		return false, fmt.Errorf("error parsing connection name: %w", err)
-	}
-	conn := conncontroller.GetConn(connOpts)
-	if conn == nil {
-		return false, fmt.Errorf("connection not found: %s", connName)
-	}
-	err = conn.UpdateWsh(ctx, connName, &remoteInfo)
-	if err != nil {
-		return false, fmt.Errorf("wsh update failed for connection %s: %w", connName, err)
-	}
-
-	// todo: need to add code for modifying configs?
-	return true, nil
-}
-
-func (ws *WshServer) ConnListCommand(ctx context.Context) ([]string, error) {
-	return conncontroller.GetConnectionsList()
-}
-
-func (ws *WshServer) WslListCommand(ctx context.Context) ([]string, error) {
-	distros, err := wsl.RegisteredDistros(ctx)
-	if err != nil {
-		return nil, err
-	}
-	var distroNames []string
-	for _, distro := range distros {
-		distroName := distro.Name()
-		if utilfn.ContainsStr(InvalidWslDistroNames, distroName) {
-			continue
-		}
-		distroNames = append(distroNames, distroName)
-	}
-	return distroNames, nil
-}
-
-func (ws *WshServer) WslDefaultDistroCommand(ctx context.Context) (string, error) {
-	distro, ok, err := wsl.DefaultDistro(ctx)
-	if err != nil {
-		return "", fmt.Errorf("unable to determine default distro: %w", err)
-	}
-	if !ok {
-		return "", fmt.Errorf("unable to determine default distro")
-	}
-	return distro.Name(), nil
-}
-
-/**
- * Dismisses the WshFail Command in runtime memory on the backend
- */
-func (ws *WshServer) DismissWshFailCommand(ctx context.Context, connName string) error {
-	if strings.HasPrefix(connName, "wsl://") {
-		distroName := strings.TrimPrefix(connName, "wsl://")
-		conn := wslconn.GetWslConn(distroName)
-		if conn == nil {
-			return fmt.Errorf("connection not found: %s", connName)
-		}
-		conn.ClearWshError()
-		conn.FireConnChangeEvent()
-		return nil
-	}
-	opts, err := remote.ParseOpts(connName)
-	if err != nil {
-		return err
-	}
-	conn := conncontroller.GetConn(opts)
-	if conn == nil {
-		return fmt.Errorf("connection %s not found", connName)
-	}
-	conn.ClearWshError()
-	conn.FireConnChangeEvent()
-	return nil
-}
-
-func (ws *WshServer) NotifySystemResumeCommand(ctx context.Context) error {
-	log.Printf("NotifySystemResumeCommand called\n")
-	return nil
-}
-
-func (ws *WshServer) FindGitBashCommand(ctx context.Context, rescan bool) (string, error) {
-	fullConfig := wconfig.GetWatcher().GetFullConfig()
-	return shellutil.FindGitBash(&fullConfig, rescan), nil
-}
 
 func waveFileToWaveFileInfo(wf *filestore.WaveFile) *wshrpc.WaveFileInfo {
 	return &wshrpc.WaveFileInfo{
@@ -963,352 +721,9 @@ func (ws *WshServer) WorkspaceListCommand(ctx context.Context) ([]wshrpc.Workspa
 	return rtn, nil
 }
 
-func (ws *WshServer) ListAllAppsCommand(ctx context.Context) ([]wshrpc.AppInfo, error) {
-	return waveappstore.ListAllApps()
-}
-
-func (ws *WshServer) ListAllEditableAppsCommand(ctx context.Context) ([]wshrpc.AppInfo, error) {
-	return waveappstore.ListAllEditableApps()
-}
-
-func (ws *WshServer) ListAllAppFilesCommand(ctx context.Context, data wshrpc.CommandListAllAppFilesData) (*wshrpc.CommandListAllAppFilesRtnData, error) {
-	if data.AppId == "" {
-		return nil, fmt.Errorf("must provide an appId to ListAllAppFilesCommand")
-	}
-	result, err := waveappstore.ListAllAppFiles(data.AppId)
-	if err != nil {
-		return nil, err
-	}
-	entries := make([]wshrpc.DirEntryOut, len(result.Entries))
-	for i, entry := range result.Entries {
-		entries[i] = wshrpc.DirEntryOut{
-			Name:         entry.Name,
-			Dir:          entry.Dir,
-			Symlink:      entry.Symlink,
-			Size:         entry.Size,
-			Mode:         entry.Mode,
-			Modified:     entry.Modified,
-			ModifiedTime: entry.ModifiedTime,
-		}
-	}
-	return &wshrpc.CommandListAllAppFilesRtnData{
-		Path:         result.Path,
-		AbsolutePath: result.AbsolutePath,
-		ParentDir:    result.ParentDir,
-		Entries:      entries,
-		EntryCount:   result.EntryCount,
-		TotalEntries: result.TotalEntries,
-		Truncated:    result.Truncated,
-	}, nil
-}
-
-func (ws *WshServer) ReadAppFileCommand(ctx context.Context, data wshrpc.CommandReadAppFileData) (*wshrpc.CommandReadAppFileRtnData, error) {
-	if data.AppId == "" {
-		return nil, fmt.Errorf("must provide an appId to ReadAppFileCommand")
-	}
-	fileData, err := waveappstore.ReadAppFile(data.AppId, data.FileName)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return &wshrpc.CommandReadAppFileRtnData{
-				NotFound: true,
-			}, nil
-		}
-		return nil, fmt.Errorf("failed to read app file: %w", err)
-	}
-	return &wshrpc.CommandReadAppFileRtnData{
-		Data64: base64.StdEncoding.EncodeToString(fileData.Contents),
-		ModTs:  fileData.ModTs,
-	}, nil
-}
-
-func (ws *WshServer) WriteAppFileCommand(ctx context.Context, data wshrpc.CommandWriteAppFileData) error {
-	if data.AppId == "" {
-		return fmt.Errorf("must provide an appId to WriteAppFileCommand")
-	}
-	contents, err := base64.StdEncoding.DecodeString(data.Data64)
-	if err != nil {
-		return fmt.Errorf("failed to decode data64: %w", err)
-	}
-	return waveappstore.WriteAppFile(data.AppId, data.FileName, contents)
-}
-
-func (ws *WshServer) WaveFileReadStreamCommand(ctx context.Context, data wshrpc.CommandWaveFileReadStreamData) (*wshrpc.WaveFileInfo, error) {
-	const maxStreamFileSize = 5 * 1024 * 1024
-
-	waveFile, err := filestore.WFS.Stat(ctx, data.ZoneId, data.Name)
-	if err != nil {
-		return nil, fmt.Errorf("error statting wavefile: %w", err)
-	}
-
-	dataLength := waveFile.DataLength()
-	if dataLength > maxStreamFileSize {
-		return nil, fmt.Errorf("file size %d exceeds maximum streaming size of %d bytes", dataLength, maxStreamFileSize)
-	}
-
-	wshRpc := wshutil.GetWshRpcFromContext(ctx)
-	if wshRpc == nil || wshRpc.StreamBroker == nil {
-		return nil, fmt.Errorf("no stream broker available")
-	}
-
-	writer, err := wshRpc.StreamBroker.CreateStreamWriter(&data.StreamMeta)
-	if err != nil {
-		return nil, fmt.Errorf("error creating stream writer: %w", err)
-	}
-
-	_, fileData, err := filestore.WFS.ReadFile(ctx, data.ZoneId, data.Name)
-	if err != nil {
-		writer.Close()
-		return nil, fmt.Errorf("error reading wavefile: %w", err)
-	}
-
-	go func() {
-		defer func() {
-			panichandler.PanicHandler("WaveFileReadStreamCommand", recover())
-		}()
-		defer writer.Close()
-
-		_, err := writer.Write(fileData)
-		if err != nil {
-			log.Printf("error writing to stream for wavefile %s:%s: %v\n", data.ZoneId, data.Name, err)
-		}
-	}()
-
-	rtnInfo := &wshrpc.WaveFileInfo{
-		ZoneId:    waveFile.ZoneId,
-		Name:      waveFile.Name,
-		Opts:      waveFile.Opts,
-		CreatedTs: waveFile.CreatedTs,
-		Size:      waveFile.Size,
-		ModTs:     waveFile.ModTs,
-		Meta:      waveFile.Meta,
-	}
-	return rtnInfo, nil
-}
-
-func (ws *WshServer) WriteAppGoFileCommand(ctx context.Context, data wshrpc.CommandWriteAppGoFileData) (*wshrpc.CommandWriteAppGoFileRtnData, error) {
-	if data.AppId == "" {
-		return nil, fmt.Errorf("must provide an appId to WriteAppGoFileCommand")
-	}
-	contents, err := base64.StdEncoding.DecodeString(data.Data64)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode data64: %w", err)
-	}
-
-	formattedOutput := waveapputil.FormatGoCode(contents)
-
-	err = waveappstore.WriteAppFile(data.AppId, "app.go", formattedOutput)
-	if err != nil {
-		return nil, err
-	}
-
-	encoded := base64.StdEncoding.EncodeToString(formattedOutput)
-	return &wshrpc.CommandWriteAppGoFileRtnData{Data64: encoded}, nil
-}
-
-func (ws *WshServer) DeleteAppFileCommand(ctx context.Context, data wshrpc.CommandDeleteAppFileData) error {
-	if data.AppId == "" {
-		return fmt.Errorf("must provide an appId to DeleteAppFileCommand")
-	}
-	return waveappstore.DeleteAppFile(data.AppId, data.FileName)
-}
-
-func (ws *WshServer) RenameAppFileCommand(ctx context.Context, data wshrpc.CommandRenameAppFileData) error {
-	if data.AppId == "" {
-		return fmt.Errorf("must provide an appId to RenameAppFileCommand")
-	}
-	return waveappstore.RenameAppFile(data.AppId, data.FromFileName, data.ToFileName)
-}
-
-func (ws *WshServer) WriteAppSecretBindingsCommand(ctx context.Context, data wshrpc.CommandWriteAppSecretBindingsData) error {
-	if data.AppId == "" {
-		return fmt.Errorf("must provide an appId to WriteAppSecretBindingsCommand")
-	}
-	return waveappstore.WriteAppSecretBindings(data.AppId, data.Bindings)
-}
-
-func (ws *WshServer) DeleteBuilderCommand(ctx context.Context, builderId string) error {
-	if builderId == "" {
-		return fmt.Errorf("must provide a builderId to DeleteBuilderCommand")
-	}
-	buildercontroller.DeleteController(builderId)
-	return nil
-}
-
-func (ws *WshServer) StartBuilderCommand(ctx context.Context, data wshrpc.CommandStartBuilderData) error {
-	if data.BuilderId == "" {
-		return fmt.Errorf("must provide a builderId to StartBuilderCommand")
-	}
-	bc := buildercontroller.GetOrCreateController(data.BuilderId)
-	rtInfo := wstore.GetRTInfo(waveobj.MakeORef("builder", data.BuilderId))
-	if rtInfo == nil {
-		return fmt.Errorf("builder rtinfo not found for builderid: %s", data.BuilderId)
-	}
-	appId := rtInfo.BuilderAppId
-	if appId == "" {
-		return fmt.Errorf("builder appid not set for builderid: %s", data.BuilderId)
-	}
-	return bc.Start(ctx, appId, rtInfo.BuilderEnv)
-}
-
-func (ws *WshServer) StopBuilderCommand(ctx context.Context, builderId string) error {
-	if builderId == "" {
-		return fmt.Errorf("must provide a builderId to StopBuilderCommand")
-	}
-	bc := buildercontroller.GetController(builderId)
-	if bc == nil {
-		return nil
-	}
-	return bc.Stop()
-}
-
-func (ws *WshServer) RestartBuilderAndWaitCommand(ctx context.Context, data wshrpc.CommandRestartBuilderAndWaitData) (*wshrpc.RestartBuilderAndWaitResult, error) {
-	if data.BuilderId == "" {
-		return nil, fmt.Errorf("must provide a builderId to RestartBuilderAndWaitCommand")
-	}
-
-	bc := buildercontroller.GetOrCreateController(data.BuilderId)
-	rtInfo := wstore.GetRTInfo(waveobj.MakeORef("builder", data.BuilderId))
-	if rtInfo == nil {
-		return nil, fmt.Errorf("builder rtinfo not found for builderid: %s", data.BuilderId)
-	}
-
-	appId := rtInfo.BuilderAppId
-	if appId == "" {
-		return nil, fmt.Errorf("builder appid not set for builderid: %s", data.BuilderId)
-	}
-
-	result, err := bc.RestartAndWaitForBuild(ctx, appId, rtInfo.BuilderEnv)
-	if err != nil {
-		return nil, err
-	}
-
-	return &wshrpc.RestartBuilderAndWaitResult{
-		Success:      result.Success,
-		ErrorMessage: result.ErrorMessage,
-		BuildOutput:  result.BuildOutput,
-	}, nil
-}
-
-func (ws *WshServer) GetBuilderStatusCommand(ctx context.Context, builderId string) (*wshrpc.BuilderStatusData, error) {
-	if builderId == "" {
-		return nil, fmt.Errorf("must provide a builderId to GetBuilderStatusCommand")
-	}
-	bc := buildercontroller.GetOrCreateController(builderId)
-	status := bc.GetStatus()
-	return &status, nil
-}
-
-func (ws *WshServer) GetBuilderOutputCommand(ctx context.Context, builderId string) ([]string, error) {
-	if builderId == "" {
-		return nil, fmt.Errorf("must provide a builderId to GetBuilderOutputCommand")
-	}
-	bc := buildercontroller.GetOrCreateController(builderId)
-	return bc.GetOutput(), nil
-}
-
-func (ws *WshServer) CheckGoVersionCommand(ctx context.Context) (*wshrpc.CommandCheckGoVersionRtnData, error) {
-	watcher := wconfig.GetWatcher()
-	fullConfig := watcher.GetFullConfig()
-	goPath := fullConfig.Settings.TsunamiGoPath
-
-	result := build.CheckGoVersion(goPath)
-
-	return &wshrpc.CommandCheckGoVersionRtnData{
-		GoStatus:    result.GoStatus,
-		GoPath:      result.GoPath,
-		GoVersion:   result.GoVersion,
-		ErrorString: result.ErrorString,
-	}, nil
-}
-
-func (ws *WshServer) PublishAppCommand(ctx context.Context, data wshrpc.CommandPublishAppData) (*wshrpc.CommandPublishAppRtnData, error) {
-	publishedAppId, err := waveappstore.PublishDraft(data.AppId)
-	if err != nil {
-		return nil, fmt.Errorf("error publishing app: %w", err)
-	}
-	return &wshrpc.CommandPublishAppRtnData{
-		PublishedAppId: publishedAppId,
-	}, nil
-}
-
-func (ws *WshServer) MakeDraftFromLocalCommand(ctx context.Context, data wshrpc.CommandMakeDraftFromLocalData) (*wshrpc.CommandMakeDraftFromLocalRtnData, error) {
-	draftAppId, err := waveappstore.MakeDraftFromLocal(data.LocalAppId)
-	if err != nil {
-		return nil, fmt.Errorf("error making draft from local: %w", err)
-	}
-	return &wshrpc.CommandMakeDraftFromLocalRtnData{
-		DraftAppId: draftAppId,
-	}, nil
-}
-
-func (ws *WshServer) RecordTEventCommand(ctx context.Context, data telemetrydata.TEvent) error {
-	err := telemetry.RecordTEvent(ctx, &data)
-	if err != nil {
-		log.Printf("error recording telemetry event: %v", err)
-	}
-	return err
-}
 
 func (ws WshServer) SendTelemetryCommand(ctx context.Context) error {
 	return wcloud.SendAllTelemetry(wstore.GetClientId())
-}
-
-func (ws *WshServer) WaveAIEnableTelemetryCommand(ctx context.Context) error {
-	// Enable telemetry in config
-	meta := waveobj.MetaMapType{
-		wconfig.ConfigKey_TelemetryEnabled: true,
-	}
-	err := wconfig.SetBaseConfigValue(meta)
-	if err != nil {
-		return fmt.Errorf("error setting telemetry enabled: %w", err)
-	}
-
-	// Record the telemetry event
-	event := telemetrydata.MakeTEvent("waveai:enabletelemetry", telemetrydata.TEventProps{})
-	err = telemetry.RecordTEvent(ctx, event)
-	if err != nil {
-		log.Printf("error recording waveai:enabletelemetry event: %v", err)
-	}
-
-	// Immediately send telemetry to cloud
-	err = wcloud.SendAllTelemetry(wstore.GetClientId())
-	if err != nil {
-		log.Printf("error sending telemetry after enabling: %v", err)
-	}
-
-	return nil
-}
-
-func (ws *WshServer) GetWaveAIChatCommand(ctx context.Context, data wshrpc.CommandGetWaveAIChatData) (*uctypes.UIChat, error) {
-	aiChat := chatstore.DefaultChatStore.Get(data.ChatId)
-	if aiChat == nil {
-		return nil, nil
-	}
-	uiChat, err := aiusechat.ConvertAIChatToUIChat(aiChat)
-	if err != nil {
-		return nil, fmt.Errorf("error converting AI chat to UI chat: %w", err)
-	}
-	return uiChat, nil
-}
-
-func (ws *WshServer) GetWaveAIRateLimitCommand(ctx context.Context) (*uctypes.RateLimitInfo, error) {
-	return aiusechat.GetGlobalRateLimit(), nil
-}
-
-func (ws *WshServer) WaveAIToolApproveCommand(ctx context.Context, data wshrpc.CommandWaveAIToolApproveData) error {
-	return aiusechat.UpdateToolApproval(data.ToolCallId, data.Approval)
-}
-
-func (ws *WshServer) WaveAIGetToolDiffCommand(ctx context.Context, data wshrpc.CommandWaveAIGetToolDiffData) (*wshrpc.CommandWaveAIGetToolDiffRtnData, error) {
-	originalContent, modifiedContent, err := aiusechat.CreateWriteTextFileDiff(ctx, data.ChatId, data.ToolCallId)
-	if err != nil {
-		return nil, err
-	}
-
-	return &wshrpc.CommandWaveAIGetToolDiffRtnData{
-		OriginalContents64: base64.StdEncoding.EncodeToString(originalContent),
-		ModifiedContents64: base64.StdEncoding.EncodeToString(modifiedContent),
-	}, nil
 }
 
 var wshActivityRe = regexp.MustCompile(`^[a-z:#]+$`)
@@ -1449,15 +864,6 @@ func (ws *WshServer) PathCommand(ctx context.Context, data wshrpc.PathCommandDat
 		}
 	}
 	return path, nil
-}
-
-func (ws *WshServer) FetchSuggestionsCommand(ctx context.Context, data wshrpc.FetchSuggestionsData) (*wshrpc.FetchSuggestionsResponse, error) {
-	return suggestion.FetchSuggestions(ctx, data)
-}
-
-func (ws *WshServer) DisposeSuggestionsCommand(ctx context.Context, widgetId string) error {
-	suggestion.DisposeSuggestions(ctx, widgetId)
-	return nil
 }
 
 func (ws *WshServer) GetTabCommand(ctx context.Context, tabId string) (*waveobj.Tab, error) {
