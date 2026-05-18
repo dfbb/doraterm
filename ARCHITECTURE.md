@@ -1,4 +1,4 @@
-# Wave Terminal 架构文档
+# Dora Terminal 架构文档
 
 > 自动分析生成。覆盖技术栈、分层架构、模块组织、跨进程通信、构建流程及关键实现模式。
 > 适用版本：基于 `main` 分支当前快照（2026 年 5 月）。
@@ -28,7 +28,7 @@
 
 ## 1. 项目概览
 
-Wave Terminal 是一款现代化跨平台终端应用，提供：
+Dora Terminal 是一款现代化跨平台终端应用，提供：
 
 - 图形化 Block 系统（终端、文件预览、Web 视图、AI 聊天、系统信息等）
 - 可拖拽的动态布局
@@ -44,7 +44,7 @@ Wave Terminal 是一款现代化跨平台终端应用，提供：
 ## 2. 顶层目录结构
 
 ```
-waveterm/
+doraterm/
 ├── frontend/              # TypeScript / React 渲染前端（Vite 构建）
 │   ├── app/               # 主应用：views、blocks、stores、modals…
 │   ├── builder/           # Tsunami 应用 builder（预览/调试 UI）
@@ -118,7 +118,7 @@ waveterm/
 | fzf | `junegunn/fzf` ^0.65.2 | — |
 | 平台支持 | `Microsoft/go-winio`、`ebitengine/purego` | — |
 | AI Provider | `google/generative-ai-go`、SSE via `launchdarkly/eventsource` | — |
-| 内部模块 | `wavetermdev/waveterm/tsunami v0.12.3`、`wavetermdev/htmltoken v0.2.0` | — |
+| 内部模块 | `doratermdev/doraterm/tsunami v0.12.3`、`doratermdev/htmltoken v0.2.0` | — |
 
 ### 3.4 构建 & 工具
 
@@ -134,7 +134,7 @@ waveterm/
 
 ## 4. 分层架构
 
-Wave Terminal 在物理上是 **3 个独立进程**（外加远端 wsh），逻辑上分为五层：
+Dora Terminal 在物理上是 **3 个独立进程**（外加远端 wsh），逻辑上分为五层：
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -465,9 +465,9 @@ type RpcContext struct { ... }           // 调用上下文，含 BlockId / TabI
 `electron:dev` 默认指向开发环境的 wcloud：
 
 ```
-WCLOUD_PING_ENDPOINT=https://ping-dev.waveterm.dev/central
-WCLOUD_ENDPOINT=https://api-dev.waveterm.dev/central
-WCLOUD_WS_ENDPOINT=wss://wsapi-dev.waveterm.dev
+WCLOUD_PING_ENDPOINT=https://ping-dev.doraterm.dev/central
+WCLOUD_ENDPOINT=https://api-dev.doraterm.dev/central
+WCLOUD_WS_ENDPOINT=wss://wsapi-dev.doraterm.dev
 WAVETERM_NOCONFIRMQUIT=1
 ```
 

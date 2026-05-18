@@ -1,15 +1,15 @@
 <p align="center">
-  <a href="https://www.waveterm.dev">
+  <a href="https://www.doraterm.dev">
 	<picture>
 		<source media="(prefers-color-scheme: dark)" srcset="./assets/wave-dark.png">
 		<source media="(prefers-color-scheme: light)" srcset="./assets/wave-light.png">
-		<img alt="Wave Terminal Logo" src="./assets/wave-light.png" width="240">
+		<img alt="Dora Terminal Logo" src="./assets/wave-light.png" width="240">
 	</picture>
   </a>
   <br/>
 </p>
 
-# Wave Terminal
+# Dora Terminal
 
 <div align="center">
 
@@ -17,7 +17,7 @@
 
 </div>
 
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwavetermdev%2Fwaveterm.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwavetermdev%2Fwaveterm?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdoratermdev%2Fdoraterm.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdoratermdev%2Fdoraterm?ref=badge_shield)
 
 Wave is an open-source, AI-integrated terminal for macOS, Linux, and Windows. It works with any AI model. Bring your own API keys for OpenAI, Claude, or Gemini, or run local models via Ollama and LM Studio. No accounts required.
 
@@ -53,19 +53,19 @@ Wave AI is your context-aware terminal assistant with access to your workspace:
 - **Free Beta**: Included AI credits while we refine the experience
 - **Coming Soon**: Command execution (with approval)
 
-Learn more in our [Wave AI documentation](https://docs.waveterm.dev/waveai) and [Wave AI Modes documentation](https://docs.waveterm.dev/waveai-modes).
+Learn more in our [Wave AI documentation](https://docs.doraterm.dev/waveai) and [Wave AI Modes documentation](https://docs.doraterm.dev/waveai-modes).
 
 ## Installation
 
-Wave Terminal works on macOS, Linux, and Windows.
+Dora Terminal works on macOS, Linux, and Windows.
 
-Platform-specific installation instructions can be found [here](https://docs.waveterm.dev/gettingstarted).
+Platform-specific installation instructions can be found [here](https://docs.doraterm.dev/gettingstarted).
 
-You can also install Wave Terminal directly from: [www.waveterm.dev/download](https://www.waveterm.dev/download).
+You can also install Dora Terminal directly from: [www.doraterm.dev/download](https://www.doraterm.dev/download).
 
 ### Minimum requirements
 
-Wave Terminal runs on the following platforms:
+Dora Terminal runs on the following platforms:
 
 - macOS 11 or later (arm64, x64)
 - Windows 10 1809 or later (x64)
@@ -81,19 +81,19 @@ The WSH helper runs on the following platforms:
 
 Wave is constantly improving! Our roadmap will be continuously updated with our goals for each release. You can find it [here](./ROADMAP.md).
 
-Want to provide input to our future releases? Connect with us on [Discord](https://discord.gg/XfvZ334gwU) or open a [Feature Request](https://github.com/wavetermdev/waveterm/issues/new/choose)!
+Want to provide input to our future releases? Connect with us on [Discord](https://discord.gg/XfvZ334gwU) or open a [Feature Request](https://github.com/doratermdev/doraterm/issues/new/choose)!
 
 ## Links
 
-- Homepage &mdash; https://www.waveterm.dev
-- Download Page &mdash; https://www.waveterm.dev/download
-- Documentation &mdash; https://docs.waveterm.dev
-- X &mdash; https://x.com/wavetermdev
+- Homepage &mdash; https://www.doraterm.dev
+- Download Page &mdash; https://www.doraterm.dev/download
+- Documentation &mdash; https://docs.doraterm.dev
+- X &mdash; https://x.com/doratermdev
 - Discord Community &mdash; https://discord.gg/XfvZ334gwU
 
 ## Building from Source
 
-See [Building Wave Terminal](BUILD.md).
+See [Building Dora Terminal](BUILD.md).
 
 ## Contributing
 
@@ -106,12 +106,12 @@ Find more information in our [Contributions Guide](CONTRIBUTING.md), which inclu
 
 ### Sponsoring Wave ❤️
 
-If Wave Terminal is useful to you or your company, consider sponsoring development.
+If Dora Terminal is useful to you or your company, consider sponsoring development.
 
 Sponsorship helps support the time spent building and maintaining the project.
 
-- https://github.com/sponsors/wavetermdev
+- https://github.com/sponsors/doratermdev
 
 ## License
 
-Wave Terminal is licensed under the Apache-2.0 License. For more information on our dependencies, see [here](./ACKNOWLEDGEMENTS.md).
+Dora Terminal is licensed under the Apache-2.0 License. For more information on our dependencies, see [here](./ACKNOWLEDGEMENTS.md).

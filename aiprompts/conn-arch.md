@@ -1,8 +1,8 @@
-# Wave Terminal Connection Architecture
+# Dora Terminal Connection Architecture
 
 ## Overview
 
-Wave Terminal's connection system is designed to provide a unified interface for running shell processes across local, SSH, and WSL environments. The architecture is built in layers, with clear separation of concerns between connection management, shell process execution, and block-level orchestration.
+Dora Terminal's connection system is designed to provide a unified interface for running shell processes across local, SSH, and WSL environments. The architecture is built in layers, with clear separation of concerns between connection management, shell process execution, and block-level orchestration.
 
 ## Architecture Layers
 
@@ -117,7 +117,7 @@ type SSHConn struct {
    - Supports ProxyJump for multi-hop connections
 
 2. **Domain Socket Setup** ([`OpenDomainSocketListener()`](../pkg/remote/conncontroller/conncontroller.go:201)):
-   - Creates Unix domain socket on remote host (`/tmp/waveterm-*.sock`)
+   - Creates Unix domain socket on remote host (`/tmp/doraterm-*.sock`)
    - Enables bidirectional RPC communication
    - Socket used by both connserver and shell processes
 
@@ -350,7 +350,7 @@ proc.Wait()
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │ 4. OpenDomainSocketListener(ctx) - Set Up RPC Channel          │
-│    - Create random socket path: /tmp/waveterm-[random].sock    │
+│    - Create random socket path: /tmp/doraterm-[random].sock    │
 │    - Use ssh.Client.ListenUnix() for remote forwarding         │
 │    - Start RPC listener goroutine                               │
 │    - Socket available for all subsequent operations             │
@@ -393,9 +393,9 @@ proc.Wait()
 
 **What is WSH?**
 - Binary program (`wsh`) that runs on remote hosts
-- Provides RPC services for Wave Terminal
+- Provides RPC services for Dora Terminal
 - Written in Go, cross-platform
-- Versioned to match Wave Terminal version
+- Versioned to match Dora Terminal version
 
 **WSH Components:**
 1. **wsh version**: Reports installed version
@@ -409,7 +409,7 @@ proc.Wait()
 1. Check if wsh is installed: Run `wsh version`
 2. If not installed: Detect platform with `uname -sm`
 3. Get appropriate binary from local cache
-4. Copy to remote: `~/.waveterm/bin/wsh`
+4. Copy to remote: `~/.doraterm/bin/wsh`
 5. Set executable permissions
 6. Restart connection process
 
@@ -502,8 +502,8 @@ proc.Wait()
 
 **Global Settings:**
 - `conn:askbeforewshinstall` - Prompt before WSH installation
-- Stored in `~/.waveterm/config/settings.json`
-- Per-connection overrides in `~/.waveterm/config/connections.json`
+- Stored in `~/.doraterm/config/settings.json`
+- Per-connection overrides in `~/.doraterm/config/connections.json`
 
 ### SSH Configuration
 
@@ -609,4 +609,4 @@ wps.Broker.Publish(wps.WaveEvent{
 
 8. **User Interaction**: Non-blocking prompts for passwords, confirmations, installations
 
-This architecture provides a robust foundation for Wave Terminal's multi-environment shell capabilities, with clear extension points for adding new connection types or capabilities.
+This architecture provides a robust foundation for Dora Terminal's multi-environment shell capabilities, with clear extension points for adding new connection types or capabilities.

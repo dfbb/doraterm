@@ -1,15 +1,15 @@
 <p align="center">
-  <a href="https://www.waveterm.dev">
+  <a href="https://www.doraterm.dev">
 	<picture>
 		<source media="(prefers-color-scheme: dark)" srcset="./assets/wave-dark.png">
 		<source media="(prefers-color-scheme: light)" srcset="./assets/wave-light.png">
-		<img alt="Wave Terminal Logo" src="./assets/wave-light.png" width="240">
+		<img alt="Dora Terminal Logo" src="./assets/wave-light.png" width="240">
 	</picture>
   </a>
   <br/>
 </p>
 
-# Wave Terminal
+# Dora Terminal
 
 <div align="center">
 
@@ -17,7 +17,7 @@
 
 </div>
 
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwavetermdev%2Fwaveterm.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwavetermdev%2Fwaveterm?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdoratermdev%2Fdoraterm.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdoratermdev%2Fdoraterm?ref=badge_shield)
 
 > 本文件為社群繁體中文翻譯版本。最新原文請參閱 [README.md](README.md)。
 
@@ -41,7 +41,7 @@ Wave AI 不只是一個聊天機器人——它能直接讀取你的終端機輸
 - **免費 Beta**：體驗優化期間提供免費 AI 額度
 - **即將推出**：命令執行功能（需使用者核准）
 
-詳細說明請參閱 [Wave AI 文件](https://docs.waveterm.dev/waveai) 與 [Wave AI Modes 文件](https://docs.waveterm.dev/waveai-modes)。
+詳細說明請參閱 [Wave AI 文件](https://docs.doraterm.dev/waveai) 與 [Wave AI Modes 文件](https://docs.doraterm.dev/waveai-modes)。
 
 ### 🔗 持久化 SSH 連線
 
@@ -108,15 +108,15 @@ Wave 的介面由可自由排列的「區塊（Block）」組成。你可以將�
 
 ## 安裝
 
-Wave Terminal 支援 macOS、Linux 與 Windows。
+Dora Terminal 支援 macOS、Linux 與 Windows。
 
-各平台的安裝說明請參閱[此處](https://docs.waveterm.dev/gettingstarted)。
+各平台的安裝說明請參閱[此處](https://docs.doraterm.dev/gettingstarted)。
 
-你也可以直接從官方下載頁面安裝：[www.waveterm.dev/download](https://www.waveterm.dev/download)。
+你也可以直接從官方下載頁面安裝：[www.doraterm.dev/download](https://www.doraterm.dev/download)。
 
 ### 最低系統需求
 
-Wave Terminal 支援以下平台：
+Dora Terminal 支援以下平台：
 
 - macOS 11 或更新版本（arm64、x64）
 - Windows 10 1809 或更新版本（x64）
@@ -132,19 +132,19 @@ WSH 輔助程式支援以下平台：
 
 Wave 持續進化中！發展藍圖會隨每次發行版本持續更新，請至[此處](./ROADMAP.md)查閱。
 
-想為未來版本提供建議？歡迎加入 [Discord](https://discord.gg/XfvZ334gwU) 社群，或提交 [Feature Request](https://github.com/wavetermdev/waveterm/issues/new/choose)！
+想為未來版本提供建議？歡迎加入 [Discord](https://discord.gg/XfvZ334gwU) 社群，或提交 [Feature Request](https://github.com/doratermdev/doraterm/issues/new/choose)！
 
 ## 連結
 
-- 官方網站 &mdash; https://www.waveterm.dev
-- 下載頁面 &mdash; https://www.waveterm.dev/download
-- 技術文件 &mdash; https://docs.waveterm.dev
-- X（Twitter）&mdash; https://x.com/wavetermdev
+- 官方網站 &mdash; https://www.doraterm.dev
+- 下載頁面 &mdash; https://www.doraterm.dev/download
+- 技術文件 &mdash; https://docs.doraterm.dev
+- X（Twitter）&mdash; https://x.com/doratermdev
 - Discord 社群 &mdash; https://discord.gg/XfvZ334gwU
 
 ## 從原始碼建置
 
-請參閱 [Building Wave Terminal](BUILD.md)。
+請參閱 [Building Dora Terminal](BUILD.md)。
 
 ## 貢獻
 
@@ -157,12 +157,12 @@ Wave 使用 GitHub Issues 進行問題追蹤。
 
 ### 贊助 Wave ❤️
 
-如果 Wave Terminal 對你或你的公司有幫助，歡迎贊助開發工作。
+如果 Dora Terminal 對你或你的公司有幫助，歡迎贊助開發工作。
 
 贊助有助於支持專案的建置與維護所投入的時間。
 
-- https://github.com/sponsors/wavetermdev
+- https://github.com/sponsors/doratermdev
 
 ## 授權條款
 
-Wave Terminal 採用 Apache-2.0 授權條款。相依性資訊請參閱[此處](./ACKNOWLEDGEMENTS.md)。
+Dora Terminal 採用 Apache-2.0 授權條款。相依性資訊請參閱[此處](./ACKNOWLEDGEMENTS.md)。

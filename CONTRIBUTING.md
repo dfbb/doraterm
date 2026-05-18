@@ -1,6 +1,6 @@
-# Contributing to Wave Terminal
+# Contributing to Dora Terminal
 
-Wave Terminal is an opinionated project with a single active maintainer. Contributions are welcome, but **alignment matters more than volume**.
+Dora Terminal is an opinionated project with a single active maintainer. Contributions are welcome, but **alignment matters more than volume**.
 
 This document helps you decide _whether_ and _how_ to contribute in a way that's likely to be accepted, saving both of us time.
 
@@ -100,7 +100,7 @@ The project uses American English. Please follow existing formatting and style c
 
 ## Development setup
 
-To build and run Wave locally, see instructions at [Building Wave Terminal](./BUILD.md).
+To build and run Wave locally, see instructions at [Building Dora Terminal](./BUILD.md).
 
 ## Code of Conduct
 
@@ -108,4 +108,4 @@ All contributors are expected to follow the project's [Code of Conduct](./CODE_O
 
 ---
 
-Thank you for your interest in Wave Terminal. Clear expectations help keep the project moving quickly and sustainably.
+Thank you for your interest in Dora Terminal. Clear expectations help keep the project moving quickly and sustainably.
