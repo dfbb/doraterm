@@ -44,25 +44,25 @@ var blocksListCmd = &cobra.Command{
 
 Examples:
   # List blocks from all workspaces
-  wsh blocks list
+  dsh blocks list
 
   # List only terminal blocks
-  wsh blocks list --view=term
+  dsh blocks list --view=term
 
-  # Filter by window ID (get IDs from 'wsh workspace list')
-  wsh blocks list --window=dbca23b5-f89b-4780-a0fe-452f5bc7d900
+  # Filter by window ID (get IDs from 'dsh workspace list')
+  dsh blocks list --window=dbca23b5-f89b-4780-a0fe-452f5bc7d900
 
   # Filter by workspace ID
-  wsh blocks list --workspace=12d0c067-378e-454c-872e-77a314248114
+  dsh blocks list --workspace=12d0c067-378e-454c-872e-77a314248114
 
   # Filter by tab ID
-  wsh blocks list --tab=a0459921-cc1a-48cc-ae7b-5f4821e1c9e1
+  dsh blocks list --tab=a0459921-cc1a-48cc-ae7b-5f4821e1c9e1
 
   # Output as JSON for scripting
-  wsh blocks list --json
+  dsh blocks list --json
 
   # Set a different timeout (in milliseconds)
-  wsh blocks list --timeout=10000`,
+  dsh blocks list --timeout=10000`,
 	RunE:    blocksListRun,
 	PreRunE: preRunSetupRpcClient,
 	SilenceUsage: true,

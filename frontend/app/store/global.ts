@@ -636,7 +636,7 @@ function setActiveTab(tabId: string) {
     getApi().setActiveTab(tabId);
 }
 
-function recordTEvent(_event: string, _props?: Record<string, any>) {
+function recordTEvent(_event: string, _props?: TEventProps) {
     // telemetry removed; no-op
 }
 

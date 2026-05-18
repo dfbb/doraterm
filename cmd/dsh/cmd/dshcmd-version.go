@@ -32,7 +32,7 @@ func init() {
 
 func runVersionCmd(cmd *cobra.Command, args []string) error {
 	if !versionVerbose && !versionJSON {
-		WriteStdout("wsh v%s\n", dorabase.DoraVersion)
+		WriteStdout("dsh v%s\n", dorabase.DoraVersion)
 		return nil
 	}
 
