@@ -9,8 +9,8 @@ DORATERM_DSHBINDIR={{.WSHBINDIR}}
 # after /etc/profile which is likely to clobber the path
 export PATH="$DORATERM_DSHBINDIR:$PATH"
 
-# Source the dynamic script from wsh token
-eval "$(wsh token "$DORATERM_SWAPTOKEN" bash 2> /dev/null)"
+# Source the dynamic script from dsh token
+eval "$(dsh token "$DORATERM_SWAPTOKEN" bash 2> /dev/null)"
 unset DORATERM_SWAPTOKEN
 
 # Source the first of ~/.bash_profile, ~/.bash_login, or ~/.profile that exists
@@ -27,7 +27,7 @@ if [[ ":$PATH:" != *":$DORATERM_DSHBINDIR:"* ]]; then
 fi
 unset DORATERM_DSHBINDIR
 if type _init_completion &>/dev/null; then
-  source <(wsh completion bash)
+  source <(dsh completion bash)
 fi
 
 # extdebug breaks bash-preexec semantics; bail out cleanly

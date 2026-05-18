@@ -1,16 +1,16 @@
 # We source this file with -NoExit -File
 $env:PATH = {{.WSHBINDIR_PWSH}} + "{{.PATHSEP}}" + $env:PATH
 
-# Source dynamic script from wsh token
-$waveterm_swaptoken_output = wsh token $env:DORATERM_SWAPTOKEN pwsh 2>$null | Out-String
-if ($waveterm_swaptoken_output -and $waveterm_swaptoken_output -ne "") {
-    Invoke-Expression $waveterm_swaptoken_output
+# Source dynamic script from dsh token
+$doraterm_swaptoken_output = dsh token $env:DORATERM_SWAPTOKEN pwsh 2>$null | Out-String
+if ($doraterm_swaptoken_output -and $doraterm_swaptoken_output -ne "") {
+    Invoke-Expression $doraterm_swaptoken_output
 }
-Remove-Variable -Name waveterm_swaptoken_output
+Remove-Variable -Name doraterm_swaptoken_output
 Remove-Item Env:DORATERM_SWAPTOKEN
 
 # Load Wave completions
-wsh completion powershell | Out-String | Invoke-Expression
+dsh completion powershell | Out-String | Invoke-Expression
 
 if ($PSVersionTable.PSVersion.Major -lt 7) {
     return  # skip OSC setup entirely
