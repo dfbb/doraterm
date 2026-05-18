@@ -458,7 +458,7 @@ func initCustomShellStartupFilesInternal() error {
 		return fmt.Errorf("error copying wsh binary to bin: %v", err)
 	}
 	wshBaseName := filepath.Base(wshFullPath)
-	log.Printf("wsh binary successfully copied from %q to %q\n", wshBaseName, wshDstPath)
+	log.Printf("dsh binary successfully copied from %q to %q\n", wshBaseName, wshDstPath)
 	return nil
 }
 

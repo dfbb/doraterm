@@ -156,7 +156,10 @@ declare global {
         meta?: boolean;
         cmd?: boolean;
         option?: boolean;
+        nativeEvent?: any;
     };
+
+    type TEventProps = { [key: string]: any };
 
     type KeyPressDecl = {
         mods: {

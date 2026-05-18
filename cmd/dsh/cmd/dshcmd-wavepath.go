@@ -35,11 +35,11 @@ func wavepathRun(cmd *cobra.Command, args []string) (rtnErr error) {
 
 	if len(args) == 0 {
 		OutputHelpMessage(cmd)
-		return fmt.Errorf("no arguments. wsh wavepath requires a type argument (config, data, or log)")
+		return fmt.Errorf("no arguments. dsh dorapath requires a type argument (config, data, or log)")
 	}
 	if len(args) > 1 {
 		OutputHelpMessage(cmd)
-		return fmt.Errorf("too many arguments. wsh wavepath requires exactly one argument")
+		return fmt.Errorf("too many arguments. dsh dorapath requires exactly one argument")
 	}
 
 	pathType := args[0]
