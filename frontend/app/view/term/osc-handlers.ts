@@ -16,7 +16,7 @@ import { base64ToString, fireAndForget, isSshConnName, isWslConnName } from "@/u
 import debug from "debug";
 import type { TermWrap } from "./termwrap";
 
-const dlog = debug("wave:termwrap");
+const dlog = debug("dora:termwrap");
 
 const Osc52MaxDecodedSize = 75 * 1024; // max clipboard size for OSC 52 (matches common terminal implementations)
 const Osc52MaxRawLength = 128 * 1024; // includes selector + base64 + whitespace (rough check)

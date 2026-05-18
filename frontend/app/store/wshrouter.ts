@@ -5,7 +5,7 @@ import { handleDoraEvent } from "@/app/store/wps";
 import * as util from "@/util/util";
 import debug from "debug";
 
-const dlog = debug("wave:router");
+const dlog = debug("dora:router");
 
 const SysRouteName = "sys";
 const ControlRouteName = "$control";

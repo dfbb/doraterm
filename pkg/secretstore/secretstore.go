@@ -28,7 +28,7 @@ const (
 	EncryptionTimeout = 5000
 	InitRetryMs       = 1000
 	SecretNamePattern = `^[A-Za-z][A-Za-z0-9_]*$`
-	WriteTsKey        = "wave:writets"
+	WriteTsKey        = "dora:writets"
 )
 
 var lock sync.Mutex
