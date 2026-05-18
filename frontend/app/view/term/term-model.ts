@@ -9,6 +9,7 @@ import { waveEventSubscribeSingle } from "@/app/store/wps";
 import { RpcApi } from "@/app/store/wshclientapi";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
 import { TermClaudeIcon, TerminalView } from "@/app/view/term/term";
+import { WorkspaceLayoutModel } from "@/app/workspace/workspace-layout-model";
 import {
     atoms,
     createBlock,
@@ -16,7 +17,6 @@ import {
     createBlockSplitVertically,
     getAllBlockComponentModels,
     getApi,
-    getBlockComponentModel,
     getBlockMetaKeyAtom,
     getBlockTermDurableAtom,
     getConnStatusAtom,
@@ -35,7 +35,7 @@ import { boundNumber, fireAndForget, stringToBase64 } from "@/util/util";
 import * as jotai from "jotai";
 import * as React from "react";
 import { getBlockingCommand } from "./shellblocking";
-import { computeTheme, DefaultTermTheme, isLikelyOnSameHost, trimTerminalSelection } from "./termutil";
+import { computeTheme, DefaultTermTheme, trimTerminalSelection } from "./termutil";
 import { TermWrap, WebGLSupported } from "./termwrap";
 
 export class TermViewModel implements ViewModel {

@@ -11,7 +11,6 @@ import { PlatformLinux, PlatformMacOS, PlatformWindows } from "@/util/platformut
 import { NullAtom } from "@/util/util";
 import { Atom, atom, PrimitiveAtom, useAtomValue } from "jotai";
 import { showPreviewContextMenu } from "../preview-contextmenu";
-import { MockSysinfoConnection } from "../previews/sysinfo.preview-util";
 import { DefaultFullConfig } from "./defaultconfig";
 import { DefaultMockFilesystem } from "./mockfilesystem";
 import { previewElectronApi } from "./preview-electron-api";
@@ -20,9 +19,6 @@ export const PreviewTabId = crypto.randomUUID();
 export const PreviewWindowId = crypto.randomUUID();
 export const PreviewWorkspaceId = crypto.randomUUID();
 export const PreviewClientId = crypto.randomUUID();
-export const WebBlockId = crypto.randomUUID();
-export const SysinfoBlockId = crypto.randomUUID();
-export const ProcessViewerBlockId = crypto.randomUUID();
 
 // What works "out of the box" in the mock environment (no MockEnv overrides needed):
 //
@@ -169,9 +165,7 @@ function makeMockGlobalAtoms(
         workspaceId: workspaceIdAtom,
         workspace: workspaceAtom,
         fullConfigAtom,
-        waveaiModeConfigAtom: atom({}) as any,
         settingsAtom,
-        hasCustomAIPresetsAtom: atom(false),
         hasConfigErrors: atom((get) => {
             const c = get(fullConfigAtom);
             return c?.configerrors != null && c.configerrors.length > 0;
@@ -389,36 +383,9 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
             oid: PreviewTabId,
             version: 1,
             name: "Preview Tab",
-            blockids: [WebBlockId, SysinfoBlockId, ProcessViewerBlockId],
+            blockids: [],
             meta: {},
         } as Tab,
-        [`block:${WebBlockId}`]: {
-            otype: "block",
-            oid: WebBlockId,
-            version: 1,
-            meta: {
-                view: "web",
-            },
-        } as Block,
-        [`block:${SysinfoBlockId}`]: {
-            otype: "block",
-            oid: SysinfoBlockId,
-            version: 1,
-            meta: {
-                view: "sysinfo",
-                connection: MockSysinfoConnection,
-                "sysinfo:type": "CPU + Mem",
-                "graph:numpoints": 90,
-            },
-        } as Block,
-        [`block:${ProcessViewerBlockId}`]: {
-            otype: "block",
-            oid: ProcessViewerBlockId,
-            version: 1,
-            meta: {
-                view: "processviewer",
-            },
-        } as Block,
     };
     const defaultAtoms: Partial<GlobalAtomsType> = {
         uiContext: atom({ windowid: PreviewWindowId, activetabid: PreviewTabId } as UIContext),

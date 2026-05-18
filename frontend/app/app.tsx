@@ -125,12 +125,7 @@ async function handleContextMenu(e: React.MouseEvent<HTMLDivElement>) {
         menu.push({
             label: "Open Clipboard URL (" + clipboardURL.hostname + ")",
             click: () => {
-                createBlock({
-                    meta: {
-                        view: "web",
-                        url: clipboardURL.toString(),
-                    },
-                });
+                getApi().openExternal(clipboardURL.toString());
             },
         });
     }
