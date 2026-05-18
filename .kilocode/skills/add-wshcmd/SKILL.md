@@ -129,7 +129,7 @@ var myCommandCmd = &cobra.Command{
 Include `PreRunE: preRunSetupRpcClient` if your command:
 - Communicates with the Dora Terminal backend
 - Needs access to `RpcClient` 
-- Requires JWT authentication (WAVETERM_JWT env var)
+- Requires JWT authentication (DORATERM_JWT env var)
 - Makes RPC calls via `wshclient.*Command()` functions
 
 **Don't include PreRunE** for commands that:
@@ -287,9 +287,9 @@ func myCommandRun(cmd *cobra.Command, args []string) (rtnErr error) {
 
 ```go
 // Get tab ID from environment
-tabId := os.Getenv("WAVETERM_TABID")
+tabId := os.Getenv("DORATERM_TABID")
 if tabId == "" {
-    return fmt.Errorf("WAVETERM_TABID not set")
+    return fmt.Errorf("DORATERM_TABID not set")
 }
 
 // Create route for tab-level operations
@@ -776,15 +776,15 @@ func myCommandRun(cmd *cobra.Command, args []string) (rtnErr error) {
     }()
     
     // Get block ID from environment
-    blockId := os.Getenv("WAVETERM_BLOCKID")
+    blockId := os.Getenv("DORATERM_BLOCKID")
     if blockId == "" {
-        return fmt.Errorf("WAVETERM_BLOCKID not set")
+        return fmt.Errorf("DORATERM_BLOCKID not set")
     }
     
     // Get tab ID from environment
-    tabId := os.Getenv("WAVETERM_TABID")
+    tabId := os.Getenv("DORATERM_TABID")
     if tabId == "" {
-        return fmt.Errorf("WAVETERM_TABID not set")
+        return fmt.Errorf("DORATERM_TABID not set")
     }
     
     fmt.Printf("Block: %s, Tab: %s\n", blockId, tabId)
