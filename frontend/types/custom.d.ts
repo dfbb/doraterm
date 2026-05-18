@@ -14,9 +14,7 @@ declare global {
         workspaceId: jotai.Atom<string>; // derived from window WOS object
         workspace: jotai.Atom<Workspace>; // driven from workspaceId via WOS
         fullConfigAtom: jotai.PrimitiveAtom<FullConfigType>; // driven from WOS, settings -- updated via WebSocket
-        waveaiModeConfigAtom: jotai.PrimitiveAtom<Record<string, AIModeConfigType>>; // resolved AI mode configs -- updated via WebSocket
         settingsAtom: jotai.Atom<SettingsType>; // derrived from fullConfig
-        hasCustomAIPresetsAtom: jotai.Atom<boolean>; // derived from fullConfig
         hasConfigErrors: jotai.Atom<boolean>; // derived from fullConfig
         staticTabId: jotai.Atom<string>;
         isFullScreen: jotai.PrimitiveAtom<boolean>;
@@ -126,12 +124,8 @@ declare global {
         captureScreenshot(rect: Electron.Rectangle): Promise<string>; // capture-screenshot
         setKeyboardChordMode: () => void; // set-keyboard-chord-mode
         clearWebviewStorage: (webContentsId: number) => Promise<void>; // clear-webview-storage
-        setWaveAIOpen: (isOpen: boolean) => void; // set-waveai-open
-        closeBuilderWindow: () => void; // close-builder-window
-        incrementTermCommands: (opts?: { isRemote?: boolean; isWsl?: boolean; isDurable?: boolean }) => void; // increment-term-commands
+        incrementTermCommands: (opts?: { isDurable?: boolean }) => void; // increment-term-commands
         nativePaste: () => void; // native-paste
-        openBuilder: (appId?: string) => void; // open-builder
-        setBuilderWindowAppId: (appId: string) => void; // set-builder-window-appid
         doRefresh: () => void; // do-refresh
         getPathForFile: (file: File) => string; // webUtils.getPathForFile
         saveTextFile: (fileName: string, content: string) => Promise<boolean>; // save-text-file
@@ -472,7 +466,6 @@ declare global {
               previewurl?: string;
           };
 
-    type AIModeConfigWithMode = { mode: string } & AIModeConfigType;
 }
 
 export {};
