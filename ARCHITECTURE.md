@@ -468,7 +468,7 @@ type RpcContext struct { ... }           // 调用上下文，含 BlockId / TabI
 WCLOUD_PING_ENDPOINT=https://ping-dev.doraterm.dev/central
 WCLOUD_ENDPOINT=https://api-dev.doraterm.dev/central
 WCLOUD_WS_ENDPOINT=wss://wsapi-dev.doraterm.dev
-WAVETERM_NOCONFIRMQUIT=1
+DORATERM_NOCONFIRMQUIT=1
 ```
 
 ### 8.3 代码生成流向

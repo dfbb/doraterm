@@ -25,7 +25,7 @@ Wave 是一款開源、整合 AI 的終端機應用程式，支援 macOS、Linux
 
 Wave 同時支援**持久化 SSH 連線**，即使網路中斷或應用程式重新啟動，連線也會自動恢復。你可以使用內建的圖形化編輯器直接編輯遠端檔案，也能在不離開終端機的情況下即時預覽檔案內容。
 
-![WaveTerm Screenshot](./assets/wave-screenshot.webp)
+![WaveTerm Screenshot](./assets/dora-screenshot.webp)
 
 ## 主要功能
 
