@@ -9,12 +9,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/wavetermdev/waveterm/pkg/remote/conncontroller"
 	"github.com/wavetermdev/waveterm/pkg/waveobj"
 	"github.com/wavetermdev/waveterm/pkg/wconfig"
 	"github.com/wavetermdev/waveterm/pkg/wcore"
 	"github.com/wavetermdev/waveterm/pkg/wshrpc"
-	"github.com/wavetermdev/waveterm/pkg/wslconn"
 	"github.com/wavetermdev/waveterm/pkg/wstore"
 )
 
@@ -37,12 +35,6 @@ func (cs *ClientService) GetTab(tabId string) (*waveobj.Tab, error) {
 		return nil, fmt.Errorf("error getting tab: %w", err)
 	}
 	return tab, nil
-}
-
-func (cs *ClientService) GetAllConnStatus(ctx context.Context) ([]wshrpc.ConnStatus, error) {
-	sshStatuses := conncontroller.GetAllConnStatus()
-	wslStatuses := wslconn.GetAllConnStatus()
-	return append(sshStatuses, wslStatuses...), nil
 }
 
 // moves the window to the front of the windowId stack

@@ -17,15 +17,12 @@ import (
 	"github.com/wavetermdev/waveterm/pkg/blocklogger"
 	"github.com/wavetermdev/waveterm/pkg/filestore"
 	"github.com/wavetermdev/waveterm/pkg/jobcontroller"
-	"github.com/wavetermdev/waveterm/pkg/remote"
-	"github.com/wavetermdev/waveterm/pkg/remote/conncontroller"
 	"github.com/wavetermdev/waveterm/pkg/util/ds"
 	"github.com/wavetermdev/waveterm/pkg/util/shellutil"
 	"github.com/wavetermdev/waveterm/pkg/wavebase"
 	"github.com/wavetermdev/waveterm/pkg/waveobj"
 	"github.com/wavetermdev/waveterm/pkg/wps"
 	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshclient"
-	"github.com/wavetermdev/waveterm/pkg/wslconn"
 	"github.com/wavetermdev/waveterm/pkg/wstore"
 )
 
@@ -251,24 +248,10 @@ func ResyncController(ctx context.Context, tabId string, blockId string, rtOpts 
 		}
 	}
 
-	// Check if we need to start/restart
-	status := controller.GetRuntimeStatus()
-	if status.ShellProcStatus == Status_Init {
-		// For shell/cmd, check connection status first (for non-local connections)
-		if controllerName == BlockController_Shell || controllerName == BlockController_Cmd {
-			if !conncontroller.IsLocalConnName(connName) {
-				err = CheckConnStatus(blockId)
-				if err != nil {
-					return fmt.Errorf("cannot start shellproc: %w", err)
-				}
-			}
-		}
-
-		// Start controller
-		err = controller.Start(ctx, blockData.Meta, rtOpts, force)
-		if err != nil {
-			return fmt.Errorf("error starting controller: %w", err)
-		}
+	// Start controller
+	err = controller.Start(ctx, blockData.Meta, rtOpts, force)
+	if err != nil {
+		return fmt.Errorf("error starting controller: %w", err)
 	}
 
 	return nil
@@ -293,22 +276,6 @@ func DestroyBlockController(blockId string) {
 }
 
 func sendConnMonitorInputNotification(controller Controller) {
-	connName := controller.GetConnName()
-	if connName == "" || conncontroller.IsLocalConnName(connName) || conncontroller.IsWslConnName(connName) {
-		return
-	}
-
-	connOpts, parseErr := remote.ParseOpts(connName)
-	if parseErr != nil {
-		return
-	}
-	sshConn := conncontroller.MaybeGetConn(connOpts)
-	if sshConn != nil {
-		monitor := sshConn.GetMonitor()
-		if monitor != nil {
-			monitor.NotifyInput()
-		}
-	}
 }
 
 func SendInput(blockId string, inputUnion *BlockInputUnion) error {
@@ -414,35 +381,6 @@ func debugLog(ctx context.Context, fmtStr string, args ...interface{}) {
 }
 
 func CheckConnStatus(blockId string) error {
-	bdata, err := wstore.DBMustGet[*waveobj.Block](context.Background(), blockId)
-	if err != nil {
-		return fmt.Errorf("error getting block: %w", err)
-	}
-	connName := bdata.Meta.GetString(waveobj.MetaKey_Connection, "")
-	if conncontroller.IsLocalConnName(connName) {
-		return nil
-	}
-	if strings.HasPrefix(connName, "wsl://") {
-		distroName := strings.TrimPrefix(connName, "wsl://")
-		conn := wslconn.GetWslConn(distroName)
-		connStatus := conn.DeriveConnStatus()
-		if connStatus.Status != conncontroller.Status_Connected {
-			return fmt.Errorf("not connected: %s", connStatus.Status)
-		}
-		return nil
-	}
-	opts, err := remote.ParseOpts(connName)
-	if err != nil {
-		return fmt.Errorf("error parsing connection name: %w", err)
-	}
-	conn := conncontroller.MaybeGetConn(opts)
-	if conn == nil {
-		return fmt.Errorf("no connection found")
-	}
-	connStatus := conn.DeriveConnStatus()
-	if connStatus.Status != conncontroller.Status_Connected {
-		return fmt.Errorf("not connected: %s", connStatus.Status)
-	}
 	return nil
 }
 
