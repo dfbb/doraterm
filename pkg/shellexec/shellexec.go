@@ -12,7 +12,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -25,7 +24,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/util/pamparse"
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
 	"github.com/dfbb/doraterm/pkg/dorabase"
-	"github.com/dfbb/doraterm/pkg/dshutil"
+	"github.com/dfbb/doraterm/pkg/doraobj"
 )
 
 const DefaultGracefulKillWait = 400 * time.Millisecond

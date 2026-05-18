@@ -6,7 +6,7 @@ import { EmojiButton } from "@/app/element/emojibutton";
 import { MagnifyIcon } from "@/app/element/magnify";
 import { ClientModel } from "@/app/store/client-model";
 import * as WOS from "@/app/store/wos";
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcApi } from "@/app/store/dshclientapi";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
 import { isMacOS } from "@/util/platformutil";
 import { useEffect, useState } from "react";

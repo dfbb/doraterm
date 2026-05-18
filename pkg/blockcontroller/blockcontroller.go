@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
-	"strings"
 	"sync"
 	"time"
 
@@ -22,7 +21,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/dorabase"
 	"github.com/dfbb/doraterm/pkg/doraobj"
 	"github.com/dfbb/doraterm/pkg/dps"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 	"github.com/dfbb/doraterm/pkg/dstore"
 )
 

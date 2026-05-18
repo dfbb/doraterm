@@ -12,7 +12,6 @@ import (
 	"github.com/dfbb/doraterm/pkg/doraobj"
 	"github.com/dfbb/doraterm/pkg/dconfig"
 	"github.com/dfbb/doraterm/pkg/dcore"
-	"github.com/dfbb/doraterm/pkg/dshrpc"
 	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
@@ -60,7 +59,6 @@ func (cs *ClientService) AgreeTos(ctx context.Context) (doraobj.UpdatesRtnType, 
 
 func (cs *ClientService) TelemetryUpdate(ctx context.Context, telemetryEnabled bool) error {
 	meta := doraobj.MetaMapType{
-		dconfig.ConfigKey_TelemetryEnabled: telemetryEnabled,
 	}
 	err := dconfig.SetBaseConfigValue(meta)
 	if err != nil {

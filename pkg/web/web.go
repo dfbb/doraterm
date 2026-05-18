@@ -23,13 +23,13 @@ import (
 	"github.com/dfbb/doraterm/pkg/authkey"
 	"github.com/dfbb/doraterm/pkg/filestore"
 	"github.com/dfbb/doraterm/pkg/panichandler"
-	"github.com/dfbb/doraterm/pkg/remote/fileshare/wshfs"
+	"github.com/dfbb/doraterm/pkg/remote/fileshare/dshfs"
 	"github.com/dfbb/doraterm/pkg/schema"
 	"github.com/dfbb/doraterm/pkg/service"
 	"github.com/dfbb/doraterm/pkg/util/fileutil"
 	"github.com/dfbb/doraterm/pkg/dorabase"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 )
 
 type WebFnType = func(http.ResponseWriter, *http.Request)
@@ -248,7 +248,7 @@ func handleStreamFileFromReader(w http.ResponseWriter, r *http.Request, path str
 	rangeHeader := r.Header.Get("Range")
 	log.Printf("stream-file path=%q range=%q\n", path, rangeHeader)
 
-	writerRouteId, err := wshfs.GetConnectionRouteId(r.Context(), path)
+	writerRouteId, err := dshfs.GetConnectionRouteId(r.Context(), path)
 	if err != nil {
 		return err
 	}
@@ -278,7 +278,7 @@ func handleStreamFileFromReader(w http.ResponseWriter, r *http.Request, path str
 		ByteRange:  byteRange,
 		StreamMeta: *streamMeta,
 	}
-	fileInfo, err := wshfs.FileStream(r.Context(), data)
+	fileInfo, err := dshfs.FileStream(r.Context(), data)
 	if err != nil {
 		if no404 {
 			serveTransparentGIF(w)

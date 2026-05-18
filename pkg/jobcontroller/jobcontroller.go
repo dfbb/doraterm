@@ -31,7 +31,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/dcore"
 	"github.com/dfbb/doraterm/pkg/dps"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 	"github.com/dfbb/doraterm/pkg/dshutil"
 	"github.com/dfbb/doraterm/pkg/dstore"
 	"golang.org/x/sync/singleflight"
@@ -403,7 +403,7 @@ func attemptAutoReconnect(jobId string, connName string) {
 	log.Printf("[job:%s] connection %s, attempting auto-reconnect to determine job manager status", jobId, connName)
 	ctx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancelFn()
-	err = ReconnectJob(ctx, jobId, nil)
+	err := ReconnectJob(ctx, jobId, nil)
 	if err != nil {
 		log.Printf("[job:%s] auto-reconnect failed: %v", jobId, err)
 	} else {

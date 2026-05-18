@@ -15,14 +15,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/dfbb/doraterm/pkg/filestore"
 	"github.com/dfbb/doraterm/pkg/jobcontroller"
-	"github.com/dfbb/doraterm/pkg/shellexec"
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
 	"github.com/dfbb/doraterm/pkg/utilds"
 	"github.com/dfbb/doraterm/pkg/dorabase"
 	"github.com/dfbb/doraterm/pkg/doraobj"
 	"github.com/dfbb/doraterm/pkg/dps"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 	"github.com/dfbb/doraterm/pkg/dshutil"
 	"github.com/dfbb/doraterm/pkg/dstore"
 )
@@ -226,8 +224,6 @@ func (dsc *DurableShellController) startNewJob(ctx context.Context, blockMeta do
 	if rtOpts != nil && rtOpts.TermSize.Rows > 0 && rtOpts.TermSize.Cols > 0 {
 		termSize = rtOpts.TermSize
 	}
-	cmdStr := blockMeta.GetString(doraobj.MetaKey_Cmd, "")
-	cwd := blockMeta.GetString(doraobj.MetaKey_CmdCwd, "")
 	shellPath := blockMeta.GetString(doraobj.MetaKey_TermLocalShellPath, "")
 	if shellPath == "" {
 		shellPath = shellutil.DetectLocalShellPath()
@@ -246,14 +242,6 @@ func (dsc *DurableShellController) startNewJob(ctx context.Context, blockMeta do
 	}
 	swapToken.RpcContext = &rpcContext
 	swapToken.Env[dshutil.DoraJwtTokenVarName] = jwtStr
-	cmdOpts := shellexec.CommandOptsType{
-		Interactive: true,
-		Login:       true,
-		Cwd:         cwd,
-		ShellPath:   shellPath,
-		SwapToken:   swapToken,
-		ForceJwt:    blockMeta.GetBool(doraobj.MetaKey_CmdJwt, false),
-	}
 	jobParams := jobcontroller.StartJobParams{
 		ConnName: connName,
 		JobKind:  jobcontroller.JobKind_Shell,

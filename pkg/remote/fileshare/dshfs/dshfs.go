@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package wshfs
+package dshfs
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 
 	"github.com/dfbb/doraterm/pkg/remote/connparse"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 

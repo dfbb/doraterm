@@ -6,7 +6,7 @@ import { appHandleKeyDown } from "@/app/store/keymodel";
 import { modalsModel } from "@/app/store/modalmodel";
 import type { TabModel } from "@/app/store/tab-model";
 import { waveEventSubscribeSingle } from "@/app/store/wps";
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcApi } from "@/app/store/dshclientapi";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
 import { TermClaudeIcon, TerminalView } from "@/app/view/term/term";
 import { WorkspaceLayoutModel } from "@/app/workspace/workspace-layout-model";

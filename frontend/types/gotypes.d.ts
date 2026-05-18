@@ -5,110 +5,7 @@
 
 declare global {
 
-    // wshrpc.AIAttachedFile
-    type AIAttachedFile = {
-        name: string;
-        type: string;
-        size: number;
-        data64: string;
-    };
-
-    // wconfig.AIModeConfigType
-    type AIModeConfigType = {
-        "display:name": string;
-        "display:order"?: number;
-        "display:icon"?: string;
-        "display:description"?: string;
-        "ai:provider"?: string;
-        "ai:apitype"?: string;
-        "ai:model"?: string;
-        "ai:thinkinglevel"?: string;
-        "ai:verbosity"?: string;
-        "ai:endpoint"?: string;
-        "ai:proxyurl"?: string;
-        "ai:azureapiversion"?: string;
-        "ai:apitoken"?: string;
-        "ai:apitokensecretname"?: string;
-        "ai:azureresourcename"?: string;
-        "ai:azuredeployment"?: string;
-        "ai:capabilities"?: string[];
-        "ai:switchcompat"?: string[];
-        "waveai:cloud"?: boolean;
-        "waveai:premium"?: boolean;
-    };
-
-    // wconfig.AIModeConfigUpdate
-    type AIModeConfigUpdate = {
-        configs: {[key: string]: AIModeConfigType};
-    };
-
-    // wshrpc.ActivityDisplayType
-    type ActivityDisplayType = {
-        width: number;
-        height: number;
-        dpr: number;
-        internal?: boolean;
-    };
-
-    // wshrpc.ActivityUpdate
-    type ActivityUpdate = {
-        fgminutes?: number;
-        activeminutes?: number;
-        openminutes?: number;
-        waveaifgminutes?: number;
-        waveaiactiveminutes?: number;
-        numtabs?: number;
-        newtab?: number;
-        numblocks?: number;
-        numwindows?: number;
-        numws?: number;
-        numwsnamed?: number;
-        numsshconn?: number;
-        numwslconn?: number;
-        nummagnify?: number;
-        termcommandsrun?: number;
-        numpanics?: number;
-        numaireqs?: number;
-        startup?: number;
-        shutdown?: number;
-        settabtheme?: number;
-        buildtime?: string;
-        displays?: ActivityDisplayType[];
-        renderers?: {[key: string]: number};
-        blocks?: {[key: string]: number};
-        wshcmds?: {[key: string]: number};
-        conn?: {[key: string]: number};
-    };
-
-    // wshrpc.AiMessageData
-    type AiMessageData = {
-        message?: string;
-    };
-
-    // wshrpc.AppInfo
-    type AppInfo = {
-        appid: string;
-        modtime: number;
-        manifest?: AppManifest;
-    };
-
-    // wshrpc.AppManifest
-    type AppManifest = {
-        appmeta: AppMeta;
-        configschema: {[key: string]: any};
-        dataschema: {[key: string]: any};
-        secrets: {[key: string]: SecretMeta};
-    };
-
-    // wshrpc.AppMeta
-    type AppMeta = {
-        title: string;
-        shortdesc: string;
-        icon: string;
-        iconcolor: string;
-    };
-
-    // wconfig.BackgroundConfigType
+    // dconfig.BackgroundConfigType
     type BackgroundConfigType = {
         bg?: string;
         "bg:opacity"?: number;
@@ -137,7 +34,7 @@ declare global {
         badge?: Badge;
     };
 
-    // waveobj.Block
+    // doraobj.Block
     type Block = DoraObj & {
         parentoref?: string;
         runtimeopts?: RuntimeOpts;
@@ -153,16 +50,15 @@ declare global {
         shellprocstatus?: string;
         shellprocconnname?: string;
         shellprocexitcode: number;
-        tsunamiport?: number;
     };
 
-    // waveobj.BlockDef
+    // doraobj.BlockDef
     type BlockDef = {
         files?: {[key: string]: FileDef};
         meta?: MetaType;
     };
 
-    // wshrpc.BlockInfoData
+    // dshrpc.BlockInfoData
     type BlockInfoData = {
         blockid: string;
         tabid: string;
@@ -171,7 +67,7 @@ declare global {
         files: DoraFileInfo[];
     };
 
-    // wshrpc.BlockJobStatusData
+    // dshrpc.BlockJobStatusData
     type BlockJobStatusData = {
         blockid: string;
         jobid: string;
@@ -184,7 +80,7 @@ declare global {
         cmdexitsignal?: string;
     };
 
-    // wshrpc.BlocksListEntry
+    // dshrpc.BlocksListEntry
     type BlocksListEntry = {
         windowid: string;
         workspaceid: string;
@@ -193,25 +89,13 @@ declare global {
         meta: MetaType;
     };
 
-    // wshrpc.BlocksListRequest
+    // dshrpc.BlocksListRequest
     type BlocksListRequest = {
         windowid?: string;
         workspaceid?: string;
     };
 
-    // wshrpc.BuilderStatusData
-    type BuilderStatusData = {
-        status: string;
-        port?: number;
-        exitcode?: number;
-        errormsg?: string;
-        version: number;
-        manifest?: AppManifest;
-        secretbindings?: {[key: string]: string};
-        secretbindingscomplete: boolean;
-    };
-
-    // waveobj.Client
+    // doraobj.Client
     type Client = DoraObj & {
         windowids: string[];
         tosagreed?: number;
@@ -226,13 +110,13 @@ declare global {
         newactivetabid?: string;
     };
 
-    // wshrpc.CommandAuthenticateJobManagerData
+    // dshrpc.CommandAuthenticateJobManagerData
     type CommandAuthenticateJobManagerData = {
         jobid: string;
         jobauthtoken: string;
     };
 
-    // wshrpc.CommandAuthenticateRtnData
+    // dshrpc.CommandAuthenticateRtnData
     type CommandAuthenticateRtnData = {
         routeid: string;
         env?: {[key: string]: string};
@@ -240,24 +124,24 @@ declare global {
         rpccontext?: RpcContext;
     };
 
-    // wshrpc.CommandAuthenticateToJobData
+    // dshrpc.CommandAuthenticateToJobData
     type CommandAuthenticateToJobData = {
         jobaccesstoken: string;
     };
 
-    // wshrpc.CommandAuthenticateTokenData
+    // dshrpc.CommandAuthenticateTokenData
     type CommandAuthenticateTokenData = {
         token: string;
     };
 
-    // wshrpc.CommandBadgeWatchPidData
+    // dshrpc.CommandBadgeWatchPidData
     type CommandBadgeWatchPidData = {
         pid: number;
         oref: ORef;
         badgeid: string;
     };
 
-    // wshrpc.CommandBlockInputData
+    // dshrpc.CommandBlockInputData
     type CommandBlockInputData = {
         blockid: string;
         inputdata64?: string;
@@ -265,31 +149,18 @@ declare global {
         termsize?: TermSize;
     };
 
-    // wshrpc.CommandCaptureBlockScreenshotData
+    // dshrpc.CommandCaptureBlockScreenshotData
     type CommandCaptureBlockScreenshotData = {
         blockid: string;
     };
 
-    // wshrpc.CommandCheckGoVersionRtnData
-    type CommandCheckGoVersionRtnData = {
-        gostatus: string;
-        gopath: string;
-        goversion: string;
-        errorstring?: string;
-    };
-
-    // wshrpc.CommandConnServerInitData
-    type CommandConnServerInitData = {
-        clientid: string;
-    };
-
-    // wshrpc.CommandControllerAppendOutputData
+    // dshrpc.CommandControllerAppendOutputData
     type CommandControllerAppendOutputData = {
         blockid: string;
         data64: string;
     };
 
-    // wshrpc.CommandControllerResyncData
+    // dshrpc.CommandControllerResyncData
     type CommandControllerResyncData = {
         forcerestart?: boolean;
         tabid: string;
@@ -297,7 +168,7 @@ declare global {
         rtopts?: RuntimeOpts;
     };
 
-    // wshrpc.CommandCreateBlockData
+    // dshrpc.CommandCreateBlockData
     type CommandCreateBlockData = {
         tabid: string;
         blockdef: BlockDef;
@@ -309,116 +180,106 @@ declare global {
         targetaction?: string;
     };
 
-    // wshrpc.CommandCreateSubBlockData
+    // dshrpc.CommandCreateSubBlockData
     type CommandCreateSubBlockData = {
         parentblockid: string;
         blockdef: BlockDef;
     };
 
-    // wshrpc.CommandDebugTermData
+    // dshrpc.CommandDebugTermData
     type CommandDebugTermData = {
         blockid: string;
         size: number;
     };
 
-    // wshrpc.CommandDebugTermRtnData
+    // dshrpc.CommandDebugTermRtnData
     type CommandDebugTermRtnData = {
         offset: number;
         data64: string;
     };
 
-    // wshrpc.CommandDeleteAppFileData
-    type CommandDeleteAppFileData = {
-        appid: string;
-        filename: string;
-    };
-
-    // wshrpc.CommandDeleteBlockData
+    // dshrpc.CommandDeleteBlockData
     type CommandDeleteBlockData = {
         blockid: string;
     };
 
-    // wshrpc.CommandDeleteFileData
+    // dshrpc.CommandDeleteFileData
     type CommandDeleteFileData = {
         path: string;
         recursive: boolean;
     };
 
-    // wshrpc.CommandDisposeData
+    // dshrpc.CommandDisposeData
     type CommandDisposeData = {
         routeid: string;
     };
 
-    // wshrpc.CommandElectronDecryptData
+    // dshrpc.CommandDoraFileReadStreamData
+    type CommandDoraFileReadStreamData = {
+        zoneid: string;
+        name: string;
+        streammeta: StreamMeta;
+    };
+
+    // dshrpc.CommandElectronDecryptData
     type CommandElectronDecryptData = {
         ciphertext: string;
     };
 
-    // wshrpc.CommandElectronDecryptRtnData
+    // dshrpc.CommandElectronDecryptRtnData
     type CommandElectronDecryptRtnData = {
         plaintext: string;
         storagebackend: string;
     };
 
-    // wshrpc.CommandElectronEncryptData
+    // dshrpc.CommandElectronEncryptData
     type CommandElectronEncryptData = {
         plaintext: string;
     };
 
-    // wshrpc.CommandElectronEncryptRtnData
+    // dshrpc.CommandElectronEncryptRtnData
     type CommandElectronEncryptRtnData = {
         ciphertext: string;
         storagebackend: string;
     };
 
-    // wshrpc.CommandEventReadHistoryData
+    // dshrpc.CommandEventReadHistoryData
     type CommandEventReadHistoryData = {
         event: string;
         scope: string;
         maxitems: number;
     };
 
-    // wshrpc.CommandFileCopyData
+    // dshrpc.CommandFileCopyData
     type CommandFileCopyData = {
         srcuri: string;
         desturi: string;
         opts?: FileCopyOpts;
     };
 
-    // wshrpc.CommandFileRestoreBackupData
-    type CommandFileRestoreBackupData = {
-        backupfilepath: string;
-        restoretofilename: string;
-    };
-
-    // wshrpc.CommandFileStreamData
+    // dshrpc.CommandFileStreamData
     type CommandFileStreamData = {
         info: FileInfo;
         byterange?: string;
         streammeta: StreamMeta;
     };
 
-    // wshrpc.CommandGetMetaData
+    // dshrpc.CommandGetMetaData
     type CommandGetMetaData = {
         oref: ORef;
     };
 
-    // wshrpc.CommandGetRTInfoData
+    // dshrpc.CommandGetRTInfoData
     type CommandGetRTInfoData = {
         oref: ORef;
     };
 
-    // wshrpc.CommandGetTempDirData
+    // dshrpc.CommandGetTempDirData
     type CommandGetTempDirData = {
         filename?: string;
     };
 
-    // wshrpc.CommandGetDoraAIChatData
-    type CommandGetDoraAIChatData = {
-        chatid: string;
-    };
-
-    // wshrpc.CommandJobCmdExitedData
+    // dshrpc.CommandJobCmdExitedData
     type CommandJobCmdExitedData = {
         jobid: string;
         exitcode?: number;
@@ -427,7 +288,7 @@ declare global {
         exitts?: number;
     };
 
-    // wshrpc.CommandJobConnectRtnData
+    // dshrpc.CommandJobConnectRtnData
     type CommandJobConnectRtnData = {
         seq: number;
         streamdone?: boolean;
@@ -438,13 +299,13 @@ declare global {
         exiterr?: string;
     };
 
-    // wshrpc.CommandJobControllerAttachJobData
+    // dshrpc.CommandJobControllerAttachJobData
     type CommandJobControllerAttachJobData = {
         jobid: string;
         blockid: string;
     };
 
-    // wshrpc.CommandJobControllerStartJobData
+    // dshrpc.CommandJobControllerStartJobData
     type CommandJobControllerStartJobData = {
         connname: string;
         jobkind: string;
@@ -454,7 +315,7 @@ declare global {
         termsize?: TermSize;
     };
 
-    // wshrpc.CommandJobInputData
+    // dshrpc.CommandJobInputData
     type CommandJobInputData = {
         jobid: string;
         inputsessionid?: string;
@@ -464,100 +325,51 @@ declare global {
         termsize?: TermSize;
     };
 
-    // wshrpc.CommandJobPrepareConnectData
+    // dshrpc.CommandJobPrepareConnectData
     type CommandJobPrepareConnectData = {
         streammeta: StreamMeta;
         seq: number;
         termsize: TermSize;
     };
 
-    // wshrpc.CommandJobStartStreamData
+    // dshrpc.CommandJobStartStreamData
     type CommandJobStartStreamData = object;
 
-    // wshrpc.CommandListAllAppFilesData
-    type CommandListAllAppFilesData = {
-        appid: string;
-    };
-
-    // wshrpc.CommandListAllAppFilesRtnData
-    type CommandListAllAppFilesRtnData = {
-        path: string;
-        absolutepath: string;
-        parentdir?: string;
-        entries: DirEntryOut[];
-        entrycount: number;
-        totalentries: number;
-        truncated?: boolean;
-    };
-
-    // wshrpc.CommandMakeDraftFromLocalData
-    type CommandMakeDraftFromLocalData = {
-        localappid: string;
-    };
-
-    // wshrpc.CommandMakeDraftFromLocalRtnData
-    type CommandMakeDraftFromLocalRtnData = {
-        draftappid: string;
-    };
-
-    // wshrpc.CommandMessageData
+    // dshrpc.CommandMessageData
     type CommandMessageData = {
         message: string;
     };
 
-    // wshrpc.CommandPublishAppData
-    type CommandPublishAppData = {
-        appid: string;
-    };
-
-    // wshrpc.CommandPublishAppRtnData
-    type CommandPublishAppRtnData = {
-        publishedappid: string;
-    };
-
-    // wshrpc.CommandReadAppFileData
-    type CommandReadAppFileData = {
-        appid: string;
-        filename: string;
-    };
-
-    // wshrpc.CommandReadAppFileRtnData
-    type CommandReadAppFileRtnData = {
-        data64: string;
-        notfound?: boolean;
-        modts?: number;
-    };
-
-    // wshrpc.CommandRemoteDisconnectFromJobManagerData
+    // dshrpc.CommandRemoteDisconnectFromJobManagerData
     type CommandRemoteDisconnectFromJobManagerData = {
         jobid: string;
     };
 
-    // wshrpc.CommandRemoteFileMultiInfoData
+    // dshrpc.CommandRemoteFileMultiInfoData
     type CommandRemoteFileMultiInfoData = {
         cwd: string;
         paths: string[];
     };
 
-    // wshrpc.CommandRemoteFileStreamData
+    // dshrpc.CommandRemoteFileStreamData
     type CommandRemoteFileStreamData = {
         path: string;
         byterange?: string;
         streammeta: StreamMeta;
     };
 
-    // wshrpc.CommandRemoteListEntriesData
+    // dshrpc.CommandRemoteListEntriesData
     type CommandRemoteListEntriesData = {
         path: string;
         opts?: FileListOpts;
     };
 
-    // wshrpc.CommandRemoteListEntriesRtnData
+    // dshrpc.CommandRemoteListEntriesRtnData
     type CommandRemoteListEntriesRtnData = {
         fileinfo?: FileInfo[];
     };
 
-    // wshrpc.CommandRemoteProcessListData
+    // dshrpc.CommandRemoteProcessListData
     type CommandRemoteProcessListData = {
         widgetid?: string;
         sortby?: string;
@@ -569,13 +381,13 @@ declare global {
         keepalive?: boolean;
     };
 
-    // wshrpc.CommandRemoteProcessSignalData
+    // dshrpc.CommandRemoteProcessSignalData
     type CommandRemoteProcessSignalData = {
         pid: number;
         signal: string;
     };
 
-    // wshrpc.CommandRemoteReconnectToJobManagerData
+    // dshrpc.CommandRemoteReconnectToJobManagerData
     type CommandRemoteReconnectToJobManagerData = {
         jobid: string;
         jobauthtoken: string;
@@ -584,14 +396,14 @@ declare global {
         jobmanagerstartts: number;
     };
 
-    // wshrpc.CommandRemoteReconnectToJobManagerRtnData
+    // dshrpc.CommandRemoteReconnectToJobManagerRtnData
     type CommandRemoteReconnectToJobManagerRtnData = {
         success: boolean;
         jobmanagergone: boolean;
         error?: string;
     };
 
-    // wshrpc.CommandRemoteStartJobData
+    // dshrpc.CommandRemoteStartJobData
     type CommandRemoteStartJobData = {
         cmd: string;
         args: string[];
@@ -605,55 +417,38 @@ declare global {
         publickeybase64: string;
     };
 
-    // wshrpc.CommandRemoteTerminateJobManagerData
+    // dshrpc.CommandRemoteTerminateJobManagerData
     type CommandRemoteTerminateJobManagerData = {
         jobid: string;
         jobmanagerpid: number;
         jobmanagerstartts: number;
     };
 
-    // wshrpc.CommandRenameAppFileData
-    type CommandRenameAppFileData = {
-        appid: string;
-        fromfilename: string;
-        tofilename: string;
-    };
-
-    // wshrpc.CommandResolveIdsData
+    // dshrpc.CommandResolveIdsData
     type CommandResolveIdsData = {
         blockid: string;
         ids: string[];
     };
 
-    // wshrpc.CommandResolveIdsRtnData
+    // dshrpc.CommandResolveIdsRtnData
     type CommandResolveIdsRtnData = {
         resolvedids: {[key: string]: ORef};
     };
 
-    // wshrpc.CommandRestartBuilderAndWaitData
-    type CommandRestartBuilderAndWaitData = {
-        builderid: string;
-    };
-
-    // wshrpc.CommandSetMetaData
+    // dshrpc.CommandSetMetaData
     type CommandSetMetaData = {
         oref: ORef;
         meta: MetaType;
     };
 
-    // wshrpc.CommandSetRTInfoData
+    // dshrpc.CommandSetRTInfoData
     type CommandSetRTInfoData = {
         oref: ORef;
         data: ObjRTInfo;
         delete?: boolean;
     };
 
-    // wshrpc.CommandStartBuilderData
-    type CommandStartBuilderData = {
-        builderid: string;
-    };
-
-    // wshrpc.CommandStartJobData
+    // dshrpc.CommandStartJobData
     type CommandStartJobData = {
         cmd: string;
         args: string[];
@@ -662,7 +457,7 @@ declare global {
         streammeta?: StreamMeta;
     };
 
-    // wshrpc.CommandStartJobRtnData
+    // dshrpc.CommandStartJobRtnData
     type CommandStartJobRtnData = {
         cmdpid: number;
         cmdstartts: number;
@@ -670,7 +465,7 @@ declare global {
         jobmanagerstartts: number;
     };
 
-    // wshrpc.CommandStreamAckData
+    // dshrpc.CommandStreamAckData
     type CommandStreamAckData = {
         id: string;
         seq: number;
@@ -681,7 +476,7 @@ declare global {
         error?: string;
     };
 
-    // wshrpc.CommandStreamData
+    // dshrpc.CommandStreamData
     type CommandStreamData = {
         id: string;
         seq: number;
@@ -690,14 +485,14 @@ declare global {
         error?: string;
     };
 
-    // wshrpc.CommandTermGetScrollbackLinesData
+    // dshrpc.CommandTermGetScrollbackLinesData
     type CommandTermGetScrollbackLinesData = {
         linestart: number;
         lineend: number;
         lastcommand: boolean;
     };
 
-    // wshrpc.CommandTermGetScrollbackLinesRtnData
+    // dshrpc.CommandTermGetScrollbackLinesRtnData
     type CommandTermGetScrollbackLinesRtnData = {
         totallines: number;
         linestart: number;
@@ -705,7 +500,7 @@ declare global {
         lastupdated: number;
     };
 
-    // wshrpc.CommandVarData
+    // dshrpc.CommandVarData
     type CommandVarData = {
         key: string;
         val?: string;
@@ -714,53 +509,20 @@ declare global {
         filename: string;
     };
 
-    // wshrpc.CommandVarResponseData
+    // dshrpc.CommandVarResponseData
     type CommandVarResponseData = {
         key: string;
         val: string;
         exists: boolean;
     };
 
-    // wshrpc.CommandWaitForRouteData
+    // dshrpc.CommandWaitForRouteData
     type CommandWaitForRouteData = {
         routeid: string;
         waitms: number;
     };
 
-    // wshrpc.CommandDoraAIAddContextData
-    type CommandDoraAIAddContextData = {
-        files?: AIAttachedFile[];
-        text?: string;
-        submit?: boolean;
-        newchat?: boolean;
-    };
-
-    // wshrpc.CommandDoraAIGetToolDiffData
-    type CommandDoraAIGetToolDiffData = {
-        chatid: string;
-        toolcallid: string;
-    };
-
-    // wshrpc.CommandDoraAIGetToolDiffRtnData
-    type CommandDoraAIGetToolDiffRtnData = {
-        originalcontents64: string;
-        modifiedcontents64: string;
-    };
-
-    // wshrpc.CommandDoraAIToolApproveData
-    type CommandDoraAIToolApproveData = {
-        toolcallid: string;
-        approval?: string;
-    };
-
-    // wshrpc.CommandDoraFileReadStreamData
-    type CommandDoraFileReadStreamData = {
-        zoneid: string;
-        name: string;
-        streammeta: StreamMeta;
-    };
-
-    // wshrpc.CommandWebSelectorData
+    // dshrpc.CommandWebSelectorData
     type CommandWebSelectorData = {
         workspaceid: string;
         blockid: string;
@@ -769,55 +531,19 @@ declare global {
         opts?: WebSelectorOpts;
     };
 
-    // wshrpc.CommandWriteAppFileData
-    type CommandWriteAppFileData = {
-        appid: string;
-        filename: string;
-        data64: string;
-    };
-
-    // wshrpc.CommandWriteAppGoFileData
-    type CommandWriteAppGoFileData = {
-        appid: string;
-        data64: string;
-    };
-
-    // wshrpc.CommandWriteAppGoFileRtnData
-    type CommandWriteAppGoFileRtnData = {
-        data64: string;
-    };
-
-    // wshrpc.CommandWriteAppSecretBindingsData
-    type CommandWriteAppSecretBindingsData = {
-        appid: string;
-        bindings: {[key: string]: string};
-    };
-
-    // wshrpc.CommandWriteTempFileData
+    // dshrpc.CommandWriteTempFileData
     type CommandWriteTempFileData = {
         filename: string;
         data64: string;
     };
 
-    // wconfig.ConfigError
+    // dconfig.ConfigError
     type ConfigError = {
         file: string;
         err: string;
     };
 
-    // wshrpc.ConnConfigRequest
-    type ConnConfigRequest = {
-        host: string;
-        metamaptype: MetaType;
-    };
-
-    // wshrpc.ConnExtData
-    type ConnExtData = {
-        connname: string;
-        logblockid?: string;
-    };
-
-    // wconfig.ConnKeywords
+    // dconfig.ConnKeywords
     type ConnKeywords = {
         "conn:wshenabled"?: boolean;
         "conn:askbeforewshinstall"?: boolean;
@@ -856,14 +582,7 @@ declare global {
         "ssh:globalknownhostsfile"?: string[];
     };
 
-    // wshrpc.ConnRequest
-    type ConnRequest = {
-        host: string;
-        keywords?: ConnKeywords;
-        logblockid?: string;
-    };
-
-    // wshrpc.ConnStatus
+    // dshrpc.ConnStatus
     type ConnStatus = {
         status: string;
         connhealthstatus?: string;
@@ -880,51 +599,82 @@ declare global {
         keepalivesenttime?: number;
     };
 
-    // wshrpc.CpuDataRequest
+    // dshrpc.CpuDataRequest
     type CpuDataRequest = {
         id: string;
         count: number;
     };
 
-    // wshrpc.DirEntryOut
-    type DirEntryOut = {
+
+    // filestore.DoraFile
+    type DoraFile = {
+        zoneid: string;
         name: string;
-        dir?: boolean;
-        symlink?: boolean;
-        size?: number;
-        mode: string;
-        modified: string;
-        modifiedtime: string;
+        opts: FileOpts;
+        createdts: number;
+        size: number;
+        modts: number;
+        meta: {[key: string]: any};
     };
 
-    // vdom.DomRect
-    type DomRect = {
-        top: number;
-        left: number;
-        right: number;
-        bottom: number;
-        width: number;
-        height: number;
+    // dshrpc.DoraFileInfo
+    type DoraFileInfo = {
+        zoneid: string;
+        name: string;
+        opts: FileOpts;
+        createdts: number;
+        size: number;
+        modts: number;
+        meta: {[key: string]: any};
     };
 
-    // wshrpc.FetchSuggestionsData
-    type FetchSuggestionsData = {
-        suggestiontype: string;
-        query: string;
-        widgetid: string;
-        reqnum: number;
-        "file:cwd"?: string;
-        "file:dironly"?: boolean;
-        "file:connection"?: string;
+    // dshrpc.DoraInfoData
+    type DoraInfoData = {
+        version: string;
+        clientid: string;
+        buildtime: string;
+        configdir: string;
+        datadir: string;
     };
 
-    // wshrpc.FetchSuggestionsResponse
-    type FetchSuggestionsResponse = {
-        reqnum: number;
-        suggestions: SuggestionType[];
+    // dshrpc.DoraNotificationOptions
+    type DoraNotificationOptions = {
+        title?: string;
+        body?: string;
+        silent?: boolean;
     };
 
-    // wshrpc.FileCopyOpts
+    // doraobj.DoraObj
+    type DoraObj = {
+        otype: string;
+        oid: string;
+        version: number;
+        meta: MetaType;
+    };
+
+    // doraobj.DoraObjUpdate
+    type DoraObjUpdate = {
+        updatetype: string;
+        otype: string;
+        oid: string;
+        obj?: DoraObj;
+    };
+
+    // doraobj.Window
+    type DoraWindow = DoraObj & {
+        workspaceid: string;
+        isnew?: boolean;
+        pos: Point;
+        winsize: WinSize;
+        lastfocusts: number;
+    };
+
+    // dshrpc.DshServerCommandMeta
+    type DshServerCommandMeta = {
+        commandtype: string;
+    };
+
+    // dshrpc.FileCopyOpts
     type FileCopyOpts = {
         overwrite?: boolean;
         recursive?: boolean;
@@ -932,7 +682,7 @@ declare global {
         timeout?: number;
     };
 
-    // wshrpc.FileData
+    // dshrpc.FileData
     type FileData = {
         info?: FileInfo;
         data64?: string;
@@ -940,19 +690,19 @@ declare global {
         at?: FileDataAt;
     };
 
-    // wshrpc.FileDataAt
+    // dshrpc.FileDataAt
     type FileDataAt = {
         offset: number;
         size?: number;
     };
 
-    // waveobj.FileDef
+    // doraobj.FileDef
     type FileDef = {
         content?: string;
         meta?: {[key: string]: any};
     };
 
-    // wshrpc.FileInfo
+    // dshrpc.FileInfo
     type FileInfo = {
         path: string;
         dir?: string;
@@ -971,20 +721,20 @@ declare global {
         readonly?: boolean;
     };
 
-    // wshrpc.FileListData
+    // dshrpc.FileListData
     type FileListData = {
         path: string;
         opts?: FileListOpts;
     };
 
-    // wshrpc.FileListOpts
+    // dshrpc.FileListOpts
     type FileListOpts = {
         all?: boolean;
         offset?: number;
         limit?: number;
     };
 
-    // wshrpc.FileOpts
+    // dshrpc.FileOpts
     type FileOpts = {
         maxsize?: number;
         circular?: boolean;
@@ -994,7 +744,7 @@ declare global {
         append?: boolean;
     };
 
-    // wshrpc.FocusedBlockData
+    // dshrpc.FocusedBlockData
     type FocusedBlockData = {
         blockid: string;
         viewtype: string;
@@ -1007,7 +757,7 @@ declare global {
         termlastcommand?: string;
     };
 
-    // wconfig.FullConfigType
+    // dconfig.FullConfigType
     type FullConfigType = {
         settings: SettingsType;
         mimetypes: {[key: string]: MimeTypeConfigType};
@@ -1017,14 +767,12 @@ declare global {
         backgrounds: {[key: string]: BackgroundConfigType};
         termthemes: {[key: string]: TermThemeType};
         connections: {[key: string]: ConnKeywords};
-        bookmarks: {[key: string]: WebBookmark};
-        waveai: {[key: string]: AIModeConfigType};
         configerrors: ConfigError[];
         version: string;
         buildtime: string;
     };
 
-    // waveobj.Job
+    // doraobj.Job
     type Job = DoraObj & {
         connection: string;
         jobkind: string;
@@ -1051,13 +799,13 @@ declare global {
         streamerror?: string;
     };
 
-    // wshrpc.JobManagerStatusUpdate
+    // dshrpc.JobManagerStatusUpdate
     type JobManagerStatusUpdate = {
         jobid: string;
         jobmanagerstatus: string;
     };
 
-    // waveobj.LayoutActionData
+    // doraobj.LayoutActionData
     type LayoutActionData = {
         actiontype: string;
         actionid: string;
@@ -1071,7 +819,7 @@ declare global {
         position?: string;
     };
 
-    // waveobj.LayoutState
+    // doraobj.LayoutState
     type LayoutState = DoraObj & {
         rootnode?: any;
         magnifiednodeid?: string;
@@ -1080,13 +828,13 @@ declare global {
         pendingbackendactions?: LayoutActionData[];
     };
 
-    // waveobj.LeafOrderEntry
+    // doraobj.LeafOrderEntry
     type LeafOrderEntry = {
         nodeid: string;
         blockid: string;
     };
 
-    // waveobj.MetaTSType
+    // doraobj.MetaTSType
     type MetaType = {
         view?: string;
         controller?: string;
@@ -1219,16 +967,16 @@ declare global {
         ReturnDesc: string;
     };
 
-    // wconfig.MimeTypeConfigType
+    // dconfig.MimeTypeConfigType
     type MimeTypeConfigType = {
         icon: string;
         color: string;
     };
 
-    // waveobj.ORef
+    // doraobj.ORef
     type ORef = string;
 
-    // waveobj.ObjRTInfo
+    // doraobj.ObjRTInfo
     type ObjRTInfo = {
         "tsunami:appmeta"?: AppMeta;
         "tsunami:schemas"?: any;
@@ -1251,7 +999,7 @@ declare global {
         "waveai:maxoutputtokens"?: number;
     };
 
-    // wshrpc.PathCommandData
+    // dshrpc.PathCommandData
     type PathCommandData = {
         pathtype: string;
         open: boolean;
@@ -1259,13 +1007,13 @@ declare global {
         tabid: string;
     };
 
-    // waveobj.Point
+    // doraobj.Point
     type Point = {
         x: number;
         y: number;
     };
 
-    // wshrpc.ProcessInfo
+    // dshrpc.ProcessInfo
     type ProcessInfo = {
         pid: number;
         ppid?: number;
@@ -1279,7 +1027,7 @@ declare global {
         gone?: boolean;
     };
 
-    // wshrpc.ProcessListResponse
+    // dshrpc.ProcessListResponse
     type ProcessListResponse = {
         processes: ProcessInfo[];
         summary: ProcessSummary;
@@ -1290,7 +1038,7 @@ declare global {
         filteredcount?: number;
     };
 
-    // wshrpc.ProcessSummary
+    // dshrpc.ProcessSummary
     type ProcessSummary = {
         total: number;
         load1?: number;
@@ -1303,17 +1051,7 @@ declare global {
         cpusum?: number;
     };
 
-    // uctypes.RateLimitInfo
-    type RateLimitInfo = {
-        req: number;
-        reqlimit: number;
-        preq: number;
-        preqlimit: number;
-        resetepoch: number;
-        unknown?: boolean;
-    };
-
-    // wshrpc.RemoteInfo
+    // dshrpc.RemoteInfo
     type RemoteInfo = {
         clientarch: string;
         clientos: string;
@@ -1322,14 +1060,7 @@ declare global {
         homedir: string;
     };
 
-    // wshrpc.RestartBuilderAndWaitResult
-    type RestartBuilderAndWaitResult = {
-        success: boolean;
-        errormessage?: string;
-        buildoutput: string;
-    };
-
-    // wshrpc.RpcContext
+    // dshrpc.RpcContext
     type RpcContext = {
         sockname?: string;
         routeid: string;
@@ -1339,7 +1070,7 @@ declare global {
         isrouter?: boolean;
     };
 
-    // wshutil.RpcMessage
+    // dshutil.RpcMessage
     type RpcMessage = {
         command?: string;
         reqid?: string;
@@ -1354,26 +1085,20 @@ declare global {
         data?: any;
     };
 
-    // wshrpc.RpcOpts
+    // dshrpc.RpcOpts
     type RpcOpts = {
         timeout?: number;
         noresponse?: boolean;
         route?: string;
     };
 
-    // waveobj.RuntimeOpts
+    // doraobj.RuntimeOpts
     type RuntimeOpts = {
         termsize?: TermSize;
         winsize?: WinSize;
     };
 
-    // wshrpc.SecretMeta
-    type SecretMeta = {
-        desc: string;
-        optional: boolean;
-    };
-
-    // wconfig.SettingsType
+    // dconfig.SettingsType
     type SettingsType = {
         "app:*"?: boolean;
         "app:globalhotkey"?: string;
@@ -1387,23 +1112,6 @@ declare global {
         "app:disablectrlshiftdisplay"?: boolean;
         "app:focusfollowscursor"?: string;
         "app:tabbar"?: string;
-        "feature:waveappbuilder"?: boolean;
-        "ai:*"?: boolean;
-        "ai:preset"?: string;
-        "ai:apitype"?: string;
-        "ai:baseurl"?: string;
-        "ai:apitoken"?: string;
-        "ai:name"?: string;
-        "ai:model"?: string;
-        "ai:orgid"?: string;
-        "ai:apiversion"?: string;
-        "ai:maxtokens"?: number;
-        "ai:timeoutms"?: number;
-        "ai:proxyurl"?: string;
-        "ai:fontsize"?: number;
-        "ai:fixedfontsize"?: number;
-        "waveai:showcloudmodes"?: boolean;
-        "waveai:defaultmode"?: string;
         "term:*"?: boolean;
         "term:fontsize"?: number;
         "term:fontfamily"?: string;
@@ -1469,8 +1177,6 @@ declare global {
         "window:savelastwindow"?: boolean;
         "window:dimensions"?: string;
         "window:zoom"?: number;
-        "telemetry:*"?: boolean;
-        "telemetry:enabled"?: boolean;
         "conn:*"?: boolean;
         "conn:askbeforewshinstall"?: boolean;
         "conn:wshenabled"?: boolean;
@@ -1479,27 +1185,22 @@ declare global {
         "debug:pprofport"?: number;
         "debug:pprofmemprofilerate"?: number;
         "debug:webglstatus"?: boolean;
-        "tsunami:*"?: boolean;
-        "tsunami:scaffoldpath"?: string;
-        "tsunami:sdkreplacepath"?: string;
-        "tsunami:sdkversion"?: string;
-        "tsunami:gopath"?: string;
     };
 
-    // waveobj.StickerClickOptsType
+    // doraobj.StickerClickOptsType
     type StickerClickOptsType = {
         sendinput?: string;
         createblock?: BlockDef;
     };
 
-    // waveobj.StickerDisplayOptsType
+    // doraobj.StickerDisplayOptsType
     type StickerDisplayOptsType = {
         icon: string;
         imgsrc: string;
         svgblob?: string;
     };
 
-    // waveobj.StickerType
+    // doraobj.StickerType
     type StickerType = {
         stickertype: string;
         style: {[key: string]: any};
@@ -1507,7 +1208,7 @@ declare global {
         display: StickerDisplayOptsType;
     };
 
-    // wshrpc.StreamMeta
+    // dshrpc.StreamMeta
     type StreamMeta = {
         id: string;
         rwnd: number;
@@ -1515,181 +1216,27 @@ declare global {
         writerrouteid: string;
     };
 
-    // wps.SubscriptionRequest
+    // dps.SubscriptionRequest
     type SubscriptionRequest = {
         event: string;
         scopes?: string[];
         allscopes?: boolean;
     };
 
-    // wshrpc.SuggestionType
-    type SuggestionType = {
-        type: string;
-        suggestionid: string;
-        display: string;
-        subtext?: string;
-        icon?: string;
-        iconcolor?: string;
-        iconsrc?: string;
-        matchpos?: number[];
-        submatchpos?: number[];
-        score?: number;
-        "file:mimetype"?: string;
-        "file:path"?: string;
-        "file:name"?: string;
-        "url:url"?: string;
-    };
-
-    // telemetrydata.TEvent
-    type TEvent = {
-        uuid?: string;
-        ts?: number;
-        tslocal?: string;
-        event: string;
-        props: TEventProps;
-    };
-
-    // telemetrydata.TEventProps
-    type TEventProps = {
-        "client:arch"?: string;
-        "client:version"?: string;
-        "client:initial_version"?: string;
-        "client:buildtime"?: string;
-        "client:osrelease"?: string;
-        "client:isdev"?: boolean;
-        "client:packagetype"?: string;
-        "client:macos"?: string;
-        "cohort:month"?: string;
-        "cohort:isoweek"?: string;
-        "autoupdate:channel"?: string;
-        "autoupdate:enabled"?: boolean;
-        "localshell:type"?: string;
-        "localshell:version"?: string;
-        "loc:countrycode"?: string;
-        "loc:regioncode"?: string;
-        "settings:customwidgets"?: number;
-        "settings:customaipresets"?: number;
-        "settings:customsettings"?: number;
-        "settings:customaimodes"?: number;
-        "settings:secretscount"?: number;
-        "settings:transparent"?: boolean;
-        "activity:activeminutes"?: number;
-        "activity:fgminutes"?: number;
-        "activity:openminutes"?: number;
-        "activity:waveaiactiveminutes"?: number;
-        "activity:waveaifgminutes"?: number;
-        "activity:termcommandsrun"?: number;
-        "activity:termcommands:remote"?: number;
-        "activity:termcommands:durable"?: number;
-        "activity:termcommands:wsl"?: number;
-        "app:firstday"?: boolean;
-        "app:firstlaunch"?: boolean;
-        "action:initiator"?: "keyboard" | "mouse";
-        "action:type"?: string;
-        "debug:panictype"?: string;
-        "block:view"?: string;
-        "block:controller"?: string;
-        "ai:backendtype"?: string;
-        "ai:local"?: boolean;
-        "dsh:cmd"?: string;
-        "dsh:errorcount"?: number;
-        "dsh:count"?: number;
-        "conn:conntype"?: string;
-        "conn:wsherrorcode"?: string;
-        "conn:errorcode"?: string;
-        "conn:suberrorcode"?: string;
-        "conn:contexterror"?: boolean;
-        "onboarding:feature"?: "waveai" | "durable" | "magnify" | "wsh";
-        "onboarding:version"?: string;
-        "onboarding:githubstar"?: "already" | "star" | "later";
-        "onboarding:page"?: string;
-        "display:height"?: number;
-        "display:width"?: number;
-        "display:dpr"?: number;
-        "display:count"?: number;
-        "display:all"?: any;
-        "count:blocks"?: number;
-        "count:tabs"?: number;
-        "count:windows"?: number;
-        "count:workspaces"?: number;
-        "count:sshconn"?: number;
-        "count:wslconn"?: number;
-        "count:jobs"?: number;
-        "count:jobsconnected"?: number;
-        "count:views"?: {[key: string]: number};
-        "waveai:apitype"?: string;
-        "waveai:model"?: string;
-        "waveai:chatid"?: string;
-        "waveai:stepnum"?: number;
-        "waveai:inputtokens"?: number;
-        "waveai:outputtokens"?: number;
-        "waveai:nativewebsearchcount"?: number;
-        "waveai:requestcount"?: number;
-        "waveai:toolusecount"?: number;
-        "waveai:tooluseerrorcount"?: number;
-        "waveai:tooldetail"?: {[key: string]: number};
-        "waveai:premiumreq"?: number;
-        "waveai:proxyreq"?: number;
-        "waveai:haderror"?: boolean;
-        "waveai:imagecount"?: number;
-        "waveai:pdfcount"?: number;
-        "waveai:textdoccount"?: number;
-        "waveai:textlen"?: number;
-        "waveai:firstbytems"?: number;
-        "waveai:requestdurms"?: number;
-        "waveai:widgetaccess"?: boolean;
-        "waveai:thinkinglevel"?: string;
-        "waveai:mode"?: string;
-        "waveai:provider"?: string;
-        "waveai:islocal"?: boolean;
-        "waveai:feedback"?: "good" | "bad";
-        "waveai:action"?: string;
-        "job:donereason"?: string;
-        "job:kind"?: string;
-        $set?: TEventUserProps;
-        $set_once?: TEventUserProps;
-    };
-
-    // telemetrydata.TEventUserProps
-    type TEventUserProps = {
-        "client:arch"?: string;
-        "client:version"?: string;
-        "client:initial_version"?: string;
-        "client:buildtime"?: string;
-        "client:osrelease"?: string;
-        "client:isdev"?: boolean;
-        "client:packagetype"?: string;
-        "client:macos"?: string;
-        "cohort:month"?: string;
-        "cohort:isoweek"?: string;
-        "autoupdate:channel"?: string;
-        "autoupdate:enabled"?: boolean;
-        "localshell:type"?: string;
-        "localshell:version"?: string;
-        "loc:countrycode"?: string;
-        "loc:regioncode"?: string;
-        "settings:customwidgets"?: number;
-        "settings:customaipresets"?: number;
-        "settings:customsettings"?: number;
-        "settings:customaimodes"?: number;
-        "settings:secretscount"?: number;
-        "settings:transparent"?: boolean;
-    };
-
-    // waveobj.Tab
+    // doraobj.Tab
     type Tab = DoraObj & {
         name: string;
         layoutstate: string;
         blockids: string[];
     };
 
-    // waveobj.TermSize
+    // doraobj.TermSize
     type TermSize = {
         rows: number;
         cols: number;
     };
 
-    // wconfig.TermThemeType
+    // dconfig.TermThemeType
     type TermThemeType = {
         "display:name": string;
         "display:order": number;
@@ -1717,53 +1264,16 @@ declare global {
         cursor: string;
     };
 
-    // wshrpc.TimeSeriesData
+    // dshrpc.TimeSeriesData
     type TimeSeriesData = {
         ts: number;
         values: {[key: string]: number};
     };
 
-    // uctypes.UIChat
-    type UIChat = {
-        chatid: string;
-        apitype: string;
-        model: string;
-        apiversion: string;
-        messages: UIMessage[];
-    };
-
-    // waveobj.UIContext
+    // doraobj.UIContext
     type UIContext = {
         windowid: string;
         activetabid: string;
-    };
-
-    // uctypes.UIMessage
-    type UIMessage = {
-        id: string;
-        role: string;
-        metadata?: any;
-        parts?: UIMessagePart[];
-    };
-
-    // uctypes.UIMessagePart
-    type UIMessagePart = {
-        type: string;
-        text?: string;
-        state?: string;
-        toolCallId?: string;
-        input?: any;
-        output?: any;
-        errorText?: string;
-        providerExecuted?: boolean;
-        sourceId?: string;
-        url?: string;
-        title?: string;
-        filename?: string;
-        mediaType?: string;
-        id?: string;
-        data?: any;
-        providerMetadata?: {[key: string]: any};
     };
 
     // userinput.UserInputRequest
@@ -1790,199 +1300,6 @@ declare global {
         checkboxstat?: boolean;
     };
 
-    // vdom.VDomAsyncInitiationRequest
-    type VDomAsyncInitiationRequest = {
-        type: "asyncinitiationrequest";
-        ts: number;
-        blockid?: string;
-    };
-
-    // vdom.VDomBackendOpts
-    type VDomBackendOpts = {
-        closeonctrlc?: boolean;
-        globalkeyboardevents?: boolean;
-        globalstyles?: boolean;
-    };
-
-    // vdom.VDomBackendUpdate
-    type VDomBackendUpdate = {
-        type: "backendupdate";
-        ts: number;
-        blockid: string;
-        opts?: VDomBackendOpts;
-        haswork?: boolean;
-        renderupdates?: VDomRenderUpdate[];
-        transferelems?: VDomTransferElem[];
-        statesync?: VDomStateSync[];
-        refoperations?: VDomRefOperation[];
-        messages?: VDomMessage[];
-    };
-
-    // vdom.VDomBinding
-    type VDomBinding = {
-        type: "binding";
-        bind: string;
-    };
-
-    // vdom.VDomCreateContext
-    type VDomCreateContext = {
-        type: "createcontext";
-        ts: number;
-        meta?: MetaType;
-        target?: VDomTarget;
-        persist?: boolean;
-    };
-
-    // vdom.VDomElem
-    type VDomElem = {
-        waveid?: string;
-        tag: string;
-        props?: {[key: string]: any};
-        children?: VDomElem[];
-        text?: string;
-    };
-
-    // vdom.VDomEvent
-    type VDomEvent = {
-        waveid: string;
-        eventtype: string;
-        globaleventtype?: string;
-        targetvalue?: string;
-        targetchecked?: boolean;
-        targetname?: string;
-        targetid?: string;
-        keydata?: DoraKeyboardEvent;
-        mousedata?: DoraPointerData;
-    };
-
-    // vdom.VDomFrontendUpdate
-    type VDomFrontendUpdate = {
-        type: "frontendupdate";
-        ts: number;
-        blockid: string;
-        correlationid?: string;
-        dispose?: boolean;
-        resync?: boolean;
-        rendercontext?: VDomRenderContext;
-        events?: VDomEvent[];
-        statesync?: VDomStateSync[];
-        refupdates?: VDomRefUpdate[];
-        messages?: VDomMessage[];
-    };
-
-    // vdom.VDomFunc
-    type VDomFunc = {
-        type: "func";
-        stoppropagation?: boolean;
-        preventdefault?: boolean;
-        globalevent?: string;
-        #keys?: string[];
-    };
-
-    // vdom.VDomMessage
-    type VDomMessage = {
-        messagetype: string;
-        message: string;
-        stacktrace?: string;
-        params?: any[];
-    };
-
-    // vdom.VDomRef
-    type VDomRef = {
-        type: "ref";
-        refid: string;
-        trackposition?: boolean;
-        position?: VDomRefPosition;
-        hascurrent?: boolean;
-    };
-
-    // vdom.VDomRefOperation
-    type VDomRefOperation = {
-        refid: string;
-        op: string;
-        params?: any[];
-        outputref?: string;
-    };
-
-    // vdom.VDomRefPosition
-    type VDomRefPosition = {
-        offsetheight: number;
-        offsetwidth: number;
-        scrollheight: number;
-        scrollwidth: number;
-        scrolltop: number;
-        boundingclientrect: DomRect;
-    };
-
-    // vdom.VDomRefUpdate
-    type VDomRefUpdate = {
-        refid: string;
-        hascurrent: boolean;
-        position?: VDomRefPosition;
-    };
-
-    // vdom.VDomRenderContext
-    type VDomRenderContext = {
-        blockid: string;
-        focused: boolean;
-        width: number;
-        height: number;
-        rootrefid: string;
-        background?: boolean;
-    };
-
-    // vdom.VDomRenderUpdate
-    type VDomRenderUpdate = {
-        updatetype: "root"|"append"|"replace"|"remove"|"insert";
-        waveid?: string;
-        vdomwaveid?: string;
-        vdom?: VDomElem;
-        index?: number;
-    };
-
-    // vdom.VDomStateSync
-    type VDomStateSync = {
-        atom: string;
-        value: any;
-    };
-
-    // vdom.VDomTarget
-    type VDomTarget = {
-        newblock?: boolean;
-        magnified?: boolean;
-        toolbar?: VDomTargetToolbar;
-    };
-
-    // vdom.VDomTargetToolbar
-    type VDomTargetToolbar = {
-        toolbar: boolean;
-        height?: string;
-    };
-
-    // vdom.VDomTransferElem
-    type VDomTransferElem = {
-        waveid?: string;
-        tag: string;
-        props?: {[key: string]: any};
-        children?: string[];
-        text?: string;
-    };
-
-    // wshrpc.VDomUrlRequestData
-    type VDomUrlRequestData = {
-        method: string;
-        url: string;
-        headers: {[key: string]: string};
-        body?: string;
-    };
-
-    // wshrpc.VDomUrlRequestResponse
-    type VDomUrlRequestResponse = {
-        statuscode?: number;
-        headers?: {[key: string]: string};
-        body?: string;
-    };
-
     type WSCommandType = {
         wscommand: string;
     } & ( WSRpcCommand );
@@ -1994,7 +1311,7 @@ declare global {
         data: any;
     };
 
-    // wps.WSFileEventData
+    // dps.WSFileEventData
     type WSFileEventData = {
         zoneid: string;
         filename: string;
@@ -2008,118 +1325,9 @@ declare global {
         message: RpcMessage;
     };
 
-    // wconfig.WatcherUpdate
+    // dconfig.WatcherUpdate
     type WatcherUpdate = {
         fullconfig: FullConfigType;
-    };
-
-
-    // filestore.DoraFile
-    type DoraFile = {
-        zoneid: string;
-        name: string;
-        opts: FileOpts;
-        createdts: number;
-        size: number;
-        modts: number;
-        meta: {[key: string]: any};
-    };
-
-    // wshrpc.DoraFileInfo
-    type DoraFileInfo = {
-        zoneid: string;
-        name: string;
-        opts: FileOpts;
-        createdts: number;
-        size: number;
-        modts: number;
-        meta: {[key: string]: any};
-    };
-
-    // wshrpc.DoraInfoData
-    type DoraInfoData = {
-        version: string;
-        clientid: string;
-        buildtime: string;
-        configdir: string;
-        datadir: string;
-    };
-
-    // vdom.DoraKeyboardEvent
-    type DoraKeyboardEvent = {
-        type: "keydown"|"keyup"|"keypress"|"unknown";
-        key: string;
-        code: string;
-        repeat?: boolean;
-        location?: number;
-        shift?: boolean;
-        control?: boolean;
-        alt?: boolean;
-        meta?: boolean;
-        cmd?: boolean;
-        option?: boolean;
-    };
-
-    // wshrpc.DoraNotificationOptions
-    type DoraNotificationOptions = {
-        title?: string;
-        body?: string;
-        silent?: boolean;
-    };
-
-    // waveobj.DoraObj
-    type DoraObj = {
-        otype: string;
-        oid: string;
-        version: number;
-        meta: MetaType;
-    };
-
-    // waveobj.DoraObjUpdate
-    type DoraObjUpdate = {
-        updatetype: string;
-        otype: string;
-        oid: string;
-        obj?: DoraObj;
-    };
-
-    // vdom.DoraPointerData
-    type DoraPointerData = {
-        button: number;
-        buttons: number;
-        clientx?: number;
-        clienty?: number;
-        pagex?: number;
-        pagey?: number;
-        screenx?: number;
-        screeny?: number;
-        movementx?: number;
-        movementy?: number;
-        shift?: boolean;
-        control?: boolean;
-        alt?: boolean;
-        meta?: boolean;
-        cmd?: boolean;
-        option?: boolean;
-    };
-
-    // waveobj.Window
-    type DoraWindow = DoraObj & {
-        workspaceid: string;
-        isnew?: boolean;
-        pos: Point;
-        winsize: WinSize;
-        lastfocusts: number;
-    };
-
-    // wconfig.WebBookmark
-    type WebBookmark = {
-        url: string;
-        title?: string;
-        icon?: string;
-        iconcolor?: string;
-        iconurl?: string;
-        "display:order"?: number;
     };
 
     // service.WebCallType
@@ -2138,13 +1346,13 @@ declare global {
         updates?: DoraObjUpdate[];
     };
 
-    // wshrpc.WebSelectorOpts
+    // dshrpc.WebSelectorOpts
     type WebSelectorOpts = {
         all?: boolean;
         inner?: boolean;
     };
 
-    // wconfig.WidgetConfigType
+    // dconfig.WidgetConfigType
     type WidgetConfigType = {
         "display:order"?: number;
         "display:hidden"?: boolean;
@@ -2157,13 +1365,13 @@ declare global {
         blockdef: BlockDef;
     };
 
-    // waveobj.WinSize
+    // doraobj.WinSize
     type WinSize = {
         width: number;
         height: number;
     };
 
-    // waveobj.Workspace
+    // doraobj.Workspace
     type Workspace = DoraObj & {
         name?: string;
         icon?: string;
@@ -2172,21 +1380,16 @@ declare global {
         activetabid: string;
     };
 
-    // wshrpc.WorkspaceInfoData
+    // dshrpc.WorkspaceInfoData
     type WorkspaceInfoData = {
         windowid: string;
         workspacedata: Workspace;
     };
 
-    // waveobj.WorkspaceListEntry
+    // doraobj.WorkspaceListEntry
     type WorkspaceListEntry = {
         workspaceid: string;
         windowid: string;
-    };
-
-    // wshrpc.DshServerCommandMeta
-    type DshServerCommandMeta = {
-        commandtype: string;
     };
 
 }

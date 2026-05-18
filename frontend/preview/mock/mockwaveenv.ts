@@ -5,7 +5,7 @@ import { makeDefaultConnStatus } from "@/app/store/global";
 import { globalStore } from "@/app/store/jotaiStore";
 import { AllServiceTypes } from "@/app/store/services";
 import { handleDoraEvent } from "@/app/store/wps";
-import { RpcApiType } from "@/app/store/wshclientapi";
+import { RpcApiType } from "@/app/store/dshclientapi";
 import { DoraEnv } from "@/app/waveenv/waveenv";
 import { PlatformLinux, PlatformMacOS, PlatformWindows } from "@/util/platformutil";
 import { NullAtom } from "@/util/util";

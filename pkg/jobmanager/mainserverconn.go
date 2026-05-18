@@ -14,7 +14,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/baseds"
 	"github.com/dfbb/doraterm/pkg/dorajwt"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 

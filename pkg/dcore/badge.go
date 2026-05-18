@@ -11,7 +11,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
 	"github.com/dfbb/doraterm/pkg/doraobj"
 	"github.com/dfbb/doraterm/pkg/dps"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 )
 
 // BadgeStore is an in-memory store for transient badges.

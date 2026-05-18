@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/dfbb/doraterm/pkg/doraobj"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 )
 
 // secretNameRegex must match the validation in pkg/wconfig/secretstore.go

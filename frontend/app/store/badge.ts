@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcApi } from "@/app/store/dshclientapi";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
 import { DoraEnv, DoraEnvSubset } from "@/app/waveenv/waveenv";
 import { fireAndForget, NullAtom } from "@/util/util";

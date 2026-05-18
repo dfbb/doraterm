@@ -66,7 +66,7 @@ func GenerateDoraObjMetaConsts() error {
 func GenerateSettingsMetaConsts() error {
 	fmt.Fprintf(os.Stderr, "generating settings meta consts file to %s\n", SettingsMetaConstsFileName)
 	var buf strings.Builder
-	gogen.GenerateBoilerplate(&buf, "wconfig", []string{})
+	gogen.GenerateBoilerplate(&buf, "dconfig", []string{})
 	gogen.GenerateMetaMapConsts(&buf, "ConfigKey_", reflect.TypeOf(dconfig.SettingsType{}), false)
 	buf.WriteString("\n")
 	written, err := utilfn.WriteFileIfDifferent(SettingsMetaConstsFileName, []byte(buf.String()))

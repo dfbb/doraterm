@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 )
 
 var debugCmd = &cobra.Command{

@@ -6,28 +6,13 @@
 package dshclient
 
 import (
-	"github.com/dfbb/doraterm/pkg/aiusechat/uctypes"
 	"github.com/dfbb/doraterm/pkg/baseds"
-	"github.com/dfbb/doraterm/pkg/telemetry/telemetrydata"
-	"github.com/dfbb/doraterm/pkg/vdom"
 	"github.com/dfbb/doraterm/pkg/doraobj"
 	"github.com/dfbb/doraterm/pkg/dconfig"
 	"github.com/dfbb/doraterm/pkg/dps"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
 	"github.com/dfbb/doraterm/pkg/dshutil"
 )
-
-// command "activity", dshserver.ActivityCommand
-func ActivityCommand(w *dshutil.DshRpc, data dshrpc.ActivityUpdate, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "activity", data, opts)
-	return err
-}
-
-// command "aisendmessage", dshserver.AiSendMessageCommand
-func AiSendMessageCommand(w *dshutil.DshRpc, data dshrpc.AiMessageData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "aisendmessage", data, opts)
-	return err
-}
 
 // command "authenticate", dshserver.AuthenticateCommand
 func AuthenticateCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) (dshrpc.CommandAuthenticateRtnData, error) {
@@ -95,60 +80,6 @@ func CaptureBlockScreenshotCommand(w *dshutil.DshRpc, data dshrpc.CommandCapture
 	return resp, err
 }
 
-// command "checkgoversion", dshserver.CheckGoVersionCommand
-func CheckGoVersionCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) (*dshrpc.CommandCheckGoVersionRtnData, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.CommandCheckGoVersionRtnData](w, "checkgoversion", nil, opts)
-	return resp, err
-}
-
-// command "connconnect", dshserver.ConnConnectCommand
-func ConnConnectCommand(w *dshutil.DshRpc, data dshrpc.ConnRequest, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "connconnect", data, opts)
-	return err
-}
-
-// command "conndisconnect", dshserver.ConnDisconnectCommand
-func ConnDisconnectCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "conndisconnect", data, opts)
-	return err
-}
-
-// command "connensure", dshserver.ConnEnsureCommand
-func ConnEnsureCommand(w *dshutil.DshRpc, data dshrpc.ConnExtData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "connensure", data, opts)
-	return err
-}
-
-// command "connlist", dshserver.ConnListCommand
-func ConnListCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) ([]string, error) {
-	resp, err := sendRpcRequestCallHelper[[]string](w, "connlist", nil, opts)
-	return resp, err
-}
-
-// command "connreinstallwsh", dshserver.ConnReinstallWshCommand
-func ConnReinstallWshCommand(w *dshutil.DshRpc, data dshrpc.ConnExtData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "connreinstallwsh", data, opts)
-	return err
-}
-
-// command "connserverinit", dshserver.ConnServerInitCommand
-func ConnServerInitCommand(w *dshutil.DshRpc, data dshrpc.CommandConnServerInitData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "connserverinit", data, opts)
-	return err
-}
-
-// command "connstatus", dshserver.ConnStatusCommand
-func ConnStatusCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) ([]dshrpc.ConnStatus, error) {
-	resp, err := sendRpcRequestCallHelper[[]dshrpc.ConnStatus](w, "connstatus", nil, opts)
-	return resp, err
-}
-
-// command "connupdatewsh", dshserver.ConnUpdateWshCommand
-func ConnUpdateWshCommand(w *dshutil.DshRpc, data dshrpc.RemoteInfo, opts *dshrpc.RpcOpts) (bool, error) {
-	resp, err := sendRpcRequestCallHelper[bool](w, "connupdatewsh", data, opts)
-	return resp, err
-}
-
 // command "controlgetrouteid", dshserver.ControlGetRouteIdCommand
 func ControlGetRouteIdCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) (string, error) {
 	resp, err := sendRpcRequestCallHelper[string](w, "controlgetrouteid", nil, opts)
@@ -197,21 +128,9 @@ func DebugTermCommand(w *dshutil.DshRpc, data dshrpc.CommandDebugTermData, opts 
 	return resp, err
 }
 
-// command "deleteappfile", dshserver.DeleteAppFileCommand
-func DeleteAppFileCommand(w *dshutil.DshRpc, data dshrpc.CommandDeleteAppFileData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "deleteappfile", data, opts)
-	return err
-}
-
 // command "deleteblock", dshserver.DeleteBlockCommand
 func DeleteBlockCommand(w *dshutil.DshRpc, data dshrpc.CommandDeleteBlockData, opts *dshrpc.RpcOpts) error {
 	_, err := sendRpcRequestCallHelper[any](w, "deleteblock", data, opts)
-	return err
-}
-
-// command "deletebuilder", dshserver.DeleteBuilderCommand
-func DeleteBuilderCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "deletebuilder", data, opts)
 	return err
 }
 
@@ -221,22 +140,22 @@ func DeleteSubBlockCommand(w *dshutil.DshRpc, data dshrpc.CommandDeleteBlockData
 	return err
 }
 
-// command "dismisswshfail", dshserver.DismissWshFailCommand
-func DismissWshFailCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "dismisswshfail", data, opts)
-	return err
-}
-
 // command "dispose", dshserver.DisposeCommand
 func DisposeCommand(w *dshutil.DshRpc, data dshrpc.CommandDisposeData, opts *dshrpc.RpcOpts) error {
 	_, err := sendRpcRequestCallHelper[any](w, "dispose", data, opts)
 	return err
 }
 
-// command "disposesuggestions", dshserver.DisposeSuggestionsCommand
-func DisposeSuggestionsCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "disposesuggestions", data, opts)
-	return err
+// command "dorafilereadstream", dshserver.DoraFileReadStreamCommand
+func DoraFileReadStreamCommand(w *dshutil.DshRpc, data dshrpc.CommandDoraFileReadStreamData, opts *dshrpc.RpcOpts) (*dshrpc.DoraFileInfo, error) {
+	resp, err := sendRpcRequestCallHelper[*dshrpc.DoraFileInfo](w, "dorafilereadstream", data, opts)
+	return resp, err
+}
+
+// command "dorainfo", dshserver.DoraInfoCommand
+func DoraInfoCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) (*dshrpc.DoraInfoData, error) {
+	resp, err := sendRpcRequestCallHelper[*dshrpc.DoraInfoData](w, "dorainfo", nil, opts)
+	return resp, err
 }
 
 // command "electrondecrypt", dshserver.ElectronDecryptCommand
@@ -291,12 +210,6 @@ func EventUnsubCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) err
 func EventUnsubAllCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) error {
 	_, err := sendRpcRequestCallHelper[any](w, "eventunsuball", nil, opts)
 	return err
-}
-
-// command "fetchsuggestions", dshserver.FetchSuggestionsCommand
-func FetchSuggestionsCommand(w *dshutil.DshRpc, data dshrpc.FetchSuggestionsData, opts *dshrpc.RpcOpts) (*dshrpc.FetchSuggestionsResponse, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.FetchSuggestionsResponse](w, "fetchsuggestions", data, opts)
-	return resp, err
 }
 
 // command "fileappend", dshserver.FileAppendCommand
@@ -364,12 +277,6 @@ func FileReadCommand(w *dshutil.DshRpc, data dshrpc.FileData, opts *dshrpc.RpcOp
 	return resp, err
 }
 
-// command "filerestorebackup", dshserver.FileRestoreBackupCommand
-func FileRestoreBackupCommand(w *dshutil.DshRpc, data dshrpc.CommandFileRestoreBackupData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "filerestorebackup", data, opts)
-	return err
-}
-
 // command "filestream", dshserver.FileStreamCommand
 func FileStreamCommand(w *dshutil.DshRpc, data dshrpc.CommandFileStreamData, opts *dshrpc.RpcOpts) (*dshrpc.FileInfo, error) {
 	resp, err := sendRpcRequestCallHelper[*dshrpc.FileInfo](w, "filestream", data, opts)
@@ -380,12 +287,6 @@ func FileStreamCommand(w *dshutil.DshRpc, data dshrpc.CommandFileStreamData, opt
 func FileWriteCommand(w *dshutil.DshRpc, data dshrpc.FileData, opts *dshrpc.RpcOpts) error {
 	_, err := sendRpcRequestCallHelper[any](w, "filewrite", data, opts)
 	return err
-}
-
-// command "findgitbash", dshserver.FindGitBashCommand
-func FindGitBashCommand(w *dshutil.DshRpc, data bool, opts *dshrpc.RpcOpts) (string, error) {
-	resp, err := sendRpcRequestCallHelper[string](w, "findgitbash", data, opts)
-	return resp, err
 }
 
 // command "focuswindow", dshserver.FocusWindowCommand
@@ -403,18 +304,6 @@ func GetAllBadgesCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) ([]baseds.Badg
 // command "getallvars", dshserver.GetAllVarsCommand
 func GetAllVarsCommand(w *dshutil.DshRpc, data dshrpc.CommandVarData, opts *dshrpc.RpcOpts) ([]dshrpc.CommandVarResponseData, error) {
 	resp, err := sendRpcRequestCallHelper[[]dshrpc.CommandVarResponseData](w, "getallvars", data, opts)
-	return resp, err
-}
-
-// command "getbuilderoutput", dshserver.GetBuilderOutputCommand
-func GetBuilderOutputCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) ([]string, error) {
-	resp, err := sendRpcRequestCallHelper[[]string](w, "getbuilderoutput", data, opts)
-	return resp, err
-}
-
-// command "getbuilderstatus", dshserver.GetBuilderStatusCommand
-func GetBuilderStatusCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) (*dshrpc.BuilderStatusData, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.BuilderStatusData](w, "getbuilderstatus", data, opts)
 	return resp, err
 }
 
@@ -487,24 +376,6 @@ func GetUpdateChannelCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) (string, e
 // command "getvar", dshserver.GetVarCommand
 func GetVarCommand(w *dshutil.DshRpc, data dshrpc.CommandVarData, opts *dshrpc.RpcOpts) (*dshrpc.CommandVarResponseData, error) {
 	resp, err := sendRpcRequestCallHelper[*dshrpc.CommandVarResponseData](w, "getvar", data, opts)
-	return resp, err
-}
-
-// command "getwaveaichat", dshserver.GetDoraAIChatCommand
-func GetDoraAIChatCommand(w *dshutil.DshRpc, data dshrpc.CommandGetDoraAIChatData, opts *dshrpc.RpcOpts) (*uctypes.UIChat, error) {
-	resp, err := sendRpcRequestCallHelper[*uctypes.UIChat](w, "getwaveaichat", data, opts)
-	return resp, err
-}
-
-// command "getwaveaimodeconfig", dshserver.GetDoraAIModeConfigCommand
-func GetDoraAIModeConfigCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) (dconfig.AIModeConfigUpdate, error) {
-	resp, err := sendRpcRequestCallHelper[dconfig.AIModeConfigUpdate](w, "getwaveaimodeconfig", nil, opts)
-	return resp, err
-}
-
-// command "getwaveairatelimit", dshserver.GetDoraAIRateLimitCommand
-func GetDoraAIRateLimitCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) (*uctypes.RateLimitInfo, error) {
-	resp, err := sendRpcRequestCallHelper[*uctypes.RateLimitInfo](w, "getwaveairatelimit", nil, opts)
 	return resp, err
 }
 
@@ -598,33 +469,9 @@ func JobStartStreamCommand(w *dshutil.DshRpc, data dshrpc.CommandJobStartStreamD
 	return err
 }
 
-// command "listallappfiles", dshserver.ListAllAppFilesCommand
-func ListAllAppFilesCommand(w *dshutil.DshRpc, data dshrpc.CommandListAllAppFilesData, opts *dshrpc.RpcOpts) (*dshrpc.CommandListAllAppFilesRtnData, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.CommandListAllAppFilesRtnData](w, "listallappfiles", data, opts)
-	return resp, err
-}
-
-// command "listallapps", dshserver.ListAllAppsCommand
-func ListAllAppsCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) ([]dshrpc.AppInfo, error) {
-	resp, err := sendRpcRequestCallHelper[[]dshrpc.AppInfo](w, "listallapps", nil, opts)
-	return resp, err
-}
-
-// command "listalleditableapps", dshserver.ListAllEditableAppsCommand
-func ListAllEditableAppsCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) ([]dshrpc.AppInfo, error) {
-	resp, err := sendRpcRequestCallHelper[[]dshrpc.AppInfo](w, "listalleditableapps", nil, opts)
-	return resp, err
-}
-
 // command "macosversion", dshserver.MacOSVersionCommand
 func MacOSVersionCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) (string, error) {
 	resp, err := sendRpcRequestCallHelper[string](w, "macosversion", nil, opts)
-	return resp, err
-}
-
-// command "makedraftfromlocal", dshserver.MakeDraftFromLocalCommand
-func MakeDraftFromLocalCommand(w *dshutil.DshRpc, data dshrpc.CommandMakeDraftFromLocalData, opts *dshrpc.RpcOpts) (*dshrpc.CommandMakeDraftFromLocalRtnData, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.CommandMakeDraftFromLocalRtnData](w, "makedraftfromlocal", data, opts)
 	return resp, err
 }
 
@@ -646,34 +493,10 @@ func NotifyCommand(w *dshutil.DshRpc, data dshrpc.DoraNotificationOptions, opts 
 	return err
 }
 
-// command "notifysystemresume", dshserver.NotifySystemResumeCommand
-func NotifySystemResumeCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "notifysystemresume", nil, opts)
-	return err
-}
-
 // command "path", dshserver.PathCommand
 func PathCommand(w *dshutil.DshRpc, data dshrpc.PathCommandData, opts *dshrpc.RpcOpts) (string, error) {
 	resp, err := sendRpcRequestCallHelper[string](w, "path", data, opts)
 	return resp, err
-}
-
-// command "publishapp", dshserver.PublishAppCommand
-func PublishAppCommand(w *dshutil.DshRpc, data dshrpc.CommandPublishAppData, opts *dshrpc.RpcOpts) (*dshrpc.CommandPublishAppRtnData, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.CommandPublishAppRtnData](w, "publishapp", data, opts)
-	return resp, err
-}
-
-// command "readappfile", dshserver.ReadAppFileCommand
-func ReadAppFileCommand(w *dshutil.DshRpc, data dshrpc.CommandReadAppFileData, opts *dshrpc.RpcOpts) (*dshrpc.CommandReadAppFileRtnData, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.CommandReadAppFileRtnData](w, "readappfile", data, opts)
-	return resp, err
-}
-
-// command "recordtevent", dshserver.RecordTEventCommand
-func RecordTEventCommand(w *dshutil.DshRpc, data telemetrydata.TEvent, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "recordtevent", data, opts)
-	return err
 }
 
 // command "remotedisconnectfromjobmanager", dshserver.RemoteDisconnectFromJobManagerCommand
@@ -794,21 +617,9 @@ func RemoteWriteFileCommand(w *dshutil.DshRpc, data dshrpc.FileData, opts *dshrp
 	return err
 }
 
-// command "renameappfile", dshserver.RenameAppFileCommand
-func RenameAppFileCommand(w *dshutil.DshRpc, data dshrpc.CommandRenameAppFileData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "renameappfile", data, opts)
-	return err
-}
-
 // command "resolveids", dshserver.ResolveIdsCommand
 func ResolveIdsCommand(w *dshutil.DshRpc, data dshrpc.CommandResolveIdsData, opts *dshrpc.RpcOpts) (dshrpc.CommandResolveIdsRtnData, error) {
 	resp, err := sendRpcRequestCallHelper[dshrpc.CommandResolveIdsRtnData](w, "resolveids", data, opts)
-	return resp, err
-}
-
-// command "restartbuilderandwait", dshserver.RestartBuilderAndWaitCommand
-func RestartBuilderAndWaitCommand(w *dshutil.DshRpc, data dshrpc.CommandRestartBuilderAndWaitData, opts *dshrpc.RpcOpts) (*dshrpc.RestartBuilderAndWaitResult, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.RestartBuilderAndWaitResult](w, "restartbuilderandwait", data, opts)
 	return resp, err
 }
 
@@ -824,12 +635,6 @@ func RouteUnannounceCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) error {
 	return err
 }
 
-// command "sendtelemetry", dshserver.SendTelemetryCommand
-func SendTelemetryCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "sendtelemetry", nil, opts)
-	return err
-}
-
 // command "setblockfocus", dshserver.SetBlockFocusCommand
 func SetBlockFocusCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) error {
 	_, err := sendRpcRequestCallHelper[any](w, "setblockfocus", data, opts)
@@ -839,12 +644,6 @@ func SetBlockFocusCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) 
 // command "setconfig", dshserver.SetConfigCommand
 func SetConfigCommand(w *dshutil.DshRpc, data dshrpc.MetaSettingsType, opts *dshrpc.RpcOpts) error {
 	_, err := sendRpcRequestCallHelper[any](w, "setconfig", data, opts)
-	return err
-}
-
-// command "setconnectionsconfig", dshserver.SetConnectionsConfigCommand
-func SetConnectionsConfigCommand(w *dshutil.DshRpc, data dshrpc.ConnConfigRequest, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "setconnectionsconfig", data, opts)
 	return err
 }
 
@@ -878,22 +677,10 @@ func SetVarCommand(w *dshutil.DshRpc, data dshrpc.CommandVarData, opts *dshrpc.R
 	return err
 }
 
-// command "startbuilder", dshserver.StartBuilderCommand
-func StartBuilderCommand(w *dshutil.DshRpc, data dshrpc.CommandStartBuilderData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "startbuilder", data, opts)
-	return err
-}
-
 // command "startjob", dshserver.StartJobCommand
 func StartJobCommand(w *dshutil.DshRpc, data dshrpc.CommandStartJobData, opts *dshrpc.RpcOpts) (*dshrpc.CommandStartJobRtnData, error) {
 	resp, err := sendRpcRequestCallHelper[*dshrpc.CommandStartJobRtnData](w, "startjob", data, opts)
 	return resp, err
-}
-
-// command "stopbuilder", dshserver.StopBuilderCommand
-func StopBuilderCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "stopbuilder", data, opts)
-	return err
 }
 
 // command "streamcpudata", dshserver.StreamCpuDataCommand
@@ -948,67 +735,9 @@ func UpdateWorkspaceTabIdsCommand(w *dshutil.DshRpc, arg1 string, arg2 []string,
 	return err
 }
 
-// command "vdomasyncinitiation", dshserver.VDomAsyncInitiationCommand
-func VDomAsyncInitiationCommand(w *dshutil.DshRpc, data vdom.VDomAsyncInitiationRequest, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "vdomasyncinitiation", data, opts)
-	return err
-}
-
-// command "vdomcreatecontext", dshserver.VDomCreateContextCommand
-func VDomCreateContextCommand(w *dshutil.DshRpc, data vdom.VDomCreateContext, opts *dshrpc.RpcOpts) (*doraobj.ORef, error) {
-	resp, err := sendRpcRequestCallHelper[*doraobj.ORef](w, "vdomcreatecontext", data, opts)
-	return resp, err
-}
-
-// command "vdomrender", dshserver.VDomRenderCommand
-func VDomRenderCommand(w *dshutil.DshRpc, data vdom.VDomFrontendUpdate, opts *dshrpc.RpcOpts) chan dshrpc.RespOrErrorUnion[*vdom.VDomBackendUpdate] {
-	return sendRpcRequestResponseStreamHelper[*vdom.VDomBackendUpdate](w, "vdomrender", data, opts)
-}
-
-// command "vdomurlrequest", dshserver.VDomUrlRequestCommand
-func VDomUrlRequestCommand(w *dshutil.DshRpc, data dshrpc.VDomUrlRequestData, opts *dshrpc.RpcOpts) chan dshrpc.RespOrErrorUnion[dshrpc.VDomUrlRequestResponse] {
-	return sendRpcRequestResponseStreamHelper[dshrpc.VDomUrlRequestResponse](w, "vdomurlrequest", data, opts)
-}
-
 // command "waitforroute", dshserver.WaitForRouteCommand
 func WaitForRouteCommand(w *dshutil.DshRpc, data dshrpc.CommandWaitForRouteData, opts *dshrpc.RpcOpts) (bool, error) {
 	resp, err := sendRpcRequestCallHelper[bool](w, "waitforroute", data, opts)
-	return resp, err
-}
-
-// command "waveaiaddcontext", dshserver.DoraAIAddContextCommand
-func DoraAIAddContextCommand(w *dshutil.DshRpc, data dshrpc.CommandDoraAIAddContextData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "waveaiaddcontext", data, opts)
-	return err
-}
-
-// command "waveaienabletelemetry", dshserver.DoraAIEnableTelemetryCommand
-func DoraAIEnableTelemetryCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "waveaienabletelemetry", nil, opts)
-	return err
-}
-
-// command "waveaigettooldiff", dshserver.DoraAIGetToolDiffCommand
-func DoraAIGetToolDiffCommand(w *dshutil.DshRpc, data dshrpc.CommandDoraAIGetToolDiffData, opts *dshrpc.RpcOpts) (*dshrpc.CommandDoraAIGetToolDiffRtnData, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.CommandDoraAIGetToolDiffRtnData](w, "waveaigettooldiff", data, opts)
-	return resp, err
-}
-
-// command "waveaitoolapprove", dshserver.DoraAIToolApproveCommand
-func DoraAIToolApproveCommand(w *dshutil.DshRpc, data dshrpc.CommandDoraAIToolApproveData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "waveaitoolapprove", data, opts)
-	return err
-}
-
-// command "wavefilereadstream", dshserver.DoraFileReadStreamCommand
-func DoraFileReadStreamCommand(w *dshutil.DshRpc, data dshrpc.CommandDoraFileReadStreamData, opts *dshrpc.RpcOpts) (*dshrpc.DoraFileInfo, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.DoraFileInfo](w, "wavefilereadstream", data, opts)
-	return resp, err
-}
-
-// command "waveinfo", dshserver.DoraInfoCommand
-func DoraInfoCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) (*dshrpc.DoraInfoData, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.DoraInfoData](w, "waveinfo", nil, opts)
 	return resp, err
 }
 
@@ -1024,51 +753,9 @@ func WorkspaceListCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) ([]dshrpc.Wor
 	return resp, err
 }
 
-// command "writeappfile", dshserver.WriteAppFileCommand
-func WriteAppFileCommand(w *dshutil.DshRpc, data dshrpc.CommandWriteAppFileData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "writeappfile", data, opts)
-	return err
-}
-
-// command "writeappgofile", dshserver.WriteAppGoFileCommand
-func WriteAppGoFileCommand(w *dshutil.DshRpc, data dshrpc.CommandWriteAppGoFileData, opts *dshrpc.RpcOpts) (*dshrpc.CommandWriteAppGoFileRtnData, error) {
-	resp, err := sendRpcRequestCallHelper[*dshrpc.CommandWriteAppGoFileRtnData](w, "writeappgofile", data, opts)
-	return resp, err
-}
-
-// command "writeappsecretbindings", dshserver.WriteAppSecretBindingsCommand
-func WriteAppSecretBindingsCommand(w *dshutil.DshRpc, data dshrpc.CommandWriteAppSecretBindingsData, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "writeappsecretbindings", data, opts)
-	return err
-}
-
 // command "writetempfile", dshserver.WriteTempFileCommand
 func WriteTempFileCommand(w *dshutil.DshRpc, data dshrpc.CommandWriteTempFileData, opts *dshrpc.RpcOpts) (string, error) {
 	resp, err := sendRpcRequestCallHelper[string](w, "writetempfile", data, opts)
-	return resp, err
-}
-
-// command "wshactivity", dshserver.DshActivityCommand
-func DshActivityCommand(w *dshutil.DshRpc, data map[string]int, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "wshactivity", data, opts)
-	return err
-}
-
-// command "wsldefaultdistro", dshserver.WslDefaultDistroCommand
-func WslDefaultDistroCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) (string, error) {
-	resp, err := sendRpcRequestCallHelper[string](w, "wsldefaultdistro", nil, opts)
-	return resp, err
-}
-
-// command "wsllist", dshserver.WslListCommand
-func WslListCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) ([]string, error) {
-	resp, err := sendRpcRequestCallHelper[[]string](w, "wsllist", nil, opts)
-	return resp, err
-}
-
-// command "wslstatus", dshserver.WslStatusCommand
-func WslStatusCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) ([]dshrpc.ConnStatus, error) {
-	resp, err := sendRpcRequestCallHelper[[]dshrpc.ConnStatus](w, "wslstatus", nil, opts)
 	return resp, err
 }
 

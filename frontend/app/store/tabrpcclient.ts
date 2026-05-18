@@ -4,7 +4,7 @@
 import { getApi, getBlockComponentModel, getConnStatusAtom, globalStore, WOS } from "@/app/store/global";
 import type { TermViewModel } from "@/app/view/term/term-model";
 import { getLayoutModelForStaticTab } from "@/layout/index";
-import { RpcResponseHelper, DshClient } from "./wshclient";
+import { RpcResponseHelper, DshClient } from "./dshclient";
 import { RpcApi } from "./wshclientapi";
 
 export class TabClient extends DshClient {

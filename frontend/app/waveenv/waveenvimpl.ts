@@ -16,7 +16,7 @@ import {
     WOS,
 } from "@/app/store/global";
 import { AllServiceImpls } from "@/app/store/services";
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcApi } from "@/app/store/dshclientapi";
 import { DoraEnv } from "@/app/waveenv/waveenv";
 import { isMacOS, isWindows, PLATFORM } from "@/util/platformutil";
 

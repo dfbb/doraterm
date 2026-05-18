@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 	"golang.org/x/term"
 )
 

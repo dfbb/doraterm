@@ -17,7 +17,6 @@ export type DoraConfigEnv = DoraEnvSubset<{
         GetSecretsNamesCommand: DoraEnv["rpc"]["GetSecretsNamesCommand"];
         GetSecretsCommand: DoraEnv["rpc"]["GetSecretsCommand"];
         SetSecretsCommand: DoraEnv["rpc"]["SetSecretsCommand"];
-        RecordTEventCommand: DoraEnv["rpc"]["RecordTEventCommand"];
     };
     atoms: {
         fullConfigAtom: DoraEnv["atoms"]["fullConfigAtom"];

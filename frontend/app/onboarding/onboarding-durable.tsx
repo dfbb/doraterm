@@ -3,7 +3,7 @@
 
 import Logo from "@/app/asset/logo.svg";
 import { EmojiButton } from "@/app/element/emojibutton";
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcApi } from "@/app/store/dshclientapi";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
 import { useState } from "react";
 import { CurrentOnboardingVersion } from "./onboarding-common";
