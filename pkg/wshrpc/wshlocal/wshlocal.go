@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package wshremote
+package wshlocal
 
 import (
 	"context"
@@ -16,7 +16,6 @@ import (
 
 	"github.com/wavetermdev/waveterm/pkg/baseds"
 	"github.com/wavetermdev/waveterm/pkg/panichandler"
-	"github.com/wavetermdev/waveterm/pkg/suggestion"
 	"github.com/wavetermdev/waveterm/pkg/util/unixutil"
 	"github.com/wavetermdev/waveterm/pkg/wavebase"
 	"github.com/wavetermdev/waveterm/pkg/wps"
@@ -43,12 +42,12 @@ type ServerImpl struct {
 	Lock          sync.Mutex
 }
 
-func MakeRemoteRpcServerImpl(logWriter io.Writer, router *wshutil.WshRouter, rpcClient *wshutil.WshRpc, isLocal bool, initialEnv map[string]string, sockName string) *ServerImpl {
+func MakeLocalRpcServerImpl(logWriter io.Writer, router *wshutil.WshRouter, rpcClient *wshutil.WshRpc, initialEnv map[string]string, sockName string) *ServerImpl {
 	return &ServerImpl{
 		LogWriter:     logWriter,
 		Router:        router,
 		RpcClient:     rpcClient,
-		IsLocal:       isLocal,
+		IsLocal:       true,
 		InitialEnv:    initialEnv,
 		JobManagerMap: make(map[string]*JobManagerConnection),
 		SockName:      sockName,
@@ -94,48 +93,8 @@ func (*ServerImpl) RemoteInstallRcFilesCommand(ctx context.Context) error {
 	return wshutil.InstallRcFiles()
 }
 
-func (*ServerImpl) FetchSuggestionsCommand(ctx context.Context, data wshrpc.FetchSuggestionsData) (*wshrpc.FetchSuggestionsResponse, error) {
-	return suggestion.FetchSuggestions(ctx, data)
-}
-
-func (*ServerImpl) DisposeSuggestionsCommand(ctx context.Context, widgetId string) error {
-	suggestion.DisposeSuggestions(ctx, widgetId)
-	return nil
-}
-
-func (impl *ServerImpl) ConnServerInitCommand(ctx context.Context, data wshrpc.CommandConnServerInitData) error {
-	if data.ClientId == "" {
-		return fmt.Errorf("clientid is required")
-	}
-	if impl.SockName == "" {
-		return fmt.Errorf("sockname not set in server impl")
-	}
-	symlinkPath, err := wavebase.ExpandHomeDir(wavebase.GetPersistentRemoteSockName(data.ClientId))
-	if err != nil {
-		return fmt.Errorf("cannot expand symlink path: %w", err)
-	}
-	symlinkDir := filepath.Dir(symlinkPath)
-
-	if err := os.MkdirAll(symlinkDir, 0700); err != nil {
-		return fmt.Errorf("could not create client directory %s: %w", symlinkDir, err)
-	}
-	os.Remove(symlinkPath)
-	if err := os.Symlink(impl.SockName, symlinkPath); err != nil {
-		return fmt.Errorf("could not create symlink %s -> %s: %w", symlinkPath, impl.SockName, err)
-	}
-	impl.Log("created symlink %s -> %s\n", symlinkPath, impl.SockName)
-	return nil
-}
-
 func (impl *ServerImpl) getWshPath() (string, error) {
-	if impl.IsLocal {
-		return filepath.Join(wavebase.GetWaveDataDir(), "bin", "wsh"), nil
-	}
-	wshPath, err := wavebase.ExpandHomeDir("~/.waveterm/bin/wsh")
-	if err != nil {
-		return "", fmt.Errorf("cannot expand wsh path: %w", err)
-	}
-	return wshPath, nil
+	return filepath.Join(wavebase.GetWaveDataDir(), "bin", "wsh"), nil
 }
 
 func (impl *ServerImpl) BadgeWatchPidCommand(ctx context.Context, data wshrpc.CommandBadgeWatchPidData) error {
