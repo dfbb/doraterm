@@ -22,22 +22,22 @@ import (
 )
 
 // set by main-server.go
-var WaveVersion = "0.0.0"
+var DoraVersion = "0.0.0"
 var BuildTime = "0"
 
 const (
-	WaveConfigHomeEnvVar           = "WAVETERM_CONFIG_HOME"
-	WaveDataHomeEnvVar             = "WAVETERM_DATA_HOME"
-	WaveAppPathVarName             = "WAVETERM_APP_PATH"
-	WaveAppResourcesPathVarName    = "WAVETERM_RESOURCES_PATH"
-	WaveAppElectronExecPathVarName = "WAVETERM_ELECTRONEXECPATH"
-	WaveDevVarName                 = "WAVETERM_DEV"
-	WaveDevViteVarName             = "WAVETERM_DEV_VITE"
-	WaveWshForceUpdateVarName      = "WAVETERM_WSHFORCEUPDATE"
-	WaveNoConfirmQuitVarName       = "WAVETERM_NOCONFIRMQUIT"
+	DoraConfigHomeEnvVar = "DORATERM_CONFIG_HOME"
+	DoraDataHomeEnvVar = "DORATERM_DATA_HOME"
+	DoraAppPathVarName = "DORATERM_APP_PATH"
+	DoraAppResourcesPathVarName = "DORATERM_RESOURCES_PATH"
+	DoraAppElectronExecPathVarName = "DORATERM_ELECTRONEXECPATH"
+	DoraDevVarName = "DORATERM_DEV"
+	DoraDevViteVarName = "DORATERM_DEV_VITE"
+	DoraDshForceUpdateVarName = "DORATERM_DSHFORCEUPDATE"
+	DoraNoConfirmQuitVarName = "DORATERM_NOCONFIRMQUIT"
 
-	WaveJwtTokenVarName  = "WAVETERM_JWT"
-	WaveSwapTokenVarName = "WAVETERM_SWAPTOKEN"
+	DoraJwtTokenVarName = "DORATERM_JWT"
+	DoraSwapTokenVarName = "DORATERM_SWAPTOKEN"
 )
 
 const (
@@ -49,21 +49,21 @@ const (
 
 const NeedJwtConst = "NEED-JWT"
 
-var ConfigHome_VarCache string          // caches WAVETERM_CONFIG_HOME
-var DataHome_VarCache string            // caches WAVETERM_DATA_HOME
-var AppPath_VarCache string             // caches WAVETERM_APP_PATH
-var AppResourcesPath_VarCache string    // caches WAVETERM_RESOURCES_PATH
-var AppElectronExecPath_VarCache string // caches WAVETERM_ELECTRONEXECPATH
-var Dev_VarCache string                 // caches WAVETERM_DEV
+var ConfigHome_VarCache string          // caches DORATERM_CONFIG_HOME
+var DataHome_VarCache string            // caches DORATERM_DATA_HOME
+var AppPath_VarCache string             // caches DORATERM_APP_PATH
+var AppResourcesPath_VarCache string    // caches DORATERM_RESOURCES_PATH
+var AppElectronExecPath_VarCache string // caches DORATERM_ELECTRONEXECPATH
+var Dev_VarCache string                 // caches DORATERM_DEV
 
-const WaveLockFile = "wave.lock"
-const DomainSocketBaseName = "wave.sock"
-const RemoteDomainSocketBaseName = "wave-remote.sock"
-const WaveDBDir = "db"
+const DoraLockFile = "dora.lock"
+const DomainSocketBaseName = "dora.sock"
+const RemoteDomainSocketBaseName = "dora-remote.sock"
+const DoraDBDir = "db"
 const ConfigDir = "config"
-const RemoteWaveHomeDirName = ".waveterm"
-const RemoteWshBinDirName = "bin"
-const RemoteFullWshBinPath = "~/.waveterm/bin/wsh"
+const RemoteDoraHomeDirName = ".doraterm"
+const RemoteDshBinDirName = "bin"
+const RemoteFullDshBinPath = "~/.waveterm/bin/wsh"
 const RemoteFullDomainSocketPath = "~/.waveterm/wave-remote.sock"
 
 const AppPathBinDir = "bin"
@@ -74,7 +74,7 @@ var ensureDirCache = map[string]bool{}
 var waveCachesDirOnce = &sync.Once{}
 var waveCachesDir string
 
-var SupportedWshBinaries = map[string]bool{
+var SupportedDshBinaries = map[string]bool{
 	"darwin-x64":    true,
 	"darwin-arm64":  true,
 	"linux-x64":     true,
@@ -88,26 +88,26 @@ type FDLock interface {
 }
 
 func CacheAndRemoveEnvVars() error {
-	ConfigHome_VarCache = os.Getenv(WaveConfigHomeEnvVar)
+	ConfigHome_VarCache = os.Getenv(DoraConfigHomeEnvVar)
 	if ConfigHome_VarCache == "" {
-		return fmt.Errorf(WaveConfigHomeEnvVar + " not set")
+		return fmt.Errorf(DoraConfigHomeEnvVar + " not set")
 	}
-	os.Unsetenv(WaveConfigHomeEnvVar)
-	DataHome_VarCache = os.Getenv(WaveDataHomeEnvVar)
+	os.Unsetenv(DoraConfigHomeEnvVar)
+	DataHome_VarCache = os.Getenv(DoraDataHomeEnvVar)
 	if DataHome_VarCache == "" {
-		return fmt.Errorf("%s not set", WaveDataHomeEnvVar)
+		return fmt.Errorf("%s not set", DoraDataHomeEnvVar)
 	}
-	os.Unsetenv(WaveDataHomeEnvVar)
-	AppPath_VarCache = os.Getenv(WaveAppPathVarName)
-	os.Unsetenv(WaveAppPathVarName)
-	AppResourcesPath_VarCache = os.Getenv(WaveAppResourcesPathVarName)
-	os.Unsetenv(WaveAppResourcesPathVarName)
-	AppElectronExecPath_VarCache = os.Getenv(WaveAppElectronExecPathVarName)
-	os.Unsetenv(WaveAppElectronExecPathVarName)
-	Dev_VarCache = os.Getenv(WaveDevVarName)
-	os.Unsetenv(WaveDevVarName)
-	os.Unsetenv(WaveDevViteVarName)
-	os.Unsetenv(WaveNoConfirmQuitVarName)
+	os.Unsetenv(DoraDataHomeEnvVar)
+	AppPath_VarCache = os.Getenv(DoraAppPathVarName)
+	os.Unsetenv(DoraAppPathVarName)
+	AppResourcesPath_VarCache = os.Getenv(DoraAppResourcesPathVarName)
+	os.Unsetenv(DoraAppResourcesPathVarName)
+	AppElectronExecPath_VarCache = os.Getenv(DoraAppElectronExecPathVarName)
+	os.Unsetenv(DoraAppElectronExecPathVarName)
+	Dev_VarCache = os.Getenv(DoraDevVarName)
+	os.Unsetenv(DoraDevVarName)
+	os.Unsetenv(DoraDevViteVarName)
+	os.Unsetenv(DoraNoConfirmQuitVarName)
 	return nil
 }
 
@@ -115,27 +115,27 @@ func IsDevMode() bool {
 	return Dev_VarCache != ""
 }
 
-func GetWaveAppPath() string {
+func GetDoraAppPath() string {
 	return AppPath_VarCache
 }
 
-func GetWaveAppResourcesPath() string {
+func GetDoraAppResourcesPath() string {
 	return AppResourcesPath_VarCache
 }
 
-func GetWaveDataDir() string {
+func GetDoraDataDir() string {
 	return DataHome_VarCache
 }
 
-func GetWaveConfigDir() string {
+func GetDoraConfigDir() string {
 	return ConfigHome_VarCache
 }
 
-func GetWaveAppBinPath() string {
-	return filepath.Join(GetWaveAppPath(), AppPathBinDir)
+func GetDoraAppBinPath() string {
+	return filepath.Join(GetDoraAppPath(), AppPathBinDir)
 }
 
-func GetWaveAppElectronExecPath() string {
+func GetDoraAppElectronExecPath() string {
 	return AppElectronExecPath_VarCache
 }
 
@@ -180,36 +180,36 @@ func ReplaceHomeDir(pathStr string) string {
 }
 
 func GetDomainSocketName() string {
-	return filepath.Join(GetWaveDataDir(), DomainSocketBaseName)
+	return filepath.Join(GetDoraDataDir(), DomainSocketBaseName)
 }
 
 // returns a Unix-style path for the remote socket (using fmt.Sprintf instead of filepath.Join
 // because this path is for a remote Unix system, not the local OS which might be Windows)
 func GetPersistentRemoteSockName(clientId string) string {
-	return fmt.Sprintf("~/.waveterm/client/%s/waveterm.sock", clientId)
+	return fmt.Sprintf("~/.waveterm/client/%s/doraterm.sock", clientId)
 }
 
-func EnsureWaveDataDir() error {
-	return CacheEnsureDir(GetWaveDataDir(), "wavehome", 0700, "wave home directory")
+func EnsureDoraDataDir() error {
+	return CacheEnsureDir(GetDoraDataDir(), "dorahome", 0700, "wave home directory")
 }
 
-func EnsureWaveDBDir() error {
-	return CacheEnsureDir(filepath.Join(GetWaveDataDir(), WaveDBDir), "wavedb", 0700, "wave db directory")
+func EnsureDoraDBDir() error {
+	return CacheEnsureDir(filepath.Join(GetDoraDataDir(), DoraDBDir), "doradb", 0700, "wave db directory")
 }
 
-func EnsureWaveConfigDir() error {
-	return CacheEnsureDir(GetWaveConfigDir(), "waveconfig", 0700, "wave config directory")
+func EnsureDoraConfigDir() error {
+	return CacheEnsureDir(GetDoraConfigDir(), "doraconfig", 0700, "wave config directory")
 }
 
-func EnsureWavePresetsDir() error {
-	return CacheEnsureDir(filepath.Join(GetWaveConfigDir(), "presets"), "wavepresets", 0700, "wave presets directory")
+func EnsureDoraPresetsDir() error {
+	return CacheEnsureDir(filepath.Join(GetDoraConfigDir(), "presets"), "dorapresets", 0700, "wave presets directory")
 }
 
-func resolveWaveCachesDir() string {
+func resolveDoraCachesDir() string {
 	var cacheDir string
-	appBundle := "waveterm"
+	appBundle := "doraterm"
 	if IsDevMode() {
-		appBundle = "waveterm-dev"
+		appBundle = "doraterm-dev"
 	}
 
 	switch runtime.GOOS {
@@ -239,15 +239,15 @@ func resolveWaveCachesDir() string {
 	return cacheDir
 }
 
-func GetWaveCachesDir() string {
+func GetDoraCachesDir() string {
 	waveCachesDirOnce.Do(func() {
-		waveCachesDir = resolveWaveCachesDir()
+		waveCachesDir = resolveDoraCachesDir()
 	})
 	return waveCachesDir
 }
 
-func EnsureWaveCachesDir() error {
-	return CacheEnsureDir(GetWaveCachesDir(), "wavecaches", 0700, "wave caches directory")
+func EnsureDoraCachesDir() error {
+	return CacheEnsureDir(GetDoraCachesDir(), "doracaches", 0700, "wave caches directory")
 }
 
 func CacheEnsureDir(dirName string, cacheKey string, perm os.FileMode, dirDesc string) error {
@@ -429,11 +429,11 @@ func GetSystemSummary() string {
 	return systemSummary
 }
 
-func ValidateWshSupportedArch(os string, arch string) error {
-	if SupportedWshBinaries[fmt.Sprintf("%s-%s", os, arch)] {
+func ValidateDshSupportedArch(os string, arch string) error {
+	if SupportedDshBinaries[fmt.Sprintf("%s-%s", os, arch)] {
 		return nil
 	}
-	return fmt.Errorf("unsupported wsh platform: %s-%s", os, arch)
+	return fmt.Errorf("unsupported dsh platform: %s-%s", os, arch)
 }
 
 func getSystemSummary(ctx context.Context) string {
@@ -478,7 +478,7 @@ func getSystemSummary(ctx context.Context) string {
 
 // job socket path on remote machine
 func GetRemoteJobSocketPath(jobId string) string {
-	socketDir := filepath.Join("/tmp", fmt.Sprintf("waveterm-%d", os.Getuid()))
+	socketDir := filepath.Join("/tmp", fmt.Sprintf("doraterm-%d", os.Getuid()))
 	return filepath.Join(socketDir, fmt.Sprintf("%s.sock", jobId))
 }
 
@@ -491,6 +491,6 @@ func GetRemoteJobFilePath(jobId string, extension string) string {
 // job file dir on remote machines
 func GetRemoteJobLogDir() string {
 	homeDir := GetHomeDir()
-	jobDir := filepath.Join(homeDir, ".waveterm", "jobs")
+	jobDir := filepath.Join(homeDir, ".doraterm", "jobs")
 	return jobDir
 }

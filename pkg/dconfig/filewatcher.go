@@ -41,7 +41,7 @@ func GetWatcher() *Watcher {
 			log.Printf("failed to create file watcher: %v", err)
 			return
 		}
-		configDirAbsPath := dorabase.GetWaveConfigDir()
+		configDirAbsPath := dorabase.GetDoraConfigDir()
 		log.Printf("create config watcher, configdir=%q", configDirAbsPath)
 		instance = &Watcher{watcher: watcher}
 		err = instance.watcher.Add(configDirAbsPath)

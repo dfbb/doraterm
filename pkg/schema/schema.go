@@ -15,7 +15,7 @@ import (
 var schemaHandler http.Handler
 
 func GetSchemaHandler() http.Handler {
-	schemaStaticPath := filepath.Join(dorabase.GetWaveAppPath(), "schema")
+	schemaStaticPath := filepath.Join(dorabase.GetDoraAppPath(), "schema")
 	stat, err := os.Stat(schemaStaticPath)
 	if schemaHandler == nil {
 		log.Println("Schema is nil, initializing")

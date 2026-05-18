@@ -402,7 +402,7 @@ func GetInfo() dshrpc.RemoteInfo {
 	return dshrpc.RemoteInfo{
 		ClientArch:    runtime.GOARCH,
 		ClientOs:      runtime.GOOS,
-		ClientVersion: dorabase.WaveVersion,
+		ClientVersion: dorabase.DoraVersion,
 		Shell:         getShell(),
 		HomeDir:       dorabase.GetHomeDir(),
 	}

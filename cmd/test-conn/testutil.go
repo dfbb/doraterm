@@ -33,26 +33,26 @@ func setupWaveEnvVars() error {
 		return fmt.Errorf("failed to get home directory: %w", err)
 	}
 
-	isDev := os.Getenv("WAVETERM_DEV") != ""
+	isDev := os.Getenv("DORATERM_DEV") != ""
 	devSuffix := ""
 	if isDev {
 		devSuffix = "-dev"
 	}
 
-	configHome := os.Getenv("WAVETERM_CONFIG_HOME")
+	configHome := os.Getenv("DORATERM_CONFIG_HOME")
 	if configHome == "" {
-		configHome = filepath.Join(homeDir, ".config", "waveterm"+devSuffix)
-		os.Setenv("WAVETERM_CONFIG_HOME", configHome)
+		configHome = filepath.Join(homeDir, ".config", "doraterm"+devSuffix)
+		os.Setenv("DORATERM_CONFIG_HOME", configHome)
 	}
 	log.Printf("Using config directory: %s", configHome)
 
-	dataHome := os.Getenv("WAVETERM_DATA_HOME")
+	dataHome := os.Getenv("DORATERM_DATA_HOME")
 	if dataHome == "" {
 		if runtime.GOOS == "darwin" {
-			dataHome = filepath.Join(homeDir, "Library", "Application Support", "waveterm"+devSuffix)
-			os.Setenv("WAVETERM_DATA_HOME", dataHome)
+			dataHome = filepath.Join(homeDir, "Library", "Application Support", "doraterm"+devSuffix)
+			os.Setenv("DORATERM_DATA_HOME", dataHome)
 		} else {
-			return fmt.Errorf("WAVETERM_DATA_HOME must be set on non-macOS systems")
+			return fmt.Errorf("DORATERM_DATA_HOME must be set on non-macOS systems")
 		}
 	}
 	log.Printf("Using data directory: %s", dataHome)
@@ -225,10 +225,10 @@ func testWshExec(connName string, cmd string, timeout time.Duration) error {
 		Env:   make(map[string]string),
 		Exp:   time.Now().Add(5 * time.Minute),
 	}
-	swapToken.Env["TERM_PROGRAM"] = "waveterm"
+	swapToken.Env["TERM_PROGRAM"] = "doraterm"
 	swapToken.Env["WAVETERM"] = "1"
-	swapToken.Env["WAVETERM_VERSION"] = dorabase.WaveVersion
-	swapToken.Env["WAVETERM_CONN"] = connName
+	swapToken.Env["DORATERM_VERSION"] = dorabase.DoraVersion
+	swapToken.Env["DORATERM_CONN"] = connName
 
 	cmdOpts := shellexec.CommandOptsType{
 		SwapToken: swapToken,

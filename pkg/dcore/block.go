@@ -7,11 +7,9 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/dfbb/doraterm/pkg/filestore"
-	"github.com/dfbb/doraterm/pkg/panichandler"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
 	"github.com/dfbb/doraterm/pkg/doraobj"
 	"github.com/dfbb/doraterm/pkg/dps"
@@ -30,9 +28,6 @@ func CreateSubBlock(ctx context.Context, blockId string, blockDef *doraobj.Block
 	if err != nil {
 		return nil, fmt.Errorf("error creating sub block: %w", err)
 	}
-	blockView := blockDef.Meta.GetString(doraobj.MetaKey_View, "")
-	blockController := blockDef.Meta.GetString(doraobj.MetaKey_Controller, "")
-	go recordBlockCreationTelemetry(blockView, blockController, true)
 	return blockData, nil
 }
 
@@ -57,17 +52,12 @@ func createSubBlockObj(ctx context.Context, parentBlockId string, blockDef *dora
 }
 
 func CreateBlock(ctx context.Context, tabId string, blockDef *doraobj.BlockDef, rtOpts *doraobj.RuntimeOpts) (rtnBlock *doraobj.Block, rtnErr error) {
-	return CreateBlockWithTelemetry(ctx, tabId, blockDef, rtOpts, true)
-}
-
-func CreateBlockWithTelemetry(ctx context.Context, tabId string, blockDef *doraobj.BlockDef, rtOpts *doraobj.RuntimeOpts, recordTelemetry bool) (rtnBlock *doraobj.Block, rtnErr error) {
 	var blockCreated bool
 	var newBlockOID string
 	defer func() {
 		if rtnErr == nil {
 			return
 		}
-		// if there was an error, and we created the block, clean it up since the function failed
 		if blockCreated && newBlockOID != "" {
 			deleteBlockObj(ctx, newBlockOID)
 			filestore.WFS.DeleteZone(ctx, newBlockOID)
@@ -79,13 +69,12 @@ func CreateBlockWithTelemetry(ctx context.Context, tabId string, blockDef *dorao
 	if blockDef.Meta == nil || blockDef.Meta.GetString(doraobj.MetaKey_View, "") == "" {
 		return nil, fmt.Errorf("no view provided for new block")
 	}
-	createNewBlock, err := createBlockObj(ctx, tabId, blockDef, rtOpts)
+	blockData, err := createBlockObj(ctx, tabId, blockDef, rtOpts)
 	if err != nil {
 		return nil, fmt.Errorf("error creating block: %w", err)
 	}
 	blockCreated = true
-	newBlockOID = createNewBlock.OID
-	// upload the files if present
+	newBlockOID = blockData.OID
 	if len(blockDef.Files) > 0 {
 		for fileName, fileDef := range blockDef.Files {
 			err := filestore.WFS.MakeFile(ctx, newBlockOID, fileName, fileDef.Meta, dshrpc.FileOpts{})
@@ -98,34 +87,7 @@ func CreateBlockWithTelemetry(ctx context.Context, tabId string, blockDef *dorao
 			}
 		}
 	}
-	if recordTelemetry {
-		blockView := blockDef.Meta.GetString(doraobj.MetaKey_View, "")
-		blockController := blockDef.Meta.GetString(doraobj.MetaKey_Controller, "")
-		go recordBlockCreationTelemetry(blockView, blockController, false)
-	}
 	return blockData, nil
-}
-
-func recordBlockCreationTelemetry(blockView string, blockController string, subBlock bool) {
-	defer func() {
-		panichandler.PanicHandler("CreateBlock:telemetry", recover())
-	}()
-	if blockView == "" {
-		return
-	}
-	tctx, cancelFn := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancelFn()
-	telemetry.UpdateActivity(tctx, dshrpc.ActivityUpdate{
-		Renderers: map[string]int{blockView: 1},
-	})
-	telemetry.RecordTEvent(tctx, &telemetrydata.TEvent{
-		Event: "action:createblock",
-		Props: telemetrydata.TEventProps{
-			BlockView:       blockView,
-			BlockController: blockController,
-			BlockSubBlock:   subBlock,
-		},
-	})
 }
 
 func createBlockObj(ctx context.Context, tabId string, blockDef *doraobj.BlockDef, rtOpts *doraobj.RuntimeOpts) (*doraobj.Block, error) {
@@ -176,7 +138,6 @@ func DeleteBlock(ctx context.Context, blockId string, recursive bool) error {
 	parentORef := doraobj.ParseORefNoErr(block.ParentORef)
 
 	if recursive && parentORef.OType == doraobj.OType_Tab && parentBlockCount == 0 {
-		// if parent tab has no blocks, delete the tab
 		log.Printf("DeleteBlock: parent tab has no blocks, deleting tab %s", parentORef.OID)
 		parentWorkspaceId, err := dstore.DBFindWorkspaceForTabId(ctx, parentORef.OID)
 		if err != nil {
@@ -226,7 +187,6 @@ func deleteBlockObj(ctx context.Context, blockId string) (int, error) {
 		}
 		dstore.DBDelete(tx.Context(), doraobj.OType_Block, blockId)
 
-		// Clean up block runtime info
 		blockORef := doraobj.MakeORef(doraobj.OType_Block, blockId)
 		dstore.DeleteRTInfo(blockORef)
 

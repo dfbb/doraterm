@@ -26,20 +26,20 @@ if (isDevVite) {
     process.env[WaveDevViteVarName] = "1";
 }
 
-const waveDirNamePrefix = "waveterm";
+const doraDirNamePrefix = "doraterm";
 const waveDirNameSuffix = isDev ? "dev" : "";
-const waveDirName = `${waveDirNamePrefix}${waveDirNameSuffix ? `-${waveDirNameSuffix}` : ""}`;
+const waveDirName = `${doraDirNamePrefix}${waveDirNameSuffix ? `-${waveDirNameSuffix}` : ""}`;
 
-const paths = envPaths("waveterm", { suffix: waveDirNameSuffix });
+const paths = envPaths("doraterm", { suffix: waveDirNameSuffix });
 
 app.setName(isDev ? "Wave (Dev)" : "Wave");
 const unamePlatform = process.platform;
 const unameArch: string = process.arch;
 keyutil.setKeyUtilPlatform(unamePlatform);
 
-const WaveConfigHomeVarName = "WAVETERM_CONFIG_HOME";
-const WaveDataHomeVarName = "WAVETERM_DATA_HOME";
-const WaveHomeVarName = "WAVETERM_HOME";
+const WaveConfigHomeVarName = "DORATERM_CONFIG_HOME";
+const WaveDataHomeVarName = "DORATERM_DATA_HOME";
+const DoraHomeVarName = "DORATERM_HOME";
 
 export function checkIfRunningUnderARM64Translation(fullConfig: FullConfigType) {
     if (!fullConfig.settings["app:dismissarchitecturewarning"] && app.runningUnderARM64Translation) {
@@ -57,7 +57,7 @@ export function checkIfRunningUnderARM64Translation(fullConfig: FullConfigType) 
             console.log("User chose to learn more");
             fireAndForget(() =>
                 shell.openExternal(
-                    "https://docs.waveterm.dev/faq#why-does-wave-warn-me-about-arm64-translation-when-it-launches"
+                    "https://docs.doraterm.dev/faq#why-does-wave-warn-me-about-arm64-translation-when-it-launches"
                 )
             );
             throw new Error("User redirected to docsite to learn more about ARM64 translation, exiting");
@@ -68,11 +68,11 @@ export function checkIfRunningUnderARM64Translation(fullConfig: FullConfigType) 
 }
 
 /**
- * Gets the path to the old Wave home directory (defaults to `~/.waveterm`).
+ * Gets the path to the old Wave home directory (defaults to `~/.doraterm`).
  * @returns The path to the directory if it exists and contains valid data for the current app, otherwise null.
  */
 function getWaveHomeDir(): string {
-    let home = process.env[WaveHomeVarName];
+    let home = process.env[DoraHomeVarName];
     if (!home) {
         const homeDir = app.getPath("home");
         if (homeDir) {

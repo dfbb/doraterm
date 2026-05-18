@@ -565,7 +565,7 @@ func ReadDefaultsConfigFile(fileName string) (doraobj.MetaMapType, []ConfigError
 }
 
 func ReadWaveHomeConfigFile(fileName string) (doraobj.MetaMapType, []ConfigError) {
-	configDirAbsPath := dorabase.GetWaveConfigDir()
+	configDirAbsPath := dorabase.GetDoraConfigDir()
 	configDirFsys := os.DirFS(configDirAbsPath)
 	return readConfigFileFS(configDirFsys, "", fileName)
 }
@@ -574,7 +574,7 @@ func WriteWaveHomeConfigFile(fileName string, m doraobj.MetaMapType) error {
 	configWriteLock.Lock()
 	defer configWriteLock.Unlock()
 
-	configDirAbsPath := dorabase.GetWaveConfigDir()
+	configDirAbsPath := dorabase.GetDoraConfigDir()
 	fullFileName := filepath.Join(configDirAbsPath, fileName)
 	barr, err := jsonMarshalConfigInOrder(m)
 	if err != nil {
@@ -659,7 +659,7 @@ func readConfigPartForFS(fsys fs.FS, logPrefix string, partName string, simpleMe
 
 // Combine files from the defaults and home directory for the specified config part name
 func readConfigPart(partName string, simpleMerge bool) (doraobj.MetaMapType, []ConfigError) {
-	configDirAbsPath := dorabase.GetWaveConfigDir()
+	configDirAbsPath := dorabase.GetDoraConfigDir()
 	configDirFsys := os.DirFS(configDirAbsPath)
 	defaultConfigs, cerrs := readConfigPartForFS(defaultconfig.ConfigFS, "defaults:", partName, simpleMerge)
 	homeConfigs, cerrs1 := readConfigPartForFS(configDirFsys, "", partName, simpleMerge)
@@ -699,7 +699,7 @@ func ReadFullConfig() FullConfigType {
 			utilfn.ReUnmarshal(fieldPtr, configPart)
 		}
 	}
-	fullConfig.Version = dorabase.WaveVersion
+	fullConfig.Version = dorabase.DoraVersion
 	fullConfig.BuildTime = dorabase.BuildTime
 	return fullConfig
 }
@@ -708,7 +708,7 @@ func GetConfigSubdirs() []string {
 	var fullConfig FullConfigType
 	configRType := reflect.TypeOf(fullConfig)
 	var retVal []string
-	configDirAbsPath := dorabase.GetWaveConfigDir()
+	configDirAbsPath := dorabase.GetDoraConfigDir()
 	for fieldIdx := 0; fieldIdx < configRType.NumField(); fieldIdx++ {
 		field := configRType.Field(fieldIdx)
 		if field.PkgPath != "" {
@@ -900,7 +900,7 @@ func SetConnectionsConfigValue(connName string, toMerge doraobj.MetaMapType) err
 }
 
 func MigratePresetsBackgrounds() {
-	configDirAbsPath := dorabase.GetWaveConfigDir()
+	configDirAbsPath := dorabase.GetDoraConfigDir()
 	backgroundsFile := filepath.Join(configDirAbsPath, "backgrounds.json")
 	if _, err := os.Stat(backgroundsFile); err == nil {
 		return

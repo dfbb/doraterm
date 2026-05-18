@@ -9,11 +9,11 @@ import (
 )
 
 // set by main-server.go
-var WaveVersion = "0.0.0"
+var DoraVersion = "0.0.0"
 var BuildTime = "0"
 
 func main() {
-	dorabase.WaveVersion = WaveVersion
+	dorabase.DoraVersion = DoraVersion
 	dorabase.BuildTime = BuildTime
 	cmd.Execute()
 }

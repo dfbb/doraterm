@@ -78,7 +78,7 @@ console.log(
     )
 );
 if (isDev) {
-    console.log("waveterm-app WAVETERM_DEV set");
+    console.log("waveterm-app DORATERM_DEV set");
 }
 
 function handleWSEvent(evtMsg: WSEventType) {
@@ -252,7 +252,7 @@ electronApp.on("before-quit", (e) => {
         !getUserConfirmedQuit() &&
         allWindows.length > 0 &&
         !getIsWaveSrvDead() &&
-        !process.env.WAVETERM_NOCONFIRMQUIT
+        !process.env.DORATERM_NOCONFIRMQUIT
     ) {
         e.preventDefault();
         const choice = electron.dialog.showMessageBoxSync(null, {

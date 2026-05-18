@@ -94,7 +94,7 @@ func (*ServerImpl) RemoteInstallRcFilesCommand(ctx context.Context) error {
 }
 
 func (impl *ServerImpl) getWshPath() (string, error) {
-	return filepath.Join(dorabase.GetWaveDataDir(), "bin", "wsh"), nil
+	return filepath.Join(dorabase.GetDoraDataDir(), "bin", "wsh"), nil
 }
 
 func (impl *ServerImpl) BadgeWatchPidCommand(ctx context.Context, data dshrpc.CommandBadgeWatchPidData) error {
