@@ -10,27 +10,27 @@ import (
 	"log"
 	"strings"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 // Buffer size for the output channel
 const outputBufferSize = 1000
 
-var outputChan chan wshrpc.CommandControllerAppendOutputData
+var outputChan chan dshrpc.CommandControllerAppendOutputData
 
 func InitBlockLogger() {
-	outputChan = make(chan wshrpc.CommandControllerAppendOutputData, outputBufferSize)
+	outputChan = make(chan dshrpc.CommandControllerAppendOutputData, outputBufferSize)
 	// Start the output runner
 	go outputRunner()
 }
 
 func outputRunner() {
 	defer log.Printf("blocklogger: outputRunner exiting")
-	client := wshclient.GetBareRpcClient()
+	client := dshclient.GetBareRpcClient()
 	for data := range outputChan {
 		// Process each output request synchronously, waiting for response
-		wshclient.ControllerAppendOutputCommand(client, data, nil)
+		dshclient.ControllerAppendOutputCommand(client, data, nil)
 	}
 }
 
@@ -58,7 +58,7 @@ func getLogBlockData(ctx context.Context) *logBlockIdData {
 	return dataPtr.(*logBlockIdData)
 }
 
-func queueLogData(data wshrpc.CommandControllerAppendOutputData) {
+func queueLogData(data dshrpc.CommandControllerAppendOutputData) {
 	select {
 	case outputChan <- data:
 	default:
@@ -68,7 +68,7 @@ func queueLogData(data wshrpc.CommandControllerAppendOutputData) {
 func writeLogf(blockId string, format string, args []any) {
 	logStr := fmt.Sprintf(format, args...)
 	logStr = strings.ReplaceAll(logStr, "\n", "\r\n")
-	data := wshrpc.CommandControllerAppendOutputData{
+	data := dshrpc.CommandControllerAppendOutputData{
 		BlockId: blockId,
 		Data64:  base64.StdEncoding.EncodeToString([]byte(logStr)),
 	}

@@ -19,11 +19,11 @@ import (
 	"github.com/dfbb/doraterm/pkg/jobcontroller"
 	"github.com/dfbb/doraterm/pkg/util/ds"
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wps"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wstore"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dps"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
 const (
@@ -49,7 +49,7 @@ const DefaultGracefulKillWait = 400 * time.Millisecond
 type BlockInputUnion struct {
 	InputData []byte            `json:"inputdata,omitempty"`
 	SigName   string            `json:"signame,omitempty"`
-	TermSize  *waveobj.TermSize `json:"termsize,omitempty"`
+	TermSize  *doraobj.TermSize `json:"termsize,omitempty"`
 }
 
 type BlockControllerRuntimeStatus struct {
@@ -62,7 +62,7 @@ type BlockControllerRuntimeStatus struct {
 
 // Controller interface that all block controllers must implement
 type Controller interface {
-	Start(ctx context.Context, blockMeta waveobj.MetaMapType, rtOpts *waveobj.RuntimeOpts, force bool) error
+	Start(ctx context.Context, blockMeta doraobj.MetaMapType, rtOpts *doraobj.RuntimeOpts, force bool) error
 	Stop(graceful bool, newStatus string, destroy bool)
 	GetRuntimeStatus() *BlockControllerRuntimeStatus // does not return nil
 	GetConnName() string
@@ -102,7 +102,7 @@ func registerController(blockId string, controller Controller) {
 
 	if existingController != nil {
 		existingController.Stop(false, Status_Done, true)
-		wstore.DeleteRTInfo(waveobj.MakeORef(waveobj.OType_Block, blockId))
+		dstore.DeleteRTInfo(doraobj.MakeORef(doraobj.OType_Block, blockId))
 	}
 }
 
@@ -124,15 +124,15 @@ func getAllControllers() map[string]Controller {
 }
 
 func InitBlockController() {
-	rpcClient := wshclient.GetBareRpcClient()
-	rpcClient.EventListener.On(wps.Event_BlockClose, handleBlockCloseEvent)
-	wshclient.EventSubCommand(rpcClient, wps.SubscriptionRequest{
-		Event:     wps.Event_BlockClose,
+	rpcClient := dshclient.GetBareRpcClient()
+	rpcClient.EventListener.On(dps.Event_BlockClose, handleBlockCloseEvent)
+	dshclient.EventSubCommand(rpcClient, dps.SubscriptionRequest{
+		Event:     dps.Event_BlockClose,
 		AllScopes: true,
 	}, nil)
 }
 
-func handleBlockCloseEvent(event *wps.WaveEvent) {
+func handleBlockCloseEvent(event *dps.WaveEvent) {
 	blockId, ok := event.Data.(string)
 	if !ok {
 		log.Printf("[blockclose] invalid event data type")
@@ -143,7 +143,7 @@ func handleBlockCloseEvent(event *wps.WaveEvent) {
 
 // Public API Functions
 
-func ResyncController(ctx context.Context, tabId string, blockId string, rtOpts *waveobj.RuntimeOpts, force bool) error {
+func ResyncController(ctx context.Context, tabId string, blockId string, rtOpts *doraobj.RuntimeOpts, force bool) error {
 	if tabId == "" || blockId == "" {
 		return fmt.Errorf("invalid tabId or blockId passed to ResyncController")
 	}
@@ -152,13 +152,13 @@ func ResyncController(ctx context.Context, tabId string, blockId string, rtOpts 
 	mu.Lock()
 	defer mu.Unlock()
 
-	blockData, err := wstore.DBMustGet[*waveobj.Block](ctx, blockId)
+	blockData, err := dstore.DBMustGet[*doraobj.Block](ctx, blockId)
 	if err != nil {
 		return fmt.Errorf("error getting block: %w", err)
 	}
 
-	controllerName := blockData.Meta.GetString(waveobj.MetaKey_Controller, "")
-	connName := blockData.Meta.GetString(waveobj.MetaKey_Connection, "")
+	controllerName := blockData.Meta.GetString(doraobj.MetaKey_Controller, "")
+	connName := blockData.Meta.GetString(doraobj.MetaKey_Connection, "")
 
 	// Get existing controller
 	existing := getController(blockId)
@@ -271,7 +271,7 @@ func DestroyBlockController(blockId string) {
 		return
 	}
 	controller.Stop(true, Status_Done, true)
-	wstore.DeleteRTInfo(waveobj.MakeORef(waveobj.OType_Block, blockId))
+	dstore.DeleteRTInfo(doraobj.MakeORef(doraobj.OType_Block, blockId))
 	deleteController(blockId)
 }
 
@@ -295,7 +295,7 @@ func StopAllBlockControllersForShutdown() {
 		if status != nil && status.ShellProcStatus == Status_Running {
 			go func(id string, c Controller) {
 				c.Stop(true, Status_Done, false)
-				wstore.DeleteRTInfo(waveobj.MakeORef(waveobj.OType_Block, id))
+				dstore.DeleteRTInfo(doraobj.MakeORef(doraobj.OType_Block, id))
 			}(blockId, controller)
 		}
 	}
@@ -312,11 +312,11 @@ func getBoolFromMeta(meta map[string]any, key string, def bool) bool {
 	return def
 }
 
-func getTermSize(bdata *waveobj.Block) waveobj.TermSize {
+func getTermSize(bdata *doraobj.Block) doraobj.TermSize {
 	if bdata.RuntimeOpts != nil {
 		return bdata.RuntimeOpts.TermSize
 	} else {
-		return waveobj.TermSize{
+		return doraobj.TermSize{
 			Rows: 25,
 			Cols: 80,
 		}
@@ -330,15 +330,15 @@ func HandleAppendBlockFile(blockId string, blockFile string, data []byte) error 
 	if err != nil {
 		return fmt.Errorf("error appending to blockfile: %w", err)
 	}
-	wps.Broker.Publish(wps.WaveEvent{
-		Event: wps.Event_BlockFile,
+	dps.Broker.Publish(dps.WaveEvent{
+		Event: dps.Event_BlockFile,
 		Scopes: []string{
-			waveobj.MakeORef(waveobj.OType_Block, blockId).String(),
+			doraobj.MakeORef(doraobj.OType_Block, blockId).String(),
 		},
-		Data: &wps.WSFileEventData{
+		Data: &dps.WSFileEventData{
 			ZoneId:   blockId,
 			FileName: blockFile,
-			FileOp:   wps.FileOp_Append,
+			FileOp:   dps.FileOp_Append,
 			Data64:   base64.StdEncoding.EncodeToString(data),
 		},
 	})
@@ -348,27 +348,27 @@ func HandleAppendBlockFile(blockId string, blockFile string, data []byte) error 
 func HandleTruncateBlockFile(blockId string) error {
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
-	err := filestore.WFS.WriteFile(ctx, blockId, wavebase.BlockFile_Term, nil)
+	err := filestore.WFS.WriteFile(ctx, blockId, dorabase.BlockFile_Term, nil)
 	if err == fs.ErrNotExist {
 		return nil
 	}
 	if err != nil {
 		return fmt.Errorf("error truncating blockfile: %w", err)
 	}
-	err = filestore.WFS.DeleteFile(ctx, blockId, wavebase.BlockFile_Cache)
+	err = filestore.WFS.DeleteFile(ctx, blockId, dorabase.BlockFile_Cache)
 	if err == fs.ErrNotExist {
 		err = nil
 	}
 	if err != nil {
 		log.Printf("error deleting cache file (continuing): %v\n", err)
 	}
-	wps.Broker.Publish(wps.WaveEvent{
-		Event:  wps.Event_BlockFile,
-		Scopes: []string{waveobj.MakeORef(waveobj.OType_Block, blockId).String()},
-		Data: &wps.WSFileEventData{
+	dps.Broker.Publish(dps.WaveEvent{
+		Event:  dps.Event_BlockFile,
+		Scopes: []string{doraobj.MakeORef(doraobj.OType_Block, blockId).String()},
+		Data: &dps.WSFileEventData{
 			ZoneId:   blockId,
-			FileName: wavebase.BlockFile_Term,
-			FileOp:   wps.FileOp_Truncate,
+			FileName: dorabase.BlockFile_Term,
+			FileOp:   dps.FileOp_Truncate,
 		},
 	})
 	return nil
@@ -384,7 +384,7 @@ func CheckConnStatus(blockId string) error {
 	return nil
 }
 
-func makeSwapToken(ctx context.Context, logCtx context.Context, blockId string, blockMeta waveobj.MetaMapType, remoteName string, shellType string) *shellutil.TokenSwapEntry {
+func makeSwapToken(ctx context.Context, logCtx context.Context, blockId string, blockMeta doraobj.MetaMapType, remoteName string, shellType string) *shellutil.TokenSwapEntry {
 	token := &shellutil.TokenSwapEntry{
 		Token: uuid.New().String(),
 		Env:   make(map[string]string),
@@ -392,23 +392,23 @@ func makeSwapToken(ctx context.Context, logCtx context.Context, blockId string, 
 	}
 	token.Env["TERM_PROGRAM"] = "waveterm"
 	token.Env["WAVETERM_BLOCKID"] = blockId
-	token.Env["WAVETERM_VERSION"] = wavebase.WaveVersion
+	token.Env["WAVETERM_VERSION"] = dorabase.WaveVersion
 	token.Env["WAVETERM"] = "1"
-	tabId, err := wstore.DBFindTabForBlockId(ctx, blockId)
+	tabId, err := dstore.DBFindTabForBlockId(ctx, blockId)
 	if err != nil {
 		log.Printf("error finding tab for block: %v\n", err)
 	} else {
 		token.Env["WAVETERM_TABID"] = tabId
 	}
 	if tabId != "" {
-		wsId, err := wstore.DBFindWorkspaceForTabId(ctx, tabId)
+		wsId, err := dstore.DBFindWorkspaceForTabId(ctx, tabId)
 		if err != nil {
 			log.Printf("error finding workspace for tab: %v\n", err)
 		} else {
 			token.Env["WAVETERM_WORKSPACEID"] = wsId
 		}
 	}
-	token.Env["WAVETERM_CLIENTID"] = wstore.GetClientId()
+	token.Env["WAVETERM_CLIENTID"] = dstore.GetClientId()
 	token.Env["WAVETERM_CONN"] = remoteName
 	envMap, err := resolveEnvMap(blockId, blockMeta, remoteName)
 	if err != nil {

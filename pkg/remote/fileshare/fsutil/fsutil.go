@@ -11,7 +11,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/remote/connparse"
 	"github.com/dfbb/doraterm/pkg/remote/fileshare/fspath"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 func GetParentPath(conn *connparse.Connection) string {
@@ -60,8 +60,8 @@ func CleanPathPrefix(path string) (string, error) {
 	return fspath.Join(newParts...), nil
 }
 
-func ReadFileStream(ctx context.Context, readCh <-chan wshrpc.RespOrErrorUnion[wshrpc.FileData], fileInfoCallback func(finfo wshrpc.FileInfo), dirCallback func(entries []*wshrpc.FileInfo) error, fileCallback func(data io.Reader) error) error {
-	var fileData *wshrpc.FileData
+func ReadFileStream(ctx context.Context, readCh <-chan dshrpc.RespOrErrorUnion[dshrpc.FileData], fileInfoCallback func(finfo dshrpc.FileInfo), dirCallback func(entries []*dshrpc.FileInfo) error, fileCallback func(data io.Reader) error) error {
+	var fileData *dshrpc.FileData
 	firstPk := true
 	isDir := false
 	drain := true
@@ -120,15 +120,15 @@ func ReadFileStream(ctx context.Context, readCh <-chan wshrpc.RespOrErrorUnion[w
 	}
 }
 
-func ReadStreamToFileData(ctx context.Context, readCh <-chan wshrpc.RespOrErrorUnion[wshrpc.FileData]) (*wshrpc.FileData, error) {
-	var fileData *wshrpc.FileData
+func ReadStreamToFileData(ctx context.Context, readCh <-chan dshrpc.RespOrErrorUnion[dshrpc.FileData]) (*dshrpc.FileData, error) {
+	var fileData *dshrpc.FileData
 	var dataBuf bytes.Buffer
-	var entries []*wshrpc.FileInfo
-	err := ReadFileStream(ctx, readCh, func(finfo wshrpc.FileInfo) {
-		fileData = &wshrpc.FileData{
+	var entries []*dshrpc.FileInfo
+	err := ReadFileStream(ctx, readCh, func(finfo dshrpc.FileInfo) {
+		fileData = &dshrpc.FileData{
 			Info: &finfo,
 		}
-	}, func(fileEntries []*wshrpc.FileInfo) error {
+	}, func(fileEntries []*dshrpc.FileInfo) error {
 		entries = append(entries, fileEntries...)
 		return nil
 	}, func(data io.Reader) error {

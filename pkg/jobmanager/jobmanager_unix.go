@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/dfbb/doraterm/pkg/wavebase"
+	"github.com/dfbb/doraterm/pkg/dorabase"
 	"golang.org/x/sys/unix"
 )
 
@@ -33,7 +33,7 @@ func daemonize(clientId string, jobId string) error {
 	}
 	devNull.Close()
 
-	logPath := wavebase.GetRemoteJobFilePath(jobId, "log")
+	logPath := dorabase.GetRemoteJobFilePath(jobId, "log")
 	logDir := filepath.Dir(logPath)
 	err = os.MkdirAll(logDir, 0700)
 	if err != nil {

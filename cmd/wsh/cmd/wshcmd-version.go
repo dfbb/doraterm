@@ -8,10 +8,10 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 var versionVerbose bool
@@ -32,7 +32,7 @@ func init() {
 
 func runVersionCmd(cmd *cobra.Command, args []string) error {
 	if !versionVerbose && !versionJSON {
-		WriteStdout("wsh v%s\n", wavebase.WaveVersion)
+		WriteStdout("wsh v%s\n", dorabase.WaveVersion)
 		return nil
 	}
 
@@ -41,12 +41,12 @@ func runVersionCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	resp, err := wshclient.WaveInfoCommand(RpcClient, &wshrpc.RpcOpts{Timeout: 2000})
+	resp, err := dshclient.WaveInfoCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return err
 	}
 
-	updateChannel, err := wshclient.GetUpdateChannelCommand(RpcClient, &wshrpc.RpcOpts{Timeout: 2000, Route: wshutil.ElectronRoute})
+	updateChannel, err := dshclient.GetUpdateChannelCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 2000, Route: dshutil.ElectronRoute})
 	if err != nil {
 		return err
 	}

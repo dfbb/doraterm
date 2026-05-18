@@ -9,28 +9,28 @@ import (
 	"log"
 	"time"
 
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wconfig"
-	"github.com/dfbb/doraterm/pkg/wcore"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wstore"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dconfig"
+	"github.com/dfbb/doraterm/pkg/dcore"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
 type ClientService struct{}
 
 const DefaultTimeout = 2 * time.Second
 
-func (cs *ClientService) GetClientData() (*waveobj.Client, error) {
+func (cs *ClientService) GetClientData() (*doraobj.Client, error) {
 	log.Println("GetClientData")
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
-	return wcore.GetClientData(ctx)
+	return dcore.GetClientData(ctx)
 }
 
-func (cs *ClientService) GetTab(tabId string) (*waveobj.Tab, error) {
+func (cs *ClientService) GetTab(tabId string) (*doraobj.Tab, error) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
-	tab, err := wstore.DBGet[*waveobj.Tab](ctx, tabId)
+	tab, err := dstore.DBGet[*doraobj.Tab](ctx, tabId)
 	if err != nil {
 		return nil, fmt.Errorf("error getting tab: %w", err)
 	}
@@ -39,30 +39,30 @@ func (cs *ClientService) GetTab(tabId string) (*waveobj.Tab, error) {
 
 // moves the window to the front of the windowId stack
 func (cs *ClientService) FocusWindow(ctx context.Context, windowId string) error {
-	return wcore.FocusWindow(ctx, windowId)
+	return dcore.FocusWindow(ctx, windowId)
 }
 
-func (cs *ClientService) AgreeTos(ctx context.Context) (waveobj.UpdatesRtnType, error) {
-	ctx = waveobj.ContextWithUpdates(ctx)
-	clientData, err := wstore.DBGetSingleton[*waveobj.Client](ctx)
+func (cs *ClientService) AgreeTos(ctx context.Context) (doraobj.UpdatesRtnType, error) {
+	ctx = doraobj.ContextWithUpdates(ctx)
+	clientData, err := dstore.DBGetSingleton[*doraobj.Client](ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error getting client data: %w", err)
 	}
 	timestamp := time.Now().UnixMilli()
 	clientData.TosAgreed = timestamp
-	err = wstore.DBUpdate(ctx, clientData)
+	err = dstore.DBUpdate(ctx, clientData)
 	if err != nil {
 		return nil, fmt.Errorf("error updating client data: %w", err)
 	}
-	wcore.BootstrapStarterLayout(ctx)
-	return waveobj.ContextGetUpdatesRtn(ctx), nil
+	dcore.BootstrapStarterLayout(ctx)
+	return doraobj.ContextGetUpdatesRtn(ctx), nil
 }
 
 func (cs *ClientService) TelemetryUpdate(ctx context.Context, telemetryEnabled bool) error {
-	meta := waveobj.MetaMapType{
-		wconfig.ConfigKey_TelemetryEnabled: telemetryEnabled,
+	meta := doraobj.MetaMapType{
+		dconfig.ConfigKey_TelemetryEnabled: telemetryEnabled,
 	}
-	err := wconfig.SetBaseConfigValue(meta)
+	err := dconfig.SetBaseConfigValue(meta)
 	if err != nil {
 		return fmt.Errorf("error setting telemetry value: %w", err)
 	}

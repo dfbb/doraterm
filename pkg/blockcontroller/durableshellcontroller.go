@@ -18,13 +18,13 @@ import (
 	"github.com/dfbb/doraterm/pkg/shellexec"
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
 	"github.com/dfbb/doraterm/pkg/utilds"
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wps"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
-	"github.com/dfbb/doraterm/pkg/wstore"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dps"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
+	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
 type DurableShellController struct {
@@ -34,7 +34,7 @@ type DurableShellController struct {
 	TabId          string
 	BlockId        string
 	ConnName       string
-	BlockDef       *waveobj.BlockDef
+	BlockDef       *doraobj.BlockDef
 	VersionTs      utilds.VersionTs
 
 	InputSessionId string // random uuid
@@ -115,11 +115,11 @@ func (dsc *DurableShellController) GetConnName() string {
 func (dsc *DurableShellController) sendUpdate_withlock() {
 	rtStatus := dsc.getRuntimeStatus_withlock()
 	log.Printf("sending blockcontroller update %#v\n", rtStatus)
-	wps.Broker.Publish(wps.WaveEvent{
-		Event: wps.Event_ControllerStatus,
+	dps.Broker.Publish(dps.WaveEvent{
+		Event: dps.Event_ControllerStatus,
 		Scopes: []string{
-			waveobj.MakeORef(waveobj.OType_Tab, dsc.TabId).String(),
-			waveobj.MakeORef(waveobj.OType_Block, dsc.BlockId).String(),
+			doraobj.MakeORef(doraobj.OType_Tab, dsc.TabId).String(),
+			doraobj.MakeORef(doraobj.OType_Block, dsc.BlockId).String(),
 		},
 		Data: rtStatus,
 	})
@@ -134,8 +134,8 @@ func (dsc *DurableShellController) sendUpdate_withlock() {
 //   - force=false: returns without starting (leaves block unstarted)
 //
 // After establishing jobId, ensures job connection is active (reconnects if needed)
-func (dsc *DurableShellController) Start(ctx context.Context, blockMeta waveobj.MetaMapType, rtOpts *waveobj.RuntimeOpts, force bool) error {
-	blockData, err := wstore.DBMustGet[*waveobj.Block](ctx, dsc.BlockId)
+func (dsc *DurableShellController) Start(ctx context.Context, blockMeta doraobj.MetaMapType, rtOpts *doraobj.RuntimeOpts, force bool) error {
+	blockData, err := dstore.DBMustGet[*doraobj.Block](ctx, dsc.BlockId)
 	if err != nil {
 		return fmt.Errorf("error getting block: %w", err)
 	}
@@ -159,7 +159,7 @@ func (dsc *DurableShellController) Start(ctx context.Context, blockMeta waveobj.
 
 	if jobId == "" {
 		log.Printf("block %q starting new durable shell\n", dsc.BlockId)
-		fsErr := filestore.WFS.MakeFile(ctx, dsc.BlockId, wavebase.BlockFile_Term, nil, wshrpc.FileOpts{MaxSize: DefaultTermMaxFileSize, Circular: true})
+		fsErr := filestore.WFS.MakeFile(ctx, dsc.BlockId, dorabase.BlockFile_Term, nil, dshrpc.FileOpts{MaxSize: DefaultTermMaxFileSize, Circular: true})
 		if fsErr != nil && fsErr != fs.ErrExist {
 			return fmt.Errorf("error creating block term file: %w", fsErr)
 		}
@@ -205,7 +205,7 @@ func (dsc *DurableShellController) SendInput(inputUnion *BlockInputUnion) error 
 		return fmt.Errorf("no job attached to controller")
 	}
 	inputSessionId, seqNum := dsc.getNextInputSeq()
-	data := wshrpc.CommandJobInputData{
+	data := dshrpc.CommandJobInputData{
 		JobId:          jobId,
 		InputSessionId: inputSessionId,
 		SeqNum:         seqNum,
@@ -218,41 +218,41 @@ func (dsc *DurableShellController) SendInput(inputUnion *BlockInputUnion) error 
 	return jobcontroller.SendInput(context.Background(), data)
 }
 
-func (dsc *DurableShellController) startNewJob(ctx context.Context, blockMeta waveobj.MetaMapType, connName string, rtOpts *waveobj.RuntimeOpts) (string, error) {
-	termSize := waveobj.TermSize{
+func (dsc *DurableShellController) startNewJob(ctx context.Context, blockMeta doraobj.MetaMapType, connName string, rtOpts *doraobj.RuntimeOpts) (string, error) {
+	termSize := doraobj.TermSize{
 		Rows: shellutil.DefaultTermRows,
 		Cols: shellutil.DefaultTermCols,
 	}
 	if rtOpts != nil && rtOpts.TermSize.Rows > 0 && rtOpts.TermSize.Cols > 0 {
 		termSize = rtOpts.TermSize
 	}
-	cmdStr := blockMeta.GetString(waveobj.MetaKey_Cmd, "")
-	cwd := blockMeta.GetString(waveobj.MetaKey_CmdCwd, "")
-	shellPath := blockMeta.GetString(waveobj.MetaKey_TermLocalShellPath, "")
+	cmdStr := blockMeta.GetString(doraobj.MetaKey_Cmd, "")
+	cwd := blockMeta.GetString(doraobj.MetaKey_CmdCwd, "")
+	shellPath := blockMeta.GetString(doraobj.MetaKey_TermLocalShellPath, "")
 	if shellPath == "" {
 		shellPath = shellutil.DetectLocalShellPath()
 	}
 	shellType := shellutil.GetShellTypeFromShellPath(shellPath)
 	swapToken := makeSwapToken(ctx, ctx, dsc.BlockId, blockMeta, connName, shellType)
-	sockName := wavebase.GetDomainSocketName()
-	rpcContext := wshrpc.RpcContext{
+	sockName := dorabase.GetDomainSocketName()
+	rpcContext := dshrpc.RpcContext{
 		ProcRoute: true,
 		SockName:  sockName,
 		BlockId:   dsc.BlockId,
 	}
-	jwtStr, err := wshutil.MakeClientJWTToken(rpcContext)
+	jwtStr, err := dshutil.MakeClientJWTToken(rpcContext)
 	if err != nil {
 		return "", fmt.Errorf("error making jwt token: %w", err)
 	}
 	swapToken.RpcContext = &rpcContext
-	swapToken.Env[wshutil.WaveJwtTokenVarName] = jwtStr
+	swapToken.Env[dshutil.WaveJwtTokenVarName] = jwtStr
 	cmdOpts := shellexec.CommandOptsType{
 		Interactive: true,
 		Login:       true,
 		Cwd:         cwd,
 		ShellPath:   shellPath,
 		SwapToken:   swapToken,
-		ForceJwt:    blockMeta.GetBool(waveobj.MetaKey_CmdJwt, false),
+		ForceJwt:    blockMeta.GetBool(doraobj.MetaKey_CmdJwt, false),
 	}
 	jobParams := jobcontroller.StartJobParams{
 		ConnName: connName,

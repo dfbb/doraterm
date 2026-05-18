@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 type DeliveryConfig struct {
@@ -22,8 +22,8 @@ type taggedPacket struct {
 	seq          uint64
 	deliveryTime time.Time
 	isData       bool
-	dataPk       wshrpc.CommandStreamData
-	ackPk        wshrpc.CommandStreamAckData
+	dataPk       dshrpc.CommandStreamData
+	ackPk        dshrpc.CommandStreamAckData
 	dataSize     int
 }
 
@@ -40,8 +40,8 @@ type DeliveryPipe struct {
 	ackPending  []taggedPacket
 
 	// Delivery targets
-	dataTarget func(wshrpc.CommandStreamData)
-	ackTarget  func(wshrpc.CommandStreamAckData)
+	dataTarget func(dshrpc.CommandStreamData)
+	ackTarget  func(dshrpc.CommandStreamAckData)
 
 	// Control
 	closed bool
@@ -65,19 +65,19 @@ func NewDeliveryPipe(config DeliveryConfig, metrics *Metrics) *DeliveryPipe {
 	}
 }
 
-func (dp *DeliveryPipe) SetDataTarget(fn func(wshrpc.CommandStreamData)) {
+func (dp *DeliveryPipe) SetDataTarget(fn func(dshrpc.CommandStreamData)) {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
 	dp.dataTarget = fn
 }
 
-func (dp *DeliveryPipe) SetAckTarget(fn func(wshrpc.CommandStreamAckData)) {
+func (dp *DeliveryPipe) SetAckTarget(fn func(dshrpc.CommandStreamAckData)) {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
 	dp.ackTarget = fn
 }
 
-func (dp *DeliveryPipe) EnqueueData(pkt wshrpc.CommandStreamData) {
+func (dp *DeliveryPipe) EnqueueData(pkt dshrpc.CommandStreamData) {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
 
@@ -105,7 +105,7 @@ func (dp *DeliveryPipe) EnqueueData(pkt wshrpc.CommandStreamData) {
 	}
 }
 
-func (dp *DeliveryPipe) EnqueueAck(pkt wshrpc.CommandStreamAckData) {
+func (dp *DeliveryPipe) EnqueueAck(pkt dshrpc.CommandStreamAckData) {
 	dp.lock.Lock()
 	defer dp.lock.Unlock()
 

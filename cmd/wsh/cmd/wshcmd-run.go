@@ -11,10 +11,10 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/dfbb/doraterm/pkg/util/envutil"
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var runCmd = &cobra.Command{
@@ -105,32 +105,32 @@ func runRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	// Convert to null-terminated format
 	envContent := envutil.MapToEnv(envMap)
 	createMeta := map[string]any{
-		waveobj.MetaKey_View:            "term",
-		waveobj.MetaKey_CmdCwd:          cwd,
-		waveobj.MetaKey_Controller:      "cmd",
-		waveobj.MetaKey_CmdClearOnStart: true,
+		doraobj.MetaKey_View:            "term",
+		doraobj.MetaKey_CmdCwd:          cwd,
+		doraobj.MetaKey_Controller:      "cmd",
+		doraobj.MetaKey_CmdClearOnStart: true,
 	}
-	createMeta[waveobj.MetaKey_Cmd] = shellCmd
-	createMeta[waveobj.MetaKey_CmdArgs] = cmdArgs
-	createMeta[waveobj.MetaKey_CmdShell] = useShell
+	createMeta[doraobj.MetaKey_Cmd] = shellCmd
+	createMeta[doraobj.MetaKey_CmdArgs] = cmdArgs
+	createMeta[doraobj.MetaKey_CmdShell] = useShell
 	if paused {
-		createMeta[waveobj.MetaKey_CmdRunOnStart] = false
+		createMeta[doraobj.MetaKey_CmdRunOnStart] = false
 	} else {
-		createMeta[waveobj.MetaKey_CmdRunOnce] = true
-		createMeta[waveobj.MetaKey_CmdRunOnStart] = true
+		createMeta[doraobj.MetaKey_CmdRunOnce] = true
+		createMeta[doraobj.MetaKey_CmdRunOnStart] = true
 	}
 	if forceExit {
-		createMeta[waveobj.MetaKey_CmdCloseOnExitForce] = true
+		createMeta[doraobj.MetaKey_CmdCloseOnExitForce] = true
 	} else if exit {
-		createMeta[waveobj.MetaKey_CmdCloseOnExit] = true
+		createMeta[doraobj.MetaKey_CmdCloseOnExit] = true
 	}
-	createMeta[waveobj.MetaKey_CmdCloseOnExitDelay] = float64(delayMs)
+	createMeta[doraobj.MetaKey_CmdCloseOnExitDelay] = float64(delayMs)
 	if appendOutput {
-		createMeta[waveobj.MetaKey_CmdClearOnStart] = false
+		createMeta[doraobj.MetaKey_CmdClearOnStart] = false
 	}
 
 	if RpcContext.Conn != "" {
-		createMeta[waveobj.MetaKey_Connection] = RpcContext.Conn
+		createMeta[doraobj.MetaKey_Connection] = RpcContext.Conn
 	}
 
 	tabId := getTabIdFromEnv()
@@ -138,12 +138,12 @@ func runRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		return fmt.Errorf("no WAVETERM_TABID env var set")
 	}
 
-	createBlockData := wshrpc.CommandCreateBlockData{
+	createBlockData := dshrpc.CommandCreateBlockData{
 		TabId: tabId,
-		BlockDef: &waveobj.BlockDef{
+		BlockDef: &doraobj.BlockDef{
 			Meta: createMeta,
-			Files: map[string]*waveobj.FileDef{
-				wavebase.BlockFile_Env: {
+			Files: map[string]*doraobj.FileDef{
+				dorabase.BlockFile_Env: {
 					Content: envContent,
 				},
 			},
@@ -152,7 +152,7 @@ func runRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		Focused:   true,
 	}
 
-	oref, err := wshclient.CreateBlockCommand(RpcClient, createBlockData, nil)
+	oref, err := dshclient.CreateBlockCommand(RpcClient, createBlockData, nil)
 	if err != nil {
 		return fmt.Errorf("creating new run block: %w", err)
 	}

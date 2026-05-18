@@ -8,9 +8,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 var readFileCmd = &cobra.Command{
@@ -39,7 +39,7 @@ func runReadFile(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	readerRouteId, err := wshclient.ControlGetRouteIdCommand(RpcClient, &wshrpc.RpcOpts{Route: wshutil.ControlRoute})
+	readerRouteId, err := dshclient.ControlGetRouteIdCommand(RpcClient, &dshrpc.RpcOpts{Route: dshutil.ControlRoute})
 	if err != nil {
 		WriteStderr("[error] getting route id: %v\n", err)
 		return
@@ -52,13 +52,13 @@ func runReadFile(cmd *cobra.Command, args []string) {
 	reader, streamMeta := broker.CreateStreamReader(readerRouteId, writerRouteId, 64*1024)
 	defer reader.Close()
 
-	data := wshrpc.CommandWaveFileReadStreamData{
+	data := dshrpc.CommandWaveFileReadStreamData{
 		ZoneId:     fullORef.OID,
 		Name:       args[0],
 		StreamMeta: *streamMeta,
 	}
 
-	_, err = wshclient.WaveFileReadStreamCommand(RpcClient, data, nil)
+	_, err = dshclient.WaveFileReadStreamCommand(RpcClient, data, nil)
 	if err != nil {
 		WriteStderr("[error] starting stream read: %v\n", err)
 		return

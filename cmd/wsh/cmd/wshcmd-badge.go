@@ -10,11 +10,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"github.com/dfbb/doraterm/pkg/baseds"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wps"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dps"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 var badgeCmd = &cobra.Command{
@@ -58,7 +58,7 @@ func badgeRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	if err != nil {
 		return fmt.Errorf("resolving block: %v", err)
 	}
-	if oref.OType != waveobj.OType_Block && oref.OType != waveobj.OType_Tab {
+	if oref.OType != doraobj.OType_Block && oref.OType != doraobj.OType_Tab {
 		return fmt.Errorf("badge oref must be a block or tab (got %q)", oref.OType)
 	}
 
@@ -85,19 +85,19 @@ func badgeRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		}
 	}
 
-	event := wps.WaveEvent{
-		Event:  wps.Event_Badge,
+	event := dps.WaveEvent{
+		Event:  dps.Event_Badge,
 		Scopes: []string{oref.String()},
 		Data:   eventData,
 	}
 
-	err = wshclient.EventPublishCommand(RpcClient, event, &wshrpc.RpcOpts{NoResponse: true})
+	err = dshclient.EventPublishCommand(RpcClient, event, &dshrpc.RpcOpts{NoResponse: true})
 	if err != nil {
 		return fmt.Errorf("publishing badge event: %v", err)
 	}
 
 	if badgeBeep {
-		err = wshclient.ElectronSystemBellCommand(RpcClient, &wshrpc.RpcOpts{Route: "electron"})
+		err = dshclient.ElectronSystemBellCommand(RpcClient, &dshrpc.RpcOpts{Route: "electron"})
 		if err != nil {
 			return fmt.Errorf("playing system bell: %v", err)
 		}
@@ -106,15 +106,15 @@ func badgeRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	if badgePid > 0 && eventData.Badge != nil {
 		conn := RpcContext.Conn
 		if conn == "" {
-			conn = wshrpc.LocalConnName
+			conn = dshrpc.LocalConnName
 		}
-		connRoute := wshutil.MakeConnectionRouteId(conn)
-		watchData := wshrpc.CommandBadgeWatchPidData{
+		connRoute := dshutil.MakeConnectionRouteId(conn)
+		watchData := dshrpc.CommandBadgeWatchPidData{
 			Pid:     badgePid,
 			ORef:    *oref,
 			BadgeId: eventData.Badge.BadgeId,
 		}
-		err = wshclient.BadgeWatchPidCommand(RpcClient, watchData, &wshrpc.RpcOpts{Route: connRoute})
+		err = dshclient.BadgeWatchPidCommand(RpcClient, watchData, &dshrpc.RpcOpts{Route: connRoute})
 		if err != nil {
 			return fmt.Errorf("watching pid: %v", err)
 		}

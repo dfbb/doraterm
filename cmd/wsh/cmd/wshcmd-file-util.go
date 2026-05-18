@@ -13,9 +13,9 @@ import (
 
 	"github.com/dfbb/doraterm/pkg/remote/connparse"
 	"github.com/dfbb/doraterm/pkg/util/fileutil"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 func convertNotFoundErr(err error) error {
@@ -28,15 +28,15 @@ func convertNotFoundErr(err error) error {
 	return err
 }
 
-func ensureFile(fileData wshrpc.FileData) (*wshrpc.FileInfo, error) {
-	info, err := wshclient.FileInfoCommand(RpcClient, fileData, &wshrpc.RpcOpts{Timeout: fileTimeout})
+func ensureFile(fileData dshrpc.FileData) (*dshrpc.FileInfo, error) {
+	info, err := dshclient.FileInfoCommand(RpcClient, fileData, &dshrpc.RpcOpts{Timeout: fileTimeout})
 	err = convertNotFoundErr(err)
 	if err == fs.ErrNotExist {
-		err = wshclient.FileCreateCommand(RpcClient, fileData, &wshrpc.RpcOpts{Timeout: fileTimeout})
+		err = dshclient.FileCreateCommand(RpcClient, fileData, &dshrpc.RpcOpts{Timeout: fileTimeout})
 		if err != nil {
 			return nil, fmt.Errorf("creating file: %w", err)
 		}
-		info, err = wshclient.FileInfoCommand(RpcClient, fileData, &wshrpc.RpcOpts{Timeout: fileTimeout})
+		info, err = dshclient.FileInfoCommand(RpcClient, fileData, &dshrpc.RpcOpts{Timeout: fileTimeout})
 		if err != nil {
 			return nil, fmt.Errorf("getting file info: %w", err)
 		}
@@ -48,16 +48,16 @@ func ensureFile(fileData wshrpc.FileData) (*wshrpc.FileInfo, error) {
 	return info, nil
 }
 
-func streamWriteToFile(fileData wshrpc.FileData, reader io.Reader) error {
+func streamWriteToFile(fileData dshrpc.FileData, reader io.Reader) error {
 	// First truncate the file with an empty write
 	emptyWrite := fileData
 	emptyWrite.Data64 = ""
-	err := wshclient.FileWriteCommand(RpcClient, emptyWrite, &wshrpc.RpcOpts{Timeout: fileTimeout})
+	err := dshclient.FileWriteCommand(RpcClient, emptyWrite, &dshrpc.RpcOpts{Timeout: fileTimeout})
 	if err != nil {
 		return fmt.Errorf("initializing file with empty write: %w", err)
 	}
 
-	const chunkSize = wshrpc.FileChunkSize // 32KB chunks
+	const chunkSize = dshrpc.FileChunkSize // 32KB chunks
 	buf := make([]byte, chunkSize)
 	totalWritten := int64(0)
 
@@ -81,7 +81,7 @@ func streamWriteToFile(fileData wshrpc.FileData, reader io.Reader) error {
 		appendData := fileData
 		appendData.Data64 = base64.StdEncoding.EncodeToString(chunk)
 
-		err = wshclient.FileAppendCommand(RpcClient, appendData, &wshrpc.RpcOpts{Timeout: int64(fileTimeout)})
+		err = dshclient.FileAppendCommand(RpcClient, appendData, &dshrpc.RpcOpts{Timeout: int64(fileTimeout)})
 		if err != nil {
 			return fmt.Errorf("appending chunk to file: %w", err)
 		}
@@ -90,7 +90,7 @@ func streamWriteToFile(fileData wshrpc.FileData, reader io.Reader) error {
 	return nil
 }
 
-func streamReadFromFile(ctx context.Context, fileData wshrpc.FileData, writer io.Writer) error {
+func streamReadFromFile(ctx context.Context, fileData dshrpc.FileData, writer io.Writer) error {
 	broker := RpcClient.StreamBroker
 	if broker == nil {
 		return fmt.Errorf("stream broker not available")
@@ -106,18 +106,18 @@ func streamReadFromFile(ctx context.Context, fileData wshrpc.FileData, writer io
 	if err != nil {
 		return fmt.Errorf("parsing file path: %w", err)
 	}
-	writerRouteId := wshutil.MakeConnectionRouteId(conn.Host)
+	writerRouteId := dshutil.MakeConnectionRouteId(conn.Host)
 	reader, streamMeta := broker.CreateStreamReader(readerRouteId, writerRouteId, 256*1024)
 	defer reader.Close()
 	go func() {
 		<-ctx.Done()
 		reader.Close()
 	}()
-	data := wshrpc.CommandFileStreamData{
+	data := dshrpc.CommandFileStreamData{
 		Info:       fileData.Info,
 		StreamMeta: *streamMeta,
 	}
-	_, err = wshclient.FileStreamCommand(RpcClient, data, nil)
+	_, err = dshclient.FileStreamCommand(RpcClient, data, nil)
 	if err != nil {
 		return fmt.Errorf("starting file stream: %w", err)
 	}

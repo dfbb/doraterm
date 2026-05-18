@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 func init() {
@@ -17,7 +17,7 @@ var rcfilesCmd = &cobra.Command{
 	Hidden: true,
 	Short:  "Generate the rc files needed for various shells",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := wshutil.InstallRcFiles()
+		err := dshutil.InstallRcFiles()
 		if err != nil {
 			WriteStderr("%s\n", err.Error())
 			return

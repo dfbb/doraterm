@@ -15,13 +15,13 @@ import (
 
 	"github.com/dfbb/doraterm/pkg/util/iochan/iochantypes"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 // ReaderChan reads from an io.Reader and sends the data to a channel
-func ReaderChan(ctx context.Context, r io.Reader, chunkSize int64, callback func()) chan wshrpc.RespOrErrorUnion[iochantypes.Packet] {
-	ch := make(chan wshrpc.RespOrErrorUnion[iochantypes.Packet], 32)
+func ReaderChan(ctx context.Context, r io.Reader, chunkSize int64, callback func()) chan dshrpc.RespOrErrorUnion[iochantypes.Packet] {
+	ch := make(chan dshrpc.RespOrErrorUnion[iochantypes.Packet], 32)
 	go func() {
 		defer func() {
 			log.Printf("Closing ReaderChan\n")
@@ -40,17 +40,17 @@ func ReaderChan(ctx context.Context, r io.Reader, chunkSize int64, callback func
 				buf := make([]byte, chunkSize)
 				if n, err := r.Read(buf); err != nil {
 					if errors.Is(err, io.EOF) {
-						ch <- wshrpc.RespOrErrorUnion[iochantypes.Packet]{Response: iochantypes.Packet{Checksum: sha256Hash.Sum(nil)}} // send the checksum
+						ch <- dshrpc.RespOrErrorUnion[iochantypes.Packet]{Response: iochantypes.Packet{Checksum: sha256Hash.Sum(nil)}} // send the checksum
 						return
 					}
-					ch <- wshutil.RespErr[iochantypes.Packet](fmt.Errorf("ReaderChan: read error: %v", err))
+					ch <- dshutil.RespErr[iochantypes.Packet](fmt.Errorf("ReaderChan: read error: %v", err))
 					return
 				} else if n > 0 {
 					if _, err := sha256Hash.Write(buf[:n]); err != nil {
-						ch <- wshutil.RespErr[iochantypes.Packet](fmt.Errorf("ReaderChan: error writing to sha256 hash: %v", err))
+						ch <- dshutil.RespErr[iochantypes.Packet](fmt.Errorf("ReaderChan: error writing to sha256 hash: %v", err))
 						return
 					}
-					ch <- wshrpc.RespOrErrorUnion[iochantypes.Packet]{Response: iochantypes.Packet{Data: buf[:n]}}
+					ch <- dshrpc.RespOrErrorUnion[iochantypes.Packet]{Response: iochantypes.Packet{Data: buf[:n]}}
 				}
 			}
 		}
@@ -59,7 +59,7 @@ func ReaderChan(ctx context.Context, r io.Reader, chunkSize int64, callback func
 }
 
 // WriterChan reads from a channel and writes the data to an io.Writer
-func WriterChan(ctx context.Context, w io.Writer, ch <-chan wshrpc.RespOrErrorUnion[iochantypes.Packet], callback func(), cancel context.CancelCauseFunc) {
+func WriterChan(ctx context.Context, w io.Writer, ch <-chan dshrpc.RespOrErrorUnion[iochantypes.Packet], callback func(), cancel context.CancelCauseFunc) {
 	go func() {
 		defer func() {
 			if ctx.Err() != nil {

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 func GenerateBoilerplate(buf *strings.Builder, pkgName string, imports []string) {
@@ -73,8 +73,8 @@ func GenerateMetaMapConsts(buf *strings.Builder, constPrefix string, rtype refle
 	}
 }
 
-func GenMethod_Call(buf *strings.Builder, methodDecl *wshrpc.WshRpcMethodDecl) {
-	fmt.Fprintf(buf, "// command %q, wshserver.%s\n", methodDecl.Command, methodDecl.MethodName)
+func GenMethod_Call(buf *strings.Builder, methodDecl *dshrpc.WshRpcMethodDecl) {
+	fmt.Fprintf(buf, "// command %q, dshserver.%s\n", methodDecl.Command, methodDecl.MethodName)
 	dataType, dataVarName := getWshMethodDataParamsAndExpr(methodDecl)
 	returnType := "error"
 	respName := "_"
@@ -84,7 +84,7 @@ func GenMethod_Call(buf *strings.Builder, methodDecl *wshrpc.WshRpcMethodDecl) {
 		respName = "resp"
 		tParamVal = methodDecl.DefaultResponseDataType.String()
 	}
-	fmt.Fprintf(buf, "func %s(w *wshutil.WshRpc%s, opts *wshrpc.RpcOpts) %s {\n", methodDecl.MethodName, dataType, returnType)
+	fmt.Fprintf(buf, "func %s(w *dshutil.WshRpc%s, opts *dshrpc.RpcOpts) %s {\n", methodDecl.MethodName, dataType, returnType)
 	fmt.Fprintf(buf, "\t%s, err := sendRpcRequestCallHelper[%s](w, %q, %s, opts)\n", respName, tParamVal, methodDecl.Command, dataVarName)
 	if methodDecl.DefaultResponseDataType != nil {
 		fmt.Fprintf(buf, "\treturn resp, err\n")
@@ -94,19 +94,19 @@ func GenMethod_Call(buf *strings.Builder, methodDecl *wshrpc.WshRpcMethodDecl) {
 	fmt.Fprintf(buf, "}\n\n")
 }
 
-func GenMethod_ResponseStream(buf *strings.Builder, methodDecl *wshrpc.WshRpcMethodDecl) {
-	fmt.Fprintf(buf, "// command %q, wshserver.%s\n", methodDecl.Command, methodDecl.MethodName)
+func GenMethod_ResponseStream(buf *strings.Builder, methodDecl *dshrpc.WshRpcMethodDecl) {
+	fmt.Fprintf(buf, "// command %q, dshserver.%s\n", methodDecl.Command, methodDecl.MethodName)
 	dataType, dataVarName := getWshMethodDataParamsAndExpr(methodDecl)
 	respType := "any"
 	if methodDecl.DefaultResponseDataType != nil {
 		respType = methodDecl.DefaultResponseDataType.String()
 	}
-	fmt.Fprintf(buf, "func %s(w *wshutil.WshRpc%s, opts *wshrpc.RpcOpts) chan wshrpc.RespOrErrorUnion[%s] {\n", methodDecl.MethodName, dataType, respType)
+	fmt.Fprintf(buf, "func %s(w *dshutil.WshRpc%s, opts *dshrpc.RpcOpts) chan dshrpc.RespOrErrorUnion[%s] {\n", methodDecl.MethodName, dataType, respType)
 	fmt.Fprintf(buf, "\treturn sendRpcRequestResponseStreamHelper[%s](w, %q, %s, opts)\n", respType, methodDecl.Command, dataVarName)
 	fmt.Fprintf(buf, "}\n\n")
 }
 
-func getWshMethodDataParamsAndExpr(methodDecl *wshrpc.WshRpcMethodDecl) (string, string) {
+func getWshMethodDataParamsAndExpr(methodDecl *dshrpc.WshRpcMethodDecl) (string, string) {
 	dataTypes := methodDecl.GetCommandDataTypes()
 	if len(dataTypes) == 0 {
 		return "", "nil"
@@ -127,5 +127,5 @@ func getWshMethodDataParamsAndExpr(methodDecl *wshrpc.WshRpcMethodDecl) (string,
 		}
 		argBuilder.WriteString(argName)
 	}
-	return paramBuilder.String(), fmt.Sprintf("wshrpc.MultiArg{Args: []any{%s}}", argBuilder.String())
+	return paramBuilder.String(), fmt.Sprintf("dshrpc.MultiArg{Args: []any{%s}}", argBuilder.String())
 }

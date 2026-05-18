@@ -11,54 +11,54 @@ import (
 
 	"github.com/dfbb/doraterm/pkg/gogen"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wconfig"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dconfig"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
-const WshClientFileName = "pkg/wshrpc/wshclient/wshclient.go"
-const WaveObjMetaConstsFileName = "pkg/waveobj/metaconsts.go"
-const SettingsMetaConstsFileName = "pkg/wconfig/metaconsts.go"
+const DshClientFileName = "pkg/dshrpc/dshclient/dshclient.go"
+const DoraObjMetaConstsFileName = "pkg/doraobj/metaconsts.go"
+const SettingsMetaConstsFileName = "pkg/dconfig/metaconsts.go"
 
-func GenerateWshClient() error {
-	fmt.Fprintf(os.Stderr, "generating wshclient file to %s\n", WshClientFileName)
+func GenerateDshClient() error {
+	fmt.Fprintf(os.Stderr, "generating dshclient file to %s\n", DshClientFileName)
 	var buf strings.Builder
-	gogen.GenerateBoilerplate(&buf, "wshclient", []string{
+	gogen.GenerateBoilerplate(&buf, "dshclient", []string{
 		"github.com/dfbb/doraterm/pkg/baseds",
-		"github.com/dfbb/doraterm/pkg/waveobj",
-		"github.com/dfbb/doraterm/pkg/wconfig",
-		"github.com/dfbb/doraterm/pkg/wps",
-		"github.com/dfbb/doraterm/pkg/wshrpc",
-		"github.com/dfbb/doraterm/pkg/wshutil",
+		"github.com/dfbb/doraterm/pkg/doraobj",
+		"github.com/dfbb/doraterm/pkg/dconfig",
+		"github.com/dfbb/doraterm/pkg/dps",
+		"github.com/dfbb/doraterm/pkg/dshrpc",
+		"github.com/dfbb/doraterm/pkg/dshutil",
 	})
-	wshDeclMap := wshrpc.GenerateWshCommandDeclMap()
+	wshDeclMap := dshrpc.GenerateWshCommandDeclMap()
 	for _, key := range utilfn.GetOrderedMapKeys(wshDeclMap) {
 		methodDecl := wshDeclMap[key]
-		if methodDecl.CommandType == wshrpc.RpcType_ResponseStream {
+		if methodDecl.CommandType == dshrpc.RpcType_ResponseStream {
 			gogen.GenMethod_ResponseStream(&buf, methodDecl)
-		} else if methodDecl.CommandType == wshrpc.RpcType_Call {
+		} else if methodDecl.CommandType == dshrpc.RpcType_Call {
 			gogen.GenMethod_Call(&buf, methodDecl)
 		} else {
 			panic("unsupported command type " + methodDecl.CommandType)
 		}
 	}
 	buf.WriteString("\n")
-	written, err := utilfn.WriteFileIfDifferent(WshClientFileName, []byte(buf.String()))
+	written, err := utilfn.WriteFileIfDifferent(DshClientFileName, []byte(buf.String()))
 	if !written {
-		fmt.Fprintf(os.Stderr, "no changes to %s\n", WshClientFileName)
+		fmt.Fprintf(os.Stderr, "no changes to %s\n", DshClientFileName)
 	}
 	return err
 }
 
-func GenerateWaveObjMetaConsts() error {
-	fmt.Fprintf(os.Stderr, "generating waveobj meta consts file to %s\n", WaveObjMetaConstsFileName)
+func GenerateDoraObjMetaConsts() error {
+	fmt.Fprintf(os.Stderr, "generating doraobj meta consts file to %s\n", DoraObjMetaConstsFileName)
 	var buf strings.Builder
-	gogen.GenerateBoilerplate(&buf, "waveobj", []string{})
-	gogen.GenerateMetaMapConsts(&buf, "MetaKey_", reflect.TypeOf(waveobj.MetaTSType{}), false)
+	gogen.GenerateBoilerplate(&buf, "doraobj", []string{})
+	gogen.GenerateMetaMapConsts(&buf, "MetaKey_", reflect.TypeOf(doraobj.MetaTSType{}), false)
 	buf.WriteString("\n")
-	written, err := utilfn.WriteFileIfDifferent(WaveObjMetaConstsFileName, []byte(buf.String()))
+	written, err := utilfn.WriteFileIfDifferent(DoraObjMetaConstsFileName, []byte(buf.String()))
 	if !written {
-		fmt.Fprintf(os.Stderr, "no changes to %s\n", WaveObjMetaConstsFileName)
+		fmt.Fprintf(os.Stderr, "no changes to %s\n", DoraObjMetaConstsFileName)
 	}
 	return err
 }
@@ -67,7 +67,7 @@ func GenerateSettingsMetaConsts() error {
 	fmt.Fprintf(os.Stderr, "generating settings meta consts file to %s\n", SettingsMetaConstsFileName)
 	var buf strings.Builder
 	gogen.GenerateBoilerplate(&buf, "wconfig", []string{})
-	gogen.GenerateMetaMapConsts(&buf, "ConfigKey_", reflect.TypeOf(wconfig.SettingsType{}), false)
+	gogen.GenerateMetaMapConsts(&buf, "ConfigKey_", reflect.TypeOf(dconfig.SettingsType{}), false)
 	buf.WriteString("\n")
 	written, err := utilfn.WriteFileIfDifferent(SettingsMetaConstsFileName, []byte(buf.String()))
 	if !written {
@@ -77,14 +77,14 @@ func GenerateSettingsMetaConsts() error {
 }
 
 func main() {
-	err := GenerateWshClient()
+	err := GenerateDshClient()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error generating wshclient: %v\n", err)
+		fmt.Fprintf(os.Stderr, "error generating dshclient: %v\n", err)
 		return
 	}
-	err = GenerateWaveObjMetaConsts()
+	err = GenerateDoraObjMetaConsts()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error generating waveobj meta consts: %v\n", err)
+		fmt.Fprintf(os.Stderr, "error generating doraobj meta consts: %v\n", err)
 		return
 	}
 	err = GenerateSettingsMetaConsts()

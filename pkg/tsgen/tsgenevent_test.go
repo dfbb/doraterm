@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dfbb/doraterm/pkg/wps"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dps"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 func TestGenerateWaveEventTypes(t *testing.T) {
@@ -28,10 +28,10 @@ func TestGenerateWaveEventTypes(t *testing.T) {
 	if got := getWaveEventDataTSType("unmapped:event", tsTypesMap); got != "any" {
 		t.Fatalf("expected any for unmapped event fallback, got: %q", got)
 	}
-	if _, found := tsTypesMap[reflect.TypeOf(wps.WaveEvent{})]; !found {
+	if _, found := tsTypesMap[reflect.TypeOf(dps.WaveEvent{})]; !found {
 		t.Fatalf("expected WaveEvent type to be seeded in tsTypesMap")
 	}
-	if _, found := tsTypesMap[reflect.TypeOf(wshrpc.BlockJobStatusData{})]; !found {
+	if _, found := tsTypesMap[reflect.TypeOf(dshrpc.BlockJobStatusData{})]; !found {
 		t.Fatalf("expected mapped data types to be generated into tsTypesMap")
 	}
 }

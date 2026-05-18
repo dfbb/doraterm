@@ -7,26 +7,26 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 type fakeTransport struct {
-	dataChan chan wshrpc.CommandStreamData
-	ackChan  chan wshrpc.CommandStreamAckData
+	dataChan chan dshrpc.CommandStreamData
+	ackChan  chan dshrpc.CommandStreamAckData
 }
 
 func newFakeTransport() *fakeTransport {
 	return &fakeTransport{
-		dataChan: make(chan wshrpc.CommandStreamData, 10),
-		ackChan:  make(chan wshrpc.CommandStreamAckData, 10),
+		dataChan: make(chan dshrpc.CommandStreamData, 10),
+		ackChan:  make(chan dshrpc.CommandStreamAckData, 10),
 	}
 }
 
-func (ft *fakeTransport) SendData(dataPk wshrpc.CommandStreamData) {
+func (ft *fakeTransport) SendData(dataPk dshrpc.CommandStreamData) {
 	ft.dataChan <- dataPk
 }
 
-func (ft *fakeTransport) SendAck(ackPk wshrpc.CommandStreamAckData) {
+func (ft *fakeTransport) SendAck(ackPk dshrpc.CommandStreamAckData) {
 	ft.ackChan <- ackPk
 }
 
@@ -271,22 +271,22 @@ func TestOutOfOrderPackets(t *testing.T) {
 	transport := newFakeTransport()
 	reader := NewReader("test-ooo", 1024, transport)
 
-	packet0 := wshrpc.CommandStreamData{
+	packet0 := dshrpc.CommandStreamData{
 		Id:     "test-ooo",
 		Seq:    0,
 		Data64: base64.StdEncoding.EncodeToString([]byte("AAAAA")),
 	}
-	packet5 := wshrpc.CommandStreamData{
+	packet5 := dshrpc.CommandStreamData{
 		Id:     "test-ooo",
 		Seq:    5,
 		Data64: base64.StdEncoding.EncodeToString([]byte("BBBBB")),
 	}
-	packet10 := wshrpc.CommandStreamData{
+	packet10 := dshrpc.CommandStreamData{
 		Id:     "test-ooo",
 		Seq:    10,
 		Data64: base64.StdEncoding.EncodeToString([]byte("CCCCC")),
 	}
-	packet15 := wshrpc.CommandStreamData{
+	packet15 := dshrpc.CommandStreamData{
 		Id:     "test-ooo",
 		Seq:    15,
 		Data64: base64.StdEncoding.EncodeToString([]byte("DDDDD")),
@@ -332,22 +332,22 @@ func TestOutOfOrderWithDuplicates(t *testing.T) {
 	transport := newFakeTransport()
 	reader := NewReader("test-dup", 1024, transport)
 
-	packet0 := wshrpc.CommandStreamData{
+	packet0 := dshrpc.CommandStreamData{
 		Id:     "test-dup",
 		Seq:    0,
 		Data64: base64.StdEncoding.EncodeToString([]byte("aaaaa")),
 	}
-	packet10 := wshrpc.CommandStreamData{
+	packet10 := dshrpc.CommandStreamData{
 		Id:     "test-dup",
 		Seq:    10,
 		Data64: base64.StdEncoding.EncodeToString([]byte("ccccc")),
 	}
-	packet5First := wshrpc.CommandStreamData{
+	packet5First := dshrpc.CommandStreamData{
 		Id:     "test-dup",
 		Seq:    5,
 		Data64: base64.StdEncoding.EncodeToString([]byte("xxxxx")),
 	}
-	packet5Second := wshrpc.CommandStreamData{
+	packet5Second := dshrpc.CommandStreamData{
 		Id:     "test-dup",
 		Seq:    5,
 		Data64: base64.StdEncoding.EncodeToString([]byte("bbbbb")),
@@ -382,22 +382,22 @@ func TestOutOfOrderWithGaps(t *testing.T) {
 	transport := newFakeTransport()
 	reader := NewReader("test-gaps", 1024, transport)
 
-	packet0 := wshrpc.CommandStreamData{
+	packet0 := dshrpc.CommandStreamData{
 		Id:     "test-gaps",
 		Seq:    0,
 		Data64: base64.StdEncoding.EncodeToString([]byte("aaaaa")),
 	}
-	packet20 := wshrpc.CommandStreamData{
+	packet20 := dshrpc.CommandStreamData{
 		Id:     "test-gaps",
 		Seq:    20,
 		Data64: base64.StdEncoding.EncodeToString([]byte("eeeee")),
 	}
-	packet40 := wshrpc.CommandStreamData{
+	packet40 := dshrpc.CommandStreamData{
 		Id:     "test-gaps",
 		Seq:    40,
 		Data64: base64.StdEncoding.EncodeToString([]byte("iiiii")),
 	}
-	packet5 := wshrpc.CommandStreamData{
+	packet5 := dshrpc.CommandStreamData{
 		Id:     "test-gaps",
 		Seq:    5,
 		Data64: base64.StdEncoding.EncodeToString([]byte("bbbbb")),
@@ -429,27 +429,27 @@ func TestOutOfOrderWithGaps(t *testing.T) {
 		t.Fatalf("Expected 'bbbbb', got %q", string(buf[:n]))
 	}
 
-	packet10 := wshrpc.CommandStreamData{
+	packet10 := dshrpc.CommandStreamData{
 		Id:     "test-gaps",
 		Seq:    10,
 		Data64: base64.StdEncoding.EncodeToString([]byte("ccccc")),
 	}
-	packet15 := wshrpc.CommandStreamData{
+	packet15 := dshrpc.CommandStreamData{
 		Id:     "test-gaps",
 		Seq:    15,
 		Data64: base64.StdEncoding.EncodeToString([]byte("ddddd")),
 	}
-	packet25 := wshrpc.CommandStreamData{
+	packet25 := dshrpc.CommandStreamData{
 		Id:     "test-gaps",
 		Seq:    25,
 		Data64: base64.StdEncoding.EncodeToString([]byte("fffff")),
 	}
-	packet30 := wshrpc.CommandStreamData{
+	packet30 := dshrpc.CommandStreamData{
 		Id:     "test-gaps",
 		Seq:    30,
 		Data64: base64.StdEncoding.EncodeToString([]byte("ggggg")),
 	}
-	packet35 := wshrpc.CommandStreamData{
+	packet35 := dshrpc.CommandStreamData{
 		Id:     "test-gaps",
 		Seq:    35,
 		Data64: base64.StdEncoding.EncodeToString([]byte("hhhhh")),
@@ -482,18 +482,18 @@ func TestOutOfOrderWithEOF(t *testing.T) {
 	transport := newFakeTransport()
 	reader := NewReader("test-eof", 1024, transport)
 
-	packet0 := wshrpc.CommandStreamData{
+	packet0 := dshrpc.CommandStreamData{
 		Id:     "test-eof",
 		Seq:    0,
 		Data64: base64.StdEncoding.EncodeToString([]byte("first")),
 	}
-	packet11 := wshrpc.CommandStreamData{
+	packet11 := dshrpc.CommandStreamData{
 		Id:     "test-eof",
 		Seq:    11,
 		Data64: base64.StdEncoding.EncodeToString([]byte("third")),
 		Eof:    true,
 	}
-	packet5 := wshrpc.CommandStreamData{
+	packet5 := dshrpc.CommandStreamData{
 		Id:     "test-eof",
 		Seq:    5,
 		Data64: base64.StdEncoding.EncodeToString([]byte("second")),

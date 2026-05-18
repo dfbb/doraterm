@@ -27,9 +27,9 @@ import (
 	"github.com/dfbb/doraterm/pkg/schema"
 	"github.com/dfbb/doraterm/pkg/service"
 	"github.com/dfbb/doraterm/pkg/util/fileutil"
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 type WebFnType = func(http.ResponseWriter, *http.Request)
@@ -223,7 +223,7 @@ func handleLocalStreamFile(w http.ResponseWriter, r *http.Request, path string, 
 		rw := &notFoundBlockingResponseWriter{w: w, headers: http.Header{}}
 
 		// Serve the file using http.ServeFile
-		path, err := wavebase.ExpandHomeDir(path)
+		path, err := dorabase.ExpandHomeDir(path)
 		if err == nil {
 			http.ServeFile(rw, r, filepath.Clean(path))
 			// if the file was not found, serve the transparent GIF
@@ -235,7 +235,7 @@ func handleLocalStreamFile(w http.ResponseWriter, r *http.Request, path string, 
 			serveTransparentGIF(w)
 		}
 	} else {
-		path, err := wavebase.ExpandHomeDir(path)
+		path, err := dorabase.ExpandHomeDir(path)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
@@ -264,8 +264,8 @@ func handleStreamFileFromReader(w http.ResponseWriter, r *http.Request, path str
 		byteRange = stripped
 	}
 
-	bareRpc := wshclient.GetBareRpcClient()
-	readerRouteId := wshclient.GetBareRpcClientRouteId()
+	bareRpc := dshclient.GetBareRpcClient()
+	readerRouteId := dshclient.GetBareRpcClientRouteId()
 	reader, streamMeta := bareRpc.StreamBroker.CreateStreamReader(readerRouteId, writerRouteId, 256*1024)
 	defer reader.Close()
 	go func() {
@@ -273,8 +273,8 @@ func handleStreamFileFromReader(w http.ResponseWriter, r *http.Request, path str
 		reader.Close()
 	}()
 
-	data := wshrpc.CommandFileStreamData{
-		Info:       &wshrpc.FileInfo{Path: path},
+	data := dshrpc.CommandFileStreamData{
+		Info:       &dshrpc.FileInfo{Path: path},
 		ByteRange:  byteRange,
 		StreamMeta: *streamMeta,
 	}
@@ -428,7 +428,7 @@ func MakeTCPListener(serviceName string) (net.Listener, error) {
 }
 
 func MakeUnixListener() (net.Listener, error) {
-	serverAddr := wavebase.GetDomainSocketName()
+	serverAddr := dorabase.GetDomainSocketName()
 	os.Remove(serverAddr) // ignore error
 	rtn, err := net.Listen("unix", serverAddr)
 	if err != nil {
@@ -461,7 +461,7 @@ func RunWebServer(listener net.Listener) {
 	gr.PathPrefix(schemaPrefix).Handler(http.StripPrefix(schemaPrefix, schema.GetSchemaHandler()))
 
 	handler := http.Handler(gr)
-	if wavebase.IsDevMode() {
+	if dorabase.IsDevMode() {
 		originalHandler := handler
 		handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			origin := r.Header.Get("Origin")

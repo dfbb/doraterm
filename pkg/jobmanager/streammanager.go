@@ -10,7 +10,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 const (
@@ -21,7 +21,7 @@ const (
 )
 
 type DataSender interface {
-	SendData(dataPk wshrpc.CommandStreamData)
+	SendData(dataPk dshrpc.CommandStreamData)
 }
 
 type streamTerminalEvent struct {
@@ -189,7 +189,7 @@ func (sm *StreamManager) ClientDisconnected() {
 
 // RecvAck processes an ACK from the client
 // must be connected, and streamid must match
-func (sm *StreamManager) RecvAck(ackPk wshrpc.CommandStreamAckData) {
+func (sm *StreamManager) RecvAck(ackPk dshrpc.CommandStreamAckData) {
 	sm.lock.Lock()
 	defer sm.lock.Unlock()
 
@@ -356,7 +356,7 @@ func (sm *StreamManager) senderLoop() {
 	}
 }
 
-func (sm *StreamManager) prepareNextPacket() (done bool, pkt *wshrpc.CommandStreamData, sender DataSender) {
+func (sm *StreamManager) prepareNextPacket() (done bool, pkt *dshrpc.CommandStreamData, sender DataSender) {
 	sm.lock.Lock()
 	defer sm.lock.Unlock()
 
@@ -409,19 +409,19 @@ func (sm *StreamManager) prepareNextPacket() (done bool, pkt *wshrpc.CommandStre
 	seq := sm.buf.HeadPos() + sm.sentNotAcked
 	sm.sentNotAcked += int64(n)
 
-	return false, &wshrpc.CommandStreamData{
+	return false, &dshrpc.CommandStreamData{
 		Id:     sm.streamId,
 		Seq:    seq,
 		Data64: base64.StdEncoding.EncodeToString(data),
 	}, sm.dataSender
 }
 
-func (sm *StreamManager) prepareTerminalPacket() *wshrpc.CommandStreamData {
+func (sm *StreamManager) prepareTerminalPacket() *dshrpc.CommandStreamData {
 	if sm.terminalEventSent || sm.terminalEvent == nil {
 		return nil
 	}
 
-	pkt := &wshrpc.CommandStreamData{
+	pkt := &dshrpc.CommandStreamData{
 		Id:  sm.streamId,
 		Seq: sm.eofPos,
 	}

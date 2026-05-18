@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var termMagnified bool
@@ -38,7 +38,7 @@ func termRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	var cwd string
 	if len(args) > 0 {
 		cwd = args[0]
-		cwdExpanded, err := wavebase.ExpandHomeDir(cwd)
+		cwdExpanded, err := dorabase.ExpandHomeDir(cwd)
 		if err != nil {
 			return err
 		}
@@ -62,22 +62,22 @@ func termRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	}
 
 	createMeta := map[string]any{
-		waveobj.MetaKey_View:       "term",
-		waveobj.MetaKey_CmdCwd:     cwd,
-		waveobj.MetaKey_Controller: "shell",
+		doraobj.MetaKey_View:       "term",
+		doraobj.MetaKey_CmdCwd:     cwd,
+		doraobj.MetaKey_Controller: "shell",
 	}
 	if RpcContext.Conn != "" {
-		createMeta[waveobj.MetaKey_Connection] = RpcContext.Conn
+		createMeta[doraobj.MetaKey_Connection] = RpcContext.Conn
 	}
-	createBlockData := wshrpc.CommandCreateBlockData{
+	createBlockData := dshrpc.CommandCreateBlockData{
 		TabId: tabId,
-		BlockDef: &waveobj.BlockDef{
+		BlockDef: &doraobj.BlockDef{
 			Meta: createMeta,
 		},
 		Magnified: termMagnified,
 		Focused:   true,
 	}
-	oref, err := wshclient.CreateBlockCommand(RpcClient, createBlockData, nil)
+	oref, err := dshclient.CreateBlockCommand(RpcClient, createBlockData, nil)
 	if err != nil {
 		return fmt.Errorf("creating new terminal block: %w", err)
 	}

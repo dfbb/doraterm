@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var deleteBlockCmd = &cobra.Command{
@@ -33,10 +33,10 @@ func deleteBlockRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	if fullORef.OType != "block" {
 		return fmt.Errorf("object reference is not a block")
 	}
-	deleteBlockData := &wshrpc.CommandDeleteBlockData{
+	deleteBlockData := &dshrpc.CommandDeleteBlockData{
 		BlockId: fullORef.OID,
 	}
-	err = wshclient.DeleteBlockCommand(RpcClient, *deleteBlockData, &wshrpc.RpcOpts{Timeout: 2000})
+	err = dshclient.DeleteBlockCommand(RpcClient, *deleteBlockData, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("delete block failed: %v", err)
 	}

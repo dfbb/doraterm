@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/dfbb/doraterm/pkg/jobmanager"
 	"github.com/dfbb/doraterm/pkg/streamclient"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 type TestConfig struct {
@@ -159,7 +159,7 @@ func runTest(config TestConfig) error {
 	return nil
 }
 
-func runStreamManagerMode(config TestConfig, writerBroker *streamclient.Broker, streamMeta *wshrpc.StreamMeta) chan error {
+func runStreamManagerMode(config TestConfig, writerBroker *streamclient.Broker, streamMeta *dshrpc.StreamMeta) chan error {
 	streamManager := jobmanager.MakeStreamManagerWithSizes(config.WindowSize, 2*1024*1024)
 	writerBroker.AttachStreamWriter(streamMeta, streamManager)
 
@@ -180,7 +180,7 @@ func runStreamManagerMode(config TestConfig, writerBroker *streamclient.Broker, 
 	return nil
 }
 
-func runWriterMode(config TestConfig, writerBroker *streamclient.Broker, streamMeta *wshrpc.StreamMeta) chan error {
+func runWriterMode(config TestConfig, writerBroker *streamclient.Broker, streamMeta *dshrpc.StreamMeta) chan error {
 	writer, err := writerBroker.CreateStreamWriter(streamMeta)
 	if err != nil {
 		fmt.Printf("failed to create stream writer: %v\n", err)
@@ -209,7 +209,7 @@ type BrokerDataSender struct {
 	broker *streamclient.Broker
 }
 
-func (s *BrokerDataSender) SendData(dataPk wshrpc.CommandStreamData) {
+func (s *BrokerDataSender) SendData(dataPk dshrpc.CommandStreamData) {
 	s.broker.SendData(dataPk)
 }
 

@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 const (
@@ -74,7 +74,7 @@ func ParseURIAndReplaceCurrentHost(ctx context.Context, uri string) (*Connection
 
 		// RPC context connection is empty for local connections
 		if source == "" {
-			source = wshrpc.LocalConnName
+			source = dshrpc.LocalConnName
 		}
 		conn.Host = source
 	}
@@ -82,7 +82,7 @@ func ParseURIAndReplaceCurrentHost(ctx context.Context, uri string) (*Connection
 }
 
 func GetConnNameFromContext(ctx context.Context) (string, error) {
-	handler := wshutil.GetRpcResponseHandlerFromContext(ctx)
+	handler := dshutil.GetRpcResponseHandlerFromContext(ctx)
 	if handler == nil {
 		return "", fmt.Errorf("error getting rpc response handler from context")
 	}
@@ -131,7 +131,7 @@ func ParseURI(uri string) (*Connection, error) {
 		if isWshShorthand {
 			parseWshPath()
 		} else if strings.HasPrefix(rest, "/~") {
-			host = wshrpc.LocalConnName
+			host = dshrpc.LocalConnName
 			remotePath = rest
 		} else {
 			host = ConnHostCurrent
@@ -145,7 +145,7 @@ func ParseURI(uri string) (*Connection, error) {
 
 	if scheme == ConnectionTypeWsh {
 		if host == "" {
-			host = wshrpc.LocalConnName
+			host = dshrpc.LocalConnName
 		}
 		if strings.HasPrefix(remotePath, "/~") {
 			remotePath = strings.TrimPrefix(remotePath, "/")

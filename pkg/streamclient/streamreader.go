@@ -7,11 +7,11 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 type AckSender interface {
-	SendAck(ackPk wshrpc.CommandStreamAckData)
+	SendAck(ackPk dshrpc.CommandStreamAckData)
 }
 
 type Reader struct {
@@ -26,7 +26,7 @@ type Reader struct {
 	err          error
 	closed       bool
 	lastRwndSent int64
-	oooPackets   []wshrpc.CommandStreamData // out-of-order packets awaiting delivery
+	oooPackets   []dshrpc.CommandStreamData // out-of-order packets awaiting delivery
 }
 
 func NewReader(id string, readWindow int64, ackSender AckSender) *Reader {
@@ -45,7 +45,7 @@ func NewReaderWithSeq(id string, readWindow int64, startSeq int64, ackSender Ack
 	return r
 }
 
-func (r *Reader) RecvData(dataPk wshrpc.CommandStreamData) {
+func (r *Reader) RecvData(dataPk dshrpc.CommandStreamData) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
@@ -79,7 +79,7 @@ func (r *Reader) RecvData(dataPk wshrpc.CommandStreamData) {
 	r.sendAckLocked(r.eof, false, "")
 }
 
-func (r *Reader) recvDataOrderedLocked(dataPk wshrpc.CommandStreamData) {
+func (r *Reader) recvDataOrderedLocked(dataPk dshrpc.CommandStreamData) {
 	if dataPk.Data64 != "" {
 		data, err := base64.StdEncoding.DecodeString(dataPk.Data64)
 		if err != nil {
@@ -96,7 +96,7 @@ func (r *Reader) recvDataOrderedLocked(dataPk wshrpc.CommandStreamData) {
 	}
 }
 
-func (r *Reader) addOOOPacketLocked(dataPk wshrpc.CommandStreamData) {
+func (r *Reader) addOOOPacketLocked(dataPk dshrpc.CommandStreamData) {
 	for _, pkt := range r.oooPackets {
 		if pkt.Seq == dataPk.Seq {
 			// this handles duplicates
@@ -134,7 +134,7 @@ func (r *Reader) sendAckLocked(fin bool, cancel bool, errStr string) {
 	if rwnd < 0 {
 		rwnd = 0
 	}
-	ack := wshrpc.CommandStreamAckData{
+	ack := dshrpc.CommandStreamAckData{
 		Id:     r.id,
 		Seq:    r.nextSeq,
 		Fin:    fin,

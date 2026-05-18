@@ -24,8 +24,8 @@ import (
 	"github.com/dfbb/doraterm/pkg/panichandler"
 	"github.com/dfbb/doraterm/pkg/util/pamparse"
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 const DefaultGracefulKillWait = 400 * time.Millisecond
@@ -112,7 +112,7 @@ func checkCwd(cwd string) error {
 }
 
 
-func StartLocalShellProc(logCtx context.Context, termSize waveobj.TermSize, cmdStr string, cmdOpts CommandOptsType, connName string) (*ShellProc, error) {
+func StartLocalShellProc(logCtx context.Context, termSize doraobj.TermSize, cmdStr string, cmdOpts CommandOptsType, connName string) (*ShellProc, error) {
 	if cmdOpts.SwapToken == nil {
 		return nil, fmt.Errorf("SwapToken is required in CommandOptsType")
 	}
@@ -167,12 +167,12 @@ func StartLocalShellProc(logCtx context.Context, termSize waveobj.TermSize, cmdS
 		blocklogger.Infof(logCtx, "error packing swap token: %v", err)
 	} else {
 		blocklogger.Debugf(logCtx, "packed swaptoken %s\n", packedToken)
-		shellutil.UpdateCmdEnv(ecmd, map[string]string{wavebase.WaveSwapTokenVarName: packedToken})
+		shellutil.UpdateCmdEnv(ecmd, map[string]string{dorabase.WaveSwapTokenVarName: packedToken})
 	}
-	jwtToken := cmdOpts.SwapToken.Env[wavebase.WaveJwtTokenVarName]
+	jwtToken := cmdOpts.SwapToken.Env[dorabase.WaveJwtTokenVarName]
 	if jwtToken != "" && cmdOpts.ForceJwt {
 		blocklogger.Debugf(logCtx, "adding JWT token to environment\n")
-		shellutil.UpdateCmdEnv(ecmd, map[string]string{wavebase.WaveJwtTokenVarName: jwtToken})
+		shellutil.UpdateCmdEnv(ecmd, map[string]string{dorabase.WaveJwtTokenVarName: jwtToken})
 	}
 
 	/*
@@ -201,11 +201,11 @@ func StartLocalShellProc(logCtx context.Context, termSize waveobj.TermSize, cmdS
 		ecmd.Dir = cmdOpts.Cwd
 	}
 	if cwdErr := checkCwd(ecmd.Dir); cwdErr != nil {
-		ecmd.Dir = wavebase.GetHomeDir()
+		ecmd.Dir = dorabase.GetHomeDir()
 	}
 	envToAdd := shellutil.WaveshellLocalEnvVars(shellutil.DefaultTermType)
 	if os.Getenv("LANG") == "" {
-		envToAdd["LANG"] = wavebase.DetermineLang()
+		envToAdd["LANG"] = dorabase.DetermineLang()
 	}
 	shellutil.UpdateCmdEnv(ecmd, envToAdd)
 	if termSize.Rows == 0 || termSize.Cols == 0 {
@@ -224,7 +224,7 @@ func StartLocalShellProc(logCtx context.Context, termSize waveobj.TermSize, cmdS
 	return &ShellProc{Cmd: cmdWrap, ConnName: connName, CloseOnce: &sync.Once{}, DoneCh: make(chan any)}, nil
 }
 
-func RunSimpleCmdInPty(ecmd *exec.Cmd, termSize waveobj.TermSize) ([]byte, error) {
+func RunSimpleCmdInPty(ecmd *exec.Cmd, termSize doraobj.TermSize) ([]byte, error) {
 	ecmd.Env = os.Environ()
 	shellutil.UpdateCmdEnv(ecmd, shellutil.WaveshellLocalEnvVars(shellutil.DefaultTermType))
 	if termSize.Rows == 0 || termSize.Cols == 0 {
@@ -283,7 +283,7 @@ func tryGetPamEnvVars() map[string]string {
 	if err != nil {
 		log.Printf("error parsing %s: %v", etcSecurityPath, err)
 	}
-	envVars3, err := pamparse.ParseEnvironmentConfFile(wavebase.ExpandHomeDirSafe(userEnvironmentPath), pamParseOpts)
+	envVars3, err := pamparse.ParseEnvironmentConfFile(dorabase.ExpandHomeDirSafe(userEnvironmentPath), pamParseOpts)
 	if err != nil {
 		log.Printf("error parsing %s: %v", userEnvironmentPath, err)
 	}

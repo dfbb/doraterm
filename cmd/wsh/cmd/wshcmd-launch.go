@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var magnifyBlock bool
@@ -34,7 +34,7 @@ func launchRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	widgetId := args[0]
 
 	// Get the full configuration
-	config, err := wshclient.GetFullConfigCommand(RpcClient, &wshrpc.RpcOpts{Timeout: 2000})
+	config, err := dshclient.GetFullConfigCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("getting configuration: %w", err)
 	}
@@ -54,7 +54,7 @@ func launchRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	}
 
 	// Create block data from widget config
-	createBlockData := wshrpc.CommandCreateBlockData{
+	createBlockData := dshrpc.CommandCreateBlockData{
 		TabId:     tabId,
 		BlockDef:  &widget.BlockDef,
 		Magnified: magnifyBlock || widget.Magnified,
@@ -62,7 +62,7 @@ func launchRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	}
 
 	// Create the block
-	oref, err := wshclient.CreateBlockCommand(RpcClient, createBlockData, nil)
+	oref, err := dshclient.CreateBlockCommand(RpcClient, createBlockData, nil)
 	if err != nil {
 		return fmt.Errorf("creating widget block: %w", err)
 	}

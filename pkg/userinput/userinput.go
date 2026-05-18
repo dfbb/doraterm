@@ -15,8 +15,8 @@ import (
 	"github.com/dfbb/doraterm/pkg/blocklogger"
 	"github.com/dfbb/doraterm/pkg/genconn"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/wps"
-	"github.com/dfbb/doraterm/pkg/wstore"
+	"github.com/dfbb/doraterm/pkg/dps"
+	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
 var MainUserInputHandler = UserInputHandler{Channels: make(map[string](chan *UserInputResponse), 1)}
@@ -75,8 +75,8 @@ func (ui *UserInputHandler) unregisterChannel(id string) {
 }
 
 func (ui *UserInputHandler) sendRequestToFrontend(request *UserInputRequest, scopes []string) {
-	wps.Broker.Publish(wps.WaveEvent{
-		Event:  wps.Event_UserInput,
+	dps.Broker.Publish(dps.WaveEvent{
+		Event:  dps.Event_UserInput,
 		Data:   request,
 		Scopes: scopes,
 	})
@@ -88,15 +88,15 @@ func determineScopes(ctx context.Context) ([]string, error) {
 		return nil, fmt.Errorf("context did not contain connection info")
 	}
 	// resolve windowId from blockId
-	tabId, err := wstore.DBFindTabForBlockId(ctx, connData.BlockId)
+	tabId, err := dstore.DBFindTabForBlockId(ctx, connData.BlockId)
 	if err != nil {
 		return nil, fmt.Errorf("unabled to determine tab for route: %w", err)
 	}
-	workspaceId, err := wstore.DBFindWorkspaceForTabId(ctx, tabId)
+	workspaceId, err := dstore.DBFindWorkspaceForTabId(ctx, tabId)
 	if err != nil {
 		return nil, fmt.Errorf("unabled to determine workspace for route: %w", err)
 	}
-	windowId, err := wstore.DBFindWindowForWorkspaceId(ctx, workspaceId)
+	windowId, err := dstore.DBFindWindowForWorkspaceId(ctx, workspaceId)
 	if err != nil {
 		return nil, fmt.Errorf("unabled to determine window for route: %w", err)
 	}
@@ -114,7 +114,7 @@ func (p *FrontendProvider) GetUserInput(ctx context.Context, request *UserInputR
 	if scopesErr != nil {
 		log.Printf("user input scopes could not be found: %v", scopesErr)
 		blocklogger.Infof(ctx, "user input scopes could not be found: %v", scopesErr)
-		allWindows, err := wstore.DBGetAllOIDsByType(ctx, "window")
+		allWindows, err := dstore.DBGetAllOIDsByType(ctx, "window")
 		if err != nil {
 			blocklogger.Infof(ctx, "unable to find windows for user input: %v", err)
 			return nil, fmt.Errorf("unable to find windows for user input: %v", err)

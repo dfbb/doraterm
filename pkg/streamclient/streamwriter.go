@@ -6,11 +6,11 @@ import (
 	"io"
 	"sync"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 type DataSender interface {
-	SendData(dataPk wshrpc.CommandStreamData)
+	SendData(dataPk dshrpc.CommandStreamData)
 }
 
 type Writer struct {
@@ -46,7 +46,7 @@ func NewWriter(id string, readWindow int64, dataSender DataSender) *Writer {
 	return w
 }
 
-func (w *Writer) RecvAck(ackPk wshrpc.CommandStreamAckData) {
+func (w *Writer) RecvAck(ackPk dshrpc.CommandStreamAckData) {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 
@@ -154,7 +154,7 @@ func (w *Writer) trySendDataLocked() bool {
 	w.buffer = w.buffer[toSend:]
 
 	dataStr := base64.StdEncoding.EncodeToString(data)
-	dataPk := wshrpc.CommandStreamData{
+	dataPk := dshrpc.CommandStreamData{
 		Id:     w.id,
 		Seq:    w.nextSeq,
 		Data64: dataStr,
@@ -187,15 +187,15 @@ func (w *Writer) CloseWithError(err error) error {
 	}
 	w.cond.Broadcast()
 
-	var dataPk wshrpc.CommandStreamData
+	var dataPk dshrpc.CommandStreamData
 	if err == nil || err == io.EOF {
-		dataPk = wshrpc.CommandStreamData{
+		dataPk = dshrpc.CommandStreamData{
 			Id:  w.id,
 			Seq: w.nextSeq,
 			Eof: true,
 		}
 	} else {
-		dataPk = wshrpc.CommandStreamData{
+		dataPk = dshrpc.CommandStreamData{
 			Id:    w.id,
 			Seq:   w.nextSeq,
 			Error: err.Error(),

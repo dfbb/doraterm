@@ -20,7 +20,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/eventbus"
 	"github.com/dfbb/doraterm/pkg/panichandler"
 	"github.com/dfbb/doraterm/pkg/web/webcmd"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 const wsReadWaitTimeout = 15 * time.Second
@@ -219,17 +219,17 @@ func WriteLoop(conn *websocket.Conn, outputCh chan any, closeCh chan any, routeI
 	}
 }
 
-func registerConn(wsConnId string, stableId string, wproxy *wshutil.WshRpcProxy) {
+func registerConn(wsConnId string, stableId string, wproxy *dshutil.WshRpcProxy) {
 	GlobalLock.Lock()
 	defer GlobalLock.Unlock()
 	curConnInfo := RouteToConnMap[stableId]
 	if curConnInfo != nil {
 		log.Printf("[websocket] warning: replacing existing connection for stableid %q\n", stableId)
 		if curConnInfo.LinkId != baseds.NoLinkId {
-			wshutil.DefaultRouter.UnregisterLink(curConnInfo.LinkId)
+			dshutil.DefaultRouter.UnregisterLink(curConnInfo.LinkId)
 		}
 	}
-	linkId := wshutil.DefaultRouter.RegisterTrustedRouter(wproxy)
+	linkId := dshutil.DefaultRouter.RegisterTrustedRouter(wproxy)
 	RouteToConnMap[stableId] = &StableConnInfo{
 		ConnId: wsConnId,
 		LinkId: linkId,
@@ -246,7 +246,7 @@ func unregisterConn(wsConnId string, stableId string) {
 	}
 	delete(RouteToConnMap, stableId)
 	if curConnInfo.LinkId != baseds.NoLinkId {
-		wshutil.DefaultRouter.UnregisterLink(curConnInfo.LinkId)
+		dshutil.DefaultRouter.UnregisterLink(curConnInfo.LinkId)
 	}
 }
 
@@ -273,7 +273,7 @@ func HandleWsInternal(w http.ResponseWriter, r *http.Request) error {
 	log.Printf("[websocket] new connection: connid:%s stableid:%s\n", wsConnId, stableId)
 	eventbus.RegisterWSChannel(wsConnId, stableId, outputCh)
 	defer eventbus.UnregisterWSChannel(wsConnId)
-	wproxy := wshutil.MakeRpcProxyWithSize(fmt.Sprintf("ws:%s", stableId), WebSocketChannelSize, WebSocketChannelSize)
+	wproxy := dshutil.MakeRpcProxyWithSize(fmt.Sprintf("ws:%s", stableId), WebSocketChannelSize, WebSocketChannelSize)
 	defer close(wproxy.ToRemoteCh)
 	registerConn(wsConnId, stableId, wproxy)
 	defer unregisterConn(wsConnId, stableId)

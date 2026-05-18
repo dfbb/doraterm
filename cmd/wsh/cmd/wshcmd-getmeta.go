@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var getMetaCmd = &cobra.Command{
@@ -83,7 +83,7 @@ func getMetaRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	if getMetaVerbose {
 		fmt.Fprintf(os.Stderr, "resolved-id: %s\n", fullORef.String())
 	}
-	resp, err := wshclient.GetMetaCommand(RpcClient, wshrpc.CommandGetMetaData{ORef: *fullORef}, &wshrpc.RpcOpts{Timeout: 2000})
+	resp, err := dshclient.GetMetaCommand(RpcClient, dshrpc.CommandGetMetaData{ORef: *fullORef}, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("getting metadata: %w", err)
 	}

@@ -15,8 +15,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 const (
@@ -95,10 +95,10 @@ func debugTermRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	if err != nil {
 		return err
 	}
-	rtn, err := wshclient.DebugTermCommand(RpcClient, wshrpc.CommandDebugTermData{
+	rtn, err := dshclient.DebugTermCommand(RpcClient, dshrpc.CommandDebugTermData{
 		BlockId: fullORef.OID,
 		Size:    debugTermSize,
-	}, &wshrpc.RpcOpts{Timeout: 2000})
+	}, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("reading terminal output: %w", err)
 	}

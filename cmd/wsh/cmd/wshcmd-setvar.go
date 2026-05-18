@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 const DefaultVarFileName = "var"
@@ -81,7 +81,7 @@ func setVarRun(cmd *cobra.Command, args []string) (rtnErr error) {
 			return err
 		}
 
-		commandData := wshrpc.CommandVarData{
+		commandData := dshrpc.CommandVarData{
 			Key:      key,
 			ZoneId:   fullORef.OID,
 			FileName: setVarFileName,
@@ -92,7 +92,7 @@ func setVarRun(cmd *cobra.Command, args []string) (rtnErr error) {
 			commandData.Val = value
 		}
 
-		err = wshclient.SetVarCommand(RpcClient, commandData, &wshrpc.RpcOpts{Timeout: 2000})
+		err = dshclient.SetVarCommand(RpcClient, commandData, &dshrpc.RpcOpts{Timeout: 2000})
 		if err != nil {
 			return fmt.Errorf("setting variable %s: %w", key, err)
 		}

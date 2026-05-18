@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var setMetaCmd = &cobra.Command{
@@ -189,11 +189,11 @@ func setMetaRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		return err
 	}
 
-	setMetaWshCmd := &wshrpc.CommandSetMetaData{
+	setMetaWshCmd := &dshrpc.CommandSetMetaData{
 		ORef: *fullORef,
 		Meta: fullMeta,
 	}
-	err = wshclient.SetMetaCommand(RpcClient, *setMetaWshCmd, &wshrpc.RpcOpts{Timeout: 2000})
+	err = dshclient.SetMetaCommand(RpcClient, *setMetaWshCmd, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("setting metadata: %v", err)
 	}

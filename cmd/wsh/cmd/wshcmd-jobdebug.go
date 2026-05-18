@@ -10,9 +10,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 var jobDebugCmd = &cobra.Command{
@@ -161,12 +161,12 @@ func init() {
 }
 
 func jobDebugListRun(cmd *cobra.Command, args []string) error {
-	rtnData, err := wshclient.JobControllerListCommand(RpcClient, &wshrpc.RpcOpts{Timeout: 5000})
+	rtnData, err := dshclient.JobControllerListCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 5000})
 	if err != nil {
 		return fmt.Errorf("getting job debug list: %w", err)
 	}
 
-	connectedJobIds, err := wshclient.JobControllerConnectedJobsCommand(RpcClient, &wshrpc.RpcOpts{Timeout: 5000})
+	connectedJobIds, err := dshclient.JobControllerConnectedJobsCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 5000})
 	if err != nil {
 		return fmt.Errorf("getting connected job ids: %w", err)
 	}
@@ -240,7 +240,7 @@ func jobDebugListRun(cmd *cobra.Command, args []string) error {
 }
 
 func jobDebugDeleteRun(cmd *cobra.Command, args []string) error {
-	err := wshclient.JobControllerDeleteJobCommand(RpcClient, jobIdFlag, &wshrpc.RpcOpts{Timeout: 5000})
+	err := dshclient.JobControllerDeleteJobCommand(RpcClient, jobIdFlag, &dshrpc.RpcOpts{Timeout: 5000})
 	if err != nil {
 		return fmt.Errorf("deleting job: %w", err)
 	}
@@ -250,7 +250,7 @@ func jobDebugDeleteRun(cmd *cobra.Command, args []string) error {
 }
 
 func jobDebugDeleteAllRun(cmd *cobra.Command, args []string) error {
-	rtnData, err := wshclient.JobControllerListCommand(RpcClient, &wshrpc.RpcOpts{Timeout: 5000})
+	rtnData, err := dshclient.JobControllerListCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 5000})
 	if err != nil {
 		return fmt.Errorf("getting job debug list: %w", err)
 	}
@@ -262,7 +262,7 @@ func jobDebugDeleteAllRun(cmd *cobra.Command, args []string) error {
 
 	deletedCount := 0
 	for _, job := range rtnData {
-		err := wshclient.JobControllerDeleteJobCommand(RpcClient, job.OID, &wshrpc.RpcOpts{Timeout: 5000})
+		err := dshclient.JobControllerDeleteJobCommand(RpcClient, job.OID, &dshrpc.RpcOpts{Timeout: 5000})
 		if err != nil {
 			fmt.Printf("Error deleting job %s: %v\n", job.OID, err)
 		} else {
@@ -275,7 +275,7 @@ func jobDebugDeleteAllRun(cmd *cobra.Command, args []string) error {
 }
 
 func jobDebugPruneRun(cmd *cobra.Command, args []string) error {
-	rtnData, err := wshclient.JobControllerListCommand(RpcClient, &wshrpc.RpcOpts{Timeout: 5000})
+	rtnData, err := dshclient.JobControllerListCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 5000})
 	if err != nil {
 		return fmt.Errorf("getting job debug list: %w", err)
 	}
@@ -288,7 +288,7 @@ func jobDebugPruneRun(cmd *cobra.Command, args []string) error {
 	deletedCount := 0
 	for _, job := range rtnData {
 		if job.JobManagerStatus != "running" {
-			err := wshclient.JobControllerDeleteJobCommand(RpcClient, job.OID, &wshrpc.RpcOpts{Timeout: 5000})
+			err := dshclient.JobControllerDeleteJobCommand(RpcClient, job.OID, &dshrpc.RpcOpts{Timeout: 5000})
 			if err != nil {
 				fmt.Printf("Error deleting job %s: %v\n", job.OID, err)
 			} else {
@@ -306,7 +306,7 @@ func jobDebugPruneRun(cmd *cobra.Command, args []string) error {
 }
 
 func jobDebugTerminateRun(cmd *cobra.Command, args []string) error {
-	err := wshclient.JobControllerExitJobCommand(RpcClient, terminateJobIdFlag, nil)
+	err := dshclient.JobControllerExitJobCommand(RpcClient, terminateJobIdFlag, nil)
 	if err != nil {
 		return fmt.Errorf("terminating job manager: %w", err)
 	}
@@ -316,7 +316,7 @@ func jobDebugTerminateRun(cmd *cobra.Command, args []string) error {
 }
 
 func jobDebugDisconnectRun(cmd *cobra.Command, args []string) error {
-	err := wshclient.JobControllerDisconnectJobCommand(RpcClient, disconnectJobIdFlag, nil)
+	err := dshclient.JobControllerDisconnectJobCommand(RpcClient, disconnectJobIdFlag, nil)
 	if err != nil {
 		return fmt.Errorf("disconnecting from job manager: %w", err)
 	}
@@ -326,7 +326,7 @@ func jobDebugDisconnectRun(cmd *cobra.Command, args []string) error {
 }
 
 func jobDebugReconnectRun(cmd *cobra.Command, args []string) error {
-	err := wshclient.JobControllerReconnectJobCommand(RpcClient, reconnectJobIdFlag, nil)
+	err := dshclient.JobControllerReconnectJobCommand(RpcClient, reconnectJobIdFlag, nil)
 	if err != nil {
 		return fmt.Errorf("reconnecting to job manager: %w", err)
 	}
@@ -336,7 +336,7 @@ func jobDebugReconnectRun(cmd *cobra.Command, args []string) error {
 }
 
 func jobDebugReconnectConnRun(cmd *cobra.Command, args []string) error {
-	err := wshclient.JobControllerReconnectJobsForConnCommand(RpcClient, reconnectConnNameFlag, nil)
+	err := dshclient.JobControllerReconnectJobsForConnCommand(RpcClient, reconnectConnNameFlag, nil)
 	if err != nil {
 		return fmt.Errorf("reconnecting jobs for connection: %w", err)
 	}
@@ -351,7 +351,7 @@ func jobDebugGetOutputRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("stream broker not available")
 	}
 
-	readerRouteId, err := wshclient.ControlGetRouteIdCommand(RpcClient, &wshrpc.RpcOpts{Route: wshutil.ControlRoute})
+	readerRouteId, err := dshclient.ControlGetRouteIdCommand(RpcClient, &dshrpc.RpcOpts{Route: dshutil.ControlRoute})
 	if err != nil {
 		return fmt.Errorf("getting route id: %w", err)
 	}
@@ -362,13 +362,13 @@ func jobDebugGetOutputRun(cmd *cobra.Command, args []string) error {
 	reader, streamMeta := broker.CreateStreamReader(readerRouteId, writerRouteId, 64*1024)
 	defer reader.Close()
 
-	data := wshrpc.CommandWaveFileReadStreamData{
+	data := dshrpc.CommandWaveFileReadStreamData{
 		ZoneId:     jobIdFlag,
 		Name:       "term",
 		StreamMeta: *streamMeta,
 	}
 
-	_, err = wshclient.WaveFileReadStreamCommand(RpcClient, data, nil)
+	_, err = dshclient.WaveFileReadStreamCommand(RpcClient, data, nil)
 	if err != nil {
 		return fmt.Errorf("starting stream read: %w", err)
 	}
@@ -384,7 +384,7 @@ func jobDebugStartRun(cmd *cobra.Command, args []string) error {
 	cmdToRun := args[0]
 	cmdArgs := args[1:]
 
-	data := wshrpc.CommandJobControllerStartJobData{
+	data := dshrpc.CommandJobControllerStartJobData{
 		ConnName: jobConnFlag,
 		JobKind:  "task",
 		Cmd:      cmdToRun,
@@ -393,7 +393,7 @@ func jobDebugStartRun(cmd *cobra.Command, args []string) error {
 		TermSize: nil,
 	}
 
-	jobId, err := wshclient.JobControllerStartJobCommand(RpcClient, data, &wshrpc.RpcOpts{Timeout: 10000})
+	jobId, err := dshclient.JobControllerStartJobCommand(RpcClient, data, &dshrpc.RpcOpts{Timeout: 10000})
 	if err != nil {
 		return fmt.Errorf("starting job: %w", err)
 	}
@@ -403,12 +403,12 @@ func jobDebugStartRun(cmd *cobra.Command, args []string) error {
 }
 
 func jobDebugAttachJobRun(cmd *cobra.Command, args []string) error {
-	data := wshrpc.CommandJobControllerAttachJobData{
+	data := dshrpc.CommandJobControllerAttachJobData{
 		JobId:   attachJobIdFlag,
 		BlockId: attachBlockIdFlag,
 	}
 
-	err := wshclient.JobControllerAttachJobCommand(RpcClient, data, &wshrpc.RpcOpts{Timeout: 5000})
+	err := dshclient.JobControllerAttachJobCommand(RpcClient, data, &dshrpc.RpcOpts{Timeout: 5000})
 	if err != nil {
 		return fmt.Errorf("attaching job: %w", err)
 	}
@@ -418,7 +418,7 @@ func jobDebugAttachJobRun(cmd *cobra.Command, args []string) error {
 }
 
 func jobDebugDetachJobRun(cmd *cobra.Command, args []string) error {
-	err := wshclient.JobControllerDetachJobCommand(RpcClient, detachJobIdFlag, &wshrpc.RpcOpts{Timeout: 5000})
+	err := dshclient.JobControllerDetachJobCommand(RpcClient, detachJobIdFlag, &dshrpc.RpcOpts{Timeout: 5000})
 	if err != nil {
 		return fmt.Errorf("detaching job: %w", err)
 	}
@@ -434,7 +434,7 @@ func jobDebugBlockAttachmentRun(cmd *cobra.Command, args []string) error {
 	}
 
 	blockId := blockORef.OID
-	jobStatus, err := wshclient.BlockJobStatusCommand(RpcClient, blockId, &wshrpc.RpcOpts{Timeout: 5000})
+	jobStatus, err := dshclient.BlockJobStatusCommand(RpcClient, blockId, &dshrpc.RpcOpts{Timeout: 5000})
 	if err != nil {
 		return fmt.Errorf("getting block job status: %w", err)
 	}

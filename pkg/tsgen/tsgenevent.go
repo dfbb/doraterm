@@ -12,28 +12,28 @@ import (
 	"github.com/dfbb/doraterm/pkg/baseds"
 	"github.com/dfbb/doraterm/pkg/blockcontroller"
 	"github.com/dfbb/doraterm/pkg/userinput"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wconfig"
-	"github.com/dfbb/doraterm/pkg/wps"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dconfig"
+	"github.com/dfbb/doraterm/pkg/dps"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
-var waveEventRType = reflect.TypeOf(wps.WaveEvent{})
+var waveEventRType = reflect.TypeOf(dps.WaveEvent{})
 
 var WaveEventDataTypes = map[string]reflect.Type{
-	wps.Event_BlockClose:          reflect.TypeOf(""),
-	wps.Event_ConnChange:          reflect.TypeOf(wshrpc.ConnStatus{}),
-	wps.Event_SysInfo:             reflect.TypeOf(wshrpc.TimeSeriesData{}),
-	wps.Event_ControllerStatus:    reflect.TypeOf((*blockcontroller.BlockControllerRuntimeStatus)(nil)),
-	wps.Event_WaveObjUpdate:       reflect.TypeOf(waveobj.WaveObjUpdate{}),
-	wps.Event_BlockFile:           reflect.TypeOf((*wps.WSFileEventData)(nil)),
-	wps.Event_Config:              reflect.TypeOf(wconfig.WatcherUpdate{}),
-	wps.Event_UserInput:           reflect.TypeOf((*userinput.UserInputRequest)(nil)),
-	wps.Event_RouteDown:           nil,
-	wps.Event_RouteUp:             nil,
-	wps.Event_WorkspaceUpdate:     nil,
-	wps.Event_BlockJobStatus:      reflect.TypeOf(wshrpc.BlockJobStatusData{}),
-	wps.Event_Badge:               reflect.TypeOf(baseds.BadgeEvent{}),
+	dps.Event_BlockClose:          reflect.TypeOf(""),
+	dps.Event_ConnChange:          reflect.TypeOf(dshrpc.ConnStatus{}),
+	dps.Event_SysInfo:             reflect.TypeOf(dshrpc.TimeSeriesData{}),
+	dps.Event_ControllerStatus:    reflect.TypeOf((*blockcontroller.BlockControllerRuntimeStatus)(nil)),
+	dps.Event_WaveObjUpdate:       reflect.TypeOf(doraobj.WaveObjUpdate{}),
+	dps.Event_BlockFile:           reflect.TypeOf((*dps.WSFileEventData)(nil)),
+	dps.Event_Config:              reflect.TypeOf(dconfig.WatcherUpdate{}),
+	dps.Event_UserInput:           reflect.TypeOf((*userinput.UserInputRequest)(nil)),
+	dps.Event_RouteDown:           nil,
+	dps.Event_RouteUp:             nil,
+	dps.Event_WorkspaceUpdate:     nil,
+	dps.Event_BlockJobStatus:      reflect.TypeOf(dshrpc.BlockJobStatusData{}),
+	dps.Event_Badge:               reflect.TypeOf(baseds.BadgeEvent{}),
 }
 
 func getWaveEventDataTSType(eventName string, tsTypesMap map[reflect.Type]string) string {
@@ -59,9 +59,9 @@ func GenerateWaveEventTypes(tsTypesMap map[reflect.Type]string) string {
 	tsTypesMap[waveEventRType] = ""
 
 	var buf bytes.Buffer
-	buf.WriteString("// wps.WaveEvent\n")
+	buf.WriteString("// dps.WaveEvent\n")
 	buf.WriteString("type WaveEventName =\n")
-	for _, eventName := range wps.AllEvents {
+	for _, eventName := range dps.AllEvents {
 		buf.WriteString(fmt.Sprintf("    | %s\n", strconv.Quote(eventName)))
 	}
 	buf.WriteString(";\n\n")
@@ -72,7 +72,7 @@ func GenerateWaveEventTypes(tsTypesMap map[reflect.Type]string) string {
 	buf.WriteString("    persist?: number;\n")
 	buf.WriteString("    data?: unknown;\n")
 	buf.WriteString("} & (\n")
-	for idx, eventName := range wps.AllEvents {
+	for idx, eventName := range dps.AllEvents {
 		if idx > 0 {
 			buf.WriteString(" | \n")
 		}

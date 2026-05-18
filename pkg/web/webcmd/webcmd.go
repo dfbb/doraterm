@@ -9,7 +9,7 @@ import (
 
 	"github.com/dfbb/doraterm/pkg/tsgen/tsgenmeta"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 const (
@@ -32,7 +32,7 @@ func WSCommandTypeUnionMeta() tsgenmeta.TypeUnionMeta {
 
 type WSRpcCommand struct {
 	WSCommand string              `json:"wscommand" tstype:"\"rpc\""`
-	Message   *wshutil.RpcMessage `json:"message"`
+	Message   *dshutil.RpcMessage `json:"message"`
 }
 
 func (cmd *WSRpcCommand) GetWSCommand() string {

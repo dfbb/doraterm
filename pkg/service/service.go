@@ -17,7 +17,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/service/workspaceservice"
 	"github.com/dfbb/doraterm/pkg/tsgen/tsgenmeta"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/waveobj"
+	"github.com/dfbb/doraterm/pkg/doraobj"
 	"github.com/dfbb/doraterm/pkg/web/webcmd"
 )
 
@@ -32,20 +32,20 @@ var ServiceMap = map[string]any{
 
 var contextRType = reflect.TypeOf((*context.Context)(nil)).Elem()
 var errorRType = reflect.TypeOf((*error)(nil)).Elem()
-var updatesRType = reflect.TypeOf(([]waveobj.WaveObjUpdate{}))
-var waveObjRType = reflect.TypeOf((*waveobj.WaveObj)(nil)).Elem()
-var waveObjSliceRType = reflect.TypeOf([]waveobj.WaveObj{})
-var waveObjMapRType = reflect.TypeOf(map[string]waveobj.WaveObj{})
+var updatesRType = reflect.TypeOf(([]doraobj.WaveObjUpdate{}))
+var waveObjRType = reflect.TypeOf((*doraobj.WaveObj)(nil)).Elem()
+var waveObjSliceRType = reflect.TypeOf([]doraobj.WaveObj{})
+var waveObjMapRType = reflect.TypeOf(map[string]doraobj.WaveObj{})
 var methodMetaRType = reflect.TypeOf(tsgenmeta.MethodMeta{})
-var waveObjUpdateRType = reflect.TypeOf(waveobj.WaveObjUpdate{})
-var uiContextRType = reflect.TypeOf((*waveobj.UIContext)(nil)).Elem()
+var waveObjUpdateRType = reflect.TypeOf(doraobj.WaveObjUpdate{})
+var uiContextRType = reflect.TypeOf((*doraobj.UIContext)(nil)).Elem()
 var wsCommandRType = reflect.TypeOf((*webcmd.WSCommandType)(nil)).Elem()
-var orefRType = reflect.TypeOf((*waveobj.ORef)(nil)).Elem()
+var orefRType = reflect.TypeOf((*doraobj.ORef)(nil)).Elem()
 
 type WebCallType struct {
 	Service   string             `json:"service"`
 	Method    string             `json:"method"`
-	UIContext *waveobj.UIContext `json:"uicontext,omitempty"`
+	UIContext *doraobj.UIContext `json:"uicontext,omitempty"`
 	Args      []any              `json:"args"`
 }
 
@@ -53,7 +53,7 @@ type WebReturnType struct {
 	Success bool                    `json:"success,omitempty"`
 	Error   string                  `json:"error,omitempty"`
 	Data    any                     `json:"data,omitempty"`
-	Updates []waveobj.WaveObjUpdate `json:"updates,omitempty"`
+	Updates []doraobj.WaveObjUpdate `json:"updates,omitempty"`
 }
 
 func convertNumber(argType reflect.Type, jsonArg float64) (any, error) {
@@ -116,7 +116,7 @@ func convertSpecial(argType reflect.Type, jsonArg any) (any, error) {
 		if jsonType.Kind() != reflect.String {
 			return nil, fmt.Errorf("cannot convert %T to %s", jsonArg, argType)
 		}
-		oref, err := waveobj.ParseORef(jsonArg.(string))
+		oref, err := doraobj.ParseORef(jsonArg.(string))
 		if err != nil {
 			return nil, fmt.Errorf("invalid oref string: %v", err)
 		}
@@ -127,19 +127,19 @@ func convertSpecial(argType reflect.Type, jsonArg any) (any, error) {
 		if jsonType.Kind() != reflect.Map {
 			return nil, fmt.Errorf("cannot convert %T to %s", jsonArg, argType)
 		}
-		return waveobj.FromJsonMap(jsonArg.(map[string]any))
+		return doraobj.FromJsonMap(jsonArg.(map[string]any))
 	} else if argType == waveObjSliceRType {
 		if jsonType.Kind() != reflect.Slice {
 			return nil, fmt.Errorf("cannot convert %T to %s", jsonArg, argType)
 		}
 		sliceArg := jsonArg.([]any)
-		nativeSlice := make([]waveobj.WaveObj, len(sliceArg))
+		nativeSlice := make([]doraobj.WaveObj, len(sliceArg))
 		for idx, elem := range sliceArg {
 			elemMap, ok := elem.(map[string]any)
 			if !ok {
 				return nil, fmt.Errorf("cannot convert %T to %s (idx %d is not a map, is %T)", jsonArg, waveObjSliceRType, idx, elem)
 			}
-			nativeObj, err := waveobj.FromJsonMap(elemMap)
+			nativeObj, err := doraobj.FromJsonMap(elemMap)
 			if err != nil {
 				return nil, fmt.Errorf("cannot convert %T to %s (idx %d) error: %v", jsonArg, waveObjSliceRType, idx, err)
 			}
@@ -151,13 +151,13 @@ func convertSpecial(argType reflect.Type, jsonArg any) (any, error) {
 			return nil, fmt.Errorf("cannot convert %T to %s", jsonArg, argType)
 		}
 		mapArg := jsonArg.(map[string]any)
-		nativeMap := make(map[string]waveobj.WaveObj)
+		nativeMap := make(map[string]doraobj.WaveObj)
 		for key, elem := range mapArg {
 			elemMap, ok := elem.(map[string]any)
 			if !ok {
 				return nil, fmt.Errorf("cannot convert %T to %s (key %s is not a map, is %T)", jsonArg, waveObjMapRType, key, elem)
 			}
-			nativeObj, err := waveobj.FromJsonMap(elemMap)
+			nativeObj, err := doraobj.FromJsonMap(elemMap)
 			if err != nil {
 				return nil, fmt.Errorf("cannot convert %T to %s (key %s) error: %v", jsonArg, waveObjMapRType, key, err)
 			}
@@ -171,12 +171,12 @@ func convertSpecial(argType reflect.Type, jsonArg any) (any, error) {
 
 func convertSpecialForReturn(argType reflect.Type, nativeArg any) (any, error) {
 	if argType == waveObjRType {
-		return waveobj.ToJsonMap(nativeArg.(waveobj.WaveObj))
+		return doraobj.ToJsonMap(nativeArg.(doraobj.WaveObj))
 	} else if argType == waveObjSliceRType {
-		nativeSlice := nativeArg.([]waveobj.WaveObj)
+		nativeSlice := nativeArg.([]doraobj.WaveObj)
 		jsonSlice := make([]map[string]any, len(nativeSlice))
 		for idx, elem := range nativeSlice {
-			elemMap, err := waveobj.ToJsonMap(elem)
+			elemMap, err := doraobj.ToJsonMap(elem)
 			if err != nil {
 				return nil, err
 			}
@@ -184,10 +184,10 @@ func convertSpecialForReturn(argType reflect.Type, nativeArg any) (any, error) {
 		}
 		return jsonSlice, nil
 	} else if argType == waveObjMapRType {
-		nativeMap := nativeArg.(map[string]waveobj.WaveObj)
+		nativeMap := nativeArg.(map[string]doraobj.WaveObj)
 		jsonMap := make(map[string]map[string]any)
 		for key, elem := range nativeMap {
-			elemMap, err := waveobj.ToJsonMap(elem)
+			elemMap, err := doraobj.ToJsonMap(elem)
 			if err != nil {
 				return nil, err
 			}
@@ -288,7 +288,7 @@ func convertReturnValues(rtnVals []reflect.Value) *WebReturnType {
 		}
 		if valType == updatesRType {
 			// has a special MarshalJSON method
-			rtn.Updates = val.Interface().([]waveobj.WaveObjUpdate)
+			rtn.Updates = val.Interface().([]doraobj.WaveObjUpdate)
 			continue
 		}
 		if isSpecialWaveArgType(valType) {
@@ -384,7 +384,7 @@ func baseValidateServiceArg(argType reflect.Type) error {
 }
 
 func validateMethodReturnArg(retType reflect.Type) error {
-	// specifically allow waveobj.WaveObj, []waveobj.WaveObj, map[string]waveobj.WaveObj, and error
+	// specifically allow doraobj.WaveObj, []doraobj.WaveObj, map[string]doraobj.WaveObj, and error
 	if isSpecialWaveArgType(retType) || retType == errorRType {
 		return nil
 	}
@@ -392,7 +392,7 @@ func validateMethodReturnArg(retType reflect.Type) error {
 }
 
 func validateMethodArg(argType reflect.Type) error {
-	// specifically allow waveobj.WaveObj, []waveobj.WaveObj, map[string]waveobj.WaveObj, and context.Context
+	// specifically allow doraobj.WaveObj, []doraobj.WaveObj, map[string]doraobj.WaveObj, and context.Context
 	if isSpecialWaveArgType(argType) || argType == contextRType {
 		return nil
 	}

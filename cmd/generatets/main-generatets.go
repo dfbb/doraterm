@@ -14,7 +14,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/service"
 	"github.com/dfbb/doraterm/pkg/tsgen"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 func generateTypesFile(tsTypesMap map[reflect.Type]string) error {
@@ -129,7 +129,7 @@ func generateServicesFile(tsTypesMap map[reflect.Type]string) error {
 func generateWshClientApiFile(tsTypeMap map[reflect.Type]string) error {
 	fileName := "frontend/app/store/wshclientapi.ts"
 	var buf bytes.Buffer
-	declMap := wshrpc.GenerateWshCommandDeclMap()
+	declMap := dshrpc.GenerateWshCommandDeclMap()
 	fmt.Fprintf(os.Stderr, "generating wshclientapi file to %s\n", fileName)
 	fmt.Fprintf(&buf, "// Copyright 2026, Command Line Inc.\n")
 	fmt.Fprintf(&buf, "// SPDX-License-Identifier: Apache-2.0\n\n")

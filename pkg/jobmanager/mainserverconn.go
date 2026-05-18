@@ -12,16 +12,16 @@ import (
 	"sync/atomic"
 
 	"github.com/dfbb/doraterm/pkg/baseds"
-	"github.com/dfbb/doraterm/pkg/wavejwt"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dorajwt"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 type MainServerConn struct {
 	PeerAuthenticated atomic.Bool
 	SelfAuthenticated atomic.Bool
-	WshRpc            *wshutil.WshRpc
+	WshRpc            *dshutil.WshRpc
 	Conn              net.Conn
 	inputCh           chan baseds.RpcInputChType
 	closeOnce         sync.Once
@@ -37,14 +37,14 @@ func (msc *MainServerConn) Close() {
 }
 
 type routedDataSender struct {
-	wshRpc *wshutil.WshRpc
+	wshRpc *dshutil.WshRpc
 	route  string
 }
 
-func (rds *routedDataSender) SendData(dataPk wshrpc.CommandStreamData) {
+func (rds *routedDataSender) SendData(dataPk dshrpc.CommandStreamData) {
 	// log.Printf("SendData: sending seq=%d, len=%d, eof=%t, error=%s, route=%s",
 	// 	dataPk.Seq, len(dataPk.Data64), dataPk.Eof, dataPk.Error, rds.route)
-	err := wshclient.StreamDataCommand(rds.wshRpc, dataPk, &wshrpc.RpcOpts{NoResponse: true, Route: rds.route})
+	err := dshclient.StreamDataCommand(rds.wshRpc, dataPk, &dshrpc.RpcOpts{NoResponse: true, Route: rds.route})
 	if err != nil {
 		log.Printf("SendData: error sending stream data: %v\n", err)
 	}
@@ -52,11 +52,11 @@ func (rds *routedDataSender) SendData(dataPk wshrpc.CommandStreamData) {
 
 func (msc *MainServerConn) authenticateSelfToServer(jobAuthToken string) error {
 	jobId, _ := WshCmdJobManager.GetJobAuthInfo()
-	authData := wshrpc.CommandAuthenticateJobManagerData{
+	authData := dshrpc.CommandAuthenticateJobManagerData{
 		JobId:        jobId,
 		JobAuthToken: jobAuthToken,
 	}
-	err := wshclient.AuthenticateJobManagerCommand(msc.WshRpc, authData, &wshrpc.RpcOpts{Route: wshutil.ControlRoute})
+	err := dshclient.AuthenticateJobManagerCommand(msc.WshRpc, authData, &dshrpc.RpcOpts{Route: dshutil.ControlRoute})
 	if err != nil {
 		log.Printf("authenticateSelfToServer: failed to authenticate to server: %v\n", err)
 		return fmt.Errorf("failed to authenticate to server: %w", err)
@@ -66,10 +66,10 @@ func (msc *MainServerConn) authenticateSelfToServer(jobAuthToken string) error {
 	return nil
 }
 
-func (msc *MainServerConn) AuthenticateToJobManagerCommand(ctx context.Context, data wshrpc.CommandAuthenticateToJobData) error {
+func (msc *MainServerConn) AuthenticateToJobManagerCommand(ctx context.Context, data dshrpc.CommandAuthenticateToJobData) error {
 	jobId, jobAuthToken := WshCmdJobManager.GetJobAuthInfo()
 
-	claims, err := wavejwt.ValidateAndExtract(data.JobAccessToken)
+	claims, err := dorajwt.ValidateAndExtract(data.JobAccessToken)
 	if err != nil {
 		log.Printf("AuthenticateToJobManager: failed to validate token: %v\n", err)
 		return fmt.Errorf("failed to validate token: %w", err)
@@ -95,7 +95,7 @@ func (msc *MainServerConn) AuthenticateToJobManagerCommand(ctx context.Context, 
 	return nil
 }
 
-func (msc *MainServerConn) StartJobCommand(ctx context.Context, data wshrpc.CommandStartJobData) (*wshrpc.CommandStartJobRtnData, error) {
+func (msc *MainServerConn) StartJobCommand(ctx context.Context, data dshrpc.CommandStartJobData) (*dshrpc.CommandStartJobRtnData, error) {
 	log.Printf("StartJobCommand: received command=%s args=%v", data.Cmd, data.Args)
 	if !msc.PeerAuthenticated.Load() {
 		log.Printf("StartJobCommand: not authenticated")
@@ -104,7 +104,7 @@ func (msc *MainServerConn) StartJobCommand(ctx context.Context, data wshrpc.Comm
 	return WshCmdJobManager.StartJob(msc, data)
 }
 
-func (msc *MainServerConn) JobPrepareConnectCommand(ctx context.Context, data wshrpc.CommandJobPrepareConnectData) (*wshrpc.CommandJobConnectRtnData, error) {
+func (msc *MainServerConn) JobPrepareConnectCommand(ctx context.Context, data dshrpc.CommandJobPrepareConnectData) (*dshrpc.CommandJobConnectRtnData, error) {
 	if !msc.PeerAuthenticated.Load() {
 		return nil, fmt.Errorf("peer not authenticated")
 	}
@@ -114,14 +114,14 @@ func (msc *MainServerConn) JobPrepareConnectCommand(ctx context.Context, data ws
 	return WshCmdJobManager.PrepareConnect(msc, data)
 }
 
-func (msc *MainServerConn) JobStartStreamCommand(ctx context.Context, data wshrpc.CommandJobStartStreamData) error {
+func (msc *MainServerConn) JobStartStreamCommand(ctx context.Context, data dshrpc.CommandJobStartStreamData) error {
 	if !msc.PeerAuthenticated.Load() {
 		return fmt.Errorf("not authenticated")
 	}
 	return WshCmdJobManager.StartStream(msc)
 }
 
-func (msc *MainServerConn) JobInputCommand(ctx context.Context, data wshrpc.CommandJobInputData) error {
+func (msc *MainServerConn) JobInputCommand(ctx context.Context, data dshrpc.CommandJobInputData) error {
 	if !msc.PeerAuthenticated.Load() {
 		return fmt.Errorf("not authenticated")
 	}

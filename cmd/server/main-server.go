@@ -29,19 +29,19 @@ import (
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
 	"github.com/dfbb/doraterm/pkg/util/sigutil"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/waveobj"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/doraobj"
 	"github.com/dfbb/doraterm/pkg/wcloud"
-	"github.com/dfbb/doraterm/pkg/wconfig"
-	"github.com/dfbb/doraterm/pkg/wcore"
+	"github.com/dfbb/doraterm/pkg/dconfig"
+	"github.com/dfbb/doraterm/pkg/dcore"
 	"github.com/dfbb/doraterm/pkg/web"
-	"github.com/dfbb/doraterm/pkg/wps"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshlocal"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshserver"
-	"github.com/dfbb/doraterm/pkg/wshutil"
-	"github.com/dfbb/doraterm/pkg/wstore"
+	"github.com/dfbb/doraterm/pkg/dps"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshlocal"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshserver"
+	"github.com/dfbb/doraterm/pkg/dshutil"
+	"github.com/dfbb/doraterm/pkg/dstore"
 
 	"net/http"
 	_ "net/http/pprof"
@@ -80,7 +80,7 @@ func doShutdown(reason string) {
 		// TODO deal with flush in progress
 		clearTempFiles()
 		filestore.WFS.FlushCache(ctx)
-		watcher := wconfig.GetWatcher()
+		watcher := dconfig.GetWatcher()
 		if watcher != nil {
 			watcher.Close()
 		}
@@ -106,7 +106,7 @@ func stdinReadWatch() {
 }
 
 func startConfigWatcher() {
-	watcher := wconfig.GetWatcher()
+	watcher := dconfig.GetWatcher()
 	if watcher != nil {
 		watcher.Start()
 	}
@@ -152,36 +152,36 @@ func sendDiagnosticPing() bool {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFn()
 
-	rpcClient := wshclient.GetBareRpcClient()
-	isOnline, err := wshclient.NetworkOnlineCommand(rpcClient, &wshrpc.RpcOpts{Route: "electron", Timeout: 2000})
+	rpcClient := dshclient.GetBareRpcClient()
+	isOnline, err := dshclient.NetworkOnlineCommand(rpcClient, &dshrpc.RpcOpts{Route: "electron", Timeout: 2000})
 	if err != nil || !isOnline {
 		return false
 	}
-	clientId := wstore.GetClientId()
+	clientId := dstore.GetClientId()
 	usageTelemetry := telemetry.IsTelemetryEnabled()
 	wcloud.SendDiagnosticPing(ctx, clientId, usageTelemetry)
 	return true
 }
 
 func setupTelemetryConfigHandler() {
-	watcher := wconfig.GetWatcher()
+	watcher := dconfig.GetWatcher()
 	if watcher == nil {
 		return
 	}
 	currentConfig := watcher.GetFullConfig()
 	currentTelemetryEnabled := currentConfig.Settings.TelemetryEnabled
 
-	watcher.RegisterUpdateHandler(func(newConfig wconfig.FullConfigType) {
+	watcher.RegisterUpdateHandler(func(newConfig dconfig.FullConfigType) {
 		newTelemetryEnabled := newConfig.Settings.TelemetryEnabled
 		if newTelemetryEnabled != currentTelemetryEnabled {
 			currentTelemetryEnabled = newTelemetryEnabled
-			wcore.GoSendNoTelemetryUpdate(newTelemetryEnabled)
+			dcore.GoSendNoTelemetryUpdate(newTelemetryEnabled)
 		}
 	})
 }
 
 func panicTelemetryHandler(panicName string) {
-	activity := wshrpc.ActivityUpdate{NumPanics: 1}
+	activity := dshrpc.ActivityUpdate{NumPanics: 1}
 	err := telemetry.UpdateActivity(context.Background(), activity)
 	if err != nil {
 		log.Printf("error updating activity (panicTelemetryHandler): %v\n", err)
@@ -198,7 +198,7 @@ func sendTelemetryWrapper() {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancelFn()
 	beforeSendActivityUpdate(ctx)
-	clientId := wstore.GetClientId()
+	clientId := dstore.GetClientId()
 	err := wcloud.SendAllTelemetry(clientId)
 	if err != nil {
 		log.Printf("[error] sending telemetry: %v\n", err)
@@ -209,18 +209,18 @@ func updateTelemetryCounts(lastCounts telemetrydata.TEventProps) telemetrydata.T
 	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFn()
 	var props telemetrydata.TEventProps
-	props.CountBlocks, _ = wstore.DBGetCount[*waveobj.Block](ctx)
-	props.CountTabs, _ = wstore.DBGetCount[*waveobj.Tab](ctx)
-	props.CountWindows, _ = wstore.DBGetCount[*waveobj.Window](ctx)
-	props.CountWorkspaces, _, _ = wstore.DBGetWSCounts(ctx)
+	props.CountBlocks, _ = dstore.DBGetCount[*doraobj.Block](ctx)
+	props.CountTabs, _ = dstore.DBGetCount[*doraobj.Tab](ctx)
+	props.CountWindows, _ = dstore.DBGetCount[*doraobj.Window](ctx)
+	props.CountWorkspaces, _, _ = dstore.DBGetWSCounts(ctx)
 	props.CountJobs = jobcontroller.GetNumJobsRunning()
 	props.CountJobsConnected = jobcontroller.GetNumJobsConnected()
-	props.CountViews, _ = wstore.DBGetBlockViewCounts(ctx)
+	props.CountViews, _ = dstore.DBGetBlockViewCounts(ctx)
 
-	fullConfig := wconfig.GetWatcher().GetFullConfig()
+	fullConfig := dconfig.GetWatcher().GetFullConfig()
 	customWidgets := fullConfig.CountCustomWidgets()
 	customAIPresets := fullConfig.CountCustomAIPresets()
-	customSettings := wconfig.CountCustomSettings()
+	customSettings := dconfig.CountCustomSettings()
 	customAIModes := fullConfig.CountCustomAIModes()
 
 	props.UserSet = &telemetrydata.TEventUserProps{
@@ -263,12 +263,12 @@ func updateTelemetryCountsLoop() {
 }
 
 func beforeSendActivityUpdate(ctx context.Context) {
-	activity := wshrpc.ActivityUpdate{}
-	activity.NumTabs, _ = wstore.DBGetCount[*waveobj.Tab](ctx)
-	activity.NumBlocks, _ = wstore.DBGetCount[*waveobj.Block](ctx)
-	activity.Blocks, _ = wstore.DBGetBlockViewCounts(ctx)
-	activity.NumWindows, _ = wstore.DBGetCount[*waveobj.Window](ctx)
-	activity.NumWSNamed, activity.NumWS, _ = wstore.DBGetWSCounts(ctx)
+	activity := dshrpc.ActivityUpdate{}
+	activity.NumTabs, _ = dstore.DBGetCount[*doraobj.Tab](ctx)
+	activity.NumBlocks, _ = dstore.DBGetCount[*doraobj.Block](ctx)
+	activity.Blocks, _ = dstore.DBGetBlockViewCounts(ctx)
+	activity.NumWindows, _ = dstore.DBGetCount[*doraobj.Window](ctx)
+	activity.NumWSNamed, activity.NumWS, _ = dstore.DBGetWSCounts(ctx)
 	err := telemetry.UpdateActivity(ctx, activity)
 	if err != nil {
 		log.Printf("error updating before activity: %v\n", err)
@@ -281,7 +281,7 @@ func startupActivityUpdate(firstLaunch bool) {
 	}()
 	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFn()
-	activity := wshrpc.ActivityUpdate{Startup: 1}
+	activity := dshrpc.ActivityUpdate{Startup: 1}
 	err := telemetry.UpdateActivity(ctx, activity) // set at least one record into activity (don't use go routine wrap here)
 	if err != nil {
 		log.Printf("error updating startup activity: %v\n", err)
@@ -308,16 +308,16 @@ func startupActivityUpdate(firstLaunch bool) {
 	cohortISOWeek := fmt.Sprintf("%04d-W%02d", year, week)
 	userSetOnce.CohortMonth = cohortMonth
 	userSetOnce.CohortISOWeek = cohortISOWeek
-	fullConfig := wconfig.GetWatcher().GetFullConfig()
+	fullConfig := dconfig.GetWatcher().GetFullConfig()
 	props := telemetrydata.TEventProps{
 		UserSet: &telemetrydata.TEventUserProps{
-			ClientVersion:       "v" + wavebase.WaveVersion,
-			ClientBuildTime:     wavebase.BuildTime,
-			ClientArch:          wavebase.ClientArch(),
-			ClientOSRelease:     wavebase.UnameKernelRelease(),
-			ClientIsDev:         wavebase.IsDevMode(),
-			ClientPackageType:   wavebase.ClientPackageType(),
-			ClientMacOSVersion:  wavebase.ClientMacOSVersion(),
+			ClientVersion:       "v" + dorabase.WaveVersion,
+			ClientBuildTime:     dorabase.BuildTime,
+			ClientArch:          dorabase.ClientArch(),
+			ClientOSRelease:     dorabase.UnameKernelRelease(),
+			ClientIsDev:         dorabase.IsDevMode(),
+			ClientPackageType:   dorabase.ClientPackageType(),
+			ClientMacOSVersion:  dorabase.ClientMacOSVersion(),
 			AutoUpdateChannel:   autoUpdateChannel,
 			AutoUpdateEnabled:   autoUpdateEnabled,
 			LocalShellType:      shellType,
@@ -339,7 +339,7 @@ func startupActivityUpdate(firstLaunch bool) {
 func shutdownActivityUpdate() {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancelFn()
-	activity := wshrpc.ActivityUpdate{Shutdown: 1}
+	activity := dshrpc.ActivityUpdate{Shutdown: 1}
 	err := telemetry.UpdateActivity(ctx, activity) // do NOT use the go routine wrap here (this needs to be synchronous)
 	if err != nil {
 		log.Printf("error updating shutdown activity: %v\n", err)
@@ -356,16 +356,16 @@ func shutdownActivityUpdate() {
 }
 
 func createMainWshClient() {
-	rpc := wshserver.GetMainRpcClient()
-	wshutil.DefaultRouter.RegisterTrustedLeaf(rpc, wshutil.DefaultRoute)
-	wps.Broker.SetClient(wshutil.DefaultRouter)
+	rpc := dshserver.GetMainRpcClient()
+	dshutil.DefaultRouter.RegisterTrustedLeaf(rpc, dshutil.DefaultRoute)
+	dps.Broker.SetClient(dshutil.DefaultRouter)
 	localInitialEnv := envutil.PruneInitialEnv(envutil.SliceToMap(os.Environ()))
-	sockName := wavebase.GetDomainSocketName()
-	localImpl := wshlocal.MakeLocalRpcServerImpl(nil, wshutil.DefaultRouter, wshclient.GetBareRpcClient(), localInitialEnv, sockName)
-	localConnWsh := wshutil.MakeWshRpc(wshrpc.RpcContext{Conn: wshrpc.LocalConnName}, localImpl, "conn:local")
-	wshutil.DefaultRouter.RegisterTrustedLeaf(localConnWsh, wshutil.MakeConnectionRouteId(wshrpc.LocalConnName))
+	sockName := dorabase.GetDomainSocketName()
+	localImpl := dshlocal.MakeLocalRpcServerImpl(nil, dshutil.DefaultRouter, dshclient.GetBareRpcClient(), localInitialEnv, sockName)
+	localConnWsh := dshutil.MakeWshRpc(dshrpc.RpcContext{Conn: dshrpc.LocalConnName}, localImpl, "conn:local")
+	dshutil.DefaultRouter.RegisterTrustedLeaf(localConnWsh, dshutil.MakeConnectionRouteId(dshrpc.LocalConnName))
 	wshfs.RpcClient = localConnWsh
-	wshfs.RpcClientRouteId = wshutil.MakeConnectionRouteId(wshrpc.LocalConnName)
+	wshfs.RpcClientRouteId = dshutil.MakeConnectionRouteId(dshrpc.LocalConnName)
 }
 
 func grabAndRemoveEnvVars() error {
@@ -373,7 +373,7 @@ func grabAndRemoveEnvVars() error {
 	if err != nil {
 		return fmt.Errorf("setting auth key: %v", err)
 	}
-	err = wavebase.CacheAndRemoveEnvVars()
+	err = dorabase.CacheAndRemoveEnvVars()
 	if err != nil {
 		return err
 	}
@@ -397,7 +397,7 @@ func grabAndRemoveEnvVars() error {
 func clearTempFiles() error {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancelFn()
-	client, err := wstore.DBGetSingleton[*waveobj.Client](ctx)
+	client, err := dstore.DBGetSingleton[*doraobj.Client](ctx)
 	if err != nil {
 		return fmt.Errorf("error getting client: %v", err)
 	}
@@ -406,7 +406,7 @@ func clearTempFiles() error {
 }
 
 func maybeStartPprofServer() {
-	settings := wconfig.GetWatcher().GetFullConfig().Settings
+	settings := dconfig.GetWatcher().GetFullConfig().Settings
 	if settings.DebugPprofMemProfileRate != nil {
 		runtime.MemProfileRate = *settings.DebugPprofMemProfileRate
 		log.Printf("set runtime.MemProfileRate to %d\n", runtime.MemProfileRate)
@@ -431,10 +431,10 @@ func maybeStartPprofServer() {
 func main() {
 	log.SetFlags(0) // disable timestamp since electron's winston logger already wraps with timestamp
 	log.SetPrefix("[wavesrv] ")
-	wavebase.WaveVersion = WaveVersion
-	wavebase.BuildTime = BuildTime
-	wshutil.DefaultRouter = wshutil.NewWshRouter()
-	wshutil.DefaultRouter.SetAsRootRouter()
+	dorabase.WaveVersion = WaveVersion
+	dorabase.BuildTime = BuildTime
+	dshutil.DefaultRouter = dshutil.NewWshRouter()
+	dshutil.DefaultRouter.SetAsRootRouter()
 
 	err := grabAndRemoveEnvVars()
 	if err != nil {
@@ -446,34 +446,34 @@ func main() {
 		log.Printf("error validating service map: %v\n", err)
 		return
 	}
-	err = wavebase.EnsureWaveDataDir()
+	err = dorabase.EnsureWaveDataDir()
 	if err != nil {
 		log.Printf("error ensuring wave home dir: %v\n", err)
 		return
 	}
-	err = wavebase.EnsureWaveDBDir()
+	err = dorabase.EnsureWaveDBDir()
 	if err != nil {
 		log.Printf("error ensuring wave db dir: %v\n", err)
 		return
 	}
-	err = wavebase.EnsureWaveConfigDir()
+	err = dorabase.EnsureWaveConfigDir()
 	if err != nil {
 		log.Printf("error ensuring wave config dir: %v\n", err)
 		return
 	}
 
 	// TODO: rather than ensure this dir exists, we should let the editor recursively create parent dirs on save
-	err = wavebase.EnsureWavePresetsDir()
+	err = dorabase.EnsureWavePresetsDir()
 	if err != nil {
 		log.Printf("error ensuring wave presets dir: %v\n", err)
 		return
 	}
-	err = wavebase.EnsureWaveCachesDir()
+	err = dorabase.EnsureWaveCachesDir()
 	if err != nil {
 		log.Printf("error ensuring wave caches dir: %v\n", err)
 		return
 	}
-	waveLock, err := wavebase.AcquireWaveLock()
+	waveLock, err := dorabase.AcquireWaveLock()
 	if err != nil {
 		log.Printf("error acquiring wave lock (another instance of Wave is likely running): %v\n", err)
 		return
@@ -485,14 +485,14 @@ func main() {
 		}
 	}()
 	log.Printf("wave version: %s (%s)\n", WaveVersion, BuildTime)
-	log.Printf("wave data dir: %s\n", wavebase.GetWaveDataDir())
-	log.Printf("wave config dir: %s\n", wavebase.GetWaveConfigDir())
+	log.Printf("wave data dir: %s\n", dorabase.GetWaveDataDir())
+	log.Printf("wave config dir: %s\n", dorabase.GetWaveConfigDir())
 	err = filestore.InitFilestore()
 	if err != nil {
 		log.Printf("error initializing filestore: %v\n", err)
 		return
 	}
-	err = wstore.InitWStore()
+	err = dstore.InitWStore()
 	if err != nil {
 		log.Printf("error initializing wstore: %v\n", err)
 		return
@@ -507,7 +507,7 @@ func main() {
 			log.Printf("error initializing wsh and shell-integration files: %v\n", err)
 		}
 	}()
-	firstLaunch, err := wcore.EnsureInitialData()
+	firstLaunch, err := dcore.EnsureInitialData()
 	if err != nil {
 		log.Printf("error ensuring initial data: %v\n", err)
 		return
@@ -520,7 +520,7 @@ func main() {
 		log.Printf("error clearing temp files: %v\n", err)
 		return
 	}
-	err = wcore.InitMainServer()
+	err = dcore.InitMainServer()
 	if err != nil {
 		log.Printf("error initializing mainserver: %v\n", err)
 		return
@@ -533,7 +533,7 @@ func main() {
 	createMainWshClient()
 	sigutil.InstallShutdownSignalHandlers(doShutdown)
 	sigutil.InstallSIGUSR1Handler()
-	wconfig.MigratePresetsBackgrounds()
+	dconfig.MigratePresetsBackgrounds()
 	startConfigWatcher()
 	maybeStartPprofServer()
 	go stdinReadWatch()
@@ -545,7 +545,7 @@ func main() {
 	blocklogger.InitBlockLogger()
 	jobcontroller.InitJobController()
 	blockcontroller.InitBlockController()
-	err = wcore.InitBadgeStore()
+	err = dcore.InitBadgeStore()
 	if err != nil {
 		log.Printf("error initializing badge store: %v\n", err)
 		return
@@ -554,7 +554,7 @@ func main() {
 		defer func() {
 			panichandler.PanicHandler("GetSystemSummary", recover())
 		}()
-		wavebase.GetSystemSummary()
+		dorabase.GetSystemSummary()
 	}()
 
 	webListener, err := web.MakeTCPListener("web")
@@ -580,7 +580,7 @@ func main() {
 		// use fmt instead of log here to make sure it goes directly to stderr
 		fmt.Fprintf(os.Stderr, "WAVESRV-ESTART ws:%s web:%s version:%s buildtime:%s\n", wsListener.Addr(), webListener.Addr(), WaveVersion, BuildTime)
 	}()
-	go wshutil.RunWshRpcOverListener(unixListener, nil)
+	go dshutil.RunWshRpcOverListener(unixListener, nil)
 	web.RunWebServer(webListener) // blocking
 	runtime.KeepAlive(waveLock)
 }

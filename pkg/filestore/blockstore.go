@@ -19,7 +19,7 @@ import (
 
 	"github.com/dfbb/doraterm/pkg/ijson"
 	"github.com/dfbb/doraterm/pkg/panichandler"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 const (
@@ -55,13 +55,13 @@ type WaveFile struct {
 	// these fields are static (not updated)
 	ZoneId    string          `json:"zoneid"`
 	Name      string          `json:"name"`
-	Opts      wshrpc.FileOpts `json:"opts"`
+	Opts      dshrpc.FileOpts `json:"opts"`
 	CreatedTs int64           `json:"createdts"`
 
 	//  these fields are mutable
 	Size  int64           `json:"size"`
 	ModTs int64           `json:"modts"`
-	Meta  wshrpc.FileMeta `json:"meta"` // only top-level keys can be updated (lower levels are immutable)
+	Meta  dshrpc.FileMeta `json:"meta"` // only top-level keys can be updated (lower levels are immutable)
 }
 
 // for regular files this is just Size
@@ -83,8 +83,8 @@ func (f WaveFile) DataStartIdx() int64 {
 }
 
 // this works because lower levels are immutable
-func copyMeta(meta wshrpc.FileMeta) wshrpc.FileMeta {
-	newMeta := make(wshrpc.FileMeta)
+func copyMeta(meta dshrpc.FileMeta) dshrpc.FileMeta {
+	newMeta := make(dshrpc.FileMeta)
 	for k, v := range meta {
 		newMeta[k] = v
 	}
@@ -112,7 +112,7 @@ type FileData struct {
 func (FileData) UseDBMap() {}
 
 // synchronous (does not interact with the cache)
-func (s *FileStore) MakeFile(ctx context.Context, zoneId string, name string, meta wshrpc.FileMeta, opts wshrpc.FileOpts) error {
+func (s *FileStore) MakeFile(ctx context.Context, zoneId string, name string, meta dshrpc.FileMeta, opts dshrpc.FileOpts) error {
 	if opts.MaxSize < 0 {
 		return fmt.Errorf("max size must be non-negative")
 	}
@@ -203,7 +203,7 @@ func (s *FileStore) ListFiles(ctx context.Context, zoneId string) ([]*WaveFile, 
 	return files, nil
 }
 
-func (s *FileStore) WriteMeta(ctx context.Context, zoneId string, name string, meta wshrpc.FileMeta, merge bool) error {
+func (s *FileStore) WriteMeta(ctx context.Context, zoneId string, name string, meta dshrpc.FileMeta, merge bool) error {
 	return withLock(s, zoneId, name, func(entry *CacheEntry) error {
 		err := entry.loadFileIntoCache(ctx)
 		if err != nil {
@@ -282,7 +282,7 @@ func (s *FileStore) AppendData(ctx context.Context, zoneId string, name string, 
 
 func metaIncrement(file *WaveFile, key string, amount int) int {
 	if file.Meta == nil {
-		file.Meta = make(wshrpc.FileMeta)
+		file.Meta = make(dshrpc.FileMeta)
 	}
 	val, ok := file.Meta[key].(int)
 	if !ok {

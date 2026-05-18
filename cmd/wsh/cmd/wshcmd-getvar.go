@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var getVarCmd = &cobra.Command{
@@ -83,13 +83,13 @@ func getVarRun(cmd *cobra.Command, args []string) error {
 	}
 
 	key := args[0]
-	commandData := wshrpc.CommandVarData{
+	commandData := dshrpc.CommandVarData{
 		Key:      key,
 		ZoneId:   fullORef.OID,
 		FileName: getVarFileName,
 	}
 
-	resp, err := wshclient.GetVarCommand(RpcClient, commandData, &wshrpc.RpcOpts{Timeout: 2000})
+	resp, err := dshclient.GetVarCommand(RpcClient, commandData, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("getting variable: %w", err)
 	}
@@ -108,12 +108,12 @@ func getVarRun(cmd *cobra.Command, args []string) error {
 }
 
 func getAllVariables(zoneId string) error {
-	commandData := wshrpc.CommandVarData{
+	commandData := dshrpc.CommandVarData{
 		ZoneId:   zoneId,
 		FileName: getVarFileName,
 	}
 
-	vars, err := wshclient.GetAllVarsCommand(RpcClient, commandData, &wshrpc.RpcOpts{Timeout: 2000})
+	vars, err := dshclient.GetAllVarsCommand(RpcClient, commandData, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("getting variables: %w", err)
 	}

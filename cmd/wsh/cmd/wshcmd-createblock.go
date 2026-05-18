@@ -7,9 +7,9 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var createBlockMagnified bool
@@ -43,15 +43,15 @@ func createBlockRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	meta["view"] = viewName
-	data := wshrpc.CommandCreateBlockData{
+	data := dshrpc.CommandCreateBlockData{
 		TabId: tabId,
-		BlockDef: &waveobj.BlockDef{
+		BlockDef: &doraobj.BlockDef{
 			Meta: meta,
 		},
 		Magnified: createBlockMagnified,
 		Focused:   true,
 	}
-	oref, err := wshclient.CreateBlockCommand(RpcClient, data, nil)
+	oref, err := dshclient.CreateBlockCommand(RpcClient, data, nil)
 	if err != nil {
 		return fmt.Errorf("create block failed: %v", err)
 	}

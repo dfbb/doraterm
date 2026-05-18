@@ -12,10 +12,10 @@ import (
 	"github.com/dfbb/doraterm/pkg/blockcontroller"
 	"github.com/dfbb/doraterm/pkg/filestore"
 	"github.com/dfbb/doraterm/pkg/tsgen/tsgenmeta"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wcore"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wstore"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dcore"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
 type BlockService struct{}
@@ -42,8 +42,8 @@ func (*BlockService) SaveTerminalState_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (bs *BlockService) SaveTerminalState(ctx context.Context, blockId string, state string, stateType string, ptyOffset int64, termSize waveobj.TermSize) error {
-	_, err := wstore.DBMustGet[*waveobj.Block](ctx, blockId)
+func (bs *BlockService) SaveTerminalState(ctx context.Context, blockId string, state string, stateType string, ptyOffset int64, termSize doraobj.TermSize) error {
+	_, err := dstore.DBMustGet[*doraobj.Block](ctx, blockId)
 	if err != nil {
 		return err
 	}
@@ -51,12 +51,12 @@ func (bs *BlockService) SaveTerminalState(ctx context.Context, blockId string, s
 		return fmt.Errorf("invalid state type: %q", stateType)
 	}
 	// ignore MakeFile error (already exists is ok)
-	filestore.WFS.MakeFile(ctx, blockId, "cache:term:"+stateType, nil, wshrpc.FileOpts{})
+	filestore.WFS.MakeFile(ctx, blockId, "cache:term:"+stateType, nil, dshrpc.FileOpts{})
 	err = filestore.WFS.WriteFile(ctx, blockId, "cache:term:"+stateType, []byte(state))
 	if err != nil {
 		return fmt.Errorf("cannot save terminal state: %w", err)
 	}
-	fileMeta := wshrpc.FileMeta{
+	fileMeta := dshrpc.FileMeta{
 		"ptyoffset": ptyOffset,
 		"termsize":  termSize,
 	}
@@ -74,15 +74,15 @@ func (*BlockService) CleanupOrphanedBlocks_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (bs *BlockService) CleanupOrphanedBlocks(ctx context.Context, tabId string) (waveobj.UpdatesRtnType, error) {
-	ctx = waveobj.ContextWithUpdates(ctx)
-	layoutAction := waveobj.LayoutActionData{
-		ActionType: wcore.LayoutActionDataType_CleanupOrphaned,
+func (bs *BlockService) CleanupOrphanedBlocks(ctx context.Context, tabId string) (doraobj.UpdatesRtnType, error) {
+	ctx = doraobj.ContextWithUpdates(ctx)
+	layoutAction := doraobj.LayoutActionData{
+		ActionType: dcore.LayoutActionDataType_CleanupOrphaned,
 		ActionId:   uuid.NewString(),
 	}
-	err := wcore.QueueLayoutActionForTab(ctx, tabId, layoutAction)
+	err := dcore.QueueLayoutActionForTab(ctx, tabId, layoutAction)
 	if err != nil {
 		return nil, fmt.Errorf("error queuing cleanup layout action: %w", err)
 	}
-	return waveobj.ContextGetUpdatesRtn(ctx), nil
+	return doraobj.ContextGetUpdatesRtn(ctx), nil
 }

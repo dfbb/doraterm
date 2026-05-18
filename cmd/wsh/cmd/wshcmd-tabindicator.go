@@ -10,10 +10,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"github.com/dfbb/doraterm/pkg/baseds"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wps"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dps"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var tabIndicatorCmd = &cobra.Command{
@@ -56,7 +56,7 @@ func tabIndicatorRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		return fmt.Errorf("no tab id specified (use --tabid or set WAVETERM_TABID)")
 	}
 
-	oref := waveobj.MakeORef(waveobj.OType_Tab, tabId)
+	oref := doraobj.MakeORef(doraobj.OType_Tab, tabId)
 
 	var eventData baseds.BadgeEvent
 	eventData.ORef = oref.String()
@@ -80,19 +80,19 @@ func tabIndicatorRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		}
 	}
 
-	event := wps.WaveEvent{
-		Event:  wps.Event_Badge,
+	event := dps.WaveEvent{
+		Event:  dps.Event_Badge,
 		Scopes: []string{oref.String()},
 		Data:   eventData,
 	}
 
-	err := wshclient.EventPublishCommand(RpcClient, event, &wshrpc.RpcOpts{NoResponse: true})
+	err := dshclient.EventPublishCommand(RpcClient, event, &dshrpc.RpcOpts{NoResponse: true})
 	if err != nil {
 		return fmt.Errorf("publishing badge event: %v", err)
 	}
 
 	if tabIndicatorBeep {
-		err = wshclient.ElectronSystemBellCommand(RpcClient, &wshrpc.RpcOpts{Route: "electron"})
+		err = dshclient.ElectronSystemBellCommand(RpcClient, &dshrpc.RpcOpts{Route: "electron"})
 		if err != nil {
 			return fmt.Errorf("playing system bell: %v", err)
 		}
