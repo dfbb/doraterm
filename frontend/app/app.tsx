@@ -38,8 +38,8 @@ import "./app.scss";
 // tailwindsetup.css should come *after* app.scss (don't remove the newline above otherwise prettier will reorder these imports)
 import "../tailwindsetup.css";
 
-const dlog = debug("wave:app");
-const focusLog = debug("wave:focus");
+const dlog = debug("dora:app");
+const focusLog = debug("dora:focus");
 
 const App = ({ onFirstRender }: { onFirstRender: () => void }) => {
     const tabId = useAtomValue(atoms.staticTabId);

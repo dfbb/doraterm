@@ -12,7 +12,7 @@ import * as jotai from "jotai";
 import { debounce } from "lodash-es";
 import { ImperativePanelGroupHandle, ImperativePanelHandle } from "react-resizable-panels";
 
-const dlog = debug("wave:workspace");
+const dlog = debug("dora:workspace");
 
 const VTabBar_DefaultWidth = 220;
 const VTabBar_MinWidth = 110;

@@ -45,7 +45,7 @@ import {
     trimTerminalSelection,
 } from "./termutil";
 
-const dlog = debug("wave:termwrap");
+const dlog = debug("dora:termwrap");
 
 const TermFileName = "term";
 const TermCacheFileName = "cache:term:full";

@@ -1591,9 +1591,9 @@ declare global {
         "block:controller"?: string;
         "ai:backendtype"?: string;
         "ai:local"?: boolean;
-        "wsh:cmd"?: string;
-        "wsh:errorcount"?: number;
-        "wsh:count"?: number;
+        "dsh:cmd"?: string;
+        "dsh:errorcount"?: number;
+        "dsh:count"?: number;
         "conn:conntype"?: string;
         "conn:wsherrorcode"?: string;
         "conn:errorcode"?: string;
