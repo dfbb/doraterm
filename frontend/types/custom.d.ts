@@ -184,7 +184,6 @@ declare global {
         | HeaderInput
         | HeaderDiv
         | HeaderTextButton
-        | ConnectionButton
         | MenuButton;
 
     type IconButtonCommon = {
@@ -244,15 +243,6 @@ declare global {
         onMouseOver?: (e: React.MouseEvent<any>) => void;
         onMouseOut?: (e: React.MouseEvent<any>) => void;
         onClick?: (e: React.MouseEvent<any>) => void;
-    };
-
-    type ConnectionButton = {
-        elemtype: "connectionbutton";
-        icon: string;
-        text: string;
-        iconColor: string;
-        onClick?: (e: React.MouseEvent<any>) => void;
-        connected: boolean;
     };
 
     type MenuItem = {
@@ -333,9 +323,6 @@ declare global {
         blockBg?: jotai.Atom<MetaType>;
 
         noHeader?: jotai.Atom<boolean>;
-
-        // Whether the block manages its own connection (e.g., for remote access).
-        manageConnection?: jotai.Atom<boolean>;
 
         // If true, filters out 'nowsh' connections (when managing connections)
         filterOutNowsh?: jotai.Atom<boolean>;

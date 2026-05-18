@@ -4,11 +4,7 @@
 import { BlockModel } from "@/app/block/block-model";
 import { BlockFrame_Header } from "@/app/block/blockframe-header";
 import { blockViewToIcon, getViewIconElem, useTabBackground } from "@/app/block/blockutil";
-import { ConnStatusOverlay } from "@/app/block/connstatusoverlay";
-import { ChangeConnectionBlockModal } from "@/app/modals/conntypeahead";
-import { getBlockComponentModel, globalStore, useBlockAtom } from "@/app/store/global";
 import { useTabModel } from "@/app/store/tab-model";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
 import { useWaveEnv } from "@/app/waveenv/waveenv";
 import { WorkspaceLayoutModel } from "@/app/workspace/workspace-layout-model";
 import { ErrorBoundary } from "@/element/errorboundary";
@@ -99,11 +95,6 @@ const BlockFrame_Default_Component = (props: BlockFrameProps) => {
     const metaView = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view"));
     const viewIconUnion = util.useAtomValueSafe(viewModel?.viewIcon) ?? blockViewToIcon(metaView);
     const customBg = util.useAtomValueSafe(viewModel?.blockBg);
-    const manageConnection = util.useAtomValueSafe(viewModel?.manageConnection);
-    const changeConnModalAtom = useBlockAtom(nodeModel.blockId, "changeConn", () => {
-        return jotai.atom(false);
-    }) as jotai.PrimitiveAtom<boolean>;
-    const connModalOpen = jotai.useAtomValue(changeConnModalAtom);
     const isMagnified = jotai.useAtomValue(nodeModel.isMagnified);
     const isEphemeral = jotai.useAtomValue(nodeModel.isEphemeral);
     const [magnifiedBlockBlurAtom] = React.useState(() =>
@@ -114,46 +105,8 @@ const BlockFrame_Default_Component = (props: BlockFrameProps) => {
         waveEnv.getSettingsKeyAtom("window:magnifiedblockopacity")
     );
     const magnifiedBlockOpacity = jotai.useAtomValue(magnifiedBlockOpacityAtom);
-    const connBtnRef = React.useRef<HTMLDivElement>(null);
-    const connName = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "connection"));
     const iconColor = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "icon:color"));
     const noHeader = util.useAtomValueSafe(viewModel?.noHeader);
-
-    React.useEffect(() => {
-        if (!manageConnection) {
-            return;
-        }
-        const bcm = getBlockComponentModel(nodeModel.blockId);
-        if (bcm != null) {
-            bcm.openSwitchConnection = () => {
-                globalStore.set(changeConnModalAtom, true);
-            };
-        }
-        return () => {
-            const bcm = getBlockComponentModel(nodeModel.blockId);
-            if (bcm != null) {
-                bcm.openSwitchConnection = null;
-            }
-        };
-    }, [manageConnection]);
-    React.useEffect(() => {
-        // on mount, if manageConnection, call ConnEnsure
-        if (!manageConnection || preview) {
-            return;
-        }
-        if (!util.isLocalConnName(connName)) {
-            console.log("ensure conn", nodeModel.blockId, connName);
-            waveEnv.rpc
-                .ConnEnsureCommand(
-                    TabRpcClient,
-                    { connname: connName, logblockid: nodeModel.blockId },
-                    { timeout: 60000 }
-                )
-                .catch((e) => {
-                    console.log("error ensuring connection", nodeModel.blockId, connName, e);
-                });
-        }
-    }, [manageConnection, connName]);
 
     const viewIconElem = getViewIconElem(viewIconUnion, iconColor);
     let innerStyle: React.CSSProperties = {};
@@ -162,7 +115,7 @@ const BlockFrame_Default_Component = (props: BlockFrameProps) => {
     }
     const previewElem = <div className="block-frame-preview">{viewIconElem}</div>;
     const headerElem = (
-        <BlockFrame_Header {...props} connBtnRef={connBtnRef} changeConnModalAtom={changeConnModalAtom} />
+        <BlockFrame_Header {...props} />
     );
     const headerElemNoView = React.cloneElement(headerElem, { viewModel: null });
     return (
@@ -188,27 +141,10 @@ const BlockFrame_Default_Component = (props: BlockFrameProps) => {
             inert={preview || undefined}
         >
             <BlockMask nodeModel={nodeModel} />
-            {preview || viewModel == null || !manageConnection ? null : (
-                <ConnStatusOverlay
-                    nodeModel={nodeModel}
-                    viewModel={viewModel}
-                    changeConnModalAtom={changeConnModalAtom}
-                />
-            )}
             <div className="block-frame-default-inner" style={innerStyle}>
                 {noHeader || <ErrorBoundary fallback={headerElemNoView}>{headerElem}</ErrorBoundary>}
                 {preview ? previewElem : children}
             </div>
-            {preview || viewModel == null || !connModalOpen ? null : (
-                <ChangeConnectionBlockModal
-                    blockId={nodeModel.blockId}
-                    nodeModel={nodeModel}
-                    viewModel={viewModel}
-                    blockRef={blockModel?.blockRef}
-                    changeConnModalAtom={changeConnModalAtom}
-                    connBtnRef={connBtnRef}
-                />
-            )}
         </div>
     );
 };

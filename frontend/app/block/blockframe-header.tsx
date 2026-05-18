@@ -8,7 +8,6 @@ import {
     OptMagnifyButton,
     renderHeaderElements,
 } from "@/app/block/blockutil";
-import { ConnectionButton } from "@/app/block/connectionbutton";
 import { DurableSessionFlyover } from "@/app/block/durable-session-flyover";
 import { getBlockBadgeAtom } from "@/app/store/badge";
 import {
@@ -211,15 +210,12 @@ const BlockFrame_Header = ({
     nodeModel,
     viewModel,
     preview,
-    connBtnRef,
-    changeConnModalAtom,
     error,
-}: BlockFrameProps & { changeConnModalAtom: jotai.PrimitiveAtom<boolean>; error?: Error }) => {
+}: BlockFrameProps & { error?: Error }) => {
     const waveEnv = useWaveEnv<BlockEnv>();
     const metaView = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view"));
     const metaFrameTitle = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:title"));
     const metaFrameIcon = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:icon"));
-    const metaConnection = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "connection"));
     let viewName = util.useAtomValueSafe(viewModel?.viewName) ?? blockViewToName(metaView);
     let viewIconUnion = util.useAtomValueSafe(viewModel?.viewIcon) ?? blockViewToIcon(metaView);
     const preIconButton = util.useAtomValueSafe(viewModel?.preIconButton);
@@ -229,10 +225,8 @@ const BlockFrame_Header = ({
     const badge = jotai.useAtomValue(getBlockBadgeAtom(useTermHeader ? nodeModel.blockId : null));
     const magnified = jotai.useAtomValue(nodeModel.isMagnified);
     const prevMagifiedState = React.useRef(magnified);
-    const manageConnection = util.useAtomValueSafe(viewModel?.manageConnection);
     const iconColor = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "icon:color"));
     const dragHandleRef = preview ? null : nodeModel.dragHandleRef;
-    const isTerminalBlock = metaView === "term";
     viewName = metaFrameTitle ?? viewName;
     viewIconUnion = metaFrameIcon ?? viewIconUnion;
 
@@ -261,15 +255,6 @@ const BlockFrame_Header = ({
                         {viewName && !hideViewName && <div className="block-frame-view-type">{viewName}</div>}
                     </div>
                 </>
-            )}
-            {manageConnection && (
-                <ConnectionButton
-                    ref={connBtnRef}
-                    key="connbutton"
-                    connection={metaConnection}
-                    changeConnModalAtom={changeConnModalAtom}
-                    isTerminalBlock={isTerminalBlock}
-                />
             )}
             {useTermHeader && termConfigedDurable != null && (
                 <DurableSessionFlyover
