@@ -10,8 +10,6 @@ let globalIsRelaunching = false;
 let forceQuit = false;
 let userConfirmedQuit = false;
 let termCommandsRun = 0;
-let termCommandsRemote = 0;
-let termCommandsWsl = 0;
 let termCommandsDurable = 0;
 
 export function setWasActive(val: boolean) {
@@ -73,26 +71,6 @@ export function incrementTermCommandsRun() {
 export function getAndClearTermCommandsRun(): number {
     const count = termCommandsRun;
     termCommandsRun = 0;
-    return count;
-}
-
-export function incrementTermCommandsRemote() {
-    termCommandsRemote++;
-}
-
-export function getAndClearTermCommandsRemote(): number {
-    const count = termCommandsRemote;
-    termCommandsRemote = 0;
-    return count;
-}
-
-export function incrementTermCommandsWsl() {
-    termCommandsWsl++;
-}
-
-export function getAndClearTermCommandsWsl(): number {
-    const count = termCommandsWsl;
-    termCommandsWsl = 0;
     return count;
 }
 
