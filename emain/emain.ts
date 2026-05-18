@@ -3,7 +3,6 @@
 
 import { RpcApi } from "@/app/store/wshclientapi";
 import * as electron from "electron";
-import { focusedBuilderWindow, getAllBuilderWindows } from "emain/emain-builder";
 import { globalEvents } from "emain/emain-events";
 import { sprintf } from "sprintf-js";
 import * as services from "../frontend/app/store/services";
@@ -13,9 +12,7 @@ import { AuthKey, configureAuthKeyRequestInjection } from "./authkey";
 import {
     getActivityState,
     getAndClearTermCommandsDurable,
-    getAndClearTermCommandsRemote,
     getAndClearTermCommandsRun,
-    getAndClearTermCommandsWsl,
     getForceQuit,
     getGlobalIsRelaunching,
     getUserConfirmedQuit,
@@ -172,8 +169,6 @@ function logActiveState() {
         const astate = getActivityState();
         const activity: ActivityUpdate = { openminutes: 1 };
         const ww = focusedWaveWindow;
-        const activeTabView = ww?.activeTabView;
-        const isWaveAIOpen = activeTabView?.isWaveAIOpen ?? false;
 
         if (astate.wasInFg) {
             activity.fgminutes = 1;
@@ -187,8 +182,6 @@ function logActiveState() {
         if (termCmdCount > 0) {
             activity.termcommandsrun = termCmdCount;
         }
-        const termCmdRemoteCount = getAndClearTermCommandsRemote();
-        const termCmdWslCount = getAndClearTermCommandsWsl();
         const termCmdDurableCount = getAndClearTermCommandsDurable();
 
         const props: TEventProps = {
@@ -199,20 +192,8 @@ function logActiveState() {
         if (termCmdCount > 0) {
             props["activity:termcommandsrun"] = termCmdCount;
         }
-        if (termCmdRemoteCount > 0) {
-            props["activity:termcommands:remote"] = termCmdRemoteCount;
-        }
-        if (termCmdWslCount > 0) {
-            props["activity:termcommands:wsl"] = termCmdWslCount;
-        }
         if (termCmdDurableCount > 0) {
             props["activity:termcommands:durable"] = termCmdDurableCount;
-        }
-        if (astate.wasActive && isWaveAIOpen) {
-            props["activity:waveaiactiveminutes"] = 1;
-        }
-        if (astate.wasInFg && isWaveAIOpen) {
-            props["activity:waveaifgminutes"] = 1;
         }
 
         try {
@@ -265,12 +246,11 @@ electronApp.on("window-all-closed", () => {
 });
 electronApp.on("before-quit", (e) => {
     const allWindows = getAllWaveWindows();
-    const allBuilders = getAllBuilderWindows();
     if (
         confirmQuit &&
         !getForceQuit() &&
         !getUserConfirmedQuit() &&
-        (allWindows.length > 0 || allBuilders.length > 0) &&
+        allWindows.length > 0 &&
         !getIsWaveSrvDead() &&
         !process.env.WAVETERM_NOCONFIRMQUIT
     ) {
@@ -305,9 +285,6 @@ electronApp.on("before-quit", (e) => {
     e.preventDefault();
     for (const window of allWindows) {
         hideWindowWithCatch(window);
-    }
-    for (const builder of allBuilders) {
-        builder.hide();
     }
     if (getIsWaveSrvDead()) {
         console.log("wavesrv is dead, quitting immediately");
@@ -358,16 +335,13 @@ process.on("uncaughtException", (error) => {
 });
 
 let lastWaveWindowCount = 0;
-let lastIsBuilderWindowActive = false;
 globalEvents.on("windows-updated", () => {
     const wwCount = getAllWaveWindows().length;
-    const isBuilderActive = focusedBuilderWindow != null;
-    if (wwCount == lastWaveWindowCount && isBuilderActive == lastIsBuilderWindowActive) {
+    if (wwCount == lastWaveWindowCount) {
         return;
     }
     lastWaveWindowCount = wwCount;
-    lastIsBuilderWindowActive = isBuilderActive;
-    console.log("windows-updated", wwCount, "builder-active:", isBuilderActive);
+    console.log("windows-updated", wwCount);
     makeAndSetAppMenu();
 });
 
