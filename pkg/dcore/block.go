@@ -79,12 +79,12 @@ func CreateBlockWithTelemetry(ctx context.Context, tabId string, blockDef *dorao
 	if blockDef.Meta == nil || blockDef.Meta.GetString(doraobj.MetaKey_View, "") == "" {
 		return nil, fmt.Errorf("no view provided for new block")
 	}
-	blockData, err := createBlockObj(ctx, tabId, blockDef, rtOpts)
+	createNewBlock, err := createBlockObj(ctx, tabId, blockDef, rtOpts)
 	if err != nil {
 		return nil, fmt.Errorf("error creating block: %w", err)
 	}
 	blockCreated = true
-	newBlockOID = blockData.OID
+	newBlockOID = createNewBlock.OID
 	// upload the files if present
 	if len(blockDef.Files) > 0 {
 		for fileName, fileDef := range blockDef.Files {
