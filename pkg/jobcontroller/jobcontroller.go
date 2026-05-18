@@ -18,7 +18,6 @@ import (
 	"github.com/wavetermdev/waveterm/pkg/blocklogger"
 	"github.com/wavetermdev/waveterm/pkg/filestore"
 	"github.com/wavetermdev/waveterm/pkg/panichandler"
-	"github.com/wavetermdev/waveterm/pkg/remote/conncontroller"
 	"github.com/wavetermdev/waveterm/pkg/streamclient"
 	"github.com/wavetermdev/waveterm/pkg/telemetry"
 	"github.com/wavetermdev/waveterm/pkg/telemetry/telemetrydata"
@@ -403,13 +402,7 @@ func attemptAutoReconnect(jobId string, connName string) {
 
 	time.Sleep(AutoReconnectDelay)
 
-	isConnected, err := conncontroller.IsConnected(connName)
-	if err != nil || !isConnected {
-		log.Printf("[job:%s] connection %s is down, skipping auto-reconnect", jobId, connName)
-		return
-	}
-
-	log.Printf("[job:%s] connection %s still up after route down, attempting auto-reconnect to determine job manager status", jobId, connName)
+	log.Printf("[job:%s] connection %s, attempting auto-reconnect to determine job manager status", jobId, connName)
 	ctx, cancelFn := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancelFn()
 	err = ReconnectJob(ctx, jobId, nil)
@@ -584,14 +577,6 @@ func CheckJobConnected(ctx context.Context, jobId string) (*waveobj.Job, error) 
 		return nil, fmt.Errorf("failed to get job: %w", err)
 	}
 
-	isConnected, err := conncontroller.IsConnected(job.Connection)
-	if err != nil {
-		return nil, fmt.Errorf("error checking connection status: %w", err)
-	}
-	if !isConnected {
-		return nil, fmt.Errorf("connection %q is not connected", job.Connection)
-	}
-
 	jobConnStatus := GetJobConnStatus(jobId)
 	if jobConnStatus != JobConnStatus_Connected {
 		return nil, fmt.Errorf("job is not connected (status: %s)", jobConnStatus)
@@ -622,14 +607,6 @@ func StartJob(ctx context.Context, params StartJobParams) (string, error) {
 	}
 	if params.TermSize == nil {
 		params.TermSize = &waveobj.TermSize{Rows: 24, Cols: 80}
-	}
-
-	isConnected, err := conncontroller.IsConnected(params.ConnName)
-	if err != nil {
-		return "", fmt.Errorf("error checking connection status: %w", err)
-	}
-	if !isConnected {
-		return "", fmt.Errorf("connection %q is not connected", params.ConnName)
 	}
 
 	jobId := uuid.New().String()
@@ -1069,14 +1046,6 @@ func doReconnectJob(ctx context.Context, jobId string, rtOpts *waveobj.RuntimeOp
 	}
 	log.Printf("[job:%s] not connected, proceeding with reconnect: %v", jobId, err)
 
-	isConnected, err := conncontroller.IsConnected(job.Connection)
-	if err != nil {
-		return fmt.Errorf("error checking connection status: %w", err)
-	}
-	if !isConnected {
-		return fmt.Errorf("connection %q is not connected", job.Connection)
-	}
-
 	if job.TerminateOnReconnect {
 		return remoteTerminateJobManager(ctx, job)
 	}
@@ -1169,14 +1138,6 @@ func doReconnectJob(ctx context.Context, jobId string, rtOpts *waveobj.RuntimeOp
 }
 
 func ReconnectJobsForConn(ctx context.Context, connName string) error {
-	isConnected, err := conncontroller.IsConnected(connName)
-	if err != nil {
-		return fmt.Errorf("error checking connection status: %w", err)
-	}
-	if !isConnected {
-		return fmt.Errorf("connection %q is not connected", connName)
-	}
-
 	allJobs, err := wstore.DBGetAllObjsByType[*waveobj.Job](ctx, waveobj.OType_Job)
 	if err != nil {
 		return fmt.Errorf("failed to get jobs: %w", err)
@@ -1219,14 +1180,6 @@ func restartStreaming(ctx context.Context, jobId string, knownConnected bool, rt
 	}
 
 	if !knownConnected {
-		isConnected, err := conncontroller.IsConnected(job.Connection)
-		if err != nil {
-			return fmt.Errorf("error checking connection status: %w", err)
-		}
-		if !isConnected {
-			return fmt.Errorf("connection %q is not connected", job.Connection)
-		}
-
 		jobConnStatus := GetJobConnStatus(jobId)
 		if jobConnStatus != JobConnStatus_Connected {
 			return fmt.Errorf("job manager is not connected (status: %s)", jobConnStatus)
@@ -1360,11 +1313,9 @@ func IsBlockTermDurable(block *waveobj.Block) bool {
 		return true
 	}
 
-	// 2. Check if connection is local or WSL (not durable)
+	// 2. All connections are local (not durable)
 	connName := block.Meta.GetString(waveobj.MetaKey_Connection, "")
-	if conncontroller.IsLocalConnName(connName) || conncontroller.IsWslConnName(connName) {
-		return false
-	}
+	return false
 
 	// 3. Check config hierarchy: blockmeta → connection → global (default true)
 	// Check block meta first
