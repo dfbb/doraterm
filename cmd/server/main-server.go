@@ -39,7 +39,7 @@ import (
 	"github.com/wavetermdev/waveterm/pkg/wps"
 	"github.com/wavetermdev/waveterm/pkg/wshrpc"
 	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshclient"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshremote"
+	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshlocal"
 	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshserver"
 	"github.com/wavetermdev/waveterm/pkg/wshutil"
 	"github.com/wavetermdev/waveterm/pkg/wslconn"
@@ -367,9 +367,8 @@ func createMainWshClient() {
 	wps.Broker.SetClient(wshutil.DefaultRouter)
 	localInitialEnv := envutil.PruneInitialEnv(envutil.SliceToMap(os.Environ()))
 	sockName := wavebase.GetDomainSocketName()
-	remoteImpl := wshremote.MakeRemoteRpcServerImpl(nil, wshutil.DefaultRouter, wshclient.GetBareRpcClient(), true, localInitialEnv, sockName)
-	localConnWsh := wshutil.MakeWshRpc(wshrpc.RpcContext{Conn: wshrpc.LocalConnName}, remoteImpl, "conn:local")
-	go wshremote.RunSysInfoLoop(localConnWsh, wshrpc.LocalConnName)
+	localImpl := wshlocal.MakeLocalRpcServerImpl(nil, wshutil.DefaultRouter, wshclient.GetBareRpcClient(), localInitialEnv, sockName)
+	localConnWsh := wshutil.MakeWshRpc(wshrpc.RpcContext{Conn: wshrpc.LocalConnName}, localImpl, "conn:local")
 	wshutil.DefaultRouter.RegisterTrustedLeaf(localConnWsh, wshutil.MakeConnectionRouteId(wshrpc.LocalConnName))
 	wshfs.RpcClient = localConnWsh
 	wshfs.RpcClientRouteId = wshutil.MakeConnectionRouteId(wshrpc.LocalConnName)

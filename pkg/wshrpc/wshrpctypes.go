@@ -10,10 +10,7 @@ import (
 	"encoding/json"
 
 	"github.com/google/uuid"
-	"github.com/wavetermdev/waveterm/pkg/aiusechat/uctypes"
 	"github.com/wavetermdev/waveterm/pkg/baseds"
-	"github.com/wavetermdev/waveterm/pkg/telemetry/telemetrydata"
-	"github.com/wavetermdev/waveterm/pkg/vdom"
 	"github.com/wavetermdev/waveterm/pkg/waveobj"
 	"github.com/wavetermdev/waveterm/pkg/wconfig"
 	"github.com/wavetermdev/waveterm/pkg/wps"
@@ -67,7 +64,6 @@ type WshRpcInterface interface {
 	EventUnsubAllCommand(ctx context.Context) error
 	EventReadHistoryCommand(ctx context.Context, data CommandEventReadHistoryData) ([]*wps.WaveEvent, error)
 
-	FileRestoreBackupCommand(ctx context.Context, data CommandFileRestoreBackupData) error
 	GetTempDirCommand(ctx context.Context, data CommandGetTempDirData) (string, error)
 	WriteTempFileCommand(ctx context.Context, data CommandWriteTempFileData) (string, error)
 	StreamTestCommand(ctx context.Context) chan RespOrErrorUnion[int]
@@ -75,9 +71,7 @@ type WshRpcInterface interface {
 	TestCommand(ctx context.Context, data string) error
 	TestMultiArgCommand(ctx context.Context, arg1 string, arg2 int, arg3 bool) (string, error)
 	SetConfigCommand(ctx context.Context, data MetaSettingsType) error
-	SetConnectionsConfigCommand(ctx context.Context, data ConnConfigRequest) error
 	GetFullConfigCommand(ctx context.Context) (wconfig.FullConfigType, error)
-	GetWaveAIModeConfigCommand(ctx context.Context) (wconfig.AIModeConfigUpdate, error)
 	BlockInfoCommand(ctx context.Context, blockId string) (*BlockInfoData, error)
 	DebugTermCommand(ctx context.Context, data CommandDebugTermData) (*CommandDebugTermRtnData, error)
 	BlocksListCommand(ctx context.Context, data BlocksListRequest) ([]BlocksListEntry, error)
@@ -85,34 +79,15 @@ type WshRpcInterface interface {
 	MacOSVersionCommand(ctx context.Context) (string, error)
 	WshActivityCommand(ct context.Context, data map[string]int) error
 	ActivityCommand(ctx context.Context, data ActivityUpdate) error
-	RecordTEventCommand(ctx context.Context, data telemetrydata.TEvent) error
 	GetVarCommand(ctx context.Context, data CommandVarData) (*CommandVarResponseData, error)
 	GetAllVarsCommand(ctx context.Context, data CommandVarData) ([]CommandVarResponseData, error)
 	SetVarCommand(ctx context.Context, data CommandVarData) error
 	PathCommand(ctx context.Context, data PathCommandData) (string, error)
 	SendTelemetryCommand(ctx context.Context) error
-	FetchSuggestionsCommand(ctx context.Context, data FetchSuggestionsData) (*FetchSuggestionsResponse, error)
-	DisposeSuggestionsCommand(ctx context.Context, widgetId string) error
 	GetTabCommand(ctx context.Context, tabId string) (*waveobj.Tab, error)
 	UpdateTabNameCommand(ctx context.Context, tabId string, newName string) error
 	UpdateWorkspaceTabIdsCommand(ctx context.Context, workspaceId string, tabIds []string) error
 	GetAllBadgesCommand(ctx context.Context) ([]baseds.BadgeEvent, error)
-
-	// connection functions
-	ConnStatusCommand(ctx context.Context) ([]ConnStatus, error)
-	WslStatusCommand(ctx context.Context) ([]ConnStatus, error)
-	ConnEnsureCommand(ctx context.Context, data ConnExtData) error
-	ConnReinstallWshCommand(ctx context.Context, data ConnExtData) error
-	ConnConnectCommand(ctx context.Context, connRequest ConnRequest) error
-	ConnDisconnectCommand(ctx context.Context, connName string) error
-	ConnListCommand(ctx context.Context) ([]string, error)
-	WslListCommand(ctx context.Context) ([]string, error)
-	WslDefaultDistroCommand(ctx context.Context) (string, error)
-	DismissWshFailCommand(ctx context.Context, connName string) error
-	ConnUpdateWshCommand(ctx context.Context, remoteInfo RemoteInfo) (bool, error)
-	FindGitBashCommand(ctx context.Context, rescan bool) (string, error)
-	ConnServerInitCommand(ctx context.Context, data CommandConnServerInitData) error
-	NotifySystemResumeCommand(ctx context.Context) error
 
 	// eventrecv is special, it's handled internally by WshRpc with EventListener
 	EventRecvCommand(ctx context.Context, data wps.WaveEvent) error
