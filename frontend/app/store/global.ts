@@ -68,12 +68,6 @@ function initGlobalWaveEventSubs(initOpts: WaveInitOpts) {
         },
     });
     waveEventSubscribeSingle({
-        eventType: "waveai:modeconfig",
-        handler: (event) => {
-            globalStore.set(atoms.waveaiModeConfigAtom, event.data.configs);
-        },
-    });
-    waveEventSubscribeSingle({
         eventType: "userinput",
         handler: (event) => {
             // console.log("userinput event handler", event);
@@ -89,12 +83,6 @@ function initGlobalWaveEventSubs(initOpts: WaveInitOpts) {
             if (fileSubject != null) {
                 fileSubject.next(event.data);
             }
-        },
-    });
-    waveEventSubscribeSingle({
-        eventType: "waveai:ratelimit",
-        handler: (event) => {
-            globalStore.set(atoms.waveAIRateLimitInfoAtom, event.data);
         },
     });
     setupBadgesSubscription();
@@ -533,18 +521,8 @@ function getLocalHostDisplayNameAtom(): Atom<string> {
  * @param uri The link to open.
  * @param forceOpenInternally Force the link to open in a new web widget.
  */
-async function openLink(uri: string, forceOpenInternally = false) {
-    if (forceOpenInternally || globalStore.get(atoms.settingsAtom)?.["web:openlinksinternally"]) {
-        const blockDef: BlockDef = {
-            meta: {
-                view: "web",
-                url: uri,
-            },
-        };
-        await createBlock(blockDef);
-    } else {
-        getApi().openExternal(uri);
-    }
+async function openLink(uri: string) {
+    getApi().openExternal(uri);
 }
 
 function registerBlockComponentModel(blockId: string, bcm: BlockComponentModel) {
