@@ -5,13 +5,13 @@ import * as electron from "electron";
 import * as child_process from "node:child_process";
 import * as readline from "readline";
 import { WebServerEndpointVarName, WSServerEndpointVarName } from "../frontend/util/endpoints";
-import { AuthKey, WaveAuthKeyEnv } from "./authkey";
+import { AuthKey, DoraAuthKeyEnv } from "./authkey";
 import { setForceQuit, setUserConfirmedQuit } from "./emain-activity";
 import {
     getElectronAppResourcesPath,
     getElectronAppUnpackedBasePath,
     getDoraConfigDir,
-    getWaveDataDir,
+    getDoraDataDir,
     getWaveSrvCwd,
     getWaveSrvPath,
     getXdgCurrentDesktop,
@@ -20,19 +20,19 @@ import {
 } from "./emain-platform";
 import {
     getElectronExecPath,
-    WaveAppElectronExecPath,
-    WaveAppPathVarName,
-    WaveAppResourcesPathVarName,
+    DoraAppElectronExecPath,
+    DoraAppPathVarName,
+    DoraAppResourcesPathVarName,
 } from "./emain-util";
 import { updater } from "./updater";
 
 let isWaveSrvDead = false;
 let waveSrvProc: child_process.ChildProcessWithoutNullStreams | null = null;
-let WaveVersion = "unknown"; // set by WAVESRV-ESTART
-let WaveBuildTime = 0; // set by WAVESRV-ESTART
+let DoraVersion = "unknown"; // set by WAVESRV-ESTART
+let DoraBuildTime = 0; // set by WAVESRV-ESTART
 
-export function getWaveVersion(): { version: string; buildTime: number } {
-    return { version: WaveVersion, buildTime: WaveBuildTime };
+export function getDoraVersion(): { version: string; buildTime: number } {
+    return { version: DoraVersion, buildTime: DoraBuildTime };
 }
 
 let waveSrvReadyResolve = (value: boolean) => {};
@@ -64,11 +64,11 @@ export function runWaveSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promis
     if (xdgCurrentDesktop != null) {
         envCopy["XDG_CURRENT_DESKTOP"] = xdgCurrentDesktop;
     }
-    envCopy[WaveAppPathVarName] = getElectronAppUnpackedBasePath();
-    envCopy[WaveAppResourcesPathVarName] = getElectronAppResourcesPath();
-    envCopy[WaveAppElectronExecPath] = getElectronExecPath();
-    envCopy[WaveAuthKeyEnv] = AuthKey;
-    envCopy[DoraDataHomeVarName] = getWaveDataDir();
+    envCopy[DoraAppPathVarName] = getElectronAppUnpackedBasePath();
+    envCopy[DoraAppResourcesPathVarName] = getElectronAppResourcesPath();
+    envCopy[DoraAppElectronExecPath] = getElectronExecPath();
+    envCopy[DoraAuthKeyEnv] = AuthKey;
+    envCopy[DoraDataHomeVarName] = getDoraDataDir();
     envCopy[DoraConfigHomeVarName] = getDoraConfigDir();
     const waveSrvCmd = getWaveSrvPath();
     console.log("trying to run local server", waveSrvCmd);
@@ -118,8 +118,8 @@ export function runWaveSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promis
             }
             process.env[WSServerEndpointVarName] = startParams[1];
             process.env[WebServerEndpointVarName] = startParams[2];
-            WaveVersion = startParams[3];
-            WaveBuildTime = parseInt(startParams[4]);
+            DoraVersion = startParams[3];
+            DoraBuildTime = parseInt(startParams[4]);
             waveSrvReadyResolve(true);
             return;
         }

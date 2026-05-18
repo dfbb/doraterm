@@ -106,7 +106,7 @@ func (jm *JobCmd) waitForProcess() {
 	}
 	log.Printf("process exited: exitcode=%s, signal=%s, err=%v\n", exitCodeStr, jm.exitSignal, jm.exitErr)
 
-	go WshCmdJobManager.sendJobExited()
+	go DshCmdJobManager.sendJobExited()
 }
 
 func (jm *JobCmd) GetCmd() (*exec.Cmd, pty.Pty) {
@@ -141,7 +141,7 @@ func (jm *JobCmd) GetExitInfo() (bool, *dshrpc.CommandJobCmdExitedData) {
 		return false, nil
 	}
 	exitData := &dshrpc.CommandJobCmdExitedData{
-		JobId:      WshCmdJobManager.JobId,
+		JobId:      DshCmdJobManager.JobId,
 		ExitCode:   jm.exitCode,
 		ExitSignal: jm.exitSignal,
 		ExitTs:     jm.exitTs,

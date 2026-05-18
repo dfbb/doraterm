@@ -7,11 +7,11 @@ import * as util from "@/util/util";
 const notFoundLogMap = new Map<string, boolean>();
 
 class RpcResponseHelper {
-    client: WshClient;
+    client: DshClient;
     cmdMsg: RpcMessage;
     done: boolean;
 
-    constructor(client: WshClient, cmdMsg: RpcMessage) {
+    constructor(client: DshClient, cmdMsg: RpcMessage) {
         this.client = client;
         this.cmdMsg = cmdMsg;
         // if reqid is null, no response required
@@ -39,7 +39,7 @@ class RpcResponseHelper {
     }
 }
 
-class WshClient {
+class DshClient {
     routeId: string;
     openRpcs: Map<string, ClientRpcEntry> = new Map();
 
@@ -156,4 +156,4 @@ class WshClient {
     }
 }
 
-export { RpcResponseHelper, WshClient };
+export { RpcResponseHelper, DshClient };

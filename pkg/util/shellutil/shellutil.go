@@ -80,7 +80,7 @@ const (
 	BashIntegrationDir = "shell/bash"
 	PwshIntegrationDir = "shell/pwsh"
 	FishIntegrationDir = "shell/fish"
-	WaveHomeBinDir     = "bin"
+	DoraHomeBinDir     = "bin"
 	ZshHistoryFileName = ".zsh_history"
 )
 
@@ -227,7 +227,7 @@ func WaveshellLocalEnvVars(termType string) map[string]string {
 	}
 	rtn["WAVETERM"], _ = os.Executable()
 	rtn["DORATERM_VERSION"] = dorabase.DoraVersion
-	rtn["DORATERM_DSHBINDIR"] = filepath.Join(dorabase.GetDoraDataDir(), WaveHomeBinDir)
+	rtn["DORATERM_DSHBINDIR"] = filepath.Join(dorabase.GetDoraDataDir(), DoraHomeBinDir)
 	return rtn
 }
 
@@ -334,7 +334,7 @@ func IsExtendedZshHistoryFile(fileName string) (bool, error) {
 	return false, nil
 }
 
-func GetLocalWshBinaryPath(version string, goos string, goarch string) (string, error) {
+func GetLocalDshBinaryPath(version string, goos string, goarch string) (string, error) {
 	ext := ""
 	if goarch == "amd64" {
 		goarch = "x64"
@@ -352,9 +352,9 @@ func GetLocalWshBinaryPath(version string, goos string, goarch string) (string, 
 	return filepath.Join(dorabase.GetDoraAppBinPath(), baseName), nil
 }
 
-// absWshBinDir must be an absolute, expanded path (no ~ or $HOME, etc.)
+// absDshBinDir must be an absolute, expanded path (no ~ or $HOME, etc.)
 // it will be hard-quoted appropriately for the shell
-func InitRcFiles(waveHome string, absWshBinDir string) error {
+func InitRcFiles(waveHome string, absDshBinDir string) error {
 	// ensure directories exist
 	zshDir := filepath.Join(waveHome, ZshIntegrationDir)
 	err := dorabase.CacheEnsureDir(zshDir, ZshIntegrationDir, 0755, ZshIntegrationDir)
@@ -384,8 +384,8 @@ func InitRcFiles(waveHome string, absWshBinDir string) error {
 		pathSep = ":"
 	}
 	params := map[string]string{
-		"WSHBINDIR":      HardQuote(absWshBinDir),
-		"WSHBINDIR_PWSH": HardQuotePowerShell(absWshBinDir),
+		"WSHBINDIR":      HardQuote(absDshBinDir),
+		"WSHBINDIR_PWSH": HardQuotePowerShell(absDshBinDir),
 		"PATHSEP":        pathSep,
 	}
 
@@ -429,19 +429,19 @@ func InitRcFiles(waveHome string, absWshBinDir string) error {
 func initCustomShellStartupFilesInternal() error {
 	log.Printf("initializing wsh and shell startup files\n")
 	waveDataHome := dorabase.GetDoraDataDir()
-	binDir := filepath.Join(waveDataHome, WaveHomeBinDir)
+	binDir := filepath.Join(waveDataHome, DoraHomeBinDir)
 	err := InitRcFiles(waveDataHome, binDir)
 	if err != nil {
 		return err
 	}
 
-	err = dorabase.CacheEnsureDir(binDir, WaveHomeBinDir, 0755, WaveHomeBinDir)
+	err = dorabase.CacheEnsureDir(binDir, DoraHomeBinDir, 0755, DoraHomeBinDir)
 	if err != nil {
 		return err
 	}
 
 	// copy the correct binary to bin
-	wshFullPath, err := GetLocalWshBinaryPath(dorabase.DoraVersion, runtime.GOOS, runtime.GOARCH)
+	wshFullPath, err := GetLocalDshBinaryPath(dorabase.DoraVersion, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
 		log.Printf("error (non-fatal), could not resolve wsh binary path: %v\n", err)
 	}

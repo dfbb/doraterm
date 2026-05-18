@@ -111,7 +111,7 @@ func (w *Watcher) Close() {
 }
 
 func (w *Watcher) broadcast(message WatcherUpdate) {
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event: dps.Event_Config,
 		Data:  message,
 	})

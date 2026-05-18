@@ -34,7 +34,7 @@ func notifyRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		sendActivity("notify", rtnErr == nil)
 	}()
 	message := args[0]
-	notificationOptions := &dshrpc.WaveNotificationOptions{
+	notificationOptions := &dshrpc.DoraNotificationOptions{
 		Title:  notifyTitle,
 		Body:   message,
 		Silent: notifySilent,

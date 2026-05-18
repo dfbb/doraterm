@@ -4,7 +4,7 @@
 // waveWindowType is set once at startup and never changes.
 let waveWindowType: "tab" | "builder" | "preview" = "tab";
 
-function getWaveWindowType(): "tab" | "builder" | "preview" {
+function getDoraWindowType(): "tab" | "builder" | "preview" {
     return waveWindowType;
 }
 
@@ -20,8 +20,8 @@ function isPreviewWindow(): boolean {
     return waveWindowType === "preview";
 }
 
-function setWaveWindowType(windowType: "tab" | "builder" | "preview") {
+function setDoraWindowType(windowType: "tab" | "builder" | "preview") {
     waveWindowType = windowType;
 }
 
-export { getWaveWindowType, isBuilderWindow, isPreviewWindow, isTabWindow, setWaveWindowType };
+export { getDoraWindowType, isBuilderWindow, isPreviewWindow, isTabWindow, setDoraWindowType };

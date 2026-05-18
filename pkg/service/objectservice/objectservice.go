@@ -36,7 +36,7 @@ func (svc *ObjectService) GetObject_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (svc *ObjectService) GetObject(orefStr string) (doraobj.WaveObj, error) {
+func (svc *ObjectService) GetObject(orefStr string) (doraobj.DoraObj, error) {
 	oref, err := parseORef(orefStr)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (svc *ObjectService) GetObjects_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (svc *ObjectService) GetObjects(orefStrArr []string) ([]doraobj.WaveObj, error) {
+func (svc *ObjectService) GetObjects(orefStrArr []string) ([]doraobj.DoraObj, error) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
 
@@ -139,14 +139,14 @@ func (svc *ObjectService) UpdateObject_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (svc *ObjectService) UpdateObject(uiContext doraobj.UIContext, waveObj doraobj.WaveObj, returnUpdates bool) (doraobj.UpdatesRtnType, error) {
+func (svc *ObjectService) UpdateObject(uiContext doraobj.UIContext, waveObj doraobj.DoraObj, returnUpdates bool) (doraobj.UpdatesRtnType, error) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
 	ctx = doraobj.ContextWithUpdates(ctx)
 	if waveObj == nil {
 		return nil, fmt.Errorf("update wavobj is nil")
 	}
-	oref := doraobj.ORefFromWaveObj(waveObj)
+	oref := doraobj.ORefFromDoraObj(waveObj)
 	found, err := dstore.DBExistsORef(ctx, *oref)
 	if err != nil {
 		return nil, fmt.Errorf("error getting object: %w", err)
@@ -159,7 +159,7 @@ func (svc *ObjectService) UpdateObject(uiContext doraobj.UIContext, waveObj dora
 		return nil, fmt.Errorf("error updating object: %w", err)
 	}
 	if (waveObj.GetOType() == doraobj.OType_Workspace) && (waveObj.(*doraobj.Workspace).Name != "") {
-		dps.Broker.Publish(dps.WaveEvent{
+		dps.Broker.Publish(dps.DoraEvent{
 			Event: dps.Event_WorkspaceUpdate})
 	}
 	if returnUpdates {

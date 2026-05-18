@@ -36,8 +36,8 @@ func TestGenerateWshCommandDecl_MultiArgs(t *testing.T) {
 	}
 }
 
-func TestGenerateWshCommandDeclMap_TestMultiArgCommand(t *testing.T) {
-	decl := GenerateWshCommandDeclMap()["testmultiarg"]
+func TestGenerateDshCommandDeclMap_TestMultiArgCommand(t *testing.T) {
+	decl := GenerateDshCommandDeclMap()["testmultiarg"]
 	if decl == nil {
 		t.Fatalf("expected testmultiarg command declaration")
 	}

@@ -7,18 +7,18 @@ import (
 	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
-type WshRpcStreamClientAdapter struct {
-	rpc *WshRpc
+type DshRpcStreamClientAdapter struct {
+	rpc *DshRpc
 }
 
-func (a *WshRpcStreamClientAdapter) StreamDataAckCommand(data dshrpc.CommandStreamAckData, opts *dshrpc.RpcOpts) error {
+func (a *DshRpcStreamClientAdapter) StreamDataAckCommand(data dshrpc.CommandStreamAckData, opts *dshrpc.RpcOpts) error {
 	return a.rpc.SendCommand("streamdataack", data, opts)
 }
 
-func (a *WshRpcStreamClientAdapter) StreamDataCommand(data dshrpc.CommandStreamData, opts *dshrpc.RpcOpts) error {
+func (a *DshRpcStreamClientAdapter) StreamDataCommand(data dshrpc.CommandStreamData, opts *dshrpc.RpcOpts) error {
 	return a.rpc.SendCommand("streamdata", data, opts)
 }
 
-func AdaptWshRpc(rpc *WshRpc) *WshRpcStreamClientAdapter {
-	return &WshRpcStreamClientAdapter{rpc: rpc}
+func AdaptDshRpc(rpc *DshRpc) *DshRpcStreamClientAdapter {
+	return &DshRpcStreamClientAdapter{rpc: rpc}
 }

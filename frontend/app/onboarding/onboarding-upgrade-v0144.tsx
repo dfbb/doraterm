@@ -64,10 +64,10 @@ const UpgradeOnboardingModal_v0_14_4_Content = () => {
                                 - Renamed <code>presets/bg.json</code> to <code>backgrounds.json</code>
                             </li>
                             <li>
-                                <strong>Config Errors Moved</strong> - Config errors to the WaveConfig view for less
+                                <strong>Config Errors Moved</strong> - Config errors to the DoraConfig view for less
                                 clutter
                             </li>
-                            <li>WaveConfig now warns on Unsaved Changes</li>
+                            <li>DoraConfig now warns on Unsaved Changes</li>
                             <li>Preview streaming fixes for images/videos</li>
                             <li>Deprecated legacy AI widget has been removed</li>
                             <li>[bugfix] Fixed focus bug for newly created blocks</li>

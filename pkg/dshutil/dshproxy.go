@@ -12,7 +12,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
-type WshRpcProxy struct {
+type DshRpcProxy struct {
 	Lock         *sync.Mutex
 	RpcContext   *dshrpc.RpcContext
 	ToRemoteCh   chan []byte
@@ -20,12 +20,12 @@ type WshRpcProxy struct {
 	PeerInfo     string
 }
 
-func MakeRpcProxy(peerInfo string) *WshRpcProxy {
+func MakeRpcProxy(peerInfo string) *DshRpcProxy {
 	return MakeRpcProxyWithSize(peerInfo, DefaultInputChSize, DefaultOutputChSize)
 }
 
-func MakeRpcProxyWithSize(peerInfo string, inputChSize int, outputChSize int) *WshRpcProxy {
-	return &WshRpcProxy{
+func MakeRpcProxyWithSize(peerInfo string, inputChSize int, outputChSize int) *DshRpcProxy {
+	return &DshRpcProxy{
 		Lock:         &sync.Mutex{},
 		ToRemoteCh:   make(chan []byte, inputChSize),
 		FromRemoteCh: make(chan baseds.RpcInputChType, outputChSize),
@@ -33,19 +33,19 @@ func MakeRpcProxyWithSize(peerInfo string, inputChSize int, outputChSize int) *W
 	}
 }
 
-func (p *WshRpcProxy) GetPeerInfo() string {
+func (p *DshRpcProxy) GetPeerInfo() string {
 	return p.PeerInfo
 }
 
-func (p *WshRpcProxy) SetPeerInfo(peerInfo string) {
+func (p *DshRpcProxy) SetPeerInfo(peerInfo string) {
 	p.Lock.Lock()
 	defer p.Lock.Unlock()
 	p.PeerInfo = peerInfo
 }
 
-func (p *WshRpcProxy) SendRpcMessage(msg []byte, ingressLinkId baseds.LinkId, debugStr string) bool {
+func (p *DshRpcProxy) SendRpcMessage(msg []byte, ingressLinkId baseds.LinkId, debugStr string) bool {
 	defer func() {
-		panicCtx := "WshRpcProxy.SendRpcMessage"
+		panicCtx := "DshRpcProxy.SendRpcMessage"
 		if debugStr != "" {
 			panicCtx = fmt.Sprintf("%s:%s", panicCtx, debugStr)
 		}
@@ -59,7 +59,7 @@ func (p *WshRpcProxy) SendRpcMessage(msg []byte, ingressLinkId baseds.LinkId, de
 	}
 }
 
-func (p *WshRpcProxy) RecvRpcMessage() ([]byte, bool) {
+func (p *DshRpcProxy) RecvRpcMessage() ([]byte, bool) {
 	inputVal, more := <-p.FromRemoteCh
 	return inputVal.MsgBytes, more
 }

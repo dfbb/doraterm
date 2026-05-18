@@ -10,11 +10,11 @@ import (
 	"github.com/dfbb/doraterm/pkg/dps"
 )
 
-// event inverter.  converts WaveEvents to a listener.On() API
+// event inverter.  converts DoraEvents to a listener.On() API
 
 type singleListener struct {
 	Id string
-	Fn func(*dps.WaveEvent)
+	Fn func(*dps.DoraEvent)
 }
 
 type EventListener struct {
@@ -29,7 +29,7 @@ func MakeEventListener() *EventListener {
 	}
 }
 
-func (el *EventListener) On(eventName string, fn func(*dps.WaveEvent)) string {
+func (el *EventListener) On(eventName string, fn func(*dps.DoraEvent)) string {
 	id := uuid.New().String()
 	el.Lock.Lock()
 	defer el.Lock.Unlock()
@@ -59,7 +59,7 @@ func (el *EventListener) getListeners(eventName string) []singleListener {
 	return el.Listeners[eventName]
 }
 
-func (el *EventListener) RecvEvent(e *dps.WaveEvent) {
+func (el *EventListener) RecvEvent(e *dps.DoraEvent) {
 	larr := el.getListeners(e.Event)
 	for _, sl := range larr {
 		sl.Fn(e)

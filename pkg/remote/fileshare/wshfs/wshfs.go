@@ -29,7 +29,7 @@ const (
 )
 
 // This needs to be set by whoever initializes the client, either main-server or wshcmd-connserver
-var RpcClient *dshutil.WshRpc
+var RpcClient *dshutil.DshRpc
 var RpcClientRouteId string
 
 func parseConnection(ctx context.Context, path string) (*connparse.Connection, error) {

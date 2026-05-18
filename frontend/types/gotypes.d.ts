@@ -138,7 +138,7 @@ declare global {
     };
 
     // waveobj.Block
-    type Block = WaveObj & {
+    type Block = DoraObj & {
         parentoref?: string;
         runtimeopts?: RuntimeOpts;
         stickers?: StickerType[];
@@ -168,7 +168,7 @@ declare global {
         tabid: string;
         workspaceid: string;
         block: Block;
-        files: WaveFileInfo[];
+        files: DoraFileInfo[];
     };
 
     // wshrpc.BlockJobStatusData
@@ -212,7 +212,7 @@ declare global {
     };
 
     // waveobj.Client
-    type Client = WaveObj & {
+    type Client = DoraObj & {
         windowids: string[];
         tosagreed?: number;
         hasoldhistory?: boolean;
@@ -413,8 +413,8 @@ declare global {
         filename?: string;
     };
 
-    // wshrpc.CommandGetWaveAIChatData
-    type CommandGetWaveAIChatData = {
+    // wshrpc.CommandGetDoraAIChatData
+    type CommandGetDoraAIChatData = {
         chatid: string;
     };
 
@@ -727,34 +727,34 @@ declare global {
         waitms: number;
     };
 
-    // wshrpc.CommandWaveAIAddContextData
-    type CommandWaveAIAddContextData = {
+    // wshrpc.CommandDoraAIAddContextData
+    type CommandDoraAIAddContextData = {
         files?: AIAttachedFile[];
         text?: string;
         submit?: boolean;
         newchat?: boolean;
     };
 
-    // wshrpc.CommandWaveAIGetToolDiffData
-    type CommandWaveAIGetToolDiffData = {
+    // wshrpc.CommandDoraAIGetToolDiffData
+    type CommandDoraAIGetToolDiffData = {
         chatid: string;
         toolcallid: string;
     };
 
-    // wshrpc.CommandWaveAIGetToolDiffRtnData
-    type CommandWaveAIGetToolDiffRtnData = {
+    // wshrpc.CommandDoraAIGetToolDiffRtnData
+    type CommandDoraAIGetToolDiffRtnData = {
         originalcontents64: string;
         modifiedcontents64: string;
     };
 
-    // wshrpc.CommandWaveAIToolApproveData
-    type CommandWaveAIToolApproveData = {
+    // wshrpc.CommandDoraAIToolApproveData
+    type CommandDoraAIToolApproveData = {
         toolcallid: string;
         approval?: string;
     };
 
-    // wshrpc.CommandWaveFileReadStreamData
-    type CommandWaveFileReadStreamData = {
+    // wshrpc.CommandDoraFileReadStreamData
+    type CommandDoraFileReadStreamData = {
         zoneid: string;
         name: string;
         streammeta: StreamMeta;
@@ -1025,7 +1025,7 @@ declare global {
     };
 
     // waveobj.Job
-    type Job = WaveObj & {
+    type Job = DoraObj & {
         connection: string;
         jobkind: string;
         cmd: string;
@@ -1072,7 +1072,7 @@ declare global {
     };
 
     // waveobj.LayoutState
-    type LayoutState = WaveObj & {
+    type LayoutState = DoraObj & {
         rootnode?: any;
         magnifiednodeid?: string;
         focusednodeid?: string;
@@ -1677,7 +1677,7 @@ declare global {
     };
 
     // waveobj.Tab
-    type Tab = WaveObj & {
+    type Tab = DoraObj & {
         name: string;
         layoutstate: string;
         blockids: string[];
@@ -1851,8 +1851,8 @@ declare global {
         targetchecked?: boolean;
         targetname?: string;
         targetid?: string;
-        keydata?: WaveKeyboardEvent;
-        mousedata?: WavePointerData;
+        keydata?: DoraKeyboardEvent;
+        mousedata?: DoraPointerData;
     };
 
     // vdom.VDomFrontendUpdate
@@ -2014,8 +2014,8 @@ declare global {
     };
 
 
-    // filestore.WaveFile
-    type WaveFile = {
+    // filestore.DoraFile
+    type DoraFile = {
         zoneid: string;
         name: string;
         opts: FileOpts;
@@ -2025,8 +2025,8 @@ declare global {
         meta: {[key: string]: any};
     };
 
-    // wshrpc.WaveFileInfo
-    type WaveFileInfo = {
+    // wshrpc.DoraFileInfo
+    type DoraFileInfo = {
         zoneid: string;
         name: string;
         opts: FileOpts;
@@ -2036,8 +2036,8 @@ declare global {
         meta: {[key: string]: any};
     };
 
-    // wshrpc.WaveInfoData
-    type WaveInfoData = {
+    // wshrpc.DoraInfoData
+    type DoraInfoData = {
         version: string;
         clientid: string;
         buildtime: string;
@@ -2045,8 +2045,8 @@ declare global {
         datadir: string;
     };
 
-    // vdom.WaveKeyboardEvent
-    type WaveKeyboardEvent = {
+    // vdom.DoraKeyboardEvent
+    type DoraKeyboardEvent = {
         type: "keydown"|"keyup"|"keypress"|"unknown";
         key: string;
         code: string;
@@ -2060,31 +2060,31 @@ declare global {
         option?: boolean;
     };
 
-    // wshrpc.WaveNotificationOptions
-    type WaveNotificationOptions = {
+    // wshrpc.DoraNotificationOptions
+    type DoraNotificationOptions = {
         title?: string;
         body?: string;
         silent?: boolean;
     };
 
-    // waveobj.WaveObj
-    type WaveObj = {
+    // waveobj.DoraObj
+    type DoraObj = {
         otype: string;
         oid: string;
         version: number;
         meta: MetaType;
     };
 
-    // waveobj.WaveObjUpdate
-    type WaveObjUpdate = {
+    // waveobj.DoraObjUpdate
+    type DoraObjUpdate = {
         updatetype: string;
         otype: string;
         oid: string;
-        obj?: WaveObj;
+        obj?: DoraObj;
     };
 
-    // vdom.WavePointerData
-    type WavePointerData = {
+    // vdom.DoraPointerData
+    type DoraPointerData = {
         button: number;
         buttons: number;
         clientx?: number;
@@ -2104,7 +2104,7 @@ declare global {
     };
 
     // waveobj.Window
-    type WaveWindow = WaveObj & {
+    type DoraWindow = DoraObj & {
         workspaceid: string;
         isnew?: boolean;
         pos: Point;
@@ -2135,7 +2135,7 @@ declare global {
         success?: boolean;
         error?: string;
         data?: any;
-        updates?: WaveObjUpdate[];
+        updates?: DoraObjUpdate[];
     };
 
     // wshrpc.WebSelectorOpts
@@ -2164,7 +2164,7 @@ declare global {
     };
 
     // waveobj.Workspace
-    type Workspace = WaveObj & {
+    type Workspace = DoraObj & {
         name?: string;
         icon?: string;
         color?: string;
@@ -2184,8 +2184,8 @@ declare global {
         windowid: string;
     };
 
-    // wshrpc.WshServerCommandMeta
-    type WshServerCommandMeta = {
+    // wshrpc.DshServerCommandMeta
+    type DshServerCommandMeta = {
         commandtype: string;
     };
 

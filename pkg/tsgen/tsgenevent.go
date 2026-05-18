@@ -18,14 +18,14 @@ import (
 	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
-var waveEventRType = reflect.TypeOf(dps.WaveEvent{})
+var waveEventRType = reflect.TypeOf(dps.DoraEvent{})
 
-var WaveEventDataTypes = map[string]reflect.Type{
+var DoraEventDataTypes = map[string]reflect.Type{
 	dps.Event_BlockClose:          reflect.TypeOf(""),
 	dps.Event_ConnChange:          reflect.TypeOf(dshrpc.ConnStatus{}),
 	dps.Event_SysInfo:             reflect.TypeOf(dshrpc.TimeSeriesData{}),
 	dps.Event_ControllerStatus:    reflect.TypeOf((*blockcontroller.BlockControllerRuntimeStatus)(nil)),
-	dps.Event_WaveObjUpdate:       reflect.TypeOf(doraobj.WaveObjUpdate{}),
+	dps.Event_DoraObjUpdate:       reflect.TypeOf(doraobj.DoraObjUpdate{}),
 	dps.Event_BlockFile:           reflect.TypeOf((*dps.WSFileEventData)(nil)),
 	dps.Event_Config:              reflect.TypeOf(dconfig.WatcherUpdate{}),
 	dps.Event_UserInput:           reflect.TypeOf((*userinput.UserInputRequest)(nil)),
@@ -36,8 +36,8 @@ var WaveEventDataTypes = map[string]reflect.Type{
 	dps.Event_Badge:               reflect.TypeOf(baseds.BadgeEvent{}),
 }
 
-func getWaveEventDataTSType(eventName string, tsTypesMap map[reflect.Type]string) string {
-	rtype, found := WaveEventDataTypes[eventName]
+func getDoraEventDataTSType(eventName string, tsTypesMap map[reflect.Type]string) string {
+	rtype, found := DoraEventDataTypes[eventName]
 	if !found {
 		return "any"
 	}
@@ -51,22 +51,22 @@ func getWaveEventDataTSType(eventName string, tsTypesMap map[reflect.Type]string
 	return tsType
 }
 
-func GenerateWaveEventTypes(tsTypesMap map[reflect.Type]string) string {
-	for _, rtype := range WaveEventDataTypes {
+func GenerateDoraEventTypes(tsTypesMap map[reflect.Type]string) string {
+	for _, rtype := range DoraEventDataTypes {
 		GenerateTSType(rtype, tsTypesMap)
 	}
 	// suppress default struct generation, this type is custom generated
 	tsTypesMap[waveEventRType] = ""
 
 	var buf bytes.Buffer
-	buf.WriteString("// dps.WaveEvent\n")
-	buf.WriteString("type WaveEventName =\n")
+	buf.WriteString("// dps.DoraEvent\n")
+	buf.WriteString("type DoraEventName =\n")
 	for _, eventName := range dps.AllEvents {
 		buf.WriteString(fmt.Sprintf("    | %s\n", strconv.Quote(eventName)))
 	}
 	buf.WriteString(";\n\n")
-	buf.WriteString("type WaveEvent = {\n")
-	buf.WriteString("    event: WaveEventName;\n")
+	buf.WriteString("type DoraEvent = {\n")
+	buf.WriteString("    event: DoraEventName;\n")
 	buf.WriteString("    scopes?: string[];\n")
 	buf.WriteString("    sender?: string;\n")
 	buf.WriteString("    persist?: number;\n")
@@ -76,7 +76,7 @@ func GenerateWaveEventTypes(tsTypesMap map[reflect.Type]string) string {
 		if idx > 0 {
 			buf.WriteString(" | \n")
 		}
-		buf.WriteString(fmt.Sprintf("    { event: %s; data?: %s; }", strconv.Quote(eventName), getWaveEventDataTSType(eventName, tsTypesMap)))
+		buf.WriteString(fmt.Sprintf("    { event: %s; data?: %s; }", strconv.Quote(eventName), getDoraEventDataTSType(eventName, tsTypesMap)))
 	}
 	buf.WriteString("\n);\n")
 	return buf.String()

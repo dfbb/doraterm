@@ -16,13 +16,13 @@ import (
 	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
-type WshRouterControlImpl struct {
-	Router *WshRouter
+type DshRouterControlImpl struct {
+	Router *DshRouter
 }
 
-func (impl *WshRouterControlImpl) WshServerImpl() {}
+func (impl *DshRouterControlImpl) DshServerImpl() {}
 
-func (impl *WshRouterControlImpl) RouteAnnounceCommand(ctx context.Context) error {
+func (impl *DshRouterControlImpl) RouteAnnounceCommand(ctx context.Context) error {
 	source := GetRpcSourceFromContext(ctx)
 	if source == "" {
 		return fmt.Errorf("no source in routeannounce")
@@ -38,7 +38,7 @@ func (impl *WshRouterControlImpl) RouteAnnounceCommand(ctx context.Context) erro
 	return impl.Router.bindRoute(linkId, source, false)
 }
 
-func (impl *WshRouterControlImpl) RouteUnannounceCommand(ctx context.Context) error {
+func (impl *DshRouterControlImpl) RouteUnannounceCommand(ctx context.Context) error {
 	source := GetRpcSourceFromContext(ctx)
 	if source == "" {
 		return fmt.Errorf("no source in routeunannounce")
@@ -54,7 +54,7 @@ func (impl *WshRouterControlImpl) RouteUnannounceCommand(ctx context.Context) er
 	return impl.Router.unbindRoute(linkId, source)
 }
 
-func (impl *WshRouterControlImpl) ControlGetRouteIdCommand(ctx context.Context) (string, error) {
+func (impl *DshRouterControlImpl) ControlGetRouteIdCommand(ctx context.Context) (string, error) {
 	handler := GetRpcResponseHandlerFromContext(ctx)
 	if handler == nil {
 		return "", nil
@@ -70,7 +70,7 @@ func (impl *WshRouterControlImpl) ControlGetRouteIdCommand(ctx context.Context) 
 	return lm.sourceRouteId, nil
 }
 
-func (impl *WshRouterControlImpl) SetPeerInfoCommand(ctx context.Context, peerInfo string) error {
+func (impl *DshRouterControlImpl) SetPeerInfoCommand(ctx context.Context, peerInfo string) error {
 	source := GetRpcSourceFromContext(ctx)
 	linkId := impl.Router.GetLinkIdForRoute(source)
 	if linkId == baseds.NoLinkId {
@@ -80,14 +80,14 @@ func (impl *WshRouterControlImpl) SetPeerInfoCommand(ctx context.Context, peerIn
 	if lm == nil {
 		return fmt.Errorf("no link meta found for linkId %d", linkId)
 	}
-	if proxy, ok := lm.client.(*WshRpcProxy); ok {
+	if proxy, ok := lm.client.(*DshRpcProxy); ok {
 		proxy.SetPeerInfo(peerInfo)
 		return nil
 	}
 	return fmt.Errorf("setpeerinfo only valid for proxy connections")
 }
 
-func (impl *WshRouterControlImpl) AuthenticateCommand(ctx context.Context, data string) (dshrpc.CommandAuthenticateRtnData, error) {
+func (impl *DshRouterControlImpl) AuthenticateCommand(ctx context.Context, data string) (dshrpc.CommandAuthenticateRtnData, error) {
 	handler := GetRpcResponseHandlerFromContext(ctx)
 	if handler == nil {
 		return dshrpc.CommandAuthenticateRtnData{}, fmt.Errorf("no response handler in context")
@@ -144,7 +144,7 @@ func extractTokenData(token string) (dshrpc.CommandAuthenticateRtnData, error) {
 	}, nil
 }
 
-func (impl *WshRouterControlImpl) AuthenticateTokenVerifyCommand(ctx context.Context, data dshrpc.CommandAuthenticateTokenData) (dshrpc.CommandAuthenticateRtnData, error) {
+func (impl *DshRouterControlImpl) AuthenticateTokenVerifyCommand(ctx context.Context, data dshrpc.CommandAuthenticateTokenData) (dshrpc.CommandAuthenticateRtnData, error) {
 	if !impl.Router.IsRootRouter() {
 		return dshrpc.CommandAuthenticateRtnData{}, fmt.Errorf("authenticatetokenverify can only be called on root router")
 	}
@@ -162,7 +162,7 @@ func (impl *WshRouterControlImpl) AuthenticateTokenVerifyCommand(ctx context.Con
 	return rtnData, nil
 }
 
-func (impl *WshRouterControlImpl) AuthenticateTokenCommand(ctx context.Context, data dshrpc.CommandAuthenticateTokenData) (dshrpc.CommandAuthenticateRtnData, error) {
+func (impl *DshRouterControlImpl) AuthenticateTokenCommand(ctx context.Context, data dshrpc.CommandAuthenticateTokenData) (dshrpc.CommandAuthenticateRtnData, error) {
 	handler := GetRpcResponseHandlerFromContext(ctx)
 	if handler == nil {
 		return dshrpc.CommandAuthenticateRtnData{}, fmt.Errorf("no response handler in context")
@@ -186,7 +186,7 @@ func (impl *WshRouterControlImpl) AuthenticateTokenCommand(ctx context.Context, 
 			return dshrpc.CommandAuthenticateRtnData{}, err
 		}
 	} else {
-		wshRpc := GetWshRpcFromContext(ctx)
+		wshRpc := GetDshRpcFromContext(ctx)
 		if wshRpc == nil {
 			return dshrpc.CommandAuthenticateRtnData{}, fmt.Errorf("no wshrpc in context")
 		}
@@ -214,7 +214,7 @@ func (impl *WshRouterControlImpl) AuthenticateTokenCommand(ctx context.Context, 
 	return rtnData, nil
 }
 
-func (impl *WshRouterControlImpl) AuthenticateJobManagerVerifyCommand(ctx context.Context, data dshrpc.CommandAuthenticateJobManagerData) error {
+func (impl *DshRouterControlImpl) AuthenticateJobManagerVerifyCommand(ctx context.Context, data dshrpc.CommandAuthenticateJobManagerData) error {
 	if !impl.Router.IsRootRouter() {
 		return fmt.Errorf("authenticatejobmanagerverify can only be called on root router")
 	}
@@ -241,7 +241,7 @@ func (impl *WshRouterControlImpl) AuthenticateJobManagerVerifyCommand(ctx contex
 	return nil
 }
 
-func (impl *WshRouterControlImpl) AuthenticateJobManagerCommand(ctx context.Context, data dshrpc.CommandAuthenticateJobManagerData) error {
+func (impl *DshRouterControlImpl) AuthenticateJobManagerCommand(ctx context.Context, data dshrpc.CommandAuthenticateJobManagerData) error {
 	handler := GetRpcResponseHandlerFromContext(ctx)
 	if handler == nil {
 		return fmt.Errorf("no response handler in context")
@@ -270,7 +270,7 @@ func (impl *WshRouterControlImpl) AuthenticateJobManagerCommand(ctx context.Cont
 			return fmt.Errorf("invalid jobauthtoken")
 		}
 	} else {
-		wshRpc := GetWshRpcFromContext(ctx)
+		wshRpc := GetDshRpcFromContext(ctx)
 		if wshRpc == nil {
 			return fmt.Errorf("no wshrpc in context")
 		}

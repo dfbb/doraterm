@@ -7,7 +7,7 @@ import { tryReinjectKey } from "@/app/store/keymodel";
 import { CodeEditor } from "@/app/view/codeeditor/codeeditor";
 import type { ConfigFile, DoraConfigViewModel } from "@/app/view/doraconfig/doraconfig-model";
 import type { DoraConfigEnv } from "@/app/view/doraconfig/doraconfigenv";
-import { useWaveEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/waveenv/waveenv";
 import { adaptFromReactOrNativeKeyEvent, checkKeyPressed, keydownWrapper } from "@/util/keyutil";
 import { cn } from "@/util/util";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -100,7 +100,7 @@ const ConfigSidebar = memo(({ model }: ConfigSidebarProps) => {
 ConfigSidebar.displayName = "ConfigSidebar";
 
 const DoraConfigView = memo(({ blockId, model }: ViewComponentProps<DoraConfigViewModel>) => {
-    const env = useWaveEnv<DoraConfigEnv>();
+    const env = useDoraEnv<DoraConfigEnv>();
     const selectedFile = useAtomValue(model.selectedFileAtom);
     const [fileContent, setFileContent] = useAtom(model.fileContentAtom);
     const isLoading = useAtomValue(model.isLoadingAtom);
@@ -147,7 +147,7 @@ const DoraConfigView = memo(({ blockId, model }: ViewComponentProps<DoraConfigVi
     );
 
     useEffect(() => {
-        const handleKeyDown = keydownWrapper((e: WaveKeyboardEvent) => {
+        const handleKeyDown = keydownWrapper((e: DoraKeyboardEvent) => {
             if (checkKeyPressed(e, "Cmd:s")) {
                 if (hasChanges && !isSaving) {
                     model.saveFile();

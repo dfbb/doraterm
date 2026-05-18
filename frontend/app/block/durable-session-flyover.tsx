@@ -3,7 +3,7 @@
 
 import { recordTEvent } from "@/app/store/global";
 import { TermViewModel } from "@/app/view/term/term-model";
-import { useWaveEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/waveenv/waveenv";
 import * as util from "@/util/util";
 import { cn } from "@/util/util";
 import {
@@ -26,7 +26,7 @@ function isTermViewModel(viewModel: ViewModel): viewModel is TermViewModel {
 }
 
 function LearnMoreButton() {
-    const waveEnv = useWaveEnv<BlockEnv>();
+    const waveEnv = useDoraEnv<BlockEnv>();
     return (
         <button
             className="text-muted text-xs hover:underline cursor-pointer text-left"
@@ -335,7 +335,7 @@ export function DurableSessionFlyover({
     placement = "bottom",
     divClassName,
 }: DurableSessionFlyoverProps) {
-    const waveEnv = useWaveEnv<BlockEnv>();
+    const waveEnv = useDoraEnv<BlockEnv>();
     const connName = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(blockId, "connection"));
     const termDurableStatus = util.useAtomValueSafe(viewModel?.termDurableStatus);
     const termConfigedDurable = util.useAtomValueSafe(viewModel?.termConfigedDurable);

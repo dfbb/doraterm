@@ -75,7 +75,7 @@ func (ui *UserInputHandler) unregisterChannel(id string) {
 }
 
 func (ui *UserInputHandler) sendRequestToFrontend(request *UserInputRequest, scopes []string) {
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event:  dps.Event_UserInput,
 		Data:   request,
 		Scopes: scopes,

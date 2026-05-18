@@ -5,7 +5,7 @@ import { RpcApi } from "@/app/store/wshclientapi";
 import { adaptFromElectronKeyEvent, checkKeyPressed } from "@/util/keyutil";
 import { CHORD_TIMEOUT } from "@/util/sharedconst";
 import { Rectangle, shell, WebContentsView } from "electron";
-import { createNewWaveWindow, getWaveWindowById } from "emain/emain-window";
+import { createNewDoraWindow, getDoraWindowById } from "emain/emain-window";
 import path from "path";
 import { configureAuthKeyRequestInjection } from "./authkey";
 import { setWasActive } from "./emain-activity";
@@ -19,17 +19,17 @@ import {
     shFrameNavHandler,
     shNavHandler,
 } from "./emain-util";
-import { ElectronWshClient } from "./emain-wsh";
+import { ElectronDshClient } from "./emain-wsh";
 
 function handleWindowsMenuAccelerators(
-    waveEvent: WaveKeyboardEvent,
-    tabView: WaveTabView,
+    waveEvent: DoraKeyboardEvent,
+    tabView: DoraTabView,
     fullConfig: FullConfigType
 ): boolean {
-    const waveWindow = getWaveWindowById(tabView.waveWindowId);
+    const waveWindow = getDoraWindowById(tabView.waveWindowId);
 
     if (checkKeyPressed(waveEvent, "Ctrl:Shift:n")) {
-        createNewWaveWindow();
+        createNewDoraWindow();
         return true;
     }
 
@@ -73,7 +73,7 @@ function handleWindowsMenuAccelerators(
     for (let i = 1; i <= 9; i++) {
         if (checkKeyPressed(waveEvent, `Alt:Ctrl:${i}`)) {
             const workspaceNum = i - 1;
-            RpcApi.WorkspaceListCommand(ElectronWshClient).then((workspaceList) => {
+            RpcApi.WorkspaceListCommand(ElectronDshClient).then((workspaceList) => {
                 if (workspaceList && workspaceNum < workspaceList.length) {
                     const workspace = workspaceList[workspaceNum];
                     if (waveWindow) {
@@ -106,25 +106,25 @@ function computeBgColor(fullConfig: FullConfigType): string {
     }
 }
 
-const wcIdToWaveTabMap = new Map<number, WaveTabView>();
+const wcIdToDoraTabMap = new Map<number, DoraTabView>();
 
-export function getWaveTabViewByWebContentsId(webContentsId: number): WaveTabView {
+export function getDoraTabViewByWebContentsId(webContentsId: number): DoraTabView {
     if (webContentsId == null) {
         return null;
     }
-    return wcIdToWaveTabMap.get(webContentsId);
+    return wcIdToDoraTabMap.get(webContentsId);
 }
 
-export class WaveTabView extends WebContentsView {
+export class DoraTabView extends WebContentsView {
     waveWindowId: string; // this will be set for any tabviews that are initialized. (unset for the hot spare)
     isActiveTab: boolean;
-    isWaveAIOpen: boolean;
-    private _waveTabId: string; // always set, WaveTabViews are unique per tab
+    isDoraAIOpen: boolean;
+    private _waveTabId: string; // always set, DoraTabViews are unique per tab
     lastUsedTs: number; // ts milliseconds
     createdTs: number; // ts milliseconds
     initPromise: Promise<void>;
     initResolve: () => void;
-    savedInitOpts: WaveInitOpts;
+    savedInitOpts: DoraInitOpts;
     waveReadyPromise: Promise<void>;
     waveReadyResolve: () => void;
     isInitialized: boolean = false;
@@ -142,7 +142,7 @@ export class WaveTabView extends WebContentsView {
             },
         });
         this.createdTs = Date.now();
-        this.isWaveAIOpen = false;
+        this.isDoraAIOpen = false;
         this.savedInitOpts = null;
         this.initPromise = new Promise((resolve, _) => {
             this.initResolve = resolve;
@@ -158,15 +158,15 @@ export class WaveTabView extends WebContentsView {
             this.isWaveReady = true;
         });
         const wcId = this.webContents.id;
-        wcIdToWaveTabMap.set(wcId, this);
+        wcIdToDoraTabMap.set(wcId, this);
         if (isDevVite) {
             this.webContents.loadURL(`${process.env.ELECTRON_RENDERER_URL}/index.html`);
         } else {
             this.webContents.loadFile(path.join(getElectronAppBasePath(), "frontend", "index.html"));
         }
         this.webContents.on("destroyed", () => {
-            wcIdToWaveTabMap.delete(wcId);
-            removeWaveTabView(this.waveTabId);
+            wcIdToDoraTabMap.delete(wcId);
+            removeDoraTabView(this.waveTabId);
             this.isDestroyed = true;
         });
         this.setBackgroundColor(computeBgColor(fullConfig));
@@ -226,7 +226,7 @@ export class WaveTabView extends WebContentsView {
 
     destroy() {
         console.log("destroy tab", this.waveTabId);
-        removeWaveTabView(this.waveTabId);
+        removeDoraTabView(this.waveTabId);
         if (!this.isDestroyed) {
             this.webContents?.close();
         }
@@ -235,14 +235,14 @@ export class WaveTabView extends WebContentsView {
 }
 
 let MaxCacheSize = 10;
-const wcvCache = new Map<string, WaveTabView>();
+const wcvCache = new Map<string, DoraTabView>();
 
 export function setMaxTabCacheSize(size: number) {
     console.log("setMaxTabCacheSize", size);
     MaxCacheSize = size;
 }
 
-export function getWaveTabView(waveTabId: string): WaveTabView | undefined {
+export function getDoraTabView(waveTabId: string): DoraTabView | undefined {
     const rtn = wcvCache.get(waveTabId);
     if (rtn) {
         rtn.lastUsedTs = Date.now();
@@ -262,10 +262,10 @@ function tryEvictEntry(waveTabId: string): boolean {
     if (lastUsedDiff < 1000) {
         return false;
     }
-    const ww = getWaveWindowById(tabView.waveWindowId);
+    const ww = getDoraWindowById(tabView.waveWindowId);
     if (!ww) {
         // this shouldn't happen, but if it does, just destroy the tabview
-        console.log("[error] WaveWindow not found for WaveTabView", tabView.waveTabId);
+        console.log("[error] DoraWindow not found for DoraTabView", tabView.waveTabId);
         tabView.destroy();
         return true;
     } else {
@@ -301,16 +301,16 @@ export function clearTabCache() {
 }
 
 // returns [tabview, initialized]
-export async function getOrCreateWebViewForTab(waveWindowId: string, tabId: string): Promise<[WaveTabView, boolean]> {
-    let tabView = getWaveTabView(tabId);
+export async function getOrCreateWebViewForTab(waveWindowId: string, tabId: string): Promise<[DoraTabView, boolean]> {
+    let tabView = getDoraTabView(tabId);
     if (tabView) {
         return [tabView, true];
     }
-    const fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
+    const fullConfig = await RpcApi.GetFullConfigCommand(ElectronDshClient);
     tabView = getSpareTab(fullConfig);
     tabView.waveWindowId = waveWindowId;
     tabView.lastUsedTs = Date.now();
-    setWaveTabView(tabId, tabView);
+    setDoraTabView(tabId, tabView);
     tabView.waveTabId = tabId;
     tabView.webContents.on("will-navigate", shNavHandler);
     tabView.webContents.on("will-frame-navigate", shFrameNavHandler);
@@ -357,7 +357,7 @@ export async function getOrCreateWebViewForTab(waveWindowId: string, tabId: stri
     return [tabView, false];
 }
 
-export function setWaveTabView(waveTabId: string, wcv: WaveTabView): void {
+export function setDoraTabView(waveTabId: string, wcv: DoraTabView): void {
     if (waveTabId == null) {
         return;
     }
@@ -365,23 +365,23 @@ export function setWaveTabView(waveTabId: string, wcv: WaveTabView): void {
     checkAndEvictCache();
 }
 
-function removeWaveTabView(waveTabId: string): void {
+function removeDoraTabView(waveTabId: string): void {
     if (waveTabId == null) {
         return;
     }
     wcvCache.delete(waveTabId);
 }
 
-let HotSpareTab: WaveTabView = null;
+let HotSpareTab: DoraTabView = null;
 
 export function ensureHotSpareTab(fullConfig: FullConfigType) {
     console.log("ensureHotSpareTab");
     if (HotSpareTab == null) {
-        HotSpareTab = new WaveTabView(fullConfig);
+        HotSpareTab = new DoraTabView(fullConfig);
     }
 }
 
-export function getSpareTab(fullConfig: FullConfigType): WaveTabView {
+export function getSpareTab(fullConfig: FullConfigType): DoraTabView {
     setTimeout(() => ensureHotSpareTab(fullConfig), 500);
     if (HotSpareTab != null) {
         const rtn = HotSpareTab;
@@ -390,6 +390,6 @@ export function getSpareTab(fullConfig: FullConfigType): WaveTabView {
         return rtn;
     } else {
         console.log("getSpareTab: creating new tab");
-        return new WaveTabView(fullConfig);
+        return new DoraTabView(fullConfig);
     }
 }

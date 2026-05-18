@@ -41,7 +41,7 @@ func InitBadgeStore() error {
 	return nil
 }
 
-func handleBadgeEvent(event *dps.WaveEvent) {
+func handleBadgeEvent(event *dps.DoraEvent) {
 	if event.Event != dps.Event_Badge {
 		return
 	}

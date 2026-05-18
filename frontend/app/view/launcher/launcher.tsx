@@ -59,7 +59,7 @@ export class LauncherViewModel implements ViewModel {
         return false;
     }
 
-    keyDownHandler(e: WaveKeyboardEvent): boolean {
+    keyDownHandler(e: DoraKeyboardEvent): boolean {
         if (this.gridLayout == null) {
             return;
         }

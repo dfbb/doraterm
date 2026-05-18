@@ -1,36 +1,36 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SettingsKeyAtomFnType, WaveEnv, WaveEnvSubset } from "@/app/waveenv/waveenv";
+import { SettingsKeyAtomFnType, DoraEnv, DoraEnvSubset } from "@/app/waveenv/waveenv";
 
-export type TabBarEnv = WaveEnvSubset<{
+export type TabBarEnv = DoraEnvSubset<{
     electron: {
-        createTab: WaveEnv["electron"]["createTab"];
-        closeTab: WaveEnv["electron"]["closeTab"];
-        setActiveTab: WaveEnv["electron"]["setActiveTab"];
-        showWorkspaceAppMenu: WaveEnv["electron"]["showWorkspaceAppMenu"];
-        installAppUpdate: WaveEnv["electron"]["installAppUpdate"];
+        createTab: DoraEnv["electron"]["createTab"];
+        closeTab: DoraEnv["electron"]["closeTab"];
+        setActiveTab: DoraEnv["electron"]["setActiveTab"];
+        showWorkspaceAppMenu: DoraEnv["electron"]["showWorkspaceAppMenu"];
+        installAppUpdate: DoraEnv["electron"]["installAppUpdate"];
     };
     rpc: {
-        ActivityCommand: WaveEnv["rpc"]["ActivityCommand"];
-        SetConfigCommand: WaveEnv["rpc"]["SetConfigCommand"];
-        SetMetaCommand: WaveEnv["rpc"]["SetMetaCommand"];
-        UpdateTabNameCommand: WaveEnv["rpc"]["UpdateTabNameCommand"];
-        UpdateWorkspaceTabIdsCommand: WaveEnv["rpc"]["UpdateWorkspaceTabIdsCommand"];
+        ActivityCommand: DoraEnv["rpc"]["ActivityCommand"];
+        SetConfigCommand: DoraEnv["rpc"]["SetConfigCommand"];
+        SetMetaCommand: DoraEnv["rpc"]["SetMetaCommand"];
+        UpdateTabNameCommand: DoraEnv["rpc"]["UpdateTabNameCommand"];
+        UpdateWorkspaceTabIdsCommand: DoraEnv["rpc"]["UpdateWorkspaceTabIdsCommand"];
     };
     atoms: {
-        fullConfigAtom: WaveEnv["atoms"]["fullConfigAtom"];
-        hasConfigErrors: WaveEnv["atoms"]["hasConfigErrors"];
-        staticTabId: WaveEnv["atoms"]["staticTabId"];
-        isFullScreen: WaveEnv["atoms"]["isFullScreen"];
-        zoomFactorAtom: WaveEnv["atoms"]["zoomFactorAtom"];
-        reinitVersion: WaveEnv["atoms"]["reinitVersion"];
-        updaterStatusAtom: WaveEnv["atoms"]["updaterStatusAtom"];
+        fullConfigAtom: DoraEnv["atoms"]["fullConfigAtom"];
+        hasConfigErrors: DoraEnv["atoms"]["hasConfigErrors"];
+        staticTabId: DoraEnv["atoms"]["staticTabId"];
+        isFullScreen: DoraEnv["atoms"]["isFullScreen"];
+        zoomFactorAtom: DoraEnv["atoms"]["zoomFactorAtom"];
+        reinitVersion: DoraEnv["atoms"]["reinitVersion"];
+        updaterStatusAtom: DoraEnv["atoms"]["updaterStatusAtom"];
     };
-    wos: WaveEnv["wos"];
+    wos: DoraEnv["wos"];
     getSettingsKeyAtom: SettingsKeyAtomFnType<"app:hideaibutton" | "app:tabbar" | "tab:confirmclose" | "window:showmenubar">;
-    showContextMenu: WaveEnv["showContextMenu"];
-    mockSetWaveObj: WaveEnv["mockSetWaveObj"];
-    isWindows: WaveEnv["isWindows"];
-    isMacOS: WaveEnv["isMacOS"];
+    showContextMenu: DoraEnv["showContextMenu"];
+    mockSetDoraObj: DoraEnv["mockSetDoraObj"];
+    isWindows: DoraEnv["isWindows"];
+    isMacOS: DoraEnv["isMacOS"];
 }>;

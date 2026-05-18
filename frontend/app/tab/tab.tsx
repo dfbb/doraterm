@@ -5,7 +5,7 @@ import { getTabBadgeAtom } from "@/app/store/badge";
 import { refocusNode } from "@/app/store/global";
 import { getTabModelByTabId } from "@/app/store/tab-model";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
-import { WaveEnv, WaveEnvSubset, useWaveEnv } from "@/app/waveenv/waveenv";
+import { DoraEnv, DoraEnvSubset, useDoraEnv } from "@/app/waveenv/waveenv";
 import { Button } from "@/element/button";
 import { validateCssColor } from "@/util/color-validator";
 import { fireAndForget } from "@/util/util";
@@ -17,19 +17,19 @@ import { TabBadges } from "./tabbadges";
 import "./tab.scss";
 import { buildTabContextMenu } from "./tabcontextmenu";
 
-export type TabEnv = WaveEnvSubset<{
+export type TabEnv = DoraEnvSubset<{
     rpc: {
-        ActivityCommand: WaveEnv["rpc"]["ActivityCommand"];
-        SetConfigCommand: WaveEnv["rpc"]["SetConfigCommand"];
-        SetMetaCommand: WaveEnv["rpc"]["SetMetaCommand"];
-        UpdateTabNameCommand: WaveEnv["rpc"]["UpdateTabNameCommand"];
+        ActivityCommand: DoraEnv["rpc"]["ActivityCommand"];
+        SetConfigCommand: DoraEnv["rpc"]["SetConfigCommand"];
+        SetMetaCommand: DoraEnv["rpc"]["SetMetaCommand"];
+        UpdateTabNameCommand: DoraEnv["rpc"]["UpdateTabNameCommand"];
     };
     atoms: {
-        fullConfigAtom: WaveEnv["atoms"]["fullConfigAtom"];
+        fullConfigAtom: DoraEnv["atoms"]["fullConfigAtom"];
     };
-    wos: WaveEnv["wos"];
-    getSettingsKeyAtom: WaveEnv["getSettingsKeyAtom"];
-    showContextMenu: WaveEnv["showContextMenu"];
+    wos: DoraEnv["wos"];
+    getSettingsKeyAtom: DoraEnv["getSettingsKeyAtom"];
+    showContextMenu: DoraEnv["showContextMenu"];
 }>;
 
 interface TabVProps {
@@ -235,8 +235,8 @@ interface TabProps {
 
 const TabInner = forwardRef<HTMLDivElement, TabProps>((props, ref) => {
     const { id, active, showDivider, isDragging, tabWidth, isNew, onLoaded, onSelect, onClose, onDragStart } = props;
-    const env = useWaveEnv<TabEnv>();
-    const [tabData, _] = env.wos.useWaveObjectValue<Tab>(makeORef("tab", id));
+    const env = useDoraEnv<TabEnv>();
+    const [tabData, _] = env.wos.useDoraObjectValue<Tab>(makeORef("tab", id));
     const badges = useAtomValue(getTabBadgeAtom(id, env));
 
     const rawFlagColor = tabData?.meta?.["tab:flagcolor"];

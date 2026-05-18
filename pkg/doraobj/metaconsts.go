@@ -102,11 +102,11 @@ const (
 	MetaKey_LayoutVTabBarWidth               = "layout:vtabbarwidth"
 	MetaKey_LayoutWidgetsVisible             = "layout:widgetsvisible"
 
-	MetaKey_WaveAiPanelOpen                  = "waveai:panelopen"
-	MetaKey_WaveAiPanelWidth                 = "waveai:panelwidth"
-	MetaKey_WaveAiModel                      = "waveai:model"
-	MetaKey_WaveAiChatId                     = "waveai:chatid"
-	MetaKey_WaveAiWidgetContext              = "waveai:widgetcontext"
+	MetaKey_DoraAiPanelOpen                  = "waveai:panelopen"
+	MetaKey_DoraAiPanelWidth                 = "waveai:panelwidth"
+	MetaKey_DoraAiModel                      = "waveai:model"
+	MetaKey_DoraAiChatId                     = "waveai:chatid"
+	MetaKey_DoraAiWidgetContext              = "waveai:widgetcontext"
 
 	MetaKey_TermClear                        = "term:*"
 	MetaKey_TermFontSize                     = "term:fontsize"

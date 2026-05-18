@@ -11,15 +11,15 @@ import (
 	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
-func TestGenerateWshClientApiMethodCall_MultiArg(t *testing.T) {
-	methodDecl := &dshrpc.WshRpcMethodDecl{
+func TestGenerateDshClientApiMethodCall_MultiArg(t *testing.T) {
+	methodDecl := &dshrpc.DshRpcMethodDecl{
 		Command:          "test",
 		CommandType:      dshrpc.RpcType_Call,
 		MethodName:       "TestCommand",
 		CommandDataTypes: []reflect.Type{reflect.TypeOf(""), reflect.TypeOf(0)},
 	}
-	out := GenerateWshClientApiMethod(methodDecl, map[reflect.Type]string{})
-	if !strings.Contains(out, "TestCommand(client: WshClient, arg1: string, arg2: number, opts?: RpcOpts): Promise<void> {") {
+	out := GenerateDshClientApiMethod(methodDecl, map[reflect.Type]string{})
+	if !strings.Contains(out, "TestCommand(client: DshClient, arg1: string, arg2: number, opts?: RpcOpts): Promise<void> {") {
 		t.Fatalf("generated method missing multi-arg signature:\n%s", out)
 	}
 	if !strings.Contains(out, "return client.wshRpcCall(\"test\", { args: [arg1, arg2] }, opts);") {

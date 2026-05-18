@@ -197,7 +197,7 @@ function Collapsible({ title, children, defaultOpen = false }) {
     );
 }
 
-interface WaveStreamdownProps {
+interface DoraStreamdownProps {
     text: string;
     parseIncompleteMarkdown?: boolean;
     className?: string;
@@ -205,13 +205,13 @@ interface WaveStreamdownProps {
     codeBlockMaxWidthAtom?: Atom<number>;
 }
 
-export const WaveStreamdown = ({
+export const DoraStreamdown = ({
     text,
     parseIncompleteMarkdown,
     className,
     onClickExecute,
     codeBlockMaxWidthAtom,
-}: WaveStreamdownProps) => {
+}: DoraStreamdownProps) => {
     const components = useMemo(
         () => ({
             code: Code,

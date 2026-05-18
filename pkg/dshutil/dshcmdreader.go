@@ -34,7 +34,7 @@ type PtyBuffer struct {
 
 // closes messageCh when input is closed (or error)
 func MakePtyBuffer(oscPrefix string, input io.Reader, messageCh chan baseds.RpcInputChType) *PtyBuffer {
-	if len(oscPrefix) != WaveOSCPrefixLen {
+	if len(oscPrefix) != DoraOSCPrefixLen {
 		panic(fmt.Sprintf("invalid OSC prefix length: %d", len(oscPrefix)))
 	}
 	b := &PtyBuffer{
@@ -99,7 +99,7 @@ func (b *PtyBuffer) processData(data []byte) {
 			} else if ch == BEL || ch == ST {
 				// terminates the escpae sequence (is a valid Wave OSC command)
 				b.EscMode = Mode_Normal
-				waveEscSeq := b.EscSeqBuf[WaveOSCPrefixLen:]
+				waveEscSeq := b.EscSeqBuf[DoraOSCPrefixLen:]
 				b.EscSeqBuf = nil
 				b.processWaveEscSeq(waveEscSeq)
 			} else {

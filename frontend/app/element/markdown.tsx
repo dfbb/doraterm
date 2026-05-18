@@ -211,12 +211,12 @@ const MarkdownSource = ({
     return <source srcSet={resolvedSrcSet} media={props.media} />;
 };
 
-interface WaveBlockProps {
+interface DoraBlockProps {
     blockkey: string;
     blockmap: Map<string, MarkdownContentBlockType>;
 }
 
-function WaveBlock(props: WaveBlockProps) {
+function DoraBlock(props: DoraBlockProps) {
     const { blockkey, blockmap } = props;
     const block = blockmap.get(blockkey);
     if (block == null) {
@@ -367,7 +367,7 @@ const Markdown = ({
             <CodeBlock children={props.children} onClickExecute={onClickExecute} />
         ),
     };
-    markdownComponents["waveblock"] = (props: any) => <WaveBlock {...props} blockmap={contentBlocksMap} />;
+    markdownComponents["waveblock"] = (props: any) => <DoraBlock {...props} blockmap={contentBlocksMap} />;
     markdownComponents["mermaidblock"] = (props: any) => {
         const getTextContent = (children: any): string => {
             if (typeof children === "string") {

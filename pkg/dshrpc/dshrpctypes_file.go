@@ -11,7 +11,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/ijson"
 )
 
-type WshRpcFileInterface interface {
+type DshRpcFileInterface interface {
 	FileMkdirCommand(ctx context.Context, data FileData) error
 	FileCreateCommand(ctx context.Context, data FileData) error
 	FileDeleteCommand(ctx context.Context, data CommandDeleteFileData) error
@@ -27,7 +27,7 @@ type WshRpcFileInterface interface {
 	FileStreamCommand(ctx context.Context, data CommandFileStreamData) (*FileInfo, error)
 }
 
-type WshRpcRemoteFileInterface interface {
+type DshRpcRemoteFileInterface interface {
 	RemoteFileStreamCommand(ctx context.Context, data CommandRemoteFileStreamData) (*FileInfo, error)
 	RemoteFileCopyCommand(ctx context.Context, data CommandFileCopyData) (bool, error)
 	RemoteListEntriesCommand(ctx context.Context, data CommandRemoteListEntriesData) chan RespOrErrorUnion[CommandRemoteListEntriesRtnData]

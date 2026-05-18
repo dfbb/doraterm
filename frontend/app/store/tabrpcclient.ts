@@ -4,10 +4,10 @@
 import { getApi, getBlockComponentModel, getConnStatusAtom, globalStore, WOS } from "@/app/store/global";
 import type { TermViewModel } from "@/app/view/term/term-model";
 import { getLayoutModelForStaticTab } from "@/layout/index";
-import { RpcResponseHelper, WshClient } from "./wshclient";
+import { RpcResponseHelper, DshClient } from "./wshclient";
 import { RpcApi } from "./wshclientapi";
 
-export class TabClient extends WshClient {
+export class TabClient extends DshClient {
     constructor(routeId: string) {
         super(routeId);
     }
@@ -86,7 +86,7 @@ export class TabClient extends WshClient {
             return null;
         }
 
-        const blockAtom = WOS.getWaveObjectAtom<Block>(WOS.makeORef("block", blockId));
+        const blockAtom = WOS.getDoraObjectAtom<Block>(WOS.makeORef("block", blockId));
         const blockData = globalStore.get(blockAtom);
 
         if (!blockData) {

@@ -1,49 +1,49 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { WshClient } from "@/app/store/wshclient";
+import type { DshClient } from "@/app/store/wshclient";
 import { RpcApi } from "@/app/store/wshclientapi";
 import { isPreviewWindow } from "@/app/store/windowtype";
 import { isBlank } from "@/util/util";
 import { Subject } from "rxjs";
 
-let WpsRpcClient: WshClient;
+let WpsRpcClient: DshClient;
 
-function setWpsRpcClient(client: WshClient) {
+function setWpsRpcClient(client: DshClient) {
     WpsRpcClient = client;
 }
 
-type WaveEventSubject<T extends WaveEventName = WaveEventName> = {
-    handler: (event: Extract<WaveEvent, { event: T }>) => void;
+type DoraEventSubject<T extends DoraEventName = DoraEventName> = {
+    handler: (event: Extract<DoraEvent, { event: T }>) => void;
     scope?: string;
 };
 
-type WaveEventSubjectContainer = {
-    handler: (event: WaveEvent) => void;
+type DoraEventSubjectContainer = {
+    handler: (event: DoraEvent) => void;
     scope?: string;
     id: string;
 };
 
-type WaveEventSubscription<T extends WaveEventName = WaveEventName> = WaveEventSubject<T> & {
+type DoraEventSubscription<T extends DoraEventName = DoraEventName> = DoraEventSubject<T> & {
     eventType: T;
 };
 
-type WaveEventUnsubscribe = {
+type DoraEventUnsubscribe = {
     id: string;
     eventType: string;
 };
 
 // key is "eventType" or "eventType|oref"
 const fileSubjects = new Map<string, SubjectWithRef<WSFileEventData>>();
-const waveEventSubjects = new Map<string, WaveEventSubjectContainer[]>();
+const waveEventSubjects = new Map<string, DoraEventSubjectContainer[]>();
 
 function wpsReconnectHandler() {
     for (const eventType of waveEventSubjects.keys()) {
-        updateWaveEventSub(eventType);
+        updateDoraEventSub(eventType);
     }
 }
 
-function updateWaveEventSub(eventType: string) {
+function updateDoraEventSub(eventType: string) {
     if (isPreviewWindow()) {
         return;
     }
@@ -64,7 +64,7 @@ function updateWaveEventSub(eventType: string) {
     RpcApi.EventSubCommand(WpsRpcClient, subreq, { noresponse: true });
 }
 
-function waveEventSubscribeSingle<T extends WaveEventName>(subscription: WaveEventSubscription<T>): () => void {
+function waveEventSubscribeSingle<T extends DoraEventName>(subscription: DoraEventSubscription<T>): () => void {
     // console.log("waveEventSubscribeSingle", subscription);
     if (subscription.handler == null) {
         return () => {};
@@ -75,17 +75,17 @@ function waveEventSubscribeSingle<T extends WaveEventName>(subscription: WaveEve
         subjects = [];
         waveEventSubjects.set(subscription.eventType, subjects);
     }
-    const subcont: WaveEventSubjectContainer = {
+    const subcont: DoraEventSubjectContainer = {
         id,
-        handler: subscription.handler as (event: WaveEvent) => void,
+        handler: subscription.handler as (event: DoraEvent) => void,
         scope: subscription.scope,
     };
     subjects.push(subcont);
-    updateWaveEventSub(subscription.eventType);
+    updateDoraEventSub(subscription.eventType);
     return () => waveEventUnsubscribe({ id, eventType: subscription.eventType });
 }
 
-function waveEventUnsubscribe(...unsubscribes: WaveEventUnsubscribe[]) {
+function waveEventUnsubscribe(...unsubscribes: DoraEventUnsubscribe[]) {
     const eventTypeSet = new Set<string>();
     for (const unsubscribe of unsubscribes) {
         const subjects = waveEventSubjects.get(unsubscribe.eventType);
@@ -104,7 +104,7 @@ function waveEventUnsubscribe(...unsubscribes: WaveEventUnsubscribe[]) {
     }
 
     for (const eventType of eventTypeSet) {
-        updateWaveEventSub(eventType);
+        updateDoraEventSub(eventType);
     }
 }
 
@@ -127,8 +127,8 @@ function getFileSubject(zoneId: string, fileName: string): SubjectWithRef<WSFile
     return subject;
 }
 
-function handleWaveEvent(event: WaveEvent) {
-    // console.log("handleWaveEvent", event);
+function handleDoraEvent(event: DoraEvent) {
+    // console.log("handleDoraEvent", event);
     const subjects = waveEventSubjects.get(event.event);
     if (subjects == null) {
         return;
@@ -149,7 +149,7 @@ function handleWaveEvent(event: WaveEvent) {
 
 export {
     getFileSubject,
-    handleWaveEvent,
+    handleDoraEvent,
     setWpsRpcClient,
     waveEventSubscribeSingle,
     waveEventUnsubscribe,

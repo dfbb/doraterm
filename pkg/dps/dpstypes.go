@@ -10,7 +10,7 @@ import (
 // IMPORTANT: When adding a new event constant, you MUST also:
 //  1. Add a "// type: <TypeName>" comment (use "none" if no data is sent)
 //  2. Add the constant to AllEvents below
-//  3. Add an entry to WaveEventDataTypes in pkg/tsgen/tsgenevent.go
+//  3. Add an entry to DoraEventDataTypes in pkg/tsgen/tsgenevent.go
 //     - Use reflect.TypeOf(YourType{}) for value types
 //     - Use reflect.TypeOf((*YourType)(nil)) for pointer types
 //     - Use nil if no data is sent for the event
@@ -19,7 +19,7 @@ const (
 	Event_ConnChange          = "connchange"           // type: dshrpc.ConnStatus
 	Event_SysInfo             = "sysinfo"              // type: dshrpc.TimeSeriesData
 	Event_ControllerStatus    = "controllerstatus"     // type: *blockcontroller.BlockControllerRuntimeStatus
-	Event_WaveObjUpdate       = "waveobj:update"       // type: doraobj.WaveObjUpdate
+	Event_DoraObjUpdate       = "waveobj:update"       // type: doraobj.DoraObjUpdate
 	Event_BlockFile           = "blockfile"            // type: *WSFileEventData
 	Event_Config              = "config"               // type: dconfig.WatcherUpdate
 	Event_UserInput           = "userinput"            // type: *userinput.UserInputRequest
@@ -35,7 +35,7 @@ var AllEvents []string = []string{
 	Event_ConnChange,
 	Event_SysInfo,
 	Event_ControllerStatus,
-	Event_WaveObjUpdate,
+	Event_DoraObjUpdate,
 	Event_BlockFile,
 	Event_Config,
 	Event_UserInput,
@@ -46,7 +46,7 @@ var AllEvents []string = []string{
 	Event_Badge,
 }
 
-type WaveEvent struct {
+type DoraEvent struct {
 	Event   string   `json:"event"`
 	Scopes  []string `json:"scopes,omitempty"`
 	Sender  string   `json:"sender,omitempty"`
@@ -54,7 +54,7 @@ type WaveEvent struct {
 	Data    any      `json:"data,omitempty"`
 }
 
-func (e WaveEvent) HasScope(scope string) bool {
+func (e DoraEvent) HasScope(scope string) bool {
 	return utilfn.ContainsStr(e.Scopes, scope)
 }
 

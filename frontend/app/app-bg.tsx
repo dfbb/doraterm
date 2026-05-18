@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { MetaKeyAtomFnType, useWaveEnv, WaveEnv, WaveEnvSubset } from "@/app/waveenv/waveenv";
+import { MetaKeyAtomFnType, useDoraEnv, DoraEnv, DoraEnvSubset } from "@/app/waveenv/waveenv";
 import { PLATFORM, PlatformMacOS } from "@/util/platformutil";
 import { computeBgStyleFromMeta } from "@/util/waveutil";
 import useResizeObserver from "@react-hook/resize-observer";
@@ -9,18 +9,18 @@ import { useAtomValue } from "jotai";
 import { CSSProperties, useCallback, useLayoutEffect, useRef } from "react";
 import { debounce } from "throttle-debounce";
 import { atoms, getApi, WOS } from "./store/global";
-import { useWaveObjectValue } from "./store/wos";
+import { useDoraObjectValue } from "./store/wos";
 
-type AppBgEnv = WaveEnvSubset<{
+type AppBgEnv = DoraEnvSubset<{
     getTabMetaKeyAtom: MetaKeyAtomFnType<"tab:background">;
-    getConfigBackgroundAtom: WaveEnv["getConfigBackgroundAtom"];
+    getConfigBackgroundAtom: DoraEnv["getConfigBackgroundAtom"];
 }>;
 
 export function AppBackground() {
     const bgRef = useRef<HTMLDivElement>(null);
     const tabId = useAtomValue(atoms.staticTabId);
-    const [tabData] = useWaveObjectValue<Tab>(WOS.makeORef("tab", tabId));
-    const env = useWaveEnv<AppBgEnv>();
+    const [tabData] = useDoraObjectValue<Tab>(WOS.makeORef("tab", tabId));
+    const env = useDoraEnv<AppBgEnv>();
     const tabBg = useAtomValue(env.getTabMetaKeyAtom(tabId, "tab:background"));
     const configBg = useAtomValue(env.getConfigBackgroundAtom(tabBg));
     const resolvedMeta: Omit<BackgroundConfigType, "display:name"> = tabBg && configBg ? configBg : tabData?.meta;

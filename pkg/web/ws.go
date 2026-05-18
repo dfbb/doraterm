@@ -219,7 +219,7 @@ func WriteLoop(conn *websocket.Conn, outputCh chan any, closeCh chan any, routeI
 	}
 }
 
-func registerConn(wsConnId string, stableId string, wproxy *dshutil.WshRpcProxy) {
+func registerConn(wsConnId string, stableId string, wproxy *dshutil.DshRpcProxy) {
 	GlobalLock.Lock()
 	defer GlobalLock.Unlock()
 	curConnInfo := RouteToConnMap[stableId]

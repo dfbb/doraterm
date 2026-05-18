@@ -4,9 +4,9 @@
 import { makeDefaultConnStatus } from "@/app/store/global";
 import { globalStore } from "@/app/store/jotaiStore";
 import { AllServiceTypes } from "@/app/store/services";
-import { handleWaveEvent } from "@/app/store/wps";
+import { handleDoraEvent } from "@/app/store/wps";
 import { RpcApiType } from "@/app/store/wshclientapi";
-import { WaveEnv } from "@/app/waveenv/waveenv";
+import { DoraEnv } from "@/app/waveenv/waveenv";
 import { PlatformLinux, PlatformMacOS, PlatformWindows } from "@/util/platformutil";
 import { NullAtom } from "@/util/util";
 import { Atom, atom, PrimitiveAtom, useAtomValue } from "jotai";
@@ -23,7 +23,7 @@ export const PreviewClientId = crypto.randomUUID();
 // What works "out of the box" in the mock environment (no MockEnv overrides needed):
 //
 // RPC calls (handled in makeMockRpc):
-//   - rpc.EventPublishCommand           -- dispatches to handleWaveEvent(); works when the subscriber
+//   - rpc.EventPublishCommand           -- dispatches to handleDoraEvent(); works when the subscriber
 //                                          is purely FE-based (registered via WPS on the frontend)
 //   - rpc.GetMetaCommand                -- reads .meta from the mock WOS atom for the given oref
 //   - rpc.GetSecretsCommand             -- reads secrets from an in-memory mock secret store
@@ -33,8 +33,8 @@ export const PreviewClientId = crypto.randomUUID();
 //   - rpc.SetMetaCommand                -- writes .meta to the mock WOS atom (null values delete keys)
 //   - rpc.SetConfigCommand              -- merges settings into fullConfigAtom (null values delete keys)
 //   - rpc.SetSecretsCommand             -- writes/deletes secrets in the in-memory mock secret store
-//   - rpc.UpdateTabNameCommand          -- updates .name on the Tab WaveObj in the mock WOS
-//   - rpc.UpdateWorkspaceTabIdsCommand  -- updates .tabids on the Workspace WaveObj in the mock WOS
+//   - rpc.UpdateTabNameCommand          -- updates .name on the Tab DoraObj in the mock WOS
+//   - rpc.UpdateWorkspaceTabIdsCommand  -- updates .tabids on the Workspace DoraObj in the mock WOS
 //
 // Any other RPC call falls through to a console.log and resolves null.
 // Override specific calls via MockEnv.rpc (keys are Command method names, e.g. "GetMetaCommand").
@@ -72,13 +72,13 @@ export type MockEnv = {
     services?: ServiceOverrides;
     atoms?: Partial<GlobalAtomsType>;
     electron?: Partial<ElectronApi>;
-    createBlock?: WaveEnv["createBlock"];
-    showContextMenu?: WaveEnv["showContextMenu"];
+    createBlock?: DoraEnv["createBlock"];
+    showContextMenu?: DoraEnv["showContextMenu"];
     connStatus?: Record<string, ConnStatus>;
-    mockWaveObjs?: Record<string, WaveObj>;
+    mockDoraObjs?: Record<string, DoraObj>;
 };
 
-export type MockWaveEnv = WaveEnv & {
+export type MockDoraEnv = DoraEnv & {
     mockEnv: MockEnv;
     addRpcOverride: <K extends keyof RpcOverrides>(command: K, handler: RpcHandlerType) => void;
     addRpcStreamOverride: <K extends keyof RpcStreamOverrides>(command: K, handler: RpcStreamHandlerType) => void;
@@ -118,11 +118,11 @@ export function mergeMockEnv(base: MockEnv, overrides: MockEnv): MockEnv {
         createBlock: overrides.createBlock ?? base.createBlock,
         showContextMenu: overrides.showContextMenu ?? base.showContextMenu,
         connStatus: mergeRecords(base.connStatus, overrides.connStatus),
-        mockWaveObjs: mergeRecords(base.mockWaveObjs, overrides.mockWaveObjs),
+        mockDoraObjs: mergeRecords(base.mockDoraObjs, overrides.mockDoraObjs),
     };
 }
 
-function makeMockSettingsKeyAtom(settingsAtom: Atom<SettingsType>): WaveEnv["getSettingsKeyAtom"] {
+function makeMockSettingsKeyAtom(settingsAtom: Atom<SettingsType>): DoraEnv["getSettingsKeyAtom"] {
     const keyAtomCache = new Map<keyof SettingsType, Atom<any>>();
     return <T extends keyof SettingsType>(key: T) => {
         if (!keyAtomCache.has(key)) {
@@ -139,7 +139,7 @@ function makeMockGlobalAtoms(
     settingsOverrides: Partial<SettingsType>,
     atomOverrides: Partial<GlobalAtomsType>,
     tabId: string,
-    getWaveObjectAtom: <T extends WaveObj>(oref: string) => PrimitiveAtom<T>
+    getDoraObjectAtom: <T extends DoraObj>(oref: string) => PrimitiveAtom<T>
 ): GlobalAtomsType {
     let fullConfig = DefaultFullConfig;
     if (settingsOverrides) {
@@ -156,7 +156,7 @@ function makeMockGlobalAtoms(
         if (wsId == null) {
             return null;
         }
-        return get(getWaveObjectAtom<Workspace>("workspace:" + wsId));
+        return get(getDoraObjectAtom<Workspace>("workspace:" + wsId));
     });
     const defaults: GlobalAtomsType = {
         builderId: atom(""),
@@ -193,8 +193,8 @@ function makeMockGlobalAtoms(
 }
 
 type MockWosFns = {
-    getWaveObjectAtom: <T extends WaveObj>(oref: string) => PrimitiveAtom<T>;
-    mockSetWaveObj: <T extends WaveObj>(oref: string, obj: T) => void;
+    getDoraObjectAtom: <T extends DoraObj>(oref: string) => PrimitiveAtom<T>;
+    mockSetDoraObj: <T extends DoraObj>(oref: string, obj: T) => void;
     fullConfigAtom: PrimitiveAtom<FullConfigType>;
     platform: NodeJS.Platform;
 };
@@ -217,19 +217,19 @@ export function makeMockRpc(
     const setStreamHandler = (command: string, fn: (...args: any[]) => AsyncGenerator<any, void, boolean>) => {
         streamDispatchMap.set(command, fn);
     };
-    setCallHandler("eventpublish", async (_client, data: WaveEvent) => {
+    setCallHandler("eventpublish", async (_client, data: DoraEvent) => {
         console.log("[mock eventpublish]", data);
-        handleWaveEvent(data);
+        handleDoraEvent(data);
         return null;
     });
     setCallHandler("getmeta", async (_client, data: CommandGetMetaData) => {
-        const objAtom = wos.getWaveObjectAtom(data.oref);
-        const current = globalStore.get(objAtom) as WaveObj & { meta?: MetaType };
+        const objAtom = wos.getDoraObjectAtom(data.oref);
+        const current = globalStore.get(objAtom) as DoraObj & { meta?: MetaType };
         return current?.meta ?? {};
     });
     setCallHandler("setmeta", async (_client, data: CommandSetMetaData) => {
-        const objAtom = wos.getWaveObjectAtom(data.oref);
-        const current = globalStore.get(objAtom) as WaveObj & { meta?: MetaType };
+        const objAtom = wos.getDoraObjectAtom(data.oref);
+        const current = globalStore.get(objAtom) as DoraObj & { meta?: MetaType };
         const updatedMeta = { ...(current?.meta ?? {}) };
         for (const [key, value] of Object.entries(data.meta)) {
             if (value === null) {
@@ -239,16 +239,16 @@ export function makeMockRpc(
             }
         }
         const updated = { ...current, meta: updatedMeta };
-        wos.mockSetWaveObj(data.oref, updated);
+        wos.mockSetDoraObj(data.oref, updated);
         return null;
     });
     setCallHandler("updatetabname", async (_client, data: { args: [string, string] }) => {
         const [tabId, newName] = data.args;
         const tabORef = "tab:" + tabId;
-        const objAtom = wos.getWaveObjectAtom(tabORef);
+        const objAtom = wos.getDoraObjectAtom(tabORef);
         const current = globalStore.get(objAtom) as Tab;
         const updated = { ...current, name: newName };
-        wos.mockSetWaveObj(tabORef, updated);
+        wos.mockSetDoraObj(tabORef, updated);
         return null;
     });
     setCallHandler("setconfig", async (_client, data: SettingsType) => {
@@ -296,10 +296,10 @@ export function makeMockRpc(
     setCallHandler("updateworkspacetabids", async (_client, data: { args: [string, string[]] }) => {
         const [workspaceId, tabIds] = data.args;
         const wsORef = "workspace:" + workspaceId;
-        const objAtom = wos.getWaveObjectAtom(wsORef);
+        const objAtom = wos.getDoraObjectAtom(wsORef);
         const current = globalStore.get(objAtom) as Workspace;
         const updated = { ...current, tabids: tabIds };
-        wos.mockSetWaveObj(wsORef, updated);
+        wos.mockSetDoraObj(wsORef, updated);
         return null;
     });
     setCallHandler("fileinfo", async (_client, data: FileData) => DefaultMockFilesystem.fileInfo(data));
@@ -323,7 +323,7 @@ export function makeMockRpc(
     }
     const rpc = new RpcApiType();
     rpc.setMockRpcClient({
-        mockWshRpcCall(_client, command, data, _opts) {
+        mockDshRpcCall(_client, command, data, _opts) {
             const fn = callDispatchMap.get(command);
             if (fn) {
                 return fn(_client, data, _opts);
@@ -331,7 +331,7 @@ export function makeMockRpc(
             console.log("[mock rpc call]", command, data);
             return Promise.resolve(null);
         },
-        async *mockWshRpcStream(_client, command, data, _opts) {
+        async *mockDshRpcStream(_client, command, data, _opts) {
             const streamFn = streamDispatchMap.get(command);
             if (streamFn) {
                 yield* streamFn(_client, data, _opts);
@@ -359,16 +359,16 @@ export function makeMockRpc(
     };
 }
 
-export function applyMockEnvOverrides(env: WaveEnv, newOverrides: MockEnv): MockWaveEnv {
-    const existing = (env as MockWaveEnv).mockEnv;
+export function applyMockEnvOverrides(env: DoraEnv, newOverrides: MockEnv): MockDoraEnv {
+    const existing = (env as MockDoraEnv).mockEnv;
     const merged = existing != null ? mergeMockEnv(existing, newOverrides) : newOverrides;
-    return makeMockWaveEnv(merged);
+    return makeMockDoraEnv(merged);
 }
 
-export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
+export function makeMockDoraEnv(mockEnv?: MockEnv): MockDoraEnv {
     const overrides: MockEnv = mockEnv ?? {};
     const tabId = overrides.tabId ?? PreviewTabId;
-    const defaultMockWaveObjs: Record<string, WaveObj> = {
+    const defaultMockDoraObjs: Record<string, DoraObj> = {
         [`workspace:${PreviewWorkspaceId}`]: {
             otype: "workspace",
             oid: PreviewWorkspaceId,
@@ -395,7 +395,7 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
     const mergedOverrides: MockEnv = {
         ...overrides,
         tabId,
-        mockWaveObjs: { ...defaultMockWaveObjs, ...(overrides.mockWaveObjs ?? {}) },
+        mockDoraObjs: { ...defaultMockDoraObjs, ...(overrides.mockDoraObjs ?? {}) },
         atoms: { ...defaultAtoms, ...(overrides.atoms ?? {}) },
     };
     const platform = mergedOverrides.platform ?? PlatformMacOS;
@@ -405,9 +405,9 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
     const orefMetaKeyAtomCache = new Map<string, Atom<any>>();
     const connConfigKeyAtomCache = new Map<string, Atom<any>>();
     const configBackgroundAtomCache = new Map<string, Atom<BackgroundConfigType>>();
-    const getWaveObjectAtom = <T extends WaveObj>(oref: string): PrimitiveAtom<T> => {
+    const getDoraObjectAtom = <T extends DoraObj>(oref: string): PrimitiveAtom<T> => {
         if (!waveObjectValueAtomCache.has(oref)) {
-            const obj = (mergedOverrides.mockWaveObjs?.[oref] ?? null) as T;
+            const obj = (mergedOverrides.mockDoraObjs?.[oref] ?? null) as T;
             waveObjectValueAtomCache.set(oref, atom(obj) as PrimitiveAtom<T>);
         }
         return waveObjectValueAtomCache.get(oref) as PrimitiveAtom<T>;
@@ -416,7 +416,7 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
         mergedOverrides.settings,
         mergedOverrides.atoms,
         mergedOverrides.tabId,
-        getWaveObjectAtom
+        getDoraObjectAtom
     );
     const localHostDisplayNameAtom = atom<string>((get) => {
         const configValue = get(atoms.settingsAtom)?.["conn:localhostdisplayname"];
@@ -426,12 +426,12 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
         return "user@localhost";
     });
     const mockWosFns: MockWosFns = {
-        getWaveObjectAtom,
+        getDoraObjectAtom,
         fullConfigAtom: atoms.fullConfigAtom,
         platform,
-        mockSetWaveObj: <T extends WaveObj>(oref: string, obj: T) => {
+        mockSetDoraObj: <T extends DoraObj>(oref: string, obj: T) => {
             if (!waveObjectValueAtomCache.has(oref)) {
-                waveObjectValueAtomCache.set(oref, atom(null as WaveObj));
+                waveObjectValueAtomCache.set(oref, atom(null as DoraObj));
             }
             globalStore.set(waveObjectValueAtomCache.get(oref), obj);
         },
@@ -470,12 +470,12 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
                     version: 1,
                     meta: blockDef.meta ?? {},
                 };
-                mockWosFns.mockSetWaveObj(`block:${newBlockId}`, newBlock);
+                mockWosFns.mockSetDoraObj(`block:${newBlockId}`, newBlock);
                 const tabORef = `tab:${tabId}`;
-                const tabAtom = getWaveObjectAtom<Tab>(tabORef);
+                const tabAtom = getDoraObjectAtom<Tab>(tabORef);
                 const currentTab = globalStore.get(tabAtom);
                 if (currentTab != null) {
-                    mockWosFns.mockSetWaveObj(tabORef, {
+                    mockWosFns.mockSetDoraObj(tabORef, {
                         ...currentTab,
                         blockids: [...(currentTab.blockids ?? []), newBlockId],
                     });
@@ -494,26 +494,26 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
             return connStatusAtomCache.get(conn);
         },
         wos: {
-            getWaveObjectAtom: mockWosFns.getWaveObjectAtom,
-            getWaveObjectLoadingAtom: (oref: string) => {
+            getDoraObjectAtom: mockWosFns.getDoraObjectAtom,
+            getDoraObjectLoadingAtom: (oref: string) => {
                 const cacheKey = oref + ":loading";
                 if (!waveObjectDerivedAtomCache.has(cacheKey)) {
                     waveObjectDerivedAtomCache.set(cacheKey, atom(false));
                 }
                 return waveObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
             },
-            isWaveObjectNullAtom: (oref: string) => {
+            isDoraObjectNullAtom: (oref: string) => {
                 const cacheKey = oref + ":isnull";
                 if (!waveObjectDerivedAtomCache.has(cacheKey)) {
                     waveObjectDerivedAtomCache.set(
                         cacheKey,
-                        atom((get) => get(env.wos.getWaveObjectAtom(oref)) == null)
+                        atom((get) => get(env.wos.getDoraObjectAtom(oref)) == null)
                     );
                 }
                 return waveObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
             },
-            useWaveObjectValue: <T extends WaveObj>(oref: string): [T, boolean] => {
-                const objAtom = env.wos.getWaveObjectAtom<T>(oref);
+            useDoraObjectValue: <T extends DoraObj>(oref: string): [T, boolean] => {
+                const objAtom = env.wos.getDoraObjectAtom<T>(oref);
                 return [useAtomValue(objAtom), false];
             },
         },
@@ -525,7 +525,7 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
             const cacheKey = oref + "#meta-" + key;
             if (!orefMetaKeyAtomCache.has(cacheKey)) {
                 const metaAtom = atom<MetaType[T]>((get) => {
-                    const blockAtom = env.wos.getWaveObjectAtom<Block>(oref);
+                    const blockAtom = env.wos.getDoraObjectAtom<Block>(oref);
                     const blockData = get(blockAtom);
                     return blockData?.meta?.[key] as MetaType[T];
                 });
@@ -541,7 +541,7 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
             const cacheKey = oref + "#meta-" + key;
             if (!orefMetaKeyAtomCache.has(cacheKey)) {
                 const metaAtom = atom<MetaType[T]>((get) => {
-                    const tabAtom = env.wos.getWaveObjectAtom<Tab>(oref);
+                    const tabAtom = env.wos.getDoraObjectAtom<Tab>(oref);
                     const tabData = get(tabAtom);
                     return tabData?.meta?.[key] as MetaType[T];
                 });
@@ -582,7 +582,7 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
             console.log("[mock callBackendService]", service, method, args, noUIContext);
             return Promise.resolve(null);
         },
-        mockSetWaveObj: mockWosFns.mockSetWaveObj,
+        mockSetDoraObj: mockWosFns.mockSetDoraObj,
         mockModels: new Map<any, any>(),
         addRpcOverride: <K extends keyof RpcOverrides>(command: K, handler: RpcHandlerType) => {
             setRpcHandler(command as string, handler);
@@ -590,7 +590,7 @@ export function makeMockWaveEnv(mockEnv?: MockEnv): MockWaveEnv {
         addRpcStreamOverride: <K extends keyof RpcStreamOverrides>(command: K, handler: RpcStreamHandlerType) => {
             setRpcStreamHandler(command as string, handler);
         },
-    } as MockWaveEnv;
+    } as MockDoraEnv;
     env.services = Object.fromEntries(
         Object.entries(AllServiceTypes).map(([key, ServiceClass]) => [key, new ServiceClass(env)])
     ) as any;

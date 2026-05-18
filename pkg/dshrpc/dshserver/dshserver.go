@@ -42,17 +42,17 @@ import (
 )
 
 
-type WshServer struct{}
+type DshServer struct{}
 
-func (*WshServer) WshServerImpl() {}
+func (*DshServer) DshServerImpl() {}
 
-var WshServerImpl = WshServer{}
+var DshServerImpl = DshServer{}
 
-func (ws *WshServer) GetJwtPublicKeyCommand(ctx context.Context) (string, error) {
+func (ws *DshServer) GetJwtPublicKeyCommand(ctx context.Context) (string, error) {
 	return dorajwt.GetPublicKeyBase64(), nil
 }
 
-func (ws *WshServer) TestCommand(ctx context.Context, data string) error {
+func (ws *DshServer) TestCommand(ctx context.Context, data string) error {
 	defer func() {
 		panichandler.PanicHandler("TestCommand", recover())
 	}()
@@ -61,7 +61,7 @@ func (ws *WshServer) TestCommand(ctx context.Context, data string) error {
 	return nil
 }
 
-func (ws *WshServer) TestMultiArgCommand(ctx context.Context, arg1 string, arg2 int, arg3 bool) (string, error) {
+func (ws *DshServer) TestMultiArgCommand(ctx context.Context, arg1 string, arg2 int, arg3 bool) (string, error) {
 	defer func() {
 		panichandler.PanicHandler("TestMultiArgCommand", recover())
 	}()
@@ -72,13 +72,13 @@ func (ws *WshServer) TestMultiArgCommand(ctx context.Context, arg1 string, arg2 
 }
 
 // for testing
-func (ws *WshServer) MessageCommand(ctx context.Context, data dshrpc.CommandMessageData) error {
+func (ws *DshServer) MessageCommand(ctx context.Context, data dshrpc.CommandMessageData) error {
 	log.Printf("MESSAGE: %s\n", data.Message)
 	return nil
 }
 
 // for testing
-func (ws *WshServer) StreamTestCommand(ctx context.Context) chan dshrpc.RespOrErrorUnion[int] {
+func (ws *DshServer) StreamTestCommand(ctx context.Context) chan dshrpc.RespOrErrorUnion[int] {
 	rtn := make(chan dshrpc.RespOrErrorUnion[int])
 	go func() {
 		defer func() {
@@ -124,7 +124,7 @@ func SavePlotData(ctx context.Context, blockId string, history string) error {
 	return filestore.WFS.WriteFile(ctx, blockId, "cpuplotdata", historyBytes)
 }
 
-func (ws *WshServer) GetMetaCommand(ctx context.Context, data dshrpc.CommandGetMetaData) (doraobj.MetaMapType, error) {
+func (ws *DshServer) GetMetaCommand(ctx context.Context, data dshrpc.CommandGetMetaData) (doraobj.MetaMapType, error) {
 	obj, err := dstore.DBGetORef(ctx, data.ORef)
 	if err != nil {
 		return nil, fmt.Errorf("error getting object: %w", err)
@@ -135,42 +135,42 @@ func (ws *WshServer) GetMetaCommand(ctx context.Context, data dshrpc.CommandGetM
 	return doraobj.GetMeta(obj), nil
 }
 
-func (ws *WshServer) UpdateTabNameCommand(ctx context.Context, tabId string, newName string) error {
+func (ws *DshServer) UpdateTabNameCommand(ctx context.Context, tabId string, newName string) error {
 	oref := doraobj.ORef{OType: doraobj.OType_Tab, OID: tabId}
 	err := dstore.UpdateTabName(ctx, tabId, newName)
 	if err != nil {
 		return fmt.Errorf("error updating tab name: %w", err)
 	}
-	dcore.SendWaveObjUpdate(oref)
+	dcore.SendDoraObjUpdate(oref)
 	return nil
 }
 
-func (ws *WshServer) UpdateWorkspaceTabIdsCommand(ctx context.Context, workspaceId string, tabIds []string) error {
+func (ws *DshServer) UpdateWorkspaceTabIdsCommand(ctx context.Context, workspaceId string, tabIds []string) error {
 	oref := doraobj.ORef{OType: doraobj.OType_Workspace, OID: workspaceId}
 	err := dcore.UpdateWorkspaceTabIds(ctx, workspaceId, tabIds)
 	if err != nil {
 		return fmt.Errorf("error updating workspace tab ids: %w", err)
 	}
-	dcore.SendWaveObjUpdate(oref)
+	dcore.SendDoraObjUpdate(oref)
 	return nil
 }
 
-func (ws *WshServer) SetMetaCommand(ctx context.Context, data dshrpc.CommandSetMetaData) error {
+func (ws *DshServer) SetMetaCommand(ctx context.Context, data dshrpc.CommandSetMetaData) error {
 	log.Printf("SetMetaCommand: %s | %v\n", data.ORef, data.Meta)
 	oref := data.ORef
 	err := dstore.UpdateObjectMeta(ctx, oref, data.Meta, false)
 	if err != nil {
 		return fmt.Errorf("error updating object meta: %w", err)
 	}
-	dcore.SendWaveObjUpdate(oref)
+	dcore.SendDoraObjUpdate(oref)
 	return nil
 }
 
-func (ws *WshServer) GetRTInfoCommand(ctx context.Context, data dshrpc.CommandGetRTInfoData) (*doraobj.ObjRTInfo, error) {
+func (ws *DshServer) GetRTInfoCommand(ctx context.Context, data dshrpc.CommandGetRTInfoData) (*doraobj.ObjRTInfo, error) {
 	return dstore.GetRTInfo(data.ORef), nil
 }
 
-func (ws *WshServer) SetRTInfoCommand(ctx context.Context, data dshrpc.CommandSetRTInfoData) error {
+func (ws *DshServer) SetRTInfoCommand(ctx context.Context, data dshrpc.CommandSetRTInfoData) error {
 	if data.Delete {
 		dstore.DeleteRTInfo(data.ORef)
 		return nil
@@ -179,7 +179,7 @@ func (ws *WshServer) SetRTInfoCommand(ctx context.Context, data dshrpc.CommandSe
 	return nil
 }
 
-func (ws *WshServer) ResolveIdsCommand(ctx context.Context, data dshrpc.CommandResolveIdsData) (dshrpc.CommandResolveIdsRtnData, error) {
+func (ws *DshServer) ResolveIdsCommand(ctx context.Context, data dshrpc.CommandResolveIdsData) (dshrpc.CommandResolveIdsRtnData, error) {
 	rtn := dshrpc.CommandResolveIdsRtnData{}
 	rtn.ResolvedIds = make(map[string]doraobj.ORef)
 	var firstErr error
@@ -202,7 +202,7 @@ func (ws *WshServer) ResolveIdsCommand(ctx context.Context, data dshrpc.CommandR
 	return rtn, nil
 }
 
-func (ws *WshServer) CreateBlockCommand(ctx context.Context, data dshrpc.CommandCreateBlockData) (*doraobj.ORef, error) {
+func (ws *DshServer) CreateBlockCommand(ctx context.Context, data dshrpc.CommandCreateBlockData) (*doraobj.ORef, error) {
 	ctx = doraobj.ContextWithUpdates(ctx)
 	tabId := data.TabId
 	blockData, err := dcore.CreateBlock(ctx, tabId, data.BlockDef, data.RtOpts)
@@ -276,7 +276,7 @@ func (ws *WshServer) CreateBlockCommand(ctx context.Context, data dshrpc.Command
 	return &doraobj.ORef{OType: doraobj.OType_Block, OID: blockData.OID}, nil
 }
 
-func (ws *WshServer) CreateSubBlockCommand(ctx context.Context, data dshrpc.CommandCreateSubBlockData) (*doraobj.ORef, error) {
+func (ws *DshServer) CreateSubBlockCommand(ctx context.Context, data dshrpc.CommandCreateSubBlockData) (*doraobj.ORef, error) {
 	parentBlockId := data.ParentBlockId
 	blockData, err := dcore.CreateSubBlock(ctx, parentBlockId, data.BlockDef)
 	if err != nil {
@@ -286,18 +286,18 @@ func (ws *WshServer) CreateSubBlockCommand(ctx context.Context, data dshrpc.Comm
 	return blockRef, nil
 }
 
-func (ws *WshServer) ControllerDestroyCommand(ctx context.Context, blockId string) error {
+func (ws *DshServer) ControllerDestroyCommand(ctx context.Context, blockId string) error {
 	blockcontroller.DestroyBlockController(blockId)
 	return nil
 }
 
-func (ws *WshServer) ControllerResyncCommand(ctx context.Context, data dshrpc.CommandControllerResyncData) error {
+func (ws *DshServer) ControllerResyncCommand(ctx context.Context, data dshrpc.CommandControllerResyncData) error {
 	ctx = genconn.ContextWithConnData(ctx, data.BlockId)
 	ctx = termCtxWithLogBlockId(ctx, data.BlockId)
 	return blockcontroller.ResyncController(ctx, data.TabId, data.BlockId, data.RtOpts, data.ForceRestart)
 }
 
-func (ws *WshServer) ControllerInputCommand(ctx context.Context, data dshrpc.CommandBlockInputData) error {
+func (ws *DshServer) ControllerInputCommand(ctx context.Context, data dshrpc.CommandBlockInputData) error {
 	inputUnion := &blockcontroller.BlockInputUnion{
 		SigName:  data.SigName,
 		TermSize: data.TermSize,
@@ -313,7 +313,7 @@ func (ws *WshServer) ControllerInputCommand(ctx context.Context, data dshrpc.Com
 	return blockcontroller.SendInput(data.BlockId, inputUnion)
 }
 
-func (ws *WshServer) ControllerAppendOutputCommand(ctx context.Context, data dshrpc.CommandControllerAppendOutputData) error {
+func (ws *DshServer) ControllerAppendOutputCommand(ctx context.Context, data dshrpc.CommandControllerAppendOutputData) error {
 	outputBuf := make([]byte, base64.StdEncoding.DecodedLen(len(data.Data64)))
 	nw, err := base64.StdEncoding.Decode(outputBuf, []byte(data.Data64))
 	if err != nil {
@@ -326,7 +326,7 @@ func (ws *WshServer) ControllerAppendOutputCommand(ctx context.Context, data dsh
 	return nil
 }
 
-func (ws *WshServer) FileCreateCommand(ctx context.Context, data dshrpc.FileData) error {
+func (ws *DshServer) FileCreateCommand(ctx context.Context, data dshrpc.FileData) error {
 	data.Data64 = ""
 	err := wshfs.PutFile(ctx, data)
 	if err != nil {
@@ -335,51 +335,51 @@ func (ws *WshServer) FileCreateCommand(ctx context.Context, data dshrpc.FileData
 	return nil
 }
 
-func (ws *WshServer) FileMkdirCommand(ctx context.Context, data dshrpc.FileData) error {
+func (ws *DshServer) FileMkdirCommand(ctx context.Context, data dshrpc.FileData) error {
 	return wshfs.Mkdir(ctx, data.Info.Path)
 }
 
-func (ws *WshServer) FileDeleteCommand(ctx context.Context, data dshrpc.CommandDeleteFileData) error {
+func (ws *DshServer) FileDeleteCommand(ctx context.Context, data dshrpc.CommandDeleteFileData) error {
 	return wshfs.Delete(ctx, data)
 }
 
-func (ws *WshServer) FileInfoCommand(ctx context.Context, data dshrpc.FileData) (*dshrpc.FileInfo, error) {
+func (ws *DshServer) FileInfoCommand(ctx context.Context, data dshrpc.FileData) (*dshrpc.FileInfo, error) {
 	return wshfs.Stat(ctx, data.Info.Path)
 }
 
-func (ws *WshServer) FileListCommand(ctx context.Context, data dshrpc.FileListData) ([]*dshrpc.FileInfo, error) {
+func (ws *DshServer) FileListCommand(ctx context.Context, data dshrpc.FileListData) ([]*dshrpc.FileInfo, error) {
 	return wshfs.ListEntries(ctx, data.Path, data.Opts)
 }
 
-func (ws *WshServer) FileListStreamCommand(ctx context.Context, data dshrpc.FileListData) <-chan dshrpc.RespOrErrorUnion[dshrpc.CommandRemoteListEntriesRtnData] {
+func (ws *DshServer) FileListStreamCommand(ctx context.Context, data dshrpc.FileListData) <-chan dshrpc.RespOrErrorUnion[dshrpc.CommandRemoteListEntriesRtnData] {
 	return wshfs.ListEntriesStream(ctx, data.Path, data.Opts)
 }
 
-func (ws *WshServer) FileWriteCommand(ctx context.Context, data dshrpc.FileData) error {
+func (ws *DshServer) FileWriteCommand(ctx context.Context, data dshrpc.FileData) error {
 	return wshfs.PutFile(ctx, data)
 }
 
-func (ws *WshServer) FileReadCommand(ctx context.Context, data dshrpc.FileData) (*dshrpc.FileData, error) {
+func (ws *DshServer) FileReadCommand(ctx context.Context, data dshrpc.FileData) (*dshrpc.FileData, error) {
 	return wshfs.Read(ctx, data)
 }
 
-func (ws *WshServer) FileStreamCommand(ctx context.Context, data dshrpc.CommandFileStreamData) (*dshrpc.FileInfo, error) {
+func (ws *DshServer) FileStreamCommand(ctx context.Context, data dshrpc.CommandFileStreamData) (*dshrpc.FileInfo, error) {
 	return wshfs.FileStream(ctx, data)
 }
 
-func (ws *WshServer) FileCopyCommand(ctx context.Context, data dshrpc.CommandFileCopyData) error {
+func (ws *DshServer) FileCopyCommand(ctx context.Context, data dshrpc.CommandFileCopyData) error {
 	return wshfs.Copy(ctx, data)
 }
 
-func (ws *WshServer) FileMoveCommand(ctx context.Context, data dshrpc.CommandFileCopyData) error {
+func (ws *DshServer) FileMoveCommand(ctx context.Context, data dshrpc.CommandFileCopyData) error {
 	return wshfs.Move(ctx, data)
 }
 
-func (ws *WshServer) FileAppendCommand(ctx context.Context, data dshrpc.FileData) error {
+func (ws *DshServer) FileAppendCommand(ctx context.Context, data dshrpc.FileData) error {
 	return wshfs.Append(ctx, data)
 }
 
-func (ws *WshServer) FileJoinCommand(ctx context.Context, paths []string) (*dshrpc.FileInfo, error) {
+func (ws *DshServer) FileJoinCommand(ctx context.Context, paths []string) (*dshrpc.FileInfo, error) {
 	if len(paths) < 2 {
 		if len(paths) == 0 {
 			return nil, fmt.Errorf("no paths provided")
@@ -390,7 +390,7 @@ func (ws *WshServer) FileJoinCommand(ctx context.Context, paths []string) (*dshr
 }
 
 
-func (ws *WshServer) GetTempDirCommand(ctx context.Context, data dshrpc.CommandGetTempDirData) (string, error) {
+func (ws *DshServer) GetTempDirCommand(ctx context.Context, data dshrpc.CommandGetTempDirData) (string, error) {
 	tempDir := os.TempDir()
 	if data.FileName != "" {
 		// Reduce to a simple file name to avoid absolute paths or traversal
@@ -405,7 +405,7 @@ func (ws *WshServer) GetTempDirCommand(ctx context.Context, data dshrpc.CommandG
 	return tempDir, nil
 }
 
-func (ws *WshServer) WriteTempFileCommand(ctx context.Context, data dshrpc.CommandWriteTempFileData) (string, error) {
+func (ws *DshServer) WriteTempFileCommand(ctx context.Context, data dshrpc.CommandWriteTempFileData) (string, error) {
 	if data.FileName == "" {
 		return "", fmt.Errorf("filename is required")
 	}
@@ -429,7 +429,7 @@ func (ws *WshServer) WriteTempFileCommand(ctx context.Context, data dshrpc.Comma
 	return tempPath, nil
 }
 
-func (ws *WshServer) DeleteSubBlockCommand(ctx context.Context, data dshrpc.CommandDeleteBlockData) error {
+func (ws *DshServer) DeleteSubBlockCommand(ctx context.Context, data dshrpc.CommandDeleteBlockData) error {
 	if data.BlockId == "" {
 		return fmt.Errorf("blockid is required")
 	}
@@ -440,7 +440,7 @@ func (ws *WshServer) DeleteSubBlockCommand(ctx context.Context, data dshrpc.Comm
 	return nil
 }
 
-func (ws *WshServer) DeleteBlockCommand(ctx context.Context, data dshrpc.CommandDeleteBlockData) error {
+func (ws *DshServer) DeleteBlockCommand(ctx context.Context, data dshrpc.CommandDeleteBlockData) error {
 	if data.BlockId == "" {
 		return fmt.Errorf("blockid is required")
 	}
@@ -465,18 +465,18 @@ func (ws *WshServer) DeleteBlockCommand(ctx context.Context, data dshrpc.Command
 	return nil
 }
 
-func (ws *WshServer) WaitForRouteCommand(ctx context.Context, data dshrpc.CommandWaitForRouteData) (bool, error) {
+func (ws *DshServer) WaitForRouteCommand(ctx context.Context, data dshrpc.CommandWaitForRouteData) (bool, error) {
 	waitCtx, cancelFn := context.WithTimeout(ctx, time.Duration(data.WaitMs)*time.Millisecond)
 	defer cancelFn()
 	err := dshutil.DefaultRouter.WaitForRegister(waitCtx, data.RouteId)
 	return err == nil, nil
 }
 
-func (ws *WshServer) EventRecvCommand(ctx context.Context, data dps.WaveEvent) error {
+func (ws *DshServer) EventRecvCommand(ctx context.Context, data dps.DoraEvent) error {
 	return nil
 }
 
-func (ws *WshServer) EventPublishCommand(ctx context.Context, data dps.WaveEvent) error {
+func (ws *DshServer) EventPublishCommand(ctx context.Context, data dps.DoraEvent) error {
 	rpcSource := dshutil.GetRpcSourceFromContext(ctx)
 	if rpcSource == "" {
 		return fmt.Errorf("no rpc source set")
@@ -488,7 +488,7 @@ func (ws *WshServer) EventPublishCommand(ctx context.Context, data dps.WaveEvent
 	return nil
 }
 
-func (ws *WshServer) EventSubCommand(ctx context.Context, data dps.SubscriptionRequest) error {
+func (ws *DshServer) EventSubCommand(ctx context.Context, data dps.SubscriptionRequest) error {
 	rpcSource := dshutil.GetRpcSourceFromContext(ctx)
 	if rpcSource == "" {
 		return fmt.Errorf("no rpc source set")
@@ -497,7 +497,7 @@ func (ws *WshServer) EventSubCommand(ctx context.Context, data dps.SubscriptionR
 	return nil
 }
 
-func (ws *WshServer) EventUnsubCommand(ctx context.Context, data string) error {
+func (ws *DshServer) EventUnsubCommand(ctx context.Context, data string) error {
 	rpcSource := dshutil.GetRpcSourceFromContext(ctx)
 	if rpcSource == "" {
 		return fmt.Errorf("no rpc source set")
@@ -506,7 +506,7 @@ func (ws *WshServer) EventUnsubCommand(ctx context.Context, data string) error {
 	return nil
 }
 
-func (ws *WshServer) EventUnsubAllCommand(ctx context.Context) error {
+func (ws *DshServer) EventUnsubAllCommand(ctx context.Context) error {
 	rpcSource := dshutil.GetRpcSourceFromContext(ctx)
 	if rpcSource == "" {
 		return fmt.Errorf("no rpc source set")
@@ -515,21 +515,21 @@ func (ws *WshServer) EventUnsubAllCommand(ctx context.Context) error {
 	return nil
 }
 
-func (ws *WshServer) EventReadHistoryCommand(ctx context.Context, data dshrpc.CommandEventReadHistoryData) ([]*dps.WaveEvent, error) {
+func (ws *DshServer) EventReadHistoryCommand(ctx context.Context, data dshrpc.CommandEventReadHistoryData) ([]*dps.DoraEvent, error) {
 	events := dps.Broker.ReadEventHistory(data.Event, data.Scope, data.MaxItems)
 	return events, nil
 }
 
-func (ws *WshServer) SetConfigCommand(ctx context.Context, data dshrpc.MetaSettingsType) error {
+func (ws *DshServer) SetConfigCommand(ctx context.Context, data dshrpc.MetaSettingsType) error {
 	return dconfig.SetBaseConfigValue(data.MetaMapType)
 }
 
-func (ws *WshServer) func (ws *WshServer) GetFullConfigCommand(ctx context.Context) (dconfig.FullConfigType, error) {
+func (ws *DshServer) func (ws *DshServer) GetFullConfigCommand(ctx context.Context) (dconfig.FullConfigType, error) {
 	watcher := dconfig.GetWatcher()
 	return watcher.GetFullConfig(), nil
 }
 
-func (ws *WshServer) func (ws *WshServer) func (ws *WshServer) func termCtxWithLogBlockId(ctx context.Context, logBlockId string) context.Context {
+func (ws *DshServer) func (ws *DshServer) func (ws *DshServer) func termCtxWithLogBlockId(ctx context.Context, logBlockId string) context.Context {
 	if logBlockId == "" {
 		return ctx
 	}
@@ -545,8 +545,8 @@ func (ws *WshServer) func (ws *WshServer) func (ws *WshServer) func termCtxWithL
 }
 
 
-func waveFileToWaveFileInfo(wf *filestore.WaveFile) *dshrpc.WaveFileInfo {
-	return &dshrpc.WaveFileInfo{
+func waveFileToDoraFileInfo(wf *filestore.DoraFile) *dshrpc.DoraFileInfo {
+	return &dshrpc.DoraFileInfo{
 		ZoneId:    wf.ZoneId,
 		Name:      wf.Name,
 		Opts:      wf.Opts,
@@ -557,7 +557,7 @@ func waveFileToWaveFileInfo(wf *filestore.WaveFile) *dshrpc.WaveFileInfo {
 	}
 }
 
-func (ws *WshServer) BlockInfoCommand(ctx context.Context, blockId string) (*dshrpc.BlockInfoData, error) {
+func (ws *DshServer) BlockInfoCommand(ctx context.Context, blockId string) (*dshrpc.BlockInfoData, error) {
 	blockData, err := dstore.DBMustGet[*doraobj.Block](ctx, blockId)
 	if err != nil {
 		return nil, fmt.Errorf("error getting block: %w", err)
@@ -574,9 +574,9 @@ func (ws *WshServer) BlockInfoCommand(ctx context.Context, blockId string) (*dsh
 	if err != nil {
 		return nil, fmt.Errorf("error listing blockfiles: %w", err)
 	}
-	var fileInfoList []*dshrpc.WaveFileInfo
+	var fileInfoList []*dshrpc.DoraFileInfo
 	for _, wf := range fileList {
-		fileInfoList = append(fileInfoList, waveFileToWaveFileInfo(wf))
+		fileInfoList = append(fileInfoList, waveFileToDoraFileInfo(wf))
 	}
 	return &dshrpc.BlockInfoData{
 		BlockId:     blockId,
@@ -587,7 +587,7 @@ func (ws *WshServer) BlockInfoCommand(ctx context.Context, blockId string) (*dsh
 	}, nil
 }
 
-func (ws *WshServer) DebugTermCommand(ctx context.Context, data dshrpc.CommandDebugTermData) (*dshrpc.CommandDebugTermRtnData, error) {
+func (ws *DshServer) DebugTermCommand(ctx context.Context, data dshrpc.CommandDebugTermData) (*dshrpc.CommandDebugTermRtnData, error) {
 	if data.BlockId == "" {
 		return nil, fmt.Errorf("blockid is required")
 	}
@@ -617,8 +617,8 @@ func (ws *WshServer) DebugTermCommand(ctx context.Context, data dshrpc.CommandDe
 	}, nil
 }
 
-func (ws *WshServer) WaveInfoCommand(ctx context.Context) (*dshrpc.WaveInfoData, error) {
-	return &dshrpc.WaveInfoData{
+func (ws *DshServer) DoraInfoCommand(ctx context.Context) (*dshrpc.DoraInfoData, error) {
+	return &dshrpc.DoraInfoData{
 		Version:   dorabase.DoraVersion,
 		ClientId:  dstore.GetClientId(),
 		BuildTime: dorabase.BuildTime,
@@ -627,13 +627,13 @@ func (ws *WshServer) WaveInfoCommand(ctx context.Context) (*dshrpc.WaveInfoData,
 	}, nil
 }
 
-func (ws *WshServer) MacOSVersionCommand(ctx context.Context) (string, error) {
+func (ws *DshServer) MacOSVersionCommand(ctx context.Context) (string, error) {
 	return dorabase.ClientMacOSVersion(), nil
 }
 
 // BlocksListCommand returns every block visible in the requested
 // scope (current workspace by default).
-func (ws *WshServer) BlocksListCommand(
+func (ws *DshServer) BlocksListCommand(
 	ctx context.Context,
 	req dshrpc.BlocksListRequest) ([]dshrpc.BlocksListEntry, error) {
 	var results []dshrpc.BlocksListEntry
@@ -698,7 +698,7 @@ func (ws *WshServer) BlocksListCommand(
 	return results, nil
 }
 
-func (ws *WshServer) WorkspaceListCommand(ctx context.Context) ([]dshrpc.WorkspaceInfoData, error) {
+func (ws *DshServer) WorkspaceListCommand(ctx context.Context) ([]dshrpc.WorkspaceInfoData, error) {
 	workspaceList, err := dcore.ListWorkspaces(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error listing workspaces: %w", err)
@@ -720,11 +720,11 @@ func (ws *WshServer) WorkspaceListCommand(ctx context.Context) ([]dshrpc.Workspa
 
 
 
-func (ws *WshServer) WshActivityCommand(ctx context.Context, data map[string]int) error {
+func (ws *DshServer) DshActivityCommand(ctx context.Context, data map[string]int) error {
 	return nil
 }
 
-func (ws *WshServer) GetVarCommand(ctx context.Context, data dshrpc.CommandVarData) (*dshrpc.CommandVarResponseData, error) {
+func (ws *DshServer) GetVarCommand(ctx context.Context, data dshrpc.CommandVarData) (*dshrpc.CommandVarResponseData, error) {
 	_, fileData, err := filestore.WFS.ReadFile(ctx, data.ZoneId, data.FileName)
 	if err == fs.ErrNotExist {
 		return &dshrpc.CommandVarResponseData{Key: data.Key, Exists: false}, nil
@@ -737,7 +737,7 @@ func (ws *WshServer) GetVarCommand(ctx context.Context, data dshrpc.CommandVarDa
 	return &dshrpc.CommandVarResponseData{Key: data.Key, Exists: ok, Val: value}, nil
 }
 
-func (ws *WshServer) GetAllVarsCommand(ctx context.Context, data dshrpc.CommandVarData) ([]dshrpc.CommandVarResponseData, error) {
+func (ws *DshServer) GetAllVarsCommand(ctx context.Context, data dshrpc.CommandVarData) ([]dshrpc.CommandVarResponseData, error) {
 	_, fileData, err := filestore.WFS.ReadFile(ctx, data.ZoneId, data.FileName)
 	if err == fs.ErrNotExist {
 		return []dshrpc.CommandVarResponseData{}, nil
@@ -762,7 +762,7 @@ func (ws *WshServer) GetAllVarsCommand(ctx context.Context, data dshrpc.CommandV
 	return result, nil
 }
 
-func (ws *WshServer) SetVarCommand(ctx context.Context, data dshrpc.CommandVarData) error {
+func (ws *DshServer) SetVarCommand(ctx context.Context, data dshrpc.CommandVarData) error {
 	_, fileData, err := filestore.WFS.ReadFile(ctx, data.ZoneId, data.FileName)
 	if err == fs.ErrNotExist {
 		fileData = []byte{}
@@ -783,7 +783,7 @@ func (ws *WshServer) SetVarCommand(ctx context.Context, data dshrpc.CommandVarDa
 	return filestore.WFS.WriteFile(ctx, data.ZoneId, data.FileName, []byte(envStr))
 }
 
-func (ws *WshServer) PathCommand(ctx context.Context, data dshrpc.PathCommandData) (string, error) {
+func (ws *DshServer) PathCommand(ctx context.Context, data dshrpc.PathCommandData) (string, error) {
 	pathType := data.PathType
 	openInternal := data.Open
 	openExternal := data.OpenExternal
@@ -824,7 +824,7 @@ func (ws *WshServer) PathCommand(ctx context.Context, data dshrpc.PathCommandDat
 	return path, nil
 }
 
-func (ws *WshServer) GetTabCommand(ctx context.Context, tabId string) (*doraobj.Tab, error) {
+func (ws *DshServer) GetTabCommand(ctx context.Context, tabId string) (*doraobj.Tab, error) {
 	tab, err := dstore.DBGet[*doraobj.Tab](ctx, tabId)
 	if err != nil {
 		return nil, fmt.Errorf("error getting tab: %w", err)
@@ -832,11 +832,11 @@ func (ws *WshServer) GetTabCommand(ctx context.Context, tabId string) (*doraobj.
 	return tab, nil
 }
 
-func (ws *WshServer) GetAllBadgesCommand(ctx context.Context) ([]baseds.BadgeEvent, error) {
+func (ws *DshServer) GetAllBadgesCommand(ctx context.Context) ([]baseds.BadgeEvent, error) {
 	return dcore.GetAllBadges(), nil
 }
 
-func (ws *WshServer) GetSecretsCommand(ctx context.Context, names []string) (map[string]string, error) {
+func (ws *DshServer) GetSecretsCommand(ctx context.Context, names []string) (map[string]string, error) {
 	result := make(map[string]string)
 	for _, name := range names {
 		value, exists, err := secretstore.GetSecret(name)
@@ -850,7 +850,7 @@ func (ws *WshServer) GetSecretsCommand(ctx context.Context, names []string) (map
 	return result, nil
 }
 
-func (ws *WshServer) GetSecretsNamesCommand(ctx context.Context) ([]string, error) {
+func (ws *DshServer) GetSecretsNamesCommand(ctx context.Context) ([]string, error) {
 	names, err := secretstore.GetSecretNames()
 	if err != nil {
 		return nil, fmt.Errorf("error getting secret names: %w", err)
@@ -858,7 +858,7 @@ func (ws *WshServer) GetSecretsNamesCommand(ctx context.Context) ([]string, erro
 	return names, nil
 }
 
-func (ws *WshServer) SetSecretsCommand(ctx context.Context, secrets map[string]*string) error {
+func (ws *DshServer) SetSecretsCommand(ctx context.Context, secrets map[string]*string) error {
 	for name, value := range secrets {
 		if value == nil {
 			err := secretstore.DeleteSecret(name)
@@ -875,7 +875,7 @@ func (ws *WshServer) SetSecretsCommand(ctx context.Context, secrets map[string]*
 	return nil
 }
 
-func (ws *WshServer) GetSecretsLinuxStorageBackendCommand(ctx context.Context) (string, error) {
+func (ws *DshServer) GetSecretsLinuxStorageBackendCommand(ctx context.Context) (string, error) {
 	backend, err := secretstore.GetLinuxStorageBackend()
 	if err != nil {
 		return "", fmt.Errorf("error getting linux storage backend: %w", err)
@@ -883,19 +883,19 @@ func (ws *WshServer) GetSecretsLinuxStorageBackendCommand(ctx context.Context) (
 	return backend, nil
 }
 
-func (ws *WshServer) JobCmdExitedCommand(ctx context.Context, data dshrpc.CommandJobCmdExitedData) error {
+func (ws *DshServer) JobCmdExitedCommand(ctx context.Context, data dshrpc.CommandJobCmdExitedData) error {
 	return jobcontroller.HandleCmdJobExited(ctx, data.JobId, data)
 }
 
-func (ws *WshServer) JobControllerListCommand(ctx context.Context) ([]*doraobj.Job, error) {
+func (ws *DshServer) JobControllerListCommand(ctx context.Context) ([]*doraobj.Job, error) {
 	return dstore.DBGetAllObjsByType[*doraobj.Job](ctx, doraobj.OType_Job)
 }
 
-func (ws *WshServer) JobControllerDeleteJobCommand(ctx context.Context, jobId string) error {
+func (ws *DshServer) JobControllerDeleteJobCommand(ctx context.Context, jobId string) error {
 	return jobcontroller.DeleteJob(ctx, jobId)
 }
 
-func (ws *WshServer) JobControllerStartJobCommand(ctx context.Context, data dshrpc.CommandJobControllerStartJobData) (string, error) {
+func (ws *DshServer) JobControllerStartJobCommand(ctx context.Context, data dshrpc.CommandJobControllerStartJobData) (string, error) {
 	params := jobcontroller.StartJobParams{
 		ConnName: data.ConnName,
 		JobKind:  data.JobKind,
@@ -907,34 +907,34 @@ func (ws *WshServer) JobControllerStartJobCommand(ctx context.Context, data dshr
 	return jobcontroller.StartJob(ctx, params)
 }
 
-func (ws *WshServer) JobControllerExitJobCommand(ctx context.Context, jobId string) error {
+func (ws *DshServer) JobControllerExitJobCommand(ctx context.Context, jobId string) error {
 	return jobcontroller.TerminateJobManager(ctx, jobId)
 }
 
-func (ws *WshServer) JobControllerDisconnectJobCommand(ctx context.Context, jobId string) error {
+func (ws *DshServer) JobControllerDisconnectJobCommand(ctx context.Context, jobId string) error {
 	return jobcontroller.DisconnectJob(ctx, jobId)
 }
 
-func (ws *WshServer) JobControllerReconnectJobCommand(ctx context.Context, jobId string) error {
+func (ws *DshServer) JobControllerReconnectJobCommand(ctx context.Context, jobId string) error {
 	return jobcontroller.ReconnectJob(ctx, jobId, nil)
 }
 
-func (ws *WshServer) JobControllerReconnectJobsForConnCommand(ctx context.Context, connName string) error {
+func (ws *DshServer) JobControllerReconnectJobsForConnCommand(ctx context.Context, connName string) error {
 	return jobcontroller.ReconnectJobsForConn(ctx, connName)
 }
 
-func (ws *WshServer) JobControllerConnectedJobsCommand(ctx context.Context) ([]string, error) {
+func (ws *DshServer) JobControllerConnectedJobsCommand(ctx context.Context) ([]string, error) {
 	return jobcontroller.GetConnectedJobIds(), nil
 }
 
-func (ws *WshServer) JobControllerAttachJobCommand(ctx context.Context, data dshrpc.CommandJobControllerAttachJobData) error {
+func (ws *DshServer) JobControllerAttachJobCommand(ctx context.Context, data dshrpc.CommandJobControllerAttachJobData) error {
 	return jobcontroller.AttachJobToBlock(ctx, data.JobId, data.BlockId)
 }
 
-func (ws *WshServer) JobControllerDetachJobCommand(ctx context.Context, jobId string) error {
+func (ws *DshServer) JobControllerDetachJobCommand(ctx context.Context, jobId string) error {
 	return jobcontroller.DetachJobFromBlock(ctx, jobId, true)
 }
 
-func (ws *WshServer) BlockJobStatusCommand(ctx context.Context, blockId string) (*dshrpc.BlockJobStatusData, error) {
+func (ws *DshServer) BlockJobStatusCommand(ctx context.Context, blockId string) (*dshrpc.BlockJobStatusData, error) {
 	return jobcontroller.GetBlockJobStatus(ctx, blockId)
 }

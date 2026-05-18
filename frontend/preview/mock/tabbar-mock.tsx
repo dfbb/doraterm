@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { globalStore } from "@/app/store/jotaiStore";
-import { useWaveEnv, WaveEnv, WaveEnvContext } from "@/app/waveenv/waveenv";
-import { applyMockEnvOverrides, MockWaveEnv } from "@/preview/mock/mockwaveenv";
+import { useDoraEnv, DoraEnv, DoraEnvContext } from "@/app/waveenv/waveenv";
+import { applyMockEnvOverrides, MockDoraEnv } from "@/preview/mock/mockwaveenv";
 import { PlatformMacOS } from "@/util/platformutil";
 import { atom } from "jotai";
 import React, { useMemo, useRef } from "react";
@@ -19,7 +19,7 @@ function badgeBlockId(tabId: string, badgeId: string): string {
     return `${tabId}-badge-${badgeId}`;
 }
 
-function makeTabWaveObj(tab: PreviewTabEntry): Tab {
+function makeTaDoraObj(tab: PreviewTabEntry): Tab {
     const blockids = (tab.badges ?? []).map((b) => badgeBlockId(tab.tabId, b.badgeid));
     return {
         otype: "tab",
@@ -90,21 +90,21 @@ function makeMockWorkspace(tabIds: string[]): Workspace {
 }
 
 export function makeTabBarMockEnv(
-    baseEnv: WaveEnv,
-    envRef: React.RefObject<MockWaveEnv>,
+    baseEnv: DoraEnv,
+    envRef: React.RefObject<MockDoraEnv>,
     platform: NodeJS.Platform
-): MockWaveEnv {
+): MockDoraEnv {
     const initialTabIds = TabBarMockTabs.map((t) => t.tabId);
-    const mockWaveObjs: Record<string, WaveObj> = {
+    const mockDoraObjs: Record<string, DoraObj> = {
         [`workspace:${TabBarMockWorkspaceId}`]: makeMockWorkspace(initialTabIds),
     };
     for (const tab of TabBarMockTabs) {
-        mockWaveObjs[`tab:${tab.tabId}`] = makeTabWaveObj(tab);
+        mockDoraObjs[`tab:${tab.tabId}`] = makeTaDoraObj(tab);
     }
     const env = applyMockEnvOverrides(baseEnv, {
         tabId: TabBarMockTabs[1].tabId,
         platform,
-        mockWaveObjs,
+        mockDoraObjs,
         atoms: {
             workspaceId: atom(TabBarMockWorkspaceId),
             staticTabId: atom(TabBarMockTabs[1].tabId),
@@ -117,7 +117,7 @@ export function makeTabBarMockEnv(
                 const e = envRef.current;
                 if (e == null) return;
                 const newTabId = `preview-tab-${crypto.randomUUID()}`;
-                e.mockSetWaveObj(`tab:${newTabId}`, {
+                e.mockSetDoraObj(`tab:${newTabId}`, {
                     otype: "tab",
                     oid: newTabId,
                     version: 1,
@@ -125,8 +125,8 @@ export function makeTabBarMockEnv(
                     blockids: [],
                     meta: {},
                 } as Tab);
-                const ws = globalStore.get(e.wos.getWaveObjectAtom<Workspace>(`workspace:${TabBarMockWorkspaceId}`));
-                e.mockSetWaveObj(`workspace:${TabBarMockWorkspaceId}`, {
+                const ws = globalStore.get(e.wos.getDoraObjectAtom<Workspace>(`workspace:${TabBarMockWorkspaceId}`));
+                e.mockSetDoraObj(`workspace:${TabBarMockWorkspaceId}`, {
                     ...ws,
                     tabids: [...(ws.tabids ?? []), newTabId],
                 });
@@ -135,12 +135,12 @@ export function makeTabBarMockEnv(
             closeTab: (_workspaceId: string, tabId: string) => {
                 const e = envRef.current;
                 if (e == null) return Promise.resolve(false);
-                const ws = globalStore.get(e.wos.getWaveObjectAtom<Workspace>(`workspace:${TabBarMockWorkspaceId}`));
+                const ws = globalStore.get(e.wos.getDoraObjectAtom<Workspace>(`workspace:${TabBarMockWorkspaceId}`));
                 const newTabIds = (ws.tabids ?? []).filter((id) => id !== tabId);
                 if (newTabIds.length === 0) {
                     return Promise.resolve(false);
                 }
-                e.mockSetWaveObj(`workspace:${TabBarMockWorkspaceId}`, { ...ws, tabids: newTabIds });
+                e.mockSetDoraObj(`workspace:${TabBarMockWorkspaceId}`, { ...ws, tabids: newTabIds });
                 if (globalStore.get(e.atoms.staticTabId) === tabId) {
                     globalStore.set(e.atoms.staticTabId as any, newTabIds[0]);
                 }
@@ -165,9 +165,9 @@ type TabBarMockEnvProviderProps = {
 };
 
 export function TabBarMockEnvProvider({ children }: TabBarMockEnvProviderProps) {
-    const baseEnv = useWaveEnv();
-    const envRef = useRef<MockWaveEnv>(null);
+    const baseEnv = useDoraEnv();
+    const envRef = useRef<MockDoraEnv>(null);
     const tabEnv = useMemo(() => makeTabBarMockEnv(baseEnv, envRef, PlatformMacOS), []);
-    return <WaveEnvContext.Provider value={tabEnv}>{children}</WaveEnvContext.Provider>;
+    return <DoraEnvContext.Provider value={tabEnv}>{children}</DoraEnvContext.Provider>;
 }
 TabBarMockEnvProvider.displayName = "TabBarMockEnvProvider";

@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-type WshRpcMethodDecl struct {
+type DshRpcMethodDecl struct {
 	Command                 string
 	CommandType             string
 	MethodName              string
@@ -19,12 +19,12 @@ type WshRpcMethodDecl struct {
 	DefaultResponseDataType reflect.Type
 }
 
-func (decl *WshRpcMethodDecl) GetCommandDataTypes() []reflect.Type {
+func (decl *DshRpcMethodDecl) GetCommandDataTypes() []reflect.Type {
 	return decl.CommandDataTypes
 }
 
 var contextRType = reflect.TypeOf((*context.Context)(nil)).Elem()
-var wshRpcInterfaceRType = reflect.TypeOf((*WshRpcInterface)(nil)).Elem()
+var wshRpcInterfaceRType = reflect.TypeOf((*DshRpcInterface)(nil)).Elem()
 
 func getWshCommandType(method reflect.Method) string {
 	if method.Type.NumOut() == 1 {
@@ -65,12 +65,12 @@ func getWshMethodResponseType(commandType string, method reflect.Method) reflect
 	}
 }
 
-func generateWshCommandDecl(method reflect.Method) *WshRpcMethodDecl {
+func generateWshCommandDecl(method reflect.Method) *DshRpcMethodDecl {
 	if method.Type.NumIn() == 0 || method.Type.In(0) != contextRType {
 		panic(fmt.Sprintf("method %q does not have context as first argument", method.Name))
 	}
 	cmdStr := method.Name
-	decl := &WshRpcMethodDecl{}
+	decl := &DshRpcMethodDecl{}
 	// remove Command suffix
 	if !strings.HasSuffix(cmdStr, "Command") {
 		panic(fmt.Sprintf("method %q does not have Command suffix", cmdStr))
@@ -88,7 +88,7 @@ func generateWshCommandDecl(method reflect.Method) *WshRpcMethodDecl {
 	return decl
 }
 
-func MakeMethodMapForImpl(impl any, declMap map[string]*WshRpcMethodDecl) map[string]reflect.Method {
+func MakeMethodMapForImpl(impl any, declMap map[string]*DshRpcMethodDecl) map[string]reflect.Method {
 	rtype := reflect.TypeOf(impl)
 	rtnMap := make(map[string]reflect.Method)
 	for midx := 0; midx < rtype.NumMethod(); midx++ {
@@ -108,9 +108,9 @@ func MakeMethodMapForImpl(impl any, declMap map[string]*WshRpcMethodDecl) map[st
 
 }
 
-func GenerateWshCommandDeclMap() map[string]*WshRpcMethodDecl {
+func GenerateDshCommandDeclMap() map[string]*DshRpcMethodDecl {
 	rtype := wshRpcInterfaceRType
-	rtnMap := make(map[string]*WshRpcMethodDecl)
+	rtnMap := make(map[string]*DshRpcMethodDecl)
 	for midx := 0; midx < rtype.NumMethod(); midx++ {
 		method := rtype.Method(midx)
 		decl := generateWshCommandDecl(method)

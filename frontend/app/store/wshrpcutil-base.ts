@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { setWpsRpcClient, wpsReconnectHandler } from "@/app/store/wps";
-import { WshClient } from "@/app/store/wshclient";
-import { WshRouter } from "@/app/store/wshrouter";
+import { DshClient } from "@/app/store/wshclient";
+import { DshRouter } from "@/app/store/wshrouter";
 import { getWSServerEndpoint } from "@/util/endpoints";
 import { addWSReconnectHandler, ElectronOverrideOpts, globalWS, initGlobalWS } from "./ws";
 
-let DefaultRouter: WshRouter;
+let DefaultRouter: DshRouter;
 
-function setDefaultRouter(router: WshRouter) {
+function setDefaultRouter(router: DshRouter) {
     DefaultRouter = router;
 }
 
@@ -111,8 +111,8 @@ if (globalThis.window != null) {
     globalThis["consumeGenerator"] = consumeGenerator;
 }
 
-function initElectronWshrpc(electronClient: WshClient, eoOpts: ElectronOverrideOpts) {
-    setDefaultRouter(new WshRouter(new UpstreamWshRpcProxy()));
+function initElectronWshrpc(electronClient: DshClient, eoOpts: ElectronOverrideOpts) {
+    setDefaultRouter(new DshRouter(new UpstreamDshRpcProxy()));
     const handleFn = (event: WSEventType) => {
         DefaultRouter.recvRpcMessage(event.data);
     };
@@ -130,7 +130,7 @@ function shutdownWshrpc() {
     globalWS?.shutdown();
 }
 
-class UpstreamWshRpcProxy implements AbstractWshClient {
+class UpstreamDshRpcProxy implements AbstractDshClient {
     recvRpcMessage(msg: RpcMessage): void {
         const wsMsg: WSRpcCommand = { wscommand: "rpc", message: msg };
         globalWS?.pushMessage(wsMsg);

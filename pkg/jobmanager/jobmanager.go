@@ -29,7 +29,7 @@ const JobManagerStartLabel = "Wave-JobManagerStart"
 const JobInputQueueTimeout = 100 * time.Millisecond
 const JobInputQueueSize = 1000
 
-var WshCmdJobManager JobManager
+var DshCmdJobManager JobManager
 
 type JobManager struct {
 	ClientId              string
@@ -49,12 +49,12 @@ func SetupJobManager(clientId string, jobId string, publicKeyBytes []byte, jobAu
 	if runtime.GOOS != "linux" && runtime.GOOS != "darwin" {
 		return fmt.Errorf("job manager only supported on unix systems, not %s", runtime.GOOS)
 	}
-	WshCmdJobManager.ClientId = clientId
-	WshCmdJobManager.JobId = jobId
-	WshCmdJobManager.JwtPublicKey = publicKeyBytes
-	WshCmdJobManager.JobAuthToken = jobAuthToken
-	WshCmdJobManager.StreamManager = MakeStreamManager()
-	WshCmdJobManager.InputQueue = utilds.MakeQuickReorderQueue[dshrpc.CommandJobInputData](JobInputQueueSize, JobInputQueueTimeout)
+	DshCmdJobManager.ClientId = clientId
+	DshCmdJobManager.JobId = jobId
+	DshCmdJobManager.JwtPublicKey = publicKeyBytes
+	DshCmdJobManager.JobAuthToken = jobAuthToken
+	DshCmdJobManager.StreamManager = MakeStreamManager()
+	DshCmdJobManager.InputQueue = utilds.MakeQuickReorderQueue[dshrpc.CommandJobInputData](JobInputQueueSize, JobInputQueueTimeout)
 	err := dorajwt.SetPublicKey(publicKeyBytes)
 	if err != nil {
 		return fmt.Errorf("failed to set public key: %w", err)
@@ -68,7 +68,7 @@ func SetupJobManager(clientId string, jobId string, publicKeyBytes []byte, jobAu
 		defer func() {
 			panichandler.PanicHandler("JobManager:processInputQueue", recover())
 		}()
-		WshCmdJobManager.processInputQueue()
+		DshCmdJobManager.processInputQueue()
 	}()
 
 	fmt.Fprintf(readyFile, JobManagerStartLabel+"\n")
@@ -127,7 +127,7 @@ func (jm *JobManager) sendJobExited() {
 		log.Printf("sendJobExited: no attached client, exit notification not sent\n")
 		return
 	}
-	if attachedClient.WshRpc == nil {
+	if attachedClient.DshRpc == nil {
 		log.Printf("sendJobExited: no wsh rpc connection, exit notification not sent\n")
 		return
 	}
@@ -147,7 +147,7 @@ func (jm *JobManager) sendJobExited() {
 		exitCodeStr = fmt.Sprintf("%d", *exitData.ExitCode)
 	}
 	log.Printf("sendJobExited: sending exit notification to main server exitcode=%s signal=%s\n", exitCodeStr, exitData.ExitSignal)
-	err := dshclient.JobCmdExitedCommand(attachedClient.WshRpc, *exitData, nil)
+	err := dshclient.JobCmdExitedCommand(attachedClient.DshRpc, *exitData, nil)
 	if err != nil {
 		log.Printf("sendJobExited: error sending exit notification: %v\n", err)
 	}
@@ -176,13 +176,13 @@ func (jm *JobManager) connectToStreamHelper_withlock(mainServerConn *MainServerC
 		oldStreamId := jm.StreamManager.GetStreamId()
 		jm.StreamManager.ClientDisconnected()
 		if oldStreamId != "" {
-			mainServerConn.WshRpc.StreamBroker.DetachStreamWriter(oldStreamId)
+			mainServerConn.DshRpc.StreamBroker.DetachStreamWriter(oldStreamId)
 			log.Printf("connectToStreamHelper: detached old stream id=%s\n", oldStreamId)
 		}
 		jm.connectedStreamClient = nil
 	}
 	dataSender := &routedDataSender{
-		wshRpc: mainServerConn.WshRpc,
+		wshRpc: mainServerConn.DshRpc,
 		route:  streamMeta.ReaderRouteId,
 	}
 	serverSeq, err := jm.StreamManager.ClientConnected(
@@ -248,7 +248,7 @@ func (jm *JobManager) StartJob(msc *MainServerConn, data dshrpc.CommandStartJobD
 		if err != nil {
 			return nil, fmt.Errorf("failed to connect stream: %w", err)
 		}
-		err = msc.WshRpc.StreamBroker.AttachStreamWriter(data.StreamMeta, jm.StreamManager)
+		err = msc.DshRpc.StreamBroker.AttachStreamWriter(data.StreamMeta, jm.StreamManager)
 		if err != nil {
 			return nil, fmt.Errorf("failed to attach stream writer: %w", err)
 		}
@@ -361,7 +361,7 @@ func (jm *JobManager) StartStream(msc *MainServerConn) error {
 		return fmt.Errorf("no pending stream (call PrepareConnect first)")
 	}
 
-	err := msc.WshRpc.StreamBroker.AttachStreamWriter(jm.pendingStreamMeta, jm.StreamManager)
+	err := msc.DshRpc.StreamBroker.AttachStreamWriter(jm.pendingStreamMeta, jm.StreamManager)
 	if err != nil {
 		return fmt.Errorf("failed to attach stream writer: %w", err)
 	}
@@ -420,9 +420,9 @@ func handleJobDomainSocketClient(conn net.Conn) {
 		inputCh: inputCh,
 	}
 	rpcCtx := dshrpc.RpcContext{}
-	wshRpc := dshutil.MakeWshRpcWithChannels(inputCh, outputCh, rpcCtx, serverImpl, "job-domain")
-	serverImpl.WshRpc = wshRpc
-	defer WshCmdJobManager.disconnectFromStreamHelper(serverImpl)
+	wshRpc := dshutil.MakeDshRpcWithChannels(inputCh, outputCh, rpcCtx, serverImpl, "job-domain")
+	serverImpl.DshRpc = wshRpc
+	defer DshCmdJobManager.disconnectFromStreamHelper(serverImpl)
 
 	go func() {
 		defer func() {

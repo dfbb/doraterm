@@ -3,7 +3,7 @@
 
 import { setWpsRpcClient, wpsReconnectHandler } from "@/app/store/wps";
 import { TabClient } from "@/app/store/tabrpcclient";
-import { WshRouter } from "@/app/store/wshrouter";
+import { DshRouter } from "@/app/store/wshrouter";
 import { getWSServerEndpoint } from "@/util/endpoints";
 import { addWSReconnectHandler, globalWS, initGlobalWS, WSControl } from "./ws";
 import { DefaultRouter, setDefaultRouter } from "./wshrpcutil-base";
@@ -11,7 +11,7 @@ import { DefaultRouter, setDefaultRouter } from "./wshrpcutil-base";
 let TabRpcClient: TabClient;
 
 function initWshrpc(routeId: string): WSControl {
-    const router = new WshRouter(new UpstreamWshRpcProxy());
+    const router = new DshRouter(new UpstreamDshRpcProxy());
     setDefaultRouter(router);
     const handleFn = (event: WSEventType) => {
         DefaultRouter.recvRpcMessage(event.data);
@@ -28,7 +28,7 @@ function initWshrpc(routeId: string): WSControl {
     return globalWS;
 }
 
-class UpstreamWshRpcProxy implements AbstractWshClient {
+class UpstreamDshRpcProxy implements AbstractDshClient {
     recvRpcMessage(msg: RpcMessage): void {
         const wsMsg: WSRpcCommand = { wscommand: "rpc", message: msg };
         globalWS?.pushMessage(wsMsg);

@@ -7,7 +7,7 @@ import envPaths from "env-paths";
 import { existsSync, mkdirSync } from "fs";
 import os from "os";
 import path from "path";
-import { WaveDevVarName, WaveDevViteVarName } from "../frontend/util/isdev";
+import { DoraDevVarName, DoraDevViteVarName } from "../frontend/util/isdev";
 import * as keyutil from "../frontend/util/keyutil";
 
 // This is a little trick to ensure that Electron puts all its runtime data into a subdirectory to avoid conflicts with our own data.
@@ -20,10 +20,10 @@ const isDev = !app.isPackaged;
 const isDevVite = isDev && process.env.ELECTRON_RENDERER_URL;
 console.log(`Running in ${isDev ? "development" : "production"} mode`);
 if (isDev) {
-    process.env[WaveDevVarName] = "1";
+    process.env[DoraDevVarName] = "1";
 }
 if (isDevVite) {
-    process.env[WaveDevViteVarName] = "1";
+    process.env[DoraDevViteVarName] = "1";
 }
 
 const doraDirNamePrefix = "doraterm";
@@ -71,7 +71,7 @@ export function checkIfRunningUnderARM64Translation(fullConfig: FullConfigType) 
  * Gets the path to the old Wave home directory (defaults to `~/.doraterm`).
  * @returns The path to the directory if it exists and contains valid data for the current app, otherwise null.
  */
-function getWaveHomeDir(): string {
+function getDoraHomeDir(): string {
     let home = process.env[DoraHomeVarName];
     if (!home) {
         const homeDir = app.getPath("home");
@@ -79,7 +79,7 @@ function getWaveHomeDir(): string {
             home = path.join(homeDir, `.${waveDirName}`);
         }
     }
-    // If home exists and it has `wave.lock` in it, we know it has valid data from Wave >=v0.8. Otherwise, it could be for WaveLegacy (<v0.8)
+    // If home exists and it has `wave.lock` in it, we know it has valid data from Wave >=v0.8. Otherwise, it could be for DoraLegacy (<v0.8)
     if (home && existsSync(home) && existsSync(path.join(home, "wave.lock"))) {
         return home;
     }
@@ -105,7 +105,7 @@ function ensurePathExists(path: string): string {
  */
 function getDoraConfigDir(): string {
     // If wave home dir exists, use it for backwards compatibility
-    const waveHomeDir = getWaveHomeDir();
+    const waveHomeDir = getDoraHomeDir();
     if (waveHomeDir) {
         return path.join(waveHomeDir, "config");
     }
@@ -128,9 +128,9 @@ function getDoraConfigDir(): string {
  * Handles backwards compatibility with the old Wave Home directory model, where configurations and data were stored together.
  * @returns The path where data should be stored.
  */
-function getWaveDataDir(): string {
+function getDoraDataDir(): string {
     // If wave home dir exists, use it for backwards compatibility
-    const waveHomeDir = getWaveHomeDir();
+    const waveHomeDir = getDoraHomeDir();
     if (waveHomeDir) {
         return waveHomeDir;
     }
@@ -177,7 +177,7 @@ function getWaveSrvPath(): string {
 }
 
 function getWaveSrvCwd(): string {
-    return getWaveDataDir();
+    return getDoraDataDir();
 }
 
 ipcMain.on("get-is-dev", (event) => {
@@ -197,7 +197,7 @@ ipcMain.on("get-webview-preload", (event) => {
     event.returnValue = path.join(getElectronAppBasePath(), "preload", "preload-webview.cjs");
 });
 ipcMain.on("get-data-dir", (event) => {
-    event.returnValue = getWaveDataDir();
+    event.returnValue = getDoraDataDir();
 });
 ipcMain.on("get-config-dir", (event) => {
     event.returnValue = getDoraConfigDir();
@@ -273,7 +273,7 @@ export {
     getElectronAppResourcesPath,
     getElectronAppUnpackedBasePath,
     getDoraConfigDir,
-    getWaveDataDir,
+    getDoraDataDir,
     getWaveSrvCwd,
     getWaveSrvPath,
     getXdgCurrentDesktop,

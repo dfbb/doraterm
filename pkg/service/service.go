@@ -32,12 +32,12 @@ var ServiceMap = map[string]any{
 
 var contextRType = reflect.TypeOf((*context.Context)(nil)).Elem()
 var errorRType = reflect.TypeOf((*error)(nil)).Elem()
-var updatesRType = reflect.TypeOf(([]doraobj.WaveObjUpdate{}))
-var waveObjRType = reflect.TypeOf((*doraobj.WaveObj)(nil)).Elem()
-var waveObjSliceRType = reflect.TypeOf([]doraobj.WaveObj{})
-var waveObjMapRType = reflect.TypeOf(map[string]doraobj.WaveObj{})
+var updatesRType = reflect.TypeOf(([]doraobj.DoraObjUpdate{}))
+var waveObjRType = reflect.TypeOf((*doraobj.DoraObj)(nil)).Elem()
+var waveObjSliceRType = reflect.TypeOf([]doraobj.DoraObj{})
+var waveObjMapRType = reflect.TypeOf(map[string]doraobj.DoraObj{})
 var methodMetaRType = reflect.TypeOf(tsgenmeta.MethodMeta{})
-var waveObjUpdateRType = reflect.TypeOf(doraobj.WaveObjUpdate{})
+var waveObjUpdateRType = reflect.TypeOf(doraobj.DoraObjUpdate{})
 var uiContextRType = reflect.TypeOf((*doraobj.UIContext)(nil)).Elem()
 var wsCommandRType = reflect.TypeOf((*webcmd.WSCommandType)(nil)).Elem()
 var orefRType = reflect.TypeOf((*doraobj.ORef)(nil)).Elem()
@@ -53,7 +53,7 @@ type WebReturnType struct {
 	Success bool                    `json:"success,omitempty"`
 	Error   string                  `json:"error,omitempty"`
 	Data    any                     `json:"data,omitempty"`
-	Updates []doraobj.WaveObjUpdate `json:"updates,omitempty"`
+	Updates []doraobj.DoraObjUpdate `json:"updates,omitempty"`
 }
 
 func convertNumber(argType reflect.Type, jsonArg float64) (any, error) {
@@ -133,7 +133,7 @@ func convertSpecial(argType reflect.Type, jsonArg any) (any, error) {
 			return nil, fmt.Errorf("cannot convert %T to %s", jsonArg, argType)
 		}
 		sliceArg := jsonArg.([]any)
-		nativeSlice := make([]doraobj.WaveObj, len(sliceArg))
+		nativeSlice := make([]doraobj.DoraObj, len(sliceArg))
 		for idx, elem := range sliceArg {
 			elemMap, ok := elem.(map[string]any)
 			if !ok {
@@ -151,7 +151,7 @@ func convertSpecial(argType reflect.Type, jsonArg any) (any, error) {
 			return nil, fmt.Errorf("cannot convert %T to %s", jsonArg, argType)
 		}
 		mapArg := jsonArg.(map[string]any)
-		nativeMap := make(map[string]doraobj.WaveObj)
+		nativeMap := make(map[string]doraobj.DoraObj)
 		for key, elem := range mapArg {
 			elemMap, ok := elem.(map[string]any)
 			if !ok {
@@ -171,9 +171,9 @@ func convertSpecial(argType reflect.Type, jsonArg any) (any, error) {
 
 func convertSpecialForReturn(argType reflect.Type, nativeArg any) (any, error) {
 	if argType == waveObjRType {
-		return doraobj.ToJsonMap(nativeArg.(doraobj.WaveObj))
+		return doraobj.ToJsonMap(nativeArg.(doraobj.DoraObj))
 	} else if argType == waveObjSliceRType {
-		nativeSlice := nativeArg.([]doraobj.WaveObj)
+		nativeSlice := nativeArg.([]doraobj.DoraObj)
 		jsonSlice := make([]map[string]any, len(nativeSlice))
 		for idx, elem := range nativeSlice {
 			elemMap, err := doraobj.ToJsonMap(elem)
@@ -184,7 +184,7 @@ func convertSpecialForReturn(argType reflect.Type, nativeArg any) (any, error) {
 		}
 		return jsonSlice, nil
 	} else if argType == waveObjMapRType {
-		nativeMap := nativeArg.(map[string]doraobj.WaveObj)
+		nativeMap := nativeArg.(map[string]doraobj.DoraObj)
 		jsonMap := make(map[string]map[string]any)
 		for key, elem := range nativeMap {
 			elemMap, err := doraobj.ToJsonMap(elem)
@@ -288,7 +288,7 @@ func convertReturnValues(rtnVals []reflect.Value) *WebReturnType {
 		}
 		if valType == updatesRType {
 			// has a special MarshalJSON method
-			rtn.Updates = val.Interface().([]doraobj.WaveObjUpdate)
+			rtn.Updates = val.Interface().([]doraobj.DoraObjUpdate)
 			continue
 		}
 		if isSpecialWaveArgType(valType) {
@@ -384,7 +384,7 @@ func baseValidateServiceArg(argType reflect.Type) error {
 }
 
 func validateMethodReturnArg(retType reflect.Type) error {
-	// specifically allow doraobj.WaveObj, []doraobj.WaveObj, map[string]doraobj.WaveObj, and error
+	// specifically allow doraobj.DoraObj, []doraobj.DoraObj, map[string]doraobj.DoraObj, and error
 	if isSpecialWaveArgType(retType) || retType == errorRType {
 		return nil
 	}
@@ -392,7 +392,7 @@ func validateMethodReturnArg(retType reflect.Type) error {
 }
 
 func validateMethodArg(argType reflect.Type) error {
-	// specifically allow doraobj.WaveObj, []doraobj.WaveObj, map[string]doraobj.WaveObj, and context.Context
+	// specifically allow doraobj.DoraObj, []doraobj.DoraObj, map[string]doraobj.DoraObj, and context.Context
 	if isSpecialWaveArgType(argType) || argType == contextRType {
 		return nil
 	}

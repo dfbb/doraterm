@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Tooltip } from "@/app/element/tooltip";
-import { useWaveEnv, WaveEnv, WaveEnvSubset } from "@/app/waveenv/waveenv";
+import { useDoraEnv, DoraEnv, DoraEnvSubset } from "@/app/waveenv/waveenv";
 import { shouldIncludeWidgetForWorkspace } from "@/app/workspace/widgetfilter";
 import { modalsModel } from "@/store/modalmodel";
 import { fireAndForget, isBlank, makeIconClass } from "@/util/util";
@@ -19,15 +19,15 @@ import clsx from "clsx";
 import { useAtomValue } from "jotai";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 
-export type WidgetsEnv = WaveEnvSubset<{
-    isDev: WaveEnv["isDev"];
+export type WidgetsEnv = DoraEnvSubset<{
+    isDev: DoraEnv["isDev"];
     atoms: {
-        fullConfigAtom: WaveEnv["atoms"]["fullConfigAtom"];
-        hasConfigErrors: WaveEnv["atoms"]["hasConfigErrors"];
-        workspaceId: WaveEnv["atoms"]["workspaceId"];
+        fullConfigAtom: DoraEnv["atoms"]["fullConfigAtom"];
+        hasConfigErrors: DoraEnv["atoms"]["hasConfigErrors"];
+        workspaceId: DoraEnv["atoms"]["workspaceId"];
     };
-    createBlock: WaveEnv["createBlock"];
-    showContextMenu: WaveEnv["showContextMenu"];
+    createBlock: DoraEnv["createBlock"];
+    showContextMenu: DoraEnv["showContextMenu"];
 }>;
 
 function sortByDisplayOrder(wmap: { [key: string]: WidgetConfigType }): WidgetConfigType[] {
@@ -116,7 +116,7 @@ type FloatingWindowPropsType = {
 
 const SettingsFloatingWindow = memo(
     ({ isOpen, onClose, referenceElement, hasConfigErrors }: FloatingWindowPropsType) => {
-        const env = useWaveEnv<WidgetsEnv>();
+        const env = useDoraEnv<WidgetsEnv>();
         const { refs, floatingStyles, context } = useFloating({
             open: isOpen,
             onOpenChange: onClose,
@@ -204,7 +204,7 @@ const SettingsFloatingWindow = memo(
 SettingsFloatingWindow.displayName = "SettingsFloatingWindow";
 
 const Widgets = memo(() => {
-    const env = useWaveEnv<WidgetsEnv>();
+    const env = useDoraEnv<WidgetsEnv>();
     const fullConfig = useAtomValue(env.atoms.fullConfigAtom);
     const hasConfigErrors = useAtomValue(env.atoms.hasConfigErrors);
     const workspaceId = useAtomValue(env.atoms.workspaceId);

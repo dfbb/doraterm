@@ -162,7 +162,7 @@ type RunShellOpts struct {
 func (sc *ShellController) sendUpdate_nolock() {
 	rtStatus := sc.getRuntimeStatus_nolock()
 	log.Printf("sending blockcontroller update %#v\n", rtStatus)
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event: dps.Event_ControllerStatus,
 		Scopes: []string{
 			doraobj.MakeORef(doraobj.OType_Tab, sc.TabId).String(),
@@ -180,7 +180,7 @@ func (sc *ShellController) UpdateControllerAndSendUpdate(updateFn func() bool) {
 	if sendUpdate {
 		rtStatus := sc.GetRuntimeStatus()
 		log.Printf("sending blockcontroller update %#v\n", rtStatus)
-		dps.Broker.Publish(dps.WaveEvent{
+		dps.Broker.Publish(dps.DoraEvent{
 			Event: dps.Event_ControllerStatus,
 			Scopes: []string{
 				doraobj.MakeORef(doraobj.OType_Tab, sc.TabId).String(),
@@ -317,7 +317,7 @@ func (sc *ShellController) run(logCtx context.Context, bdata *doraobj.Block, blo
 type ConnUnion struct {
 	ConnName   string
 	ConnType   string
-	WshEnabled bool
+	DshEnabled bool
 	ShellPath  string
 	ShellOpts  []string
 	ShellType  string
@@ -327,7 +327,7 @@ type ConnUnion struct {
 func (bc *ShellController) getConnUnion(logCtx context.Context, remoteName string, blockMeta doraobj.MetaMapType) (ConnUnion, error) {
 	rtn := ConnUnion{ConnName: remoteName, ConnType: ConnType_Local}
 	wshEnabled := !blockMeta.GetBool(doraobj.MetaKey_CmdNoWsh, false)
-	rtn.WshEnabled = wshEnabled
+	rtn.DshEnabled = wshEnabled
 	err := rtn.getRemoteInfoAndShellType(blockMeta)
 	if err != nil {
 		return ConnUnion{}, err
@@ -357,7 +357,7 @@ func (bc *ShellController) setupAndStartShellProcess(logCtx context.Context, rc 
 	if err != nil {
 		return nil, err
 	}
-	blocklogger.Infof(logCtx, "[conndebug] remoteName: %q, connType: %s, wshEnabled: %v, shell: %q, shellType: %s\n", remoteName, connUnion.ConnType, connUnion.WshEnabled, connUnion.ShellPath, connUnion.ShellType)
+	blocklogger.Infof(logCtx, "[conndebug] remoteName: %q, connType: %s, wshEnabled: %v, shell: %q, shellType: %s\n", remoteName, connUnion.ConnType, connUnion.DshEnabled, connUnion.ShellPath, connUnion.ShellType)
 	var cmdStr string
 	var cmdOpts shellexec.CommandOptsType
 	if bc.ControllerType == BlockController_Shell {
@@ -385,7 +385,7 @@ func (bc *ShellController) setupAndStartShellProcess(logCtx context.Context, rc 
 	swapToken := makeSwapToken(ctx, logCtx, bc.BlockId, blockMeta, remoteName, connUnion.ShellType)
 	cmdOpts.SwapToken = swapToken
 	blocklogger.Debugf(logCtx, "[conndebug] created swaptoken: %s\n", swapToken.Token)
-	if connUnion.WshEnabled {
+	if connUnion.DshEnabled {
 		sockName := dorabase.GetDomainSocketName()
 		rpcContext := dshrpc.RpcContext{
 			ProcRoute: true,
@@ -397,7 +397,7 @@ func (bc *ShellController) setupAndStartShellProcess(logCtx context.Context, rc 
 			return nil, fmt.Errorf("error making jwt token: %w", err)
 		}
 		swapToken.RpcContext = &rpcContext
-		swapToken.Env[dshutil.WaveJwtTokenVarName] = jwtStr
+		swapToken.Env[dshutil.DoraJwtTokenVarName] = jwtStr
 	}
 	cmdOpts.ShellPath = connUnion.ShellPath
 	cmdOpts.ShellOpts = getLocalShellOpts(blockMeta)
@@ -513,7 +513,7 @@ func (bc *ShellController) manageRunningShellProcess(shellProc *shellexec.ShellP
 }
 
 func (union *ConnUnion) getRemoteInfoAndShellType(blockMeta doraobj.MetaMapType) error {
-	if !union.WshEnabled {
+	if !union.DshEnabled {
 		return nil
 	}
 	shellPath, err := getLocalShellPath(blockMeta)

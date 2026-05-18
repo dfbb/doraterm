@@ -4,7 +4,7 @@
 import { BlockNodeModel } from "@/app/block/blocktypes";
 import type { TabModel } from "@/app/store/tab-model";
 import { LauncherViewModel } from "@/app/view/launcher/launcher";
-import { WaveEnv } from "@/app/waveenv/waveenv";
+import { DoraEnv } from "@/app/waveenv/waveenv";
 import { atom } from "jotai";
 import { DoraConfigViewModel } from "../view/doraconfig/doraconfig-model";
 import { blockViewToIcon, blockViewToName } from "./blockutil";
@@ -32,7 +32,7 @@ function makeViewModel(
     blockView: string,
     nodeModel: BlockNodeModel,
     tabModel: TabModel,
-    waveEnv: WaveEnv
+    waveEnv: DoraEnv
 ): ViewModel {
     const ctor = BlockRegistry.get(blockView);
     if (ctor != null) {

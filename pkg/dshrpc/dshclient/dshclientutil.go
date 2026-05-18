@@ -13,7 +13,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
-func sendRpcRequestCallHelper[T any](w *dshutil.WshRpc, command string, data interface{}, opts *dshrpc.RpcOpts) (T, error) {
+func sendRpcRequestCallHelper[T any](w *dshutil.DshRpc, command string, data interface{}, opts *dshrpc.RpcOpts) (T, error) {
 	if opts == nil {
 		opts = &dshrpc.RpcOpts{}
 	}
@@ -49,7 +49,7 @@ func rtnErr[T any](ch chan dshrpc.RespOrErrorUnion[T], err error) {
 	}()
 }
 
-func sendRpcRequestResponseStreamHelper[T any](w *dshutil.WshRpc, command string, data interface{}, opts *dshrpc.RpcOpts) chan dshrpc.RespOrErrorUnion[T] {
+func sendRpcRequestResponseStreamHelper[T any](w *dshutil.DshRpc, command string, data interface{}, opts *dshrpc.RpcOpts) chan dshrpc.RespOrErrorUnion[T] {
 	if opts == nil {
 		opts = &dshrpc.RpcOpts{}
 	}

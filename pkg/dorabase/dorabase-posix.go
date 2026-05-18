@@ -13,9 +13,9 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func AcquireWaveLock() (FDLock, error) {
+func AcquireDoraLock() (FDLock, error) {
 	dataHomeDir := GetDoraDataDir()
-	lockFileName := filepath.Join(dataHomeDir, WaveLockFile)
+	lockFileName := filepath.Join(dataHomeDir, DoraLockFile)
 	log.Printf("[base] acquiring lock on %s\n", lockFileName)
 	fd, err := os.OpenFile(lockFileName, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {

@@ -41,7 +41,7 @@ func runVersionCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	resp, err := dshclient.WaveInfoCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 2000})
+	resp, err := dshclient.DoraInfoCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return err
 	}

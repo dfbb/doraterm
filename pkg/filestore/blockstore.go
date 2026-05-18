@@ -51,7 +51,7 @@ var WFS *FileStore = &FileStore{
 	Cache: make(map[cacheKey]*CacheEntry),
 }
 
-type WaveFile struct {
+type DoraFile struct {
 	// these fields are static (not updated)
 	ZoneId    string          `json:"zoneid"`
 	Name      string          `json:"name"`
@@ -66,7 +66,7 @@ type WaveFile struct {
 
 // for regular files this is just Size
 // for circular files this is min(Size, MaxSize)
-func (f WaveFile) DataLength() int64 {
+func (f DoraFile) DataLength() int64 {
 	if f.Opts.Circular {
 		return minInt64(f.Size, f.Opts.MaxSize)
 	}
@@ -75,7 +75,7 @@ func (f WaveFile) DataLength() int64 {
 
 // for regular files this is just 0
 // for circular files this is the index of the first byte of data we have
-func (f WaveFile) DataStartIdx() int64 {
+func (f DoraFile) DataStartIdx() int64 {
 	if f.Opts.Circular && f.Size > f.Opts.MaxSize {
 		return f.Size - f.Opts.MaxSize
 	}
@@ -91,7 +91,7 @@ func copyMeta(meta dshrpc.FileMeta) dshrpc.FileMeta {
 	return newMeta
 }
 
-func (f *WaveFile) DeepCopy() *WaveFile {
+func (f *DoraFile) DeepCopy() *DoraFile {
 	if f == nil {
 		return nil
 	}
@@ -100,7 +100,7 @@ func (f *WaveFile) DeepCopy() *WaveFile {
 	return &newFile
 }
 
-func (WaveFile) UseDBMap() {}
+func (DoraFile) UseDBMap() {}
 
 type FileData struct {
 	ZoneId  string `json:"zoneid"`
@@ -138,7 +138,7 @@ func (s *FileStore) MakeFile(ctx context.Context, zoneId string, name string, me
 			return fs.ErrExist
 		}
 		now := time.Now().UnixMilli()
-		file := &WaveFile{
+		file := &DoraFile{
 			ZoneId:    zoneId,
 			Name:      name,
 			Size:      0,
@@ -174,8 +174,8 @@ func (s *FileStore) DeleteZone(ctx context.Context, zoneId string) error {
 }
 
 // if file doesn't exsit, returns fs.ErrNotExist
-func (s *FileStore) Stat(ctx context.Context, zoneId string, name string) (*WaveFile, error) {
-	return withLockRtn(s, zoneId, name, func(entry *CacheEntry) (*WaveFile, error) {
+func (s *FileStore) Stat(ctx context.Context, zoneId string, name string) (*DoraFile, error) {
+	return withLockRtn(s, zoneId, name, func(entry *CacheEntry) (*DoraFile, error) {
 		file, err := entry.loadFileForRead(ctx)
 		if err != nil {
 			if err == fs.ErrNotExist {
@@ -187,7 +187,7 @@ func (s *FileStore) Stat(ctx context.Context, zoneId string, name string) (*Wave
 	})
 }
 
-func (s *FileStore) ListFiles(ctx context.Context, zoneId string) ([]*WaveFile, error) {
+func (s *FileStore) ListFiles(ctx context.Context, zoneId string) ([]*DoraFile, error) {
 	files, err := dbGetZoneFiles(ctx, zoneId)
 	if err != nil {
 		return nil, fmt.Errorf("error getting zone files: %v", err)
@@ -280,7 +280,7 @@ func (s *FileStore) AppendData(ctx context.Context, zoneId string, name string, 
 	})
 }
 
-func metaIncrement(file *WaveFile, key string, amount int) int {
+func metaIncrement(file *DoraFile, key string, amount int) int {
 	if file.Meta == nil {
 		file.Meta = make(dshrpc.FileMeta)
 	}
@@ -425,7 +425,7 @@ func (s *FileStore) FlushCache(ctx context.Context) (stats FlushStats, rtnErr er
 
 ///////////////////////////////////
 
-func (f *WaveFile) partIdxAtOffset(offset int64) int {
+func (f *DoraFile) partIdxAtOffset(offset int64) int {
 	partIdx := int(offset / partDataSize)
 	if f.Opts.Circular {
 		maxPart := int(f.Opts.MaxSize / partDataSize)
@@ -453,7 +453,7 @@ func getPartIdxsFromMap(partMap map[int]int) []int {
 }
 
 // returns a map of partIdx to amount of data to write to that part
-func (file *WaveFile) computePartMap(startOffset int64, size int64) map[int]int {
+func (file *DoraFile) computePartMap(startOffset int64, size int64) map[int]int {
 	partMap := make(map[int]int)
 	endOffset := startOffset + size
 	startFileOffset := startOffset - (startOffset % partDataSize)

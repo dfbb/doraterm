@@ -19,7 +19,7 @@ import (
 
 var ErrNotFound = fmt.Errorf("not found")
 
-func waveObjTableName(w doraobj.WaveObj) string {
+func waveObjTableName(w doraobj.DoraObj) string {
 	return "db_" + w.GetOType()
 }
 
@@ -27,17 +27,17 @@ func tableNameFromOType(otype string) string {
 	return "db_" + otype
 }
 
-func tableNameGen[T doraobj.WaveObj]() string {
+func tableNameGen[T doraobj.DoraObj]() string {
 	var zeroObj T
 	return tableNameFromOType(zeroObj.GetOType())
 }
 
-func getOTypeGen[T doraobj.WaveObj]() string {
+func getOTypeGen[T doraobj.DoraObj]() string {
 	var zeroObj T
 	return zeroObj.GetOType()
 }
 
-func DBGetCount[T doraobj.WaveObj](ctx context.Context) (int, error) {
+func DBGetCount[T doraobj.DoraObj](ctx context.Context) (int, error) {
 	return WithTxRtn(ctx, func(tx *TxWrap) (int, error) {
 		table := tableNameGen[T]()
 		query := fmt.Sprintf("SELECT count(*) FROM %s", table)
@@ -99,13 +99,13 @@ func genericCastWithErr[T any](v any, err error) (T, error) {
 	return v.(T), err
 }
 
-func DBGetSingleton[T doraobj.WaveObj](ctx context.Context) (T, error) {
+func DBGetSingleton[T doraobj.DoraObj](ctx context.Context) (T, error) {
 	rtn, err := DBGetSingletonByType(ctx, getOTypeGen[T]())
 	return genericCastWithErr[T](rtn, err)
 }
 
-func DBGetSingletonByType(ctx context.Context, otype string) (doraobj.WaveObj, error) {
-	return WithTxRtn(ctx, func(tx *TxWrap) (doraobj.WaveObj, error) {
+func DBGetSingletonByType(ctx context.Context, otype string) (doraobj.DoraObj, error) {
+	return WithTxRtn(ctx, func(tx *TxWrap) (doraobj.DoraObj, error) {
 		table := tableNameFromOType(otype)
 		query := fmt.Sprintf("SELECT oid, version, data FROM %s LIMIT 1", table)
 		var row idDataType
@@ -130,12 +130,12 @@ func DBExistsORef(ctx context.Context, oref doraobj.ORef) (bool, error) {
 	})
 }
 
-func DBGet[T doraobj.WaveObj](ctx context.Context, id string) (T, error) {
+func DBGet[T doraobj.DoraObj](ctx context.Context, id string) (T, error) {
 	rtn, err := DBGetORef(ctx, doraobj.ORef{OType: getOTypeGen[T](), OID: id})
 	return genericCastWithErr[T](rtn, err)
 }
 
-func DBMustGet[T doraobj.WaveObj](ctx context.Context, id string) (T, error) {
+func DBMustGet[T doraobj.DoraObj](ctx context.Context, id string) (T, error) {
 	rtn, err := DBGetORef(ctx, doraobj.ORef{OType: getOTypeGen[T](), OID: id})
 	if err != nil {
 		var zeroVal T
@@ -148,8 +148,8 @@ func DBMustGet[T doraobj.WaveObj](ctx context.Context, id string) (T, error) {
 	return rtn.(T), nil
 }
 
-func DBGetORef(ctx context.Context, oref doraobj.ORef) (doraobj.WaveObj, error) {
-	return WithTxRtn(ctx, func(tx *TxWrap) (doraobj.WaveObj, error) {
+func DBGetORef(ctx context.Context, oref doraobj.ORef) (doraobj.DoraObj, error) {
+	return WithTxRtn(ctx, func(tx *TxWrap) (doraobj.DoraObj, error) {
 		table := tableNameFromOType(oref.OType)
 		query := fmt.Sprintf("SELECT oid, version, data FROM %s WHERE oid = ?", table)
 		var row idDataType
@@ -166,13 +166,13 @@ func DBGetORef(ctx context.Context, oref doraobj.ORef) (doraobj.WaveObj, error) 
 	})
 }
 
-func dbSelectOIDs(ctx context.Context, otype string, oids []string) ([]doraobj.WaveObj, error) {
-	return WithTxRtn(ctx, func(tx *TxWrap) ([]doraobj.WaveObj, error) {
+func dbSelectOIDs(ctx context.Context, otype string, oids []string) ([]doraobj.DoraObj, error) {
+	return WithTxRtn(ctx, func(tx *TxWrap) ([]doraobj.DoraObj, error) {
 		table := tableNameFromOType(otype)
 		query := fmt.Sprintf("SELECT oid, version, data FROM %s WHERE oid IN (SELECT value FROM json_each(?))", table)
 		var rows []idDataType
 		tx.Select(&rows, query, dbutil.QuickJson(oids))
-		rtn := make([]doraobj.WaveObj, 0, len(rows))
+		rtn := make([]doraobj.DoraObj, 0, len(rows))
 		for _, row := range rows {
 			waveObj, err := doraobj.FromJson(row.Data)
 			if err != nil {
@@ -185,13 +185,13 @@ func dbSelectOIDs(ctx context.Context, otype string, oids []string) ([]doraobj.W
 	})
 }
 
-func DBSelectORefs(ctx context.Context, orefs []doraobj.ORef) ([]doraobj.WaveObj, error) {
+func DBSelectORefs(ctx context.Context, orefs []doraobj.ORef) ([]doraobj.DoraObj, error) {
 	oidsByType := make(map[string][]string)
 	for _, oref := range orefs {
 		oidsByType[oref.OType] = append(oidsByType[oref.OType], oref.OID)
 	}
-	return WithTxRtn(ctx, func(tx *TxWrap) ([]doraobj.WaveObj, error) {
-		rtn := make([]doraobj.WaveObj, 0, len(orefs))
+	return WithTxRtn(ctx, func(tx *TxWrap) ([]doraobj.DoraObj, error) {
+		rtn := make([]doraobj.DoraObj, 0, len(orefs))
 		for otype, oids := range oidsByType {
 			rtnArr, err := dbSelectOIDs(tx.Context(), otype, oids)
 			if err != nil {
@@ -217,7 +217,7 @@ func DBGetAllOIDsByType(ctx context.Context, otype string) ([]string, error) {
 	})
 }
 
-func DBGetAllObjsByType[T doraobj.WaveObj](ctx context.Context, otype string) ([]T, error) {
+func DBGetAllObjsByType[T doraobj.DoraObj](ctx context.Context, otype string) ([]T, error) {
 	return WithTxRtn(ctx, func(tx *TxWrap) ([]T, error) {
 		rtn := make([]T, 0)
 		table := tableNameFromOType(otype)
@@ -239,8 +239,8 @@ func DBGetAllObjsByType[T doraobj.WaveObj](ctx context.Context, otype string) ([
 
 func DBResolveEasyOID(ctx context.Context, oid string) (*doraobj.ORef, error) {
 	return WithTxRtn(ctx, func(tx *TxWrap) (*doraobj.ORef, error) {
-		for _, rtype := range doraobj.AllWaveObjTypes() {
-			otype := reflect.Zero(rtype).Interface().(doraobj.WaveObj).GetOType()
+		for _, rtype := range doraobj.AllDoraObjTypes() {
+			otype := reflect.Zero(rtype).Interface().(doraobj.DoraObj).GetOType()
 			table := tableNameFromOType(otype)
 			var fullOID string
 			if len(oid) == 8 {
@@ -259,7 +259,7 @@ func DBResolveEasyOID(ctx context.Context, oid string) (*doraobj.ORef, error) {
 	})
 }
 
-func DBSelectMap[T doraobj.WaveObj](ctx context.Context, ids []string) (map[string]T, error) {
+func DBSelectMap[T doraobj.DoraObj](ctx context.Context, ids []string) (map[string]T, error) {
 	rtnArr, err := dbSelectOIDs(ctx, getOTypeGen[T](), ids)
 	if err != nil {
 		return nil, err
@@ -276,7 +276,7 @@ func DBDelete(ctx context.Context, otype string, id string) error {
 		table := tableNameFromOType(otype)
 		query := fmt.Sprintf("DELETE FROM %s WHERE oid = ?", table)
 		tx.Exec(query, id)
-		doraobj.ContextAddUpdate(ctx, doraobj.WaveObjUpdate{UpdateType: doraobj.UpdateType_Delete, OType: otype, OID: id})
+		doraobj.ContextAddUpdate(ctx, doraobj.DoraObjUpdate{UpdateType: doraobj.UpdateType_Delete, OType: otype, OID: id})
 		return nil
 	})
 	if err != nil {
@@ -298,7 +298,7 @@ func DBDelete(ctx context.Context, otype string, id string) error {
 	return nil
 }
 
-func DBUpdate(ctx context.Context, val doraobj.WaveObj) error {
+func DBUpdate(ctx context.Context, val doraobj.DoraObj) error {
 	oid := doraobj.GetOID(val)
 	if oid == "" {
 		return fmt.Errorf("cannot update %T value with empty id", val)
@@ -312,12 +312,12 @@ func DBUpdate(ctx context.Context, val doraobj.WaveObj) error {
 		query := fmt.Sprintf("UPDATE %s SET data = ?, version = version+1 WHERE oid = ? RETURNING version", table)
 		newVersion := tx.GetInt(query, jsonData, oid)
 		doraobj.SetVersion(val, newVersion)
-		doraobj.ContextAddUpdate(ctx, doraobj.WaveObjUpdate{UpdateType: doraobj.UpdateType_Update, OType: val.GetOType(), OID: oid, Obj: val})
+		doraobj.ContextAddUpdate(ctx, doraobj.DoraObjUpdate{UpdateType: doraobj.UpdateType_Update, OType: val.GetOType(), OID: oid, Obj: val})
 		return nil
 	})
 }
 
-func DBUpdateFn[T doraobj.WaveObj](ctx context.Context, id string, updateFn func(T)) error {
+func DBUpdateFn[T doraobj.DoraObj](ctx context.Context, id string, updateFn func(T)) error {
 	return WithTx(ctx, func(tx *TxWrap) error {
 		val, err := DBMustGet[T](tx.Context(), id)
 		if err != nil {
@@ -328,7 +328,7 @@ func DBUpdateFn[T doraobj.WaveObj](ctx context.Context, id string, updateFn func
 	})
 }
 
-func DBUpdateFnErr[T doraobj.WaveObj](ctx context.Context, id string, updateFn func(T) error) error {
+func DBUpdateFnErr[T doraobj.DoraObj](ctx context.Context, id string, updateFn func(T) error) error {
 	return WithTx(ctx, func(tx *TxWrap) error {
 		val, err := DBMustGet[T](tx.Context(), id)
 		if err != nil {
@@ -342,7 +342,7 @@ func DBUpdateFnErr[T doraobj.WaveObj](ctx context.Context, id string, updateFn f
 	})
 }
 
-func DBInsert(ctx context.Context, val doraobj.WaveObj) error {
+func DBInsert(ctx context.Context, val doraobj.DoraObj) error {
 	oid := doraobj.GetOID(val)
 	if oid == "" {
 		return fmt.Errorf("cannot insert %T value with empty id", val)
@@ -356,7 +356,7 @@ func DBInsert(ctx context.Context, val doraobj.WaveObj) error {
 		doraobj.SetVersion(val, 1)
 		query := fmt.Sprintf("INSERT INTO %s (oid, version, data) VALUES (?, ?, ?)", table)
 		tx.Exec(query, oid, 1, jsonData)
-		doraobj.ContextAddUpdate(ctx, doraobj.WaveObjUpdate{UpdateType: doraobj.UpdateType_Update, OType: val.GetOType(), OID: oid, Obj: val})
+		doraobj.ContextAddUpdate(ctx, doraobj.DoraObjUpdate{UpdateType: doraobj.UpdateType_Update, OType: val.GetOType(), OID: oid, Obj: val})
 		return nil
 	})
 }

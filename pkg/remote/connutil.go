@@ -102,7 +102,7 @@ func CpWshToRemote(ctx context.Context, client *ssh.Client, clientOs string, cli
 	if ok {
 		blocklogger.Debugf(ctx, "[conndebug] CpWshToRemote, timeout: %v\n", time.Until(deadline))
 	}
-	wshLocalPath, err := shellutil.GetLocalWshBinaryPath(dorabase.DoraVersion, clientOs, clientArch)
+	wshLocalPath, err := shellutil.GetLocalDshBinaryPath(dorabase.DoraVersion, clientOs, clientArch)
 	if err != nil {
 		return err
 	}
@@ -112,15 +112,15 @@ func CpWshToRemote(ctx context.Context, client *ssh.Client, clientOs string, cli
 	}
 	defer input.Close()
 	installWords := map[string]string{
-		"installDir":  filepath.ToSlash(filepath.Dir(dorabase.RemoteFullWshBinPath)),
-		"tempPath":    dorabase.RemoteFullWshBinPath + ".temp",
-		"installPath": dorabase.RemoteFullWshBinPath,
+		"installDir":  filepath.ToSlash(filepath.Dir(dorabase.RemoteFullDshBinPath)),
+		"tempPath":    dorabase.RemoteFullDshBinPath + ".temp",
+		"installPath": dorabase.RemoteFullDshBinPath,
 	}
 	var installCmd bytes.Buffer
 	if err := installTemplate.Execute(&installCmd, installWords); err != nil {
 		return fmt.Errorf("failed to prepare install command: %w", err)
 	}
-	blocklogger.Infof(ctx, "[conndebug] copying %q to remote server %q\n", wshLocalPath, dorabase.RemoteFullWshBinPath)
+	blocklogger.Infof(ctx, "[conndebug] copying %q to remote server %q\n", wshLocalPath, dorabase.RemoteFullDshBinPath)
 	genCmd, err := genconn.MakeSSHCmdClient(client, genconn.CommandSpec{
 		Cmd: installCmd.String(),
 	})
@@ -167,7 +167,7 @@ func IsPowershell(shellPath string) bool {
 }
 
 func NormalizeConfigPattern(pattern string) string {
-	userName, err := WaveSshConfigUserSettings().GetStrict(pattern, "User")
+	userName, err := DoraSshConfigUserSettings().GetStrict(pattern, "User")
 	if err != nil || userName == "" {
 		log.Printf("warning: error parsing username of %s for conn dropdown: %v", pattern, err)
 		localUser, err := user.Current()
@@ -175,7 +175,7 @@ func NormalizeConfigPattern(pattern string) string {
 			userName = localUser.Username
 		}
 	}
-	port, err := WaveSshConfigUserSettings().GetStrict(pattern, "Port")
+	port, err := DoraSshConfigUserSettings().GetStrict(pattern, "Port")
 	if err != nil {
 		port = "22"
 	}
@@ -191,7 +191,7 @@ func NormalizeConfigPattern(pattern string) string {
 }
 
 func ParseProfiles() []string {
-	connfile, cerrs := dconfig.ReadWaveHomeConfigFile(dconfig.ProfilesFile)
+	connfile, cerrs := dconfig.ReadDoraHomeConfigFile(dconfig.ProfilesFile)
 	if len(cerrs) > 0 {
 		log.Printf("error reading config file: %v", cerrs[0])
 		return nil

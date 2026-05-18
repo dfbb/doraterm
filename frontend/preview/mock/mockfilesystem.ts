@@ -273,7 +273,7 @@ function createMockFilesystemEntries(): MockFsEntryInput[] {
         makeMockFsInput(`${MockHomePath}/Projects/bug-181.txt`),
         makeMockFsInput(
             `${MockHomePath}/waveterm/README.md`,
-            `# Mock WaveTerm Repo\n\nThis fake repo exists only in the preview environment.\nIt gives file previews something realistic to browse.\n`,
+            `# Mock DoraTerm Repo\n\nThis fake repo exists only in the preview environment.\nIt gives file previews something realistic to browse.\n`,
             "text/markdown"
         ),
         makeMockFsInput(`${MockHomePath}/waveterm/package.json`),

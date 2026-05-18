@@ -28,31 +28,31 @@ type Subset<T, U> = OmitNever<{
     [K in keyof T]: K extends keyof U ? T[K] : never;
 }>;
 
-type ComplexWaveEnvKeys = {
-    rpc: WaveEnv["rpc"];
-    electron: WaveEnv["electron"];
-    atoms: WaveEnv["atoms"];
-    wos: WaveEnv["wos"];
-    services: WaveEnv["services"];
+type ComplexDoraEnvKeys = {
+    rpc: DoraEnv["rpc"];
+    electron: DoraEnv["electron"];
+    atoms: DoraEnv["atoms"];
+    wos: DoraEnv["wos"];
+    services: DoraEnv["services"];
 };
 
-type WaveEnvMockFields = {
-    isMock: WaveEnv["isMock"];
-    mockSetWaveObj: WaveEnv["mockSetWaveObj"];
-    mockModels: WaveEnv["mockModels"];
+type DoraEnvMockFields = {
+    isMock: DoraEnv["isMock"];
+    mockSetDoraObj: DoraEnv["mockSetDoraObj"];
+    mockModels: DoraEnv["mockModels"];
 };
 
-export type WaveEnvSubset<T> = WaveEnvMockFields &
+export type DoraEnvSubset<T> = DoraEnvMockFields &
     OmitNever<{
-        [K in keyof T]: K extends keyof ComplexWaveEnvKeys
-            ? Subset<T[K], ComplexWaveEnvKeys[K]>
-            : K extends keyof WaveEnv
+        [K in keyof T]: K extends keyof ComplexDoraEnvKeys
+            ? Subset<T[K], ComplexDoraEnvKeys[K]>
+            : K extends keyof DoraEnv
               ? T[K]
               : never;
     }>;
 
 // default implementation for production is in ./waveenvimpl.ts
-export type WaveEnv = {
+export type DoraEnv = {
     isMock: boolean;
     electron: ElectronApi;
     rpc: RpcApiType;
@@ -68,10 +68,10 @@ export type WaveEnv = {
     getConnStatusAtom: (conn: string) => PrimitiveAtom<ConnStatus>;
     getLocalHostDisplayNameAtom: () => Atom<string>;
     wos: {
-        getWaveObjectAtom: <T extends WaveObj>(oref: string) => Atom<T>;
-        getWaveObjectLoadingAtom: (oref: string) => Atom<boolean>;
-        isWaveObjectNullAtom: (oref: string) => Atom<boolean>;
-        useWaveObjectValue: <T extends WaveObj>(oref: string) => [T, boolean];
+        getDoraObjectAtom: <T extends DoraObj>(oref: string) => Atom<T>;
+        getDoraObjectLoadingAtom: (oref: string) => Atom<boolean>;
+        isDoraObjectNullAtom: (oref: string) => Atom<boolean>;
+        useDoraObjectValue: <T extends DoraObj>(oref: string) => [T, boolean];
     };
     getSettingsKeyAtom: SettingsKeyAtomFnType;
     getBlockMetaKeyAtom: MetaKeyAtomFnType;
@@ -80,16 +80,16 @@ export type WaveEnv = {
     getConfigBackgroundAtom: (bgKey: string | null) => Atom<BackgroundConfigType>;
 
     // the mock fields are only usable in the preview server (may be be null or throw errors in production)
-    mockSetWaveObj: <T extends WaveObj>(oref: string, obj: T) => void;
+    mockSetDoraObj: <T extends DoraObj>(oref: string, obj: T) => void;
     mockModels: Map<any, any>;
 };
 
-export const WaveEnvContext = React.createContext<WaveEnv>(null);
+export const DoraEnvContext = React.createContext<DoraEnv>(null);
 
 type EnvContract<T> = {
     [K in keyof T]?: T[K] extends (...args: any[]) => any ? T[K] : T[K] extends object ? EnvContract<T[K]> : T[K];
 };
 
-export function useWaveEnv<T extends EnvContract<WaveEnv> = WaveEnv>(): T {
-    return React.useContext(WaveEnvContext) as T;
+export function useDoraEnv<T extends EnvContract<DoraEnv> = DoraEnv>(): T {
+    return React.useContext(DoraEnvContext) as T;
 }
