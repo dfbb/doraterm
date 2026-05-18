@@ -7,8 +7,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var setConfigCmd = &cobra.Command{
@@ -33,8 +33,8 @@ func setConfigRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	if err != nil {
 		return err
 	}
-	commandData := wshrpc.MetaSettingsType{MetaMapType: meta}
-	err = wshclient.SetConfigCommand(RpcClient, commandData, &wshrpc.RpcOpts{Timeout: 2000})
+	commandData := dshrpc.MetaSettingsType{MetaMapType: meta}
+	err = dshclient.SetConfigCommand(RpcClient, commandData, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("setting config: %w", err)
 	}

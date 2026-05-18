@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/dfbb/doraterm/pkg/util/migrateutil"
-	"github.com/dfbb/doraterm/pkg/wavebase"
+	"github.com/dfbb/doraterm/pkg/dorabase"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -50,8 +50,8 @@ func InitFilestore() error {
 }
 
 func GetDBName() string {
-	waveHome := wavebase.GetWaveDataDir()
-	return filepath.Join(waveHome, wavebase.WaveDBDir, FilestoreDBName)
+	waveHome := dorabase.GetWaveDataDir()
+	return filepath.Join(waveHome, dorabase.WaveDBDir, FilestoreDBName)
 }
 
 func MakeDB(ctx context.Context) (*sqlx.DB, error) {

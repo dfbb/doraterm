@@ -8,13 +8,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 func TestGenerateWshClientApiMethodCall_MultiArg(t *testing.T) {
-	methodDecl := &wshrpc.WshRpcMethodDecl{
+	methodDecl := &dshrpc.WshRpcMethodDecl{
 		Command:          "test",
-		CommandType:      wshrpc.RpcType_Call,
+		CommandType:      dshrpc.RpcType_Call,
 		MethodName:       "TestCommand",
 		CommandDataTypes: []reflect.Type{reflect.TypeOf(""), reflect.TypeOf(0)},
 	}

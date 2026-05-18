@@ -18,13 +18,13 @@ import (
 	"github.com/dfbb/doraterm/pkg/shellexec"
 	"github.com/dfbb/doraterm/pkg/userinput"
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/wavejwt"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wconfig"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshserver"
-	"github.com/dfbb/doraterm/pkg/wshutil"
-	"github.com/dfbb/doraterm/pkg/wstore"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/dorajwt"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dconfig"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshserver"
+	"github.com/dfbb/doraterm/pkg/dshutil"
+	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
 func setupWaveEnvVars() error {
@@ -68,37 +68,37 @@ func initTestHarness(autoAccept bool) error {
 		return fmt.Errorf("failed to setup wave env vars: %w", err)
 	}
 
-	err = wavebase.CacheAndRemoveEnvVars()
+	err = dorabase.CacheAndRemoveEnvVars()
 	if err != nil {
 		return fmt.Errorf("failed to cache env vars: %w", err)
 	}
 
-	wshutil.DefaultRouter = wshutil.NewWshRouter()
-	wshutil.DefaultRouter.SetAsRootRouter()
+	dshutil.DefaultRouter = dshutil.NewWshRouter()
+	dshutil.DefaultRouter.SetAsRootRouter()
 
-	wstore.SetClientId("test-client-" + fmt.Sprintf("%d", time.Now().Unix()))
+	dstore.SetClientId("test-client-" + fmt.Sprintf("%d", time.Now().Unix()))
 
 	userinput.SetUserInputProvider(&CLIProvider{AutoAccept: autoAccept})
 
-	keyPair, err := wavejwt.GenerateKeyPair()
+	keyPair, err := dorajwt.GenerateKeyPair()
 	if err != nil {
 		return fmt.Errorf("failed to generate JWT key pair: %w", err)
 	}
 
-	err = wavejwt.SetPrivateKey(keyPair.PrivateKey)
+	err = dorajwt.SetPrivateKey(keyPair.PrivateKey)
 	if err != nil {
 		return fmt.Errorf("failed to set JWT private key: %w", err)
 	}
 
-	err = wavejwt.SetPublicKey(keyPair.PublicKey)
+	err = dorajwt.SetPublicKey(keyPair.PublicKey)
 	if err != nil {
 		return fmt.Errorf("failed to set JWT public key: %w", err)
 	}
 
-	rpc := wshserver.GetMainRpcClient()
-	wshutil.DefaultRouter.RegisterTrustedLeaf(rpc, wshutil.DefaultRoute)
+	rpc := dshserver.GetMainRpcClient()
+	dshutil.DefaultRouter.RegisterTrustedLeaf(rpc, dshutil.DefaultRoute)
 
-	wconfig.GetWatcher().Start()
+	dconfig.GetWatcher().Start()
 
 	log.Printf("Test harness initialized")
 	return nil
@@ -116,7 +116,7 @@ func testBasicConnect(connName string, timeout time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err = conn.Connect(ctx, &wconfig.ConnKeywords{})
+	err = conn.Connect(ctx, &dconfig.ConnKeywords{})
 	if err != nil {
 		return fmt.Errorf("connection failed: %w", err)
 	}
@@ -151,14 +151,14 @@ func testShellWithCommand(connName string, cmd string, timeout time.Duration) er
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err = conn.Connect(ctx, &wconfig.ConnKeywords{})
+	err = conn.Connect(ctx, &dconfig.ConnKeywords{})
 	if err != nil {
 		return fmt.Errorf("connection failed: %w", err)
 	}
 
 	log.Printf("✓ Connected! Starting shell...")
 
-	termSize := waveobj.TermSize{Rows: 24, Cols: 80}
+	termSize := doraobj.TermSize{Rows: 24, Cols: 80}
 	shellProc, err := shellexec.StartRemoteShellProcNoWsh(ctx, termSize, "", shellexec.CommandOptsType{}, conn)
 	if err != nil {
 		return fmt.Errorf("failed to start shell: %w", err)
@@ -202,7 +202,7 @@ func testWshExec(connName string, cmd string, timeout time.Duration) error {
 	defer cancel()
 
 	wshEnabled := true
-	err = conn.Connect(ctx, &wconfig.ConnKeywords{
+	err = conn.Connect(ctx, &dconfig.ConnKeywords{
 		ConnWshEnabled: &wshEnabled,
 	})
 	if err != nil {
@@ -227,14 +227,14 @@ func testWshExec(connName string, cmd string, timeout time.Duration) error {
 	}
 	swapToken.Env["TERM_PROGRAM"] = "waveterm"
 	swapToken.Env["WAVETERM"] = "1"
-	swapToken.Env["WAVETERM_VERSION"] = wavebase.WaveVersion
+	swapToken.Env["WAVETERM_VERSION"] = dorabase.WaveVersion
 	swapToken.Env["WAVETERM_CONN"] = connName
 
 	cmdOpts := shellexec.CommandOptsType{
 		SwapToken: swapToken,
 	}
 
-	termSize := waveobj.TermSize{Rows: 24, Cols: 80}
+	termSize := doraobj.TermSize{Rows: 24, Cols: 80}
 	shellProc, err := shellexec.StartRemoteShellProc(ctx, ctx, termSize, "", cmdOpts, conn)
 	if err != nil {
 		return fmt.Errorf("failed to start shell: %w", err)
@@ -277,7 +277,7 @@ func testInteractiveShell(connName string, timeout time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err = conn.Connect(ctx, &wconfig.ConnKeywords{})
+	err = conn.Connect(ctx, &dconfig.ConnKeywords{})
 	if err != nil {
 		return fmt.Errorf("connection failed: %w", err)
 	}
@@ -286,7 +286,7 @@ func testInteractiveShell(connName string, timeout time.Duration) error {
 	log.Printf("Note: This is a simple test - output may be mixed with prompts")
 	log.Printf("Type commands and press Enter. Type 'exit' to quit.\n")
 
-	termSize := waveobj.TermSize{Rows: 24, Cols: 80}
+	termSize := doraobj.TermSize{Rows: 24, Cols: 80}
 	shellProc, err := shellexec.StartRemoteShellProcNoWsh(ctx, termSize, "", shellexec.CommandOptsType{}, conn)
 	if err != nil {
 		return fmt.Errorf("failed to start shell: %w", err)

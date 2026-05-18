@@ -5,8 +5,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var workspaceCommand = &cobra.Command{
@@ -28,7 +28,7 @@ var workspaceListCommand = &cobra.Command{
 }
 
 func workspaceListRun(cmd *cobra.Command, args []string) {
-	workspaces, err := wshclient.WorkspaceListCommand(RpcClient, &wshrpc.RpcOpts{Timeout: 2000})
+	workspaces, err := dshclient.WorkspaceListCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		WriteStderr("Unable to list workspaces: %v\n", err)
 		return

@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 var tokenSwapMap map[string]*TokenSwapEntry = make(map[string]*TokenSwapEntry)
@@ -18,7 +18,7 @@ var tokenMapLock = &sync.Mutex{}
 
 type TokenSwapEntry struct {
 	Token      string             `json:"token"`
-	RpcContext *wshrpc.RpcContext `json:"rpccontext,omitempty"`
+	RpcContext *dshrpc.RpcContext `json:"rpccontext,omitempty"`
 	Env        map[string]string  `json:"env,omitempty"`
 	ScriptText string             `json:"scripttext,omitempty"`
 	Exp        time.Time          `json:"-"`
@@ -26,7 +26,7 @@ type TokenSwapEntry struct {
 
 type UnpackedTokenType struct {
 	Token      string             `json:"token"` // uuid
-	RpcContext *wshrpc.RpcContext `json:"rpccontext,omitempty"`
+	RpcContext *dshrpc.RpcContext `json:"rpccontext,omitempty"`
 }
 
 func (t *UnpackedTokenType) Pack() (string, error) {

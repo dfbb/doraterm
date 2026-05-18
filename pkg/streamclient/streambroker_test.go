@@ -6,32 +6,32 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 type mockRpcInterface struct {
-	dataChan chan wshrpc.CommandStreamData
-	ackChan  chan wshrpc.CommandStreamAckData
+	dataChan chan dshrpc.CommandStreamData
+	ackChan  chan dshrpc.CommandStreamAckData
 }
 
-func (m *mockRpcInterface) StreamDataCommand(data wshrpc.CommandStreamData, opts *wshrpc.RpcOpts) error {
+func (m *mockRpcInterface) StreamDataCommand(data dshrpc.CommandStreamData, opts *dshrpc.RpcOpts) error {
 	m.dataChan <- data
 	return nil
 }
 
-func (m *mockRpcInterface) StreamDataAckCommand(data wshrpc.CommandStreamAckData, opts *wshrpc.RpcOpts) error {
+func (m *mockRpcInterface) StreamDataAckCommand(data dshrpc.CommandStreamAckData, opts *dshrpc.RpcOpts) error {
 	m.ackChan <- data
 	return nil
 }
 
 func setupBrokerPair() (*Broker, *Broker) {
 	rpc1 := &mockRpcInterface{
-		dataChan: make(chan wshrpc.CommandStreamData, 10),
-		ackChan:  make(chan wshrpc.CommandStreamAckData, 10),
+		dataChan: make(chan dshrpc.CommandStreamData, 10),
+		ackChan:  make(chan dshrpc.CommandStreamAckData, 10),
 	}
 	rpc2 := &mockRpcInterface{
-		dataChan: make(chan wshrpc.CommandStreamData, 10),
-		ackChan:  make(chan wshrpc.CommandStreamAckData, 10),
+		dataChan: make(chan dshrpc.CommandStreamData, 10),
+		ackChan:  make(chan dshrpc.CommandStreamAckData, 10),
 	}
 
 	broker1 := NewBroker(rpc1)

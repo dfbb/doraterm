@@ -16,34 +16,34 @@ import (
 	"github.com/dfbb/doraterm/pkg/tsgen/tsgenmeta"
 	"github.com/dfbb/doraterm/pkg/userinput"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wconfig"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dconfig"
 	"github.com/dfbb/doraterm/pkg/web/webcmd"
-	"github.com/dfbb/doraterm/pkg/wps"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dps"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 // add extra types to generate here
 var ExtraTypes = []any{
-	waveobj.ORef{},
-	(*waveobj.WaveObj)(nil),
+	doraobj.ORef{},
+	(*doraobj.WaveObj)(nil),
 	map[string]any{},
 	service.WebCallType{},
 	service.WebReturnType{},
-	waveobj.UIContext{},
+	doraobj.UIContext{},
 	eventbus.WSEventType{},
-	wps.WSFileEventData{},
-	waveobj.LayoutActionData{},
+	dps.WSFileEventData{},
+	doraobj.LayoutActionData{},
 	filestore.WaveFile{},
-	wconfig.FullConfigType{},
-	wconfig.WatcherUpdate{},
-	wshutil.RpcMessage{},
-	wshrpc.WshServerCommandMeta{},
+	dconfig.FullConfigType{},
+	dconfig.WatcherUpdate{},
+	dshutil.RpcMessage{},
+	dshrpc.WshServerCommandMeta{},
 	userinput.UserInputRequest{},
-	waveobj.MetaTSType{},
-	waveobj.ObjRTInfo{},
-	wshrpc.BlockJobStatusData{},
+	doraobj.MetaTSType{},
+	doraobj.ObjRTInfo{},
+	dshrpc.BlockJobStatusData{},
 }
 
 // add extra type unions to generate here
@@ -54,13 +54,13 @@ var TypeUnions = []tsgenmeta.TypeUnionMeta{
 var contextRType = reflect.TypeOf((*context.Context)(nil)).Elem()
 var errorRType = reflect.TypeOf((*error)(nil)).Elem()
 var anyRType = reflect.TypeOf((*interface{})(nil)).Elem()
-var metaRType = reflect.TypeOf((*waveobj.MetaMapType)(nil)).Elem()
-var metaSettingsType = reflect.TypeOf((*wshrpc.MetaSettingsType)(nil)).Elem()
-var uiContextRType = reflect.TypeOf((*waveobj.UIContext)(nil)).Elem()
-var waveObjRType = reflect.TypeOf((*waveobj.WaveObj)(nil)).Elem()
-var updatesRtnRType = reflect.TypeOf(waveobj.UpdatesRtnType{})
-var orefRType = reflect.TypeOf((*waveobj.ORef)(nil)).Elem()
-var wshRpcInterfaceRType = reflect.TypeOf((*wshrpc.WshRpcInterface)(nil)).Elem()
+var metaRType = reflect.TypeOf((*doraobj.MetaMapType)(nil)).Elem()
+var metaSettingsType = reflect.TypeOf((*dshrpc.MetaSettingsType)(nil)).Elem()
+var uiContextRType = reflect.TypeOf((*doraobj.UIContext)(nil)).Elem()
+var waveObjRType = reflect.TypeOf((*doraobj.WaveObj)(nil)).Elem()
+var updatesRtnRType = reflect.TypeOf(doraobj.UpdatesRtnType{})
+var orefRType = reflect.TypeOf((*doraobj.ORef)(nil)).Elem()
+var wshRpcInterfaceRType = reflect.TypeOf((*dshrpc.WshRpcInterface)(nil)).Elem()
 
 func generateTSMethodTypes(method reflect.Method, tsTypesMap map[reflect.Type]string, skipFirstArg bool) error {
 	for idx := 0; idx < method.Type.NumIn(); idx++ {
@@ -199,7 +199,7 @@ func generateTSTypeInternal(rtype reflect.Type, tsTypesMap map[reflect.Type]stri
 		if fieldName == "" {
 			continue
 		}
-		if isWaveObj && (fieldName == waveobj.OTypeKeyName || fieldName == waveobj.OIDKeyName || fieldName == waveobj.VersionKeyName || fieldName == waveobj.MetaKeyName) {
+		if isWaveObj && (fieldName == doraobj.OTypeKeyName || fieldName == doraobj.OIDKeyName || fieldName == doraobj.VersionKeyName || fieldName == doraobj.MetaKeyName) {
 			continue
 		}
 		optMarker := ""
@@ -246,7 +246,7 @@ func generateTSTypeInternal(rtype reflect.Type, tsTypesMap map[reflect.Type]stri
 
 func GenerateWaveObjTSType() string {
 	var buf bytes.Buffer
-	buf.WriteString("// waveobj.WaveObj\n")
+	buf.WriteString("// doraobj.WaveObj\n")
 	buf.WriteString("type WaveObj = {\n")
 	buf.WriteString("    otype: string;\n")
 	buf.WriteString("    oid: string;\n")
@@ -305,7 +305,7 @@ func GenerateTSType(rtype reflect.Type, tsTypesMap map[reflect.Type]string) {
 		return
 	}
 	if rtype == orefRType {
-		tsTypesMap[orefRType] = "// waveobj.ORef\ntype ORef = string;\n"
+		tsTypesMap[orefRType] = "// doraobj.ORef\ntype ORef = string;\n"
 		return
 	}
 	if rtype == waveObjRType {
@@ -439,17 +439,17 @@ func GenerateServiceClass(serviceName string, serviceObj any, tsTypesMap map[ref
 	return sb.String()
 }
 
-func GenerateWshClientApiMethod(methodDecl *wshrpc.WshRpcMethodDecl, tsTypesMap map[reflect.Type]string) string {
-	if methodDecl.CommandType == wshrpc.RpcType_ResponseStream {
+func GenerateWshClientApiMethod(methodDecl *dshrpc.WshRpcMethodDecl, tsTypesMap map[reflect.Type]string) string {
+	if methodDecl.CommandType == dshrpc.RpcType_ResponseStream {
 		return generateWshClientApiMethod_ResponseStream(methodDecl, tsTypesMap)
-	} else if methodDecl.CommandType == wshrpc.RpcType_Call {
+	} else if methodDecl.CommandType == dshrpc.RpcType_Call {
 		return generateWshClientApiMethod_Call(methodDecl, tsTypesMap)
 	} else {
 		panic(fmt.Sprintf("cannot generate wshserver commandtype %q", methodDecl.CommandType))
 	}
 }
 
-func generateWshClientApiMethod_ResponseStream(methodDecl *wshrpc.WshRpcMethodDecl, tsTypesMap map[reflect.Type]string) string {
+func generateWshClientApiMethod_ResponseStream(methodDecl *dshrpc.WshRpcMethodDecl, tsTypesMap map[reflect.Type]string) string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("    // command %q [%s]\n", methodDecl.Command, methodDecl.CommandType))
 	respType := "any"
@@ -469,7 +469,7 @@ func generateWshClientApiMethod_ResponseStream(methodDecl *wshrpc.WshRpcMethodDe
 	return sb.String()
 }
 
-func generateWshClientApiMethod_Call(methodDecl *wshrpc.WshRpcMethodDecl, tsTypesMap map[reflect.Type]string) string {
+func generateWshClientApiMethod_Call(methodDecl *dshrpc.WshRpcMethodDecl, tsTypesMap map[reflect.Type]string) string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("    // command %q [%s]\n", methodDecl.Command, methodDecl.CommandType))
 	rtnType := "Promise<void>"
@@ -489,7 +489,7 @@ func generateWshClientApiMethod_Call(methodDecl *wshrpc.WshRpcMethodDecl, tsType
 	return sb.String()
 }
 
-func getTsWshMethodDataParamsAndExpr(methodDecl *wshrpc.WshRpcMethodDecl, tsTypesMap map[reflect.Type]string) (string, string) {
+func getTsWshMethodDataParamsAndExpr(methodDecl *dshrpc.WshRpcMethodDecl, tsTypesMap map[reflect.Type]string) (string, string) {
 	dataTypes := methodDecl.GetCommandDataTypes()
 	if len(dataTypes) == 0 {
 		return "", "null"
@@ -520,8 +520,8 @@ func GenerateWaveObjTypes(tsTypesMap map[reflect.Type]string) {
 	for _, extraType := range ExtraTypes {
 		GenerateTSType(reflect.TypeOf(extraType), tsTypesMap)
 	}
-	for _, rtype := range waveobj.AllWaveObjTypes() {
-		if rtype.String() == "*waveobj.MainServer" {
+	for _, rtype := range doraobj.AllWaveObjTypes() {
+		if rtype.String() == "*doraobj.MainServer" {
 			continue
 		}
 		GenerateTSType(rtype, tsTypesMap)
@@ -543,7 +543,7 @@ func GenerateServiceTypes(tsTypesMap map[reflect.Type]string) error {
 }
 
 func GenerateWshServerTypes(tsTypesMap map[reflect.Type]string) error {
-	GenerateTSType(reflect.TypeOf(wshrpc.RpcOpts{}), tsTypesMap)
+	GenerateTSType(reflect.TypeOf(dshrpc.RpcOpts{}), tsTypesMap)
 	rtype := wshRpcInterfaceRType
 	for midx := 0; midx < rtype.NumMethod(); midx++ {
 		method := rtype.Method(midx)

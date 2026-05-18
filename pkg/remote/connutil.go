@@ -21,8 +21,8 @@ import (
 	"github.com/dfbb/doraterm/pkg/genconn"
 	"github.com/dfbb/doraterm/pkg/util/iterfn"
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/wconfig"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/dconfig"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -71,7 +71,7 @@ func GetClientPlatform(ctx context.Context, shell genconn.ShellClient) (string, 
 		return "", "", fmt.Errorf("unexpected output from uname: %s", stdout)
 	}
 	os, arch := normalizeOs(parts[0]), normalizeArch(parts[1])
-	if err := wavebase.ValidateWshSupportedArch(os, arch); err != nil {
+	if err := dorabase.ValidateWshSupportedArch(os, arch); err != nil {
 		return "", "", err
 	}
 	return os, arch, nil
@@ -83,7 +83,7 @@ func GetClientPlatformFromOsArchStr(ctx context.Context, osArchStr string) (stri
 		return "", "", fmt.Errorf("unexpected output from uname: %s", osArchStr)
 	}
 	os, arch := normalizeOs(parts[0]), normalizeArch(parts[1])
-	if err := wavebase.ValidateWshSupportedArch(os, arch); err != nil {
+	if err := dorabase.ValidateWshSupportedArch(os, arch); err != nil {
 		return "", "", err
 	}
 	return os, arch, nil
@@ -102,7 +102,7 @@ func CpWshToRemote(ctx context.Context, client *ssh.Client, clientOs string, cli
 	if ok {
 		blocklogger.Debugf(ctx, "[conndebug] CpWshToRemote, timeout: %v\n", time.Until(deadline))
 	}
-	wshLocalPath, err := shellutil.GetLocalWshBinaryPath(wavebase.WaveVersion, clientOs, clientArch)
+	wshLocalPath, err := shellutil.GetLocalWshBinaryPath(dorabase.WaveVersion, clientOs, clientArch)
 	if err != nil {
 		return err
 	}
@@ -112,15 +112,15 @@ func CpWshToRemote(ctx context.Context, client *ssh.Client, clientOs string, cli
 	}
 	defer input.Close()
 	installWords := map[string]string{
-		"installDir":  filepath.ToSlash(filepath.Dir(wavebase.RemoteFullWshBinPath)),
-		"tempPath":    wavebase.RemoteFullWshBinPath + ".temp",
-		"installPath": wavebase.RemoteFullWshBinPath,
+		"installDir":  filepath.ToSlash(filepath.Dir(dorabase.RemoteFullWshBinPath)),
+		"tempPath":    dorabase.RemoteFullWshBinPath + ".temp",
+		"installPath": dorabase.RemoteFullWshBinPath,
 	}
 	var installCmd bytes.Buffer
 	if err := installTemplate.Execute(&installCmd, installWords); err != nil {
 		return fmt.Errorf("failed to prepare install command: %w", err)
 	}
-	blocklogger.Infof(ctx, "[conndebug] copying %q to remote server %q\n", wshLocalPath, wavebase.RemoteFullWshBinPath)
+	blocklogger.Infof(ctx, "[conndebug] copying %q to remote server %q\n", wshLocalPath, dorabase.RemoteFullWshBinPath)
 	genCmd, err := genconn.MakeSSHCmdClient(client, genconn.CommandSpec{
 		Cmd: installCmd.String(),
 	})
@@ -191,7 +191,7 @@ func NormalizeConfigPattern(pattern string) string {
 }
 
 func ParseProfiles() []string {
-	connfile, cerrs := wconfig.ReadWaveHomeConfigFile(wconfig.ProfilesFile)
+	connfile, cerrs := dconfig.ReadWaveHomeConfigFile(dconfig.ProfilesFile)
 	if len(cerrs) > 0 {
 		log.Printf("error reading config file: %v", cerrs[0])
 		return nil

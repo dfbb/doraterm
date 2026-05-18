@@ -5,7 +5,7 @@ package main
 
 import (
 	"github.com/dfbb/doraterm/cmd/wsh/cmd"
-	"github.com/dfbb/doraterm/pkg/wavebase"
+	"github.com/dfbb/doraterm/pkg/dorabase"
 )
 
 // set by main-server.go
@@ -13,7 +13,7 @@ var WaveVersion = "0.0.0"
 var BuildTime = "0"
 
 func main() {
-	wavebase.WaveVersion = WaveVersion
-	wavebase.BuildTime = BuildTime
+	dorabase.WaveVersion = WaveVersion
+	dorabase.BuildTime = BuildTime
 	cmd.Execute()
 }

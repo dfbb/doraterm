@@ -11,10 +11,10 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 var (
@@ -29,8 +29,8 @@ var (
 var WrappedStdin io.Reader = os.Stdin
 var WrappedStdout io.Writer = &WrappedWriter{dest: os.Stdout}
 var WrappedStderr io.Writer = &WrappedWriter{dest: os.Stderr}
-var RpcClient *wshutil.WshRpc
-var RpcContext wshrpc.RpcContext
+var RpcClient *dshutil.WshRpc
+var RpcContext dshrpc.RpcContext
 var RpcClientRouteId string
 var UsingTermWshMode bool
 var blockArg string
@@ -83,7 +83,7 @@ func OutputHelpMessage(cmd *cobra.Command) {
 }
 
 func preRunSetupRpcClient(cmd *cobra.Command, args []string) error {
-	jwtToken := os.Getenv(wshutil.WaveJwtTokenVarName)
+	jwtToken := os.Getenv(dshutil.WaveJwtTokenVarName)
 	if jwtToken == "" {
 		return fmt.Errorf("wsh must be run inside a Wave-managed SSH session (WAVETERM_JWT not found)")
 	}
@@ -112,7 +112,7 @@ func activityWrap(activityStr string, origRunE RunEFnType) RunEFnType {
 	}
 }
 
-func resolveBlockArg() (*waveobj.ORef, error) {
+func resolveBlockArg() (*doraobj.ORef, error) {
 	oref := blockArg
 	if oref == "" {
 		oref = "this"
@@ -124,8 +124,8 @@ func resolveBlockArg() (*waveobj.ORef, error) {
 	return fullORef, nil
 }
 
-func setupRpcClientWithToken(swapTokenStr string) (wshrpc.CommandAuthenticateRtnData, error) {
-	var rtn wshrpc.CommandAuthenticateRtnData
+func setupRpcClientWithToken(swapTokenStr string) (dshrpc.CommandAuthenticateRtnData, error) {
+	var rtn dshrpc.CommandAuthenticateRtnData
 	token, err := shellutil.UnpackSwapToken(swapTokenStr)
 	if err != nil {
 		return rtn, fmt.Errorf("error unpacking token: %w", err)
@@ -137,11 +137,11 @@ func setupRpcClientWithToken(swapTokenStr string) (wshrpc.CommandAuthenticateRtn
 		return rtn, fmt.Errorf("no sockname in token")
 	}
 	RpcContext = *token.RpcContext
-	RpcClient, err = wshutil.SetupDomainSocketRpcClient(token.RpcContext.SockName, nil, "wshcmd")
+	RpcClient, err = dshutil.SetupDomainSocketRpcClient(token.RpcContext.SockName, nil, "wshcmd")
 	if err != nil {
 		return rtn, fmt.Errorf("error setting up domain socket rpc client: %w", err)
 	}
-	rtn, err = wshclient.AuthenticateTokenCommand(RpcClient, wshrpc.CommandAuthenticateTokenData{Token: token.Token}, &wshrpc.RpcOpts{Route: wshutil.ControlRoute})
+	rtn, err = dshclient.AuthenticateTokenCommand(RpcClient, dshrpc.CommandAuthenticateTokenData{Token: token.Token}, &dshrpc.RpcOpts{Route: dshutil.ControlRoute})
 	if err != nil {
 		return rtn, err
 	}
@@ -150,21 +150,21 @@ func setupRpcClientWithToken(swapTokenStr string) (wshrpc.CommandAuthenticateRtn
 }
 
 // returns the wrapped stdin and a new rpc client (that wraps the stdin input and stdout output)
-func setupRpcClient(serverImpl wshutil.ServerImpl, jwtToken string) error {
-	rpcCtx, err := wshutil.ExtractUnverifiedRpcContext(jwtToken)
+func setupRpcClient(serverImpl dshutil.ServerImpl, jwtToken string) error {
+	rpcCtx, err := dshutil.ExtractUnverifiedRpcContext(jwtToken)
 	if err != nil {
-		return fmt.Errorf("error extracting rpc context from %s: %v", wshutil.WaveJwtTokenVarName, err)
+		return fmt.Errorf("error extracting rpc context from %s: %v", dshutil.WaveJwtTokenVarName, err)
 	}
 	RpcContext = *rpcCtx
-	sockName, err := wshutil.ExtractUnverifiedSocketName(jwtToken)
+	sockName, err := dshutil.ExtractUnverifiedSocketName(jwtToken)
 	if err != nil {
-		return fmt.Errorf("error extracting socket name from %s: %v", wshutil.WaveJwtTokenVarName, err)
+		return fmt.Errorf("error extracting socket name from %s: %v", dshutil.WaveJwtTokenVarName, err)
 	}
-	RpcClient, err = wshutil.SetupDomainSocketRpcClient(sockName, serverImpl, "wshcmd")
+	RpcClient, err = dshutil.SetupDomainSocketRpcClient(sockName, serverImpl, "wshcmd")
 	if err != nil {
 		return fmt.Errorf("error setting up domain socket rpc client: %v", err)
 	}
-	authRtn, err := wshclient.AuthenticateCommand(RpcClient, jwtToken, &wshrpc.RpcOpts{Route: wshutil.ControlRoute})
+	authRtn, err := dshclient.AuthenticateCommand(RpcClient, jwtToken, &dshrpc.RpcOpts{Route: dshutil.ControlRoute})
 	if err != nil {
 		return fmt.Errorf("error authenticating: %v", err)
 	}
@@ -172,20 +172,20 @@ func setupRpcClient(serverImpl wshutil.ServerImpl, jwtToken string) error {
 	blockId := os.Getenv("WAVETERM_BLOCKID")
 	if blockId != "" {
 		peerInfo := fmt.Sprintf("domain:block:%s", blockId)
-		wshclient.SetPeerInfoCommand(RpcClient, peerInfo, &wshrpc.RpcOpts{Route: wshutil.ControlRoute})
+		dshclient.SetPeerInfoCommand(RpcClient, peerInfo, &dshrpc.RpcOpts{Route: dshutil.ControlRoute})
 	}
 	// note we don't modify WrappedStdin here (just use os.Stdin)
 	return nil
 }
 
 func isFullORef(orefStr string) bool {
-	_, err := waveobj.ParseORef(orefStr)
+	_, err := doraobj.ParseORef(orefStr)
 	return err == nil
 }
 
-func resolveSimpleId(id string) (*waveobj.ORef, error) {
+func resolveSimpleId(id string) (*doraobj.ORef, error) {
 	if isFullORef(id) {
-		orefObj, err := waveobj.ParseORef(id)
+		orefObj, err := doraobj.ParseORef(id)
 		if err != nil {
 			return nil, fmt.Errorf("error parsing full ORef: %v", err)
 		}
@@ -195,10 +195,10 @@ func resolveSimpleId(id string) (*waveobj.ORef, error) {
 	if blockId == "" {
 		return nil, fmt.Errorf("no WAVETERM_BLOCKID env var set")
 	}
-	rtnData, err := wshclient.ResolveIdsCommand(RpcClient, wshrpc.CommandResolveIdsData{
+	rtnData, err := dshclient.ResolveIdsCommand(RpcClient, dshrpc.CommandResolveIdsData{
 		BlockId: blockId,
 		Ids:     []string{id},
-	}, &wshrpc.RpcOpts{Timeout: 2000})
+	}, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return nil, fmt.Errorf("error resolving ids: %v", err)
 	}
@@ -227,7 +227,7 @@ func sendActivity(wshCmdName string, success bool) {
 	if !success {
 		dataMap[wshCmdName+"#"+"error"] = 1
 	}
-	wshclient.WshActivityCommand(RpcClient, dataMap, nil)
+	dshclient.WshActivityCommand(RpcClient, dataMap, nil)
 }
 
 // Execute executes the root command.
@@ -237,15 +237,15 @@ func Execute() {
 		if r != nil {
 			WriteStderr("[panic] %v\n", r)
 			debug.PrintStack()
-			wshutil.DoShutdown("", 1, true)
+			dshutil.DoShutdown("", 1, true)
 		} else {
-			wshutil.DoShutdown("", WshExitCode, false)
+			dshutil.DoShutdown("", WshExitCode, false)
 		}
 	}()
 	rootCmd.PersistentFlags().StringVarP(&blockArg, "block", "b", "", "for commands which require a block id")
 	err := rootCmd.Execute()
 	if err != nil {
-		wshutil.DoShutdown("", 1, true)
+		dshutil.DoShutdown("", 1, true)
 		return
 	}
 }

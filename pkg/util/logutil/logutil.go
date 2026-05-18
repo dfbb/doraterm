@@ -6,12 +6,12 @@ package logutil
 import (
 	"log"
 
-	"github.com/dfbb/doraterm/pkg/wavebase"
+	"github.com/dfbb/doraterm/pkg/dorabase"
 )
 
 // DevPrintf logs using log.Printf only if running in dev mode
 func DevPrintf(format string, v ...any) {
-	if wavebase.IsDevMode() {
+	if dorabase.IsDevMode() {
 		log.Printf(format, v...)
 	}
 }

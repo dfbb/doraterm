@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"github.com/dfbb/doraterm/pkg/remote/connparse"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 const (
@@ -29,7 +29,7 @@ const (
 )
 
 // This needs to be set by whoever initializes the client, either main-server or wshcmd-connserver
-var RpcClient *wshutil.WshRpc
+var RpcClient *dshutil.WshRpc
 var RpcClientRouteId string
 
 func parseConnection(ctx context.Context, path string) (*connparse.Connection, error) {
@@ -40,7 +40,7 @@ func parseConnection(ctx context.Context, path string) (*connparse.Connection, e
 	return conn, nil
 }
 
-func Read(ctx context.Context, data wshrpc.FileData) (*wshrpc.FileData, error) {
+func Read(ctx context.Context, data dshrpc.FileData) (*dshrpc.FileData, error) {
 	if data.Info == nil {
 		return nil, fmt.Errorf("file info is required")
 	}
@@ -57,7 +57,7 @@ func Read(ctx context.Context, data wshrpc.FileData) (*wshrpc.FileData, error) {
 		return nil, fmt.Errorf("no route id available")
 	}
 	readerRouteId := RpcClientRouteId
-	writerRouteId := wshutil.MakeConnectionRouteId(conn.Host)
+	writerRouteId := dshutil.MakeConnectionRouteId(conn.Host)
 	reader, streamMeta := broker.CreateStreamReader(readerRouteId, writerRouteId, 256*1024)
 	defer reader.Close()
 	go func() {
@@ -68,12 +68,12 @@ func Read(ctx context.Context, data wshrpc.FileData) (*wshrpc.FileData, error) {
 	if data.At != nil && data.At.Size > 0 {
 		byteRange = fmt.Sprintf("%d-%d", data.At.Offset, data.At.Offset+int64(data.At.Size)-1)
 	}
-	remoteData := wshrpc.CommandRemoteFileStreamData{
+	remoteData := dshrpc.CommandRemoteFileStreamData{
 		Path:       conn.Path,
 		ByteRange:  byteRange,
 		StreamMeta: *streamMeta,
 	}
-	fileInfo, err := wshclient.RemoteFileStreamCommand(RpcClient, remoteData, &wshrpc.RpcOpts{Route: writerRouteId})
+	fileInfo, err := dshclient.RemoteFileStreamCommand(RpcClient, remoteData, &dshrpc.RpcOpts{Route: writerRouteId})
 	if err != nil {
 		return nil, fmt.Errorf("starting remote file stream: %w", err)
 	}
@@ -84,7 +84,7 @@ func Read(ctx context.Context, data wshrpc.FileData) (*wshrpc.FileData, error) {
 			return nil, fmt.Errorf("reading file stream: %w", err)
 		}
 	}
-	rtnData := &wshrpc.FileData{Info: fileInfo}
+	rtnData := &dshrpc.FileData{Info: fileInfo}
 	if len(rawData) > 0 {
 		rtnData.Data64 = base64.StdEncoding.EncodeToString(rawData)
 	}
@@ -96,10 +96,10 @@ func GetConnectionRouteId(ctx context.Context, path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return wshutil.MakeConnectionRouteId(conn.Host), nil
+	return dshutil.MakeConnectionRouteId(conn.Host), nil
 }
 
-func FileStream(ctx context.Context, data wshrpc.CommandFileStreamData) (*wshrpc.FileInfo, error) {
+func FileStream(ctx context.Context, data dshrpc.CommandFileStreamData) (*dshrpc.FileInfo, error) {
 	if data.Info == nil {
 		return nil, fmt.Errorf("file info is required")
 	}
@@ -108,21 +108,21 @@ func FileStream(ctx context.Context, data wshrpc.CommandFileStreamData) (*wshrpc
 	if err != nil {
 		return nil, err
 	}
-	remoteData := wshrpc.CommandRemoteFileStreamData{
+	remoteData := dshrpc.CommandRemoteFileStreamData{
 		Path:       conn.Path,
 		ByteRange:  data.ByteRange,
 		StreamMeta: data.StreamMeta,
 	}
-	return wshclient.RemoteFileStreamCommand(RpcClient, remoteData, &wshrpc.RpcOpts{Route: wshutil.MakeConnectionRouteId(conn.Host)})
+	return dshclient.RemoteFileStreamCommand(RpcClient, remoteData, &dshrpc.RpcOpts{Route: dshutil.MakeConnectionRouteId(conn.Host)})
 }
 
-func ListEntries(ctx context.Context, path string, opts *wshrpc.FileListOpts) ([]*wshrpc.FileInfo, error) {
+func ListEntries(ctx context.Context, path string, opts *dshrpc.FileListOpts) ([]*dshrpc.FileInfo, error) {
 	log.Printf("ListEntries: %v", path)
 	conn, err := parseConnection(ctx, path)
 	if err != nil {
 		return nil, err
 	}
-	var entries []*wshrpc.FileInfo
+	var entries []*dshrpc.FileInfo
 	rtnCh := listEntriesStream(conn, opts)
 	for respUnion := range rtnCh {
 		if respUnion.Error != nil {
@@ -134,20 +134,20 @@ func ListEntries(ctx context.Context, path string, opts *wshrpc.FileListOpts) ([
 	return entries, nil
 }
 
-func ListEntriesStream(ctx context.Context, path string, opts *wshrpc.FileListOpts) <-chan wshrpc.RespOrErrorUnion[wshrpc.CommandRemoteListEntriesRtnData] {
+func ListEntriesStream(ctx context.Context, path string, opts *dshrpc.FileListOpts) <-chan dshrpc.RespOrErrorUnion[dshrpc.CommandRemoteListEntriesRtnData] {
 	log.Printf("ListEntriesStream: %v", path)
 	conn, err := parseConnection(ctx, path)
 	if err != nil {
-		return wshutil.SendErrCh[wshrpc.CommandRemoteListEntriesRtnData](err)
+		return dshutil.SendErrCh[dshrpc.CommandRemoteListEntriesRtnData](err)
 	}
 	return listEntriesStream(conn, opts)
 }
 
-func listEntriesStream(conn *connparse.Connection, opts *wshrpc.FileListOpts) <-chan wshrpc.RespOrErrorUnion[wshrpc.CommandRemoteListEntriesRtnData] {
-	return wshclient.RemoteListEntriesCommand(RpcClient, wshrpc.CommandRemoteListEntriesData{Path: conn.Path, Opts: opts}, &wshrpc.RpcOpts{Route: wshutil.MakeConnectionRouteId(conn.Host)})
+func listEntriesStream(conn *connparse.Connection, opts *dshrpc.FileListOpts) <-chan dshrpc.RespOrErrorUnion[dshrpc.CommandRemoteListEntriesRtnData] {
+	return dshclient.RemoteListEntriesCommand(RpcClient, dshrpc.CommandRemoteListEntriesData{Path: conn.Path, Opts: opts}, &dshrpc.RpcOpts{Route: dshutil.MakeConnectionRouteId(conn.Host)})
 }
 
-func Stat(ctx context.Context, path string) (*wshrpc.FileInfo, error) {
+func Stat(ctx context.Context, path string) (*dshrpc.FileInfo, error) {
 	log.Printf("Stat: %v", path)
 	conn, err := parseConnection(ctx, path)
 	if err != nil {
@@ -156,11 +156,11 @@ func Stat(ctx context.Context, path string) (*wshrpc.FileInfo, error) {
 	return stat(conn)
 }
 
-func stat(conn *connparse.Connection) (*wshrpc.FileInfo, error) {
-	return wshclient.RemoteFileInfoCommand(RpcClient, conn.Path, &wshrpc.RpcOpts{Route: wshutil.MakeConnectionRouteId(conn.Host)})
+func stat(conn *connparse.Connection) (*dshrpc.FileInfo, error) {
+	return dshclient.RemoteFileInfoCommand(RpcClient, conn.Path, &dshrpc.RpcOpts{Route: dshutil.MakeConnectionRouteId(conn.Host)})
 }
 
-func PutFile(ctx context.Context, data wshrpc.FileData) error {
+func PutFile(ctx context.Context, data dshrpc.FileData) error {
 	log.Printf("PutFile: %v", data.Info.Path)
 	conn, err := parseConnection(ctx, data.Info.Path)
 	if err != nil {
@@ -172,17 +172,17 @@ func PutFile(ctx context.Context, data wshrpc.FileData) error {
 	}
 	info := data.Info
 	if info == nil {
-		info = &wshrpc.FileInfo{Opts: &wshrpc.FileOpts{}}
+		info = &dshrpc.FileInfo{Opts: &dshrpc.FileOpts{}}
 	} else if info.Opts == nil {
-		info.Opts = &wshrpc.FileOpts{}
+		info.Opts = &dshrpc.FileOpts{}
 	}
 	info.Path = conn.Path
 	info.Opts.Truncate = true
 	data.Info = info
-	return wshclient.RemoteWriteFileCommand(RpcClient, data, &wshrpc.RpcOpts{Route: wshutil.MakeConnectionRouteId(conn.Host)})
+	return dshclient.RemoteWriteFileCommand(RpcClient, data, &dshrpc.RpcOpts{Route: dshutil.MakeConnectionRouteId(conn.Host)})
 }
 
-func Append(ctx context.Context, data wshrpc.FileData) error {
+func Append(ctx context.Context, data dshrpc.FileData) error {
 	log.Printf("Append: %v", data.Info.Path)
 	conn, err := parseConnection(ctx, data.Info.Path)
 	if err != nil {
@@ -194,14 +194,14 @@ func Append(ctx context.Context, data wshrpc.FileData) error {
 	}
 	info := data.Info
 	if info == nil {
-		info = &wshrpc.FileInfo{Path: conn.Path, Opts: &wshrpc.FileOpts{}}
+		info = &dshrpc.FileInfo{Path: conn.Path, Opts: &dshrpc.FileOpts{}}
 	} else if info.Opts == nil {
-		info.Opts = &wshrpc.FileOpts{}
+		info.Opts = &dshrpc.FileOpts{}
 	}
 	info.Path = conn.Path
 	info.Opts.Append = true
 	data.Info = info
-	return wshclient.RemoteWriteFileCommand(RpcClient, data, &wshrpc.RpcOpts{Route: wshutil.MakeConnectionRouteId(conn.Host)})
+	return dshclient.RemoteWriteFileCommand(RpcClient, data, &dshrpc.RpcOpts{Route: dshutil.MakeConnectionRouteId(conn.Host)})
 }
 
 func Mkdir(ctx context.Context, path string) error {
@@ -210,13 +210,13 @@ func Mkdir(ctx context.Context, path string) error {
 	if err != nil {
 		return err
 	}
-	return wshclient.RemoteMkdirCommand(RpcClient, conn.Path, &wshrpc.RpcOpts{Route: wshutil.MakeConnectionRouteId(conn.Host)})
+	return dshclient.RemoteMkdirCommand(RpcClient, conn.Path, &dshrpc.RpcOpts{Route: dshutil.MakeConnectionRouteId(conn.Host)})
 }
 
-func Move(ctx context.Context, data wshrpc.CommandFileCopyData) error {
+func Move(ctx context.Context, data dshrpc.CommandFileCopyData) error {
 	opts := data.Opts
 	if opts == nil {
-		opts = &wshrpc.FileCopyOpts{}
+		opts = &dshrpc.FileCopyOpts{}
 	}
 	log.Printf("Move: srcuri: %v, desturi: %v, opts: %v", data.SrcUri, data.DestUri, opts)
 	srcConn, err := parseConnection(ctx, data.SrcUri)
@@ -237,10 +237,10 @@ func Move(ctx context.Context, data wshrpc.CommandFileCopyData) error {
 	return moveInternal(srcConn, destConn, opts)
 }
 
-func Copy(ctx context.Context, data wshrpc.CommandFileCopyData) error {
+func Copy(ctx context.Context, data dshrpc.CommandFileCopyData) error {
 	opts := data.Opts
 	if opts == nil {
-		opts = &wshrpc.FileCopyOpts{}
+		opts = &dshrpc.FileCopyOpts{}
 	}
 	log.Printf("Copy: srcuri: %v, desturi: %v, opts: %v", data.SrcUri, data.DestUri, opts)
 	srcConn, err := parseConnection(ctx, data.SrcUri)
@@ -255,7 +255,7 @@ func Copy(ctx context.Context, data wshrpc.CommandFileCopyData) error {
 	return err
 }
 
-func Delete(ctx context.Context, data wshrpc.CommandDeleteFileData) error {
+func Delete(ctx context.Context, data dshrpc.CommandDeleteFileData) error {
 	log.Printf("Delete: %v", data)
 	conn, err := parseConnection(ctx, data.Path)
 	if err != nil {
@@ -265,39 +265,39 @@ func Delete(ctx context.Context, data wshrpc.CommandDeleteFileData) error {
 }
 
 func delete_(conn *connparse.Connection, recursive bool) error {
-	return wshclient.RemoteFileDeleteCommand(RpcClient, wshrpc.CommandDeleteFileData{Path: conn.Path, Recursive: recursive}, &wshrpc.RpcOpts{Route: wshutil.MakeConnectionRouteId(conn.Host)})
+	return dshclient.RemoteFileDeleteCommand(RpcClient, dshrpc.CommandDeleteFileData{Path: conn.Path, Recursive: recursive}, &dshrpc.RpcOpts{Route: dshutil.MakeConnectionRouteId(conn.Host)})
 }
 
-func Join(ctx context.Context, path string, parts ...string) (*wshrpc.FileInfo, error) {
+func Join(ctx context.Context, path string, parts ...string) (*dshrpc.FileInfo, error) {
 	log.Printf("Join: %v", path)
 	conn, err := parseConnection(ctx, path)
 	if err != nil {
 		return nil, err
 	}
-	return wshclient.RemoteFileJoinCommand(RpcClient, append([]string{conn.Path}, parts...), &wshrpc.RpcOpts{Route: wshutil.MakeConnectionRouteId(conn.Host)})
+	return dshclient.RemoteFileJoinCommand(RpcClient, append([]string{conn.Path}, parts...), &dshrpc.RpcOpts{Route: dshutil.MakeConnectionRouteId(conn.Host)})
 }
 
-func moveInternal(srcConn, destConn *connparse.Connection, opts *wshrpc.FileCopyOpts) error {
+func moveInternal(srcConn, destConn *connparse.Connection, opts *dshrpc.FileCopyOpts) error {
 	if srcConn.Host != destConn.Host {
 		return fmt.Errorf("move internal, src and dest hosts do not match")
 	}
 	if opts == nil {
-		opts = &wshrpc.FileCopyOpts{}
+		opts = &dshrpc.FileCopyOpts{}
 	}
 	timeout := opts.Timeout
 	if timeout == 0 {
 		timeout = DefaultTimeout.Milliseconds()
 	}
-	return wshclient.RemoteFileMoveCommand(RpcClient, wshrpc.CommandFileCopyData{SrcUri: srcConn.GetFullURI(), DestUri: destConn.GetFullURI(), Opts: opts}, &wshrpc.RpcOpts{Route: wshutil.MakeConnectionRouteId(destConn.Host), Timeout: timeout})
+	return dshclient.RemoteFileMoveCommand(RpcClient, dshrpc.CommandFileCopyData{SrcUri: srcConn.GetFullURI(), DestUri: destConn.GetFullURI(), Opts: opts}, &dshrpc.RpcOpts{Route: dshutil.MakeConnectionRouteId(destConn.Host), Timeout: timeout})
 }
 
-func copyInternal(srcConn, destConn *connparse.Connection, opts *wshrpc.FileCopyOpts) (bool, error) {
+func copyInternal(srcConn, destConn *connparse.Connection, opts *dshrpc.FileCopyOpts) (bool, error) {
 	if opts == nil {
-		opts = &wshrpc.FileCopyOpts{}
+		opts = &dshrpc.FileCopyOpts{}
 	}
 	timeout := opts.Timeout
 	if timeout == 0 {
 		timeout = DefaultTimeout.Milliseconds()
 	}
-	return wshclient.RemoteFileCopyCommand(RpcClient, wshrpc.CommandFileCopyData{SrcUri: srcConn.GetFullURI(), DestUri: destConn.GetFullURI(), Opts: opts}, &wshrpc.RpcOpts{Route: wshutil.MakeConnectionRouteId(destConn.Host), Timeout: timeout})
+	return dshclient.RemoteFileCopyCommand(RpcClient, dshrpc.CommandFileCopyData{SrcUri: srcConn.GetFullURI(), DestUri: destConn.GetFullURI(), Opts: opts}, &dshrpc.RpcOpts{Route: dshutil.MakeConnectionRouteId(destConn.Host), Timeout: timeout})
 }

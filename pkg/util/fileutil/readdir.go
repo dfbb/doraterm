@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/wavebase"
+	"github.com/dfbb/doraterm/pkg/dorabase"
 )
 
 type DirEntryOut struct {
@@ -36,7 +36,7 @@ type ReadDirResult struct {
 }
 
 func ReadDir(path string, maxEntries int) (*ReadDirResult, error) {
-	expandedPath, err := wavebase.ExpandHomeDir(path)
+	expandedPath, err := dorabase.ExpandHomeDir(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to expand path: %w", err)
 	}
@@ -137,7 +137,7 @@ func ReadDir(path string, maxEntries int) (*ReadDirResult, error) {
 }
 
 func ReadDirRecursive(path string, maxEntries int) (*ReadDirResult, error) {
-	expandedPath, err := wavebase.ExpandHomeDir(path)
+	expandedPath, err := dorabase.ExpandHomeDir(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to expand path: %w", err)
 	}

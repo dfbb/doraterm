@@ -11,24 +11,24 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 type testWriter struct {
 	mu      sync.Mutex
-	packets []wshrpc.CommandStreamData
+	packets []dshrpc.CommandStreamData
 }
 
-func (tw *testWriter) SendData(pkt wshrpc.CommandStreamData) {
+func (tw *testWriter) SendData(pkt dshrpc.CommandStreamData) {
 	tw.mu.Lock()
 	defer tw.mu.Unlock()
 	tw.packets = append(tw.packets, pkt)
 }
 
-func (tw *testWriter) GetPackets() []wshrpc.CommandStreamData {
+func (tw *testWriter) GetPackets() []dshrpc.CommandStreamData {
 	tw.mu.Lock()
 	defer tw.mu.Unlock()
-	result := make([]wshrpc.CommandStreamData, len(tw.packets))
+	result := make([]dshrpc.CommandStreamData, len(tw.packets))
 	copy(result, tw.packets)
 	return result
 }
@@ -99,7 +99,7 @@ func TestConnectedModeBasicFlow(t *testing.T) {
 	}
 
 	// Send ACK
-	sm.RecvAck(wshrpc.CommandStreamAckData{Id: "1", Seq: 5, RWnd: CwndSize})
+	sm.RecvAck(dshrpc.CommandStreamAckData{Id: "1", Seq: 5, RWnd: CwndSize})
 
 	time.Sleep(50 * time.Millisecond)
 
@@ -214,7 +214,7 @@ func TestFlowControl(t *testing.T) {
 		t.Errorf("Sent %d bytes without ACK, exceeds cwnd size %d", totalData, cwndSize)
 	}
 
-	sm.RecvAck(wshrpc.CommandStreamAckData{Id: "1", Seq: int64(totalData), RWnd: int64(cwndSize)})
+	sm.RecvAck(dshrpc.CommandStreamAckData{Id: "1", Seq: int64(totalData), RWnd: int64(cwndSize)})
 
 	time.Sleep(100 * time.Millisecond)
 
@@ -304,7 +304,7 @@ func TestTerminalEventOrdering(t *testing.T) {
 		t.Error("Should not have EOF before ACK")
 	}
 
-	sm.RecvAck(wshrpc.CommandStreamAckData{Id: "1", Seq: 4, RWnd: CwndSize})
+	sm.RecvAck(dshrpc.CommandStreamAckData{Id: "1", Seq: 4, RWnd: CwndSize})
 
 	time.Sleep(50 * time.Millisecond)
 

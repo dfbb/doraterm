@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var debugCmd = &cobra.Command{
@@ -34,7 +34,7 @@ func debugBlockIdsRun(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	blockInfo, err := wshclient.BlockInfoCommand(RpcClient, oref.OID, nil)
+	blockInfo, err := dshclient.BlockInfoCommand(RpcClient, oref.OID, nil)
 	if err != nil {
 		return err
 	}

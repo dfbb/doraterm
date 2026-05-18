@@ -9,13 +9,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/dfbb/doraterm/pkg/wavebase"
+	"github.com/dfbb/doraterm/pkg/dorabase"
 )
 
 var schemaHandler http.Handler
 
 func GetSchemaHandler() http.Handler {
-	schemaStaticPath := filepath.Join(wavebase.GetWaveAppPath(), "schema")
+	schemaStaticPath := filepath.Join(dorabase.GetWaveAppPath(), "schema")
 	stat, err := os.Stat(schemaStaticPath)
 	if schemaHandler == nil {
 		log.Println("Schema is nil, initializing")

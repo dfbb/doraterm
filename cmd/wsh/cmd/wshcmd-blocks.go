@@ -11,9 +11,9 @@ import (
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 // Command-line flags for the blocks commands
@@ -32,7 +32,7 @@ type BlockDetails struct {
 	WorkspaceId string              `json:"workspaceid"` // ID of the workspace containing the block
 	TabId       string              `json:"tabid"`       // ID of the tab containing the block
 	View        string              `json:"view"`        // Canonical view type (term, web, preview, edit, sysinfo, waveai)
-	Meta        waveobj.MetaMapType `json:"meta"`        // Block metadata including view type
+	Meta        doraobj.MetaMapType `json:"meta"`        // Block metadata including view type
 }
 
 // blocksListCmd represents the 'blocks list' command
@@ -106,7 +106,7 @@ func blocksListRun(cmd *cobra.Command, args []string) error {
 
 	var allBlocks []BlockDetails
 
-	workspaces, err := wshclient.WorkspaceListCommand(RpcClient, &wshrpc.RpcOpts{Timeout: int64(blocksTimeout)})
+	workspaces, err := dshclient.WorkspaceListCommand(RpcClient, &dshrpc.RpcOpts{Timeout: int64(blocksTimeout)})
 	if err != nil {
 		return fmt.Errorf("failed to list workspaces: %v", err)
 	}
@@ -146,12 +146,12 @@ func blocksListRun(cmd *cobra.Command, args []string) error {
 	// Query each selected workspace
 	hadSuccess := false
 	for _, wsId := range workspaceIdsToQuery {
-		req := wshrpc.BlocksListRequest{WorkspaceId: wsId}
+		req := dshrpc.BlocksListRequest{WorkspaceId: wsId}
 		if blocksWindowId != "" {
 			req.WindowId = blocksWindowId
 		}
 
-		blocks, err := wshclient.BlocksListCommand(RpcClient, req, &wshrpc.RpcOpts{Timeout: int64(blocksTimeout)})
+		blocks, err := dshclient.BlocksListCommand(RpcClient, req, &dshrpc.RpcOpts{Timeout: int64(blocksTimeout)})
 		if err != nil {
 			WriteStderr("Warning: couldn't list blocks for workspace %s: %v\n", wsId, err)
 			continue
@@ -165,7 +165,7 @@ func blocksListRun(cmd *cobra.Command, args []string) error {
 			}
 
 			if blocksView != "" {
-				view := b.Meta.GetString(waveobj.MetaKey_View, "")
+				view := b.Meta.GetString(doraobj.MetaKey_View, "")
 
 				// Support view type aliases
 				if !matchesViewType(view, blocksView) {
@@ -173,7 +173,7 @@ func blocksListRun(cmd *cobra.Command, args []string) error {
 				}
 			}
 
-			v := b.Meta.GetString(waveobj.MetaKey_View, "")
+			v := b.Meta.GetString(doraobj.MetaKey_View, "")
 			allBlocks = append(allBlocks, BlockDetails{
 				BlockId:     b.BlockId,
 				WorkspaceId: b.WorkspaceId,
@@ -230,11 +230,11 @@ func blocksListRun(cmd *cobra.Command, args []string) error {
 
 		switch view {
 		case "preview", "edit":
-			content = b.Meta.GetString(waveobj.MetaKey_File, "<no file>")
+			content = b.Meta.GetString(doraobj.MetaKey_File, "<no file>")
 		case "web":
-			content = b.Meta.GetString(waveobj.MetaKey_Url, "<no url>")
+			content = b.Meta.GetString(doraobj.MetaKey_Url, "<no url>")
 		case "term":
-			content = b.Meta.GetString(waveobj.MetaKey_CmdCwd, "<no cwd>")
+			content = b.Meta.GetString(doraobj.MetaKey_CmdCwd, "<no cwd>")
 		default:
 			content = ""
 		}

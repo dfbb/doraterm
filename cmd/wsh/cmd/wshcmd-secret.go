@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 // secretNameRegex must match the validation in pkg/wconfig/secretstore.go
@@ -85,7 +85,7 @@ func secretGetRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		return fmt.Errorf("invalid secret name: must start with a letter and contain only letters, numbers, and underscores")
 	}
 
-	resp, err := wshclient.GetSecretsCommand(RpcClient, []string{name}, &wshrpc.RpcOpts{Timeout: 2000})
+	resp, err := dshclient.GetSecretsCommand(RpcClient, []string{name}, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("getting secret: %w", err)
 	}
@@ -116,7 +116,7 @@ func secretSetRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		return fmt.Errorf("secret name cannot be empty")
 	}
 
-	backend, err := wshclient.GetSecretsLinuxStorageBackendCommand(RpcClient, &wshrpc.RpcOpts{Timeout: 2000})
+	backend, err := dshclient.GetSecretsLinuxStorageBackendCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("checking secret storage backend: %w", err)
 	}
@@ -126,7 +126,7 @@ func secretSetRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	}
 
 	secrets := map[string]*string{name: &value}
-	err = wshclient.SetSecretsCommand(RpcClient, secrets, &wshrpc.RpcOpts{Timeout: 2000})
+	err = dshclient.SetSecretsCommand(RpcClient, secrets, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("setting secret: %w", err)
 	}
@@ -140,7 +140,7 @@ func secretListRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		sendActivity("secret", rtnErr == nil)
 	}()
 
-	names, err := wshclient.GetSecretsNamesCommand(RpcClient, &wshrpc.RpcOpts{Timeout: 2000})
+	names, err := dshclient.GetSecretsNamesCommand(RpcClient, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("listing secrets: %w", err)
 	}
@@ -162,7 +162,7 @@ func secretDeleteRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	}
 
 	secrets := map[string]*string{name: nil}
-	err := wshclient.SetSecretsCommand(RpcClient, secrets, &wshrpc.RpcOpts{Timeout: 2000})
+	err := dshclient.SetSecretsCommand(RpcClient, secrets, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("deleting secret: %w", err)
 	}
@@ -181,19 +181,19 @@ func secretUiRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		return fmt.Errorf("no WAVETERM_TABID env var set")
 	}
 
-	wshCmd := &wshrpc.CommandCreateBlockData{
+	wshCmd := &dshrpc.CommandCreateBlockData{
 		TabId: tabId,
-		BlockDef: &waveobj.BlockDef{
+		BlockDef: &doraobj.BlockDef{
 			Meta: map[string]interface{}{
-				waveobj.MetaKey_View: "waveconfig",
-				waveobj.MetaKey_File: "secrets",
+				doraobj.MetaKey_View: "waveconfig",
+				doraobj.MetaKey_File: "secrets",
 			},
 		},
 		Magnified: secretUiMagnified,
 		Focused:   true,
 	}
 
-	_, err := wshclient.CreateBlockCommand(RpcClient, *wshCmd, &wshrpc.RpcOpts{Timeout: 2000})
+	_, err := dshclient.CreateBlockCommand(RpcClient, *wshCmd, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("opening secrets UI: %w", err)
 	}

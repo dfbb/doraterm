@@ -18,7 +18,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/dfbb/doraterm/pkg/ijson"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 func initDb(t *testing.T) {
@@ -83,7 +83,7 @@ func TestCreate(t *testing.T) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFn()
 	zoneId := uuid.NewString()
-	err := WFS.MakeFile(ctx, zoneId, "testfile", nil, wshrpc.FileOpts{})
+	err := WFS.MakeFile(ctx, zoneId, "testfile", nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -157,7 +157,7 @@ func TestDelete(t *testing.T) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFn()
 	zoneId := uuid.NewString()
-	err := WFS.MakeFile(ctx, zoneId, "testfile", nil, wshrpc.FileOpts{})
+	err := WFS.MakeFile(ctx, zoneId, "testfile", nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -171,11 +171,11 @@ func TestDelete(t *testing.T) {
 	}
 
 	// create two files in same zone, use DeleteZone to delete
-	err = WFS.MakeFile(ctx, zoneId, "testfile1", nil, wshrpc.FileOpts{})
+	err = WFS.MakeFile(ctx, zoneId, "testfile1", nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
-	err = WFS.MakeFile(ctx, zoneId, "testfile2", nil, wshrpc.FileOpts{})
+	err = WFS.MakeFile(ctx, zoneId, "testfile2", nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -220,7 +220,7 @@ func TestSetMeta(t *testing.T) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFn()
 	zoneId := uuid.NewString()
-	err := WFS.MakeFile(ctx, zoneId, "testfile", nil, wshrpc.FileOpts{})
+	err := WFS.MakeFile(ctx, zoneId, "testfile", nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -324,7 +324,7 @@ func TestWriteAt(t *testing.T) {
 	defer cancelFn()
 	fileName := "t3"
 	zoneId := uuid.NewString()
-	err := WFS.MakeFile(ctx, zoneId, fileName, nil, wshrpc.FileOpts{})
+	err := WFS.MakeFile(ctx, zoneId, fileName, nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -349,7 +349,7 @@ func TestAppend(t *testing.T) {
 	defer cancelFn()
 	zoneId := uuid.NewString()
 	fileName := "t2"
-	err := WFS.MakeFile(ctx, zoneId, fileName, nil, wshrpc.FileOpts{})
+	err := WFS.MakeFile(ctx, zoneId, fileName, nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -377,7 +377,7 @@ func TestWriteFile(t *testing.T) {
 	defer cancelFn()
 	zoneId := uuid.NewString()
 	fileName := "t3"
-	err := WFS.MakeFile(ctx, zoneId, fileName, nil, wshrpc.FileOpts{})
+	err := WFS.MakeFile(ctx, zoneId, fileName, nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -398,7 +398,7 @@ func TestWriteFile(t *testing.T) {
 	checkFileData(t, ctx, zoneId, fileName, "hello")
 
 	// circular file
-	err = WFS.MakeFile(ctx, zoneId, "c1", nil, wshrpc.FileOpts{Circular: true, MaxSize: 50})
+	err = WFS.MakeFile(ctx, zoneId, "c1", nil, dshrpc.FileOpts{Circular: true, MaxSize: 50})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -420,7 +420,7 @@ func TestCircularWrites(t *testing.T) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFn()
 	zoneId := uuid.NewString()
-	err := WFS.MakeFile(ctx, zoneId, "c1", nil, wshrpc.FileOpts{Circular: true, MaxSize: 50})
+	err := WFS.MakeFile(ctx, zoneId, "c1", nil, dshrpc.FileOpts{Circular: true, MaxSize: 50})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -509,7 +509,7 @@ func TestMultiPart(t *testing.T) {
 	zoneId := uuid.NewString()
 	fileName := "m2"
 	data := makeText(80)
-	err := WFS.MakeFile(ctx, zoneId, fileName, nil, wshrpc.FileOpts{})
+	err := WFS.MakeFile(ctx, zoneId, fileName, nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -563,7 +563,7 @@ func TestComputePartMap(t *testing.T) {
 	testIntMapsEq(t, "map5", m, map[int]int{8: 80, 9: 100, 10: 100, 11: 60})
 
 	// now test circular
-	file = &WaveFile{Opts: wshrpc.FileOpts{Circular: true, MaxSize: 1000}}
+	file = &WaveFile{Opts: dshrpc.FileOpts{Circular: true, MaxSize: 1000}}
 	m = file.computePartMap(10, 250)
 	testIntMapsEq(t, "map6", m, map[int]int{0: 90, 1: 100, 2: 60})
 	m = file.computePartMap(990, 40)
@@ -584,7 +584,7 @@ func TestSimpleDBFlush(t *testing.T) {
 	defer cancelFn()
 	zoneId := uuid.NewString()
 	fileName := "t1"
-	err := WFS.MakeFile(ctx, zoneId, fileName, nil, wshrpc.FileOpts{})
+	err := WFS.MakeFile(ctx, zoneId, fileName, nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -616,7 +616,7 @@ func TestConcurrentAppend(t *testing.T) {
 	defer cancelFn()
 	zoneId := uuid.NewString()
 	fileName := "t1"
-	err := WFS.MakeFile(ctx, zoneId, fileName, nil, wshrpc.FileOpts{})
+	err := WFS.MakeFile(ctx, zoneId, fileName, nil, dshrpc.FileOpts{})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}
@@ -704,7 +704,7 @@ func TestIJson(t *testing.T) {
 	defer cancelFn()
 	zoneId := uuid.NewString()
 	fileName := "ij1"
-	err := WFS.MakeFile(ctx, zoneId, fileName, nil, wshrpc.FileOpts{IJson: true})
+	err := WFS.MakeFile(ctx, zoneId, fileName, nil, dshrpc.FileOpts{IJson: true})
 	if err != nil {
 		t.Fatalf("error creating file: %v", err)
 	}

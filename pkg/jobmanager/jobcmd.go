@@ -14,15 +14,15 @@ import (
 
 	"github.com/creack/pty"
 	"github.com/dfbb/doraterm/pkg/util/unixutil"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
 type CmdDef struct {
 	Cmd      string
 	Args     []string
 	Env      map[string]string
-	TermSize waveobj.TermSize
+	TermSize doraobj.TermSize
 }
 
 type JobCmd struct {
@@ -31,7 +31,7 @@ type JobCmd struct {
 	cmd           *exec.Cmd
 	cmdPty        pty.Pty
 	ptsName       string
-	termSize      waveobj.TermSize
+	termSize      doraobj.TermSize
 	cleanedUp     bool
 	ptyClosed     bool
 	processExited bool
@@ -134,13 +134,13 @@ func (jm *JobCmd) GetPGID() (int, error) {
 	return pgid, nil
 }
 
-func (jm *JobCmd) GetExitInfo() (bool, *wshrpc.CommandJobCmdExitedData) {
+func (jm *JobCmd) GetExitInfo() (bool, *dshrpc.CommandJobCmdExitedData) {
 	jm.lock.Lock()
 	defer jm.lock.Unlock()
 	if !jm.processExited {
 		return false, nil
 	}
-	exitData := &wshrpc.CommandJobCmdExitedData{
+	exitData := &dshrpc.CommandJobCmdExitedData{
 		JobId:      WshCmdJobManager.JobId,
 		ExitCode:   jm.exitCode,
 		ExitSignal: jm.exitSignal,
@@ -152,7 +152,7 @@ func (jm *JobCmd) GetExitInfo() (bool, *wshrpc.CommandJobCmdExitedData) {
 	return true, exitData
 }
 
-func (jm *JobCmd) setTermSize_withlock(termSize waveobj.TermSize) error {
+func (jm *JobCmd) setTermSize_withlock(termSize doraobj.TermSize) error {
 	if jm.cmdPty == nil {
 		return fmt.Errorf("no active pty")
 	}
@@ -170,14 +170,14 @@ func (jm *JobCmd) setTermSize_withlock(termSize waveobj.TermSize) error {
 	return nil
 }
 
-func (jm *JobCmd) SetTermSize(termSize waveobj.TermSize) error {
+func (jm *JobCmd) SetTermSize(termSize doraobj.TermSize) error {
 	jm.lock.Lock()
 	defer jm.lock.Unlock()
 	return jm.setTermSize_withlock(termSize)
 }
 
 // TODO set up a single input handler loop + queue so we dont need to hold the lock but still get synchronized in-order execution
-func (jm *JobCmd) HandleInput(data wshrpc.CommandJobInputData) error {
+func (jm *JobCmd) HandleInput(data dshrpc.CommandJobInputData) error {
 	jm.lock.Lock()
 	defer jm.lock.Unlock()
 

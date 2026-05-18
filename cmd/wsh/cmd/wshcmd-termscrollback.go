@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 var termScrollbackCmd = &cobra.Command{
@@ -55,28 +55,28 @@ func termScrollbackRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	}
 
 	// Get block metadata to verify it's a terminal block
-	metaData, err := wshclient.GetMetaCommand(RpcClient, wshrpc.CommandGetMetaData{
+	metaData, err := dshclient.GetMetaCommand(RpcClient, dshrpc.CommandGetMetaData{
 		ORef: *fullORef,
-	}, &wshrpc.RpcOpts{Timeout: 2000})
+	}, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("error getting block metadata: %w", err)
 	}
 
 	// Check if the block is a terminal block
-	viewType, ok := metaData[waveobj.MetaKey_View].(string)
+	viewType, ok := metaData[doraobj.MetaKey_View].(string)
 	if !ok || viewType != "term" {
 		return fmt.Errorf("block %s is not a terminal block (view type: %s)", fullORef.OID, viewType)
 	}
 
 	// Make the RPC call to get scrollback
-	scrollbackData := wshrpc.CommandTermGetScrollbackLinesData{
+	scrollbackData := dshrpc.CommandTermGetScrollbackLinesData{
 		LineStart:   termScrollbackLineStart,
 		LineEnd:     termScrollbackLineEnd,
 		LastCommand: termScrollbackLastCmd,
 	}
 
-	result, err := wshclient.TermGetScrollbackLinesCommand(RpcClient, scrollbackData, &wshrpc.RpcOpts{
-		Route:   wshutil.MakeFeBlockRouteId(fullORef.OID),
+	result, err := dshclient.TermGetScrollbackLinesCommand(RpcClient, scrollbackData, &dshrpc.RpcOpts{
+		Route:   dshutil.MakeFeBlockRouteId(fullORef.OID),
 		Timeout: 5000,
 	})
 	if err != nil {

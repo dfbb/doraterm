@@ -8,8 +8,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var focusBlockCmd = &cobra.Command{
@@ -40,7 +40,7 @@ func focusBlockRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	}
 
 	route := fmt.Sprintf("tab:%s", tabId)
-	err = wshclient.SetBlockFocusCommand(RpcClient, fullORef.OID, &wshrpc.RpcOpts{
+	err = dshclient.SetBlockFocusCommand(RpcClient, fullORef.OID, &dshrpc.RpcOpts{
 		Route:   route,
 		Timeout: 2000,
 	})

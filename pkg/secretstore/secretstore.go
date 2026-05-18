@@ -16,10 +16,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dfbb/doraterm/pkg/wavebase"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dorabase"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 const (
@@ -46,19 +46,19 @@ func getLinuxStorageBackend() error {
 		return nil
 	}
 
-	rpcClient := wshclient.GetBareRpcClient()
+	rpcClient := dshclient.GetBareRpcClient()
 	ctx, cancel := context.WithTimeout(context.Background(), EncryptionTimeout*time.Millisecond)
 	defer cancel()
 
-	encryptData := wshrpc.CommandElectronEncryptData{
+	encryptData := dshrpc.CommandElectronEncryptData{
 		PlainText: "hello",
 	}
-	rpcOpts := &wshrpc.RpcOpts{
-		Route:   wshutil.ElectronRoute,
+	rpcOpts := &dshrpc.RpcOpts{
+		Route:   dshutil.ElectronRoute,
 		Timeout: EncryptionTimeout,
 	}
 
-	result, err := wshclient.ElectronEncryptCommand(rpcClient, encryptData, rpcOpts)
+	result, err := dshclient.ElectronEncryptCommand(rpcClient, encryptData, rpcOpts)
 	if err != nil {
 		return fmt.Errorf("failed to get storage backend: %w", err)
 	}
@@ -76,7 +76,7 @@ func getLinuxStorageBackend() error {
 
 // must hold lock
 func readSecretsFromFile() (map[string]string, error) {
-	configDir := wavebase.GetWaveConfigDir()
+	configDir := dorabase.GetWaveConfigDir()
 	secretsPath := filepath.Join(configDir, SecretsFileName)
 
 	encryptedData, err := os.ReadFile(secretsPath)
@@ -90,19 +90,19 @@ func readSecretsFromFile() (map[string]string, error) {
 		return make(map[string]string), nil
 	}
 
-	rpcClient := wshclient.GetBareRpcClient()
+	rpcClient := dshclient.GetBareRpcClient()
 	ctx, cancel := context.WithTimeout(context.Background(), EncryptionTimeout*time.Millisecond)
 	defer cancel()
 
-	decryptData := wshrpc.CommandElectronDecryptData{
+	decryptData := dshrpc.CommandElectronDecryptData{
 		CipherText: string(encryptedData),
 	}
-	rpcOpts := &wshrpc.RpcOpts{
-		Route:   wshutil.ElectronRoute,
+	rpcOpts := &dshrpc.RpcOpts{
+		Route:   dshutil.ElectronRoute,
 		Timeout: EncryptionTimeout,
 	}
 
-	result, err := wshclient.ElectronDecryptCommand(rpcClient, decryptData, rpcOpts)
+	result, err := dshclient.ElectronDecryptCommand(rpcClient, decryptData, rpcOpts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt secrets: %w", err)
 	}
@@ -178,19 +178,19 @@ func writeSecretsToFile() error {
 		return fmt.Errorf("failed to marshal secrets: %w", err)
 	}
 
-	rpcClient := wshclient.GetBareRpcClient()
+	rpcClient := dshclient.GetBareRpcClient()
 	ctx, cancel := context.WithTimeout(context.Background(), EncryptionTimeout*time.Millisecond)
 	defer cancel()
 
-	encryptData := wshrpc.CommandElectronEncryptData{
+	encryptData := dshrpc.CommandElectronEncryptData{
 		PlainText: string(jsonData),
 	}
-	rpcOpts := &wshrpc.RpcOpts{
-		Route:   wshutil.ElectronRoute,
+	rpcOpts := &dshrpc.RpcOpts{
+		Route:   dshutil.ElectronRoute,
 		Timeout: EncryptionTimeout,
 	}
 
-	result, err := wshclient.ElectronEncryptCommand(rpcClient, encryptData, rpcOpts)
+	result, err := dshclient.ElectronEncryptCommand(rpcClient, encryptData, rpcOpts)
 	if err != nil {
 		return fmt.Errorf("failed to encrypt secrets: %w", err)
 	}
@@ -199,7 +199,7 @@ func writeSecretsToFile() error {
 		return fmt.Errorf("encryption timeout: %w", ctx.Err())
 	}
 
-	configDir := wavebase.GetWaveConfigDir()
+	configDir := dorabase.GetWaveConfigDir()
 	secretsPath := filepath.Join(configDir, SecretsFileName)
 
 	if err := os.WriteFile(secretsPath, []byte(result.CipherText), 0600); err != nil {

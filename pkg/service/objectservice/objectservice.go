@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/dfbb/doraterm/pkg/tsgen/tsgenmeta"
-	"github.com/dfbb/doraterm/pkg/waveobj"
-	"github.com/dfbb/doraterm/pkg/wcore"
-	"github.com/dfbb/doraterm/pkg/wps"
-	"github.com/dfbb/doraterm/pkg/wstore"
+	"github.com/dfbb/doraterm/pkg/doraobj"
+	"github.com/dfbb/doraterm/pkg/dcore"
+	"github.com/dfbb/doraterm/pkg/dps"
+	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
 type ObjectService struct{}
@@ -21,12 +21,12 @@ type ObjectService struct{}
 const DefaultTimeout = 2 * time.Second
 const ConnContextTimeout = 60 * time.Second
 
-func parseORef(oref string) (*waveobj.ORef, error) {
+func parseORef(oref string) (*doraobj.ORef, error) {
 	fields := strings.Split(oref, ":")
 	if len(fields) != 2 {
 		return nil, fmt.Errorf("invalid object reference: %q", oref)
 	}
-	return &waveobj.ORef{OType: fields[0], OID: fields[1]}, nil
+	return &doraobj.ORef{OType: fields[0], OID: fields[1]}, nil
 }
 
 func (svc *ObjectService) GetObject_Meta() tsgenmeta.MethodMeta {
@@ -36,14 +36,14 @@ func (svc *ObjectService) GetObject_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (svc *ObjectService) GetObject(orefStr string) (waveobj.WaveObj, error) {
+func (svc *ObjectService) GetObject(orefStr string) (doraobj.WaveObj, error) {
 	oref, err := parseORef(orefStr)
 	if err != nil {
 		return nil, err
 	}
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
-	obj, err := wstore.DBGetORef(ctx, *oref)
+	obj, err := dstore.DBGetORef(ctx, *oref)
 	if err != nil {
 		return nil, fmt.Errorf("error getting object: %w", err)
 	}
@@ -57,11 +57,11 @@ func (svc *ObjectService) GetObjects_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (svc *ObjectService) GetObjects(orefStrArr []string) ([]waveobj.WaveObj, error) {
+func (svc *ObjectService) GetObjects(orefStrArr []string) ([]doraobj.WaveObj, error) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
 
-	var orefArr []waveobj.ORef
+	var orefArr []doraobj.ORef
 	for _, orefStr := range orefStrArr {
 		orefObj, err := parseORef(orefStr)
 		if err != nil {
@@ -69,7 +69,7 @@ func (svc *ObjectService) GetObjects(orefStrArr []string) ([]waveobj.WaveObj, er
 		}
 		orefArr = append(orefArr, *orefObj)
 	}
-	return wstore.DBSelectORefs(ctx, orefArr)
+	return dstore.DBSelectORefs(ctx, orefArr)
 }
 
 func (svc *ObjectService) CreateBlock_Meta() tsgenmeta.MethodMeta {
@@ -79,20 +79,20 @@ func (svc *ObjectService) CreateBlock_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (svc *ObjectService) CreateBlock(uiContext waveobj.UIContext, blockDef *waveobj.BlockDef, rtOpts *waveobj.RuntimeOpts) (string, waveobj.UpdatesRtnType, error) {
+func (svc *ObjectService) CreateBlock(uiContext doraobj.UIContext, blockDef *doraobj.BlockDef, rtOpts *doraobj.RuntimeOpts) (string, doraobj.UpdatesRtnType, error) {
 	if uiContext.ActiveTabId == "" {
 		return "", nil, fmt.Errorf("no active tab")
 	}
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
-	ctx = waveobj.ContextWithUpdates(ctx)
+	ctx = doraobj.ContextWithUpdates(ctx)
 
-	blockData, err := wcore.CreateBlock(ctx, uiContext.ActiveTabId, blockDef, rtOpts)
+	blockData, err := dcore.CreateBlock(ctx, uiContext.ActiveTabId, blockDef, rtOpts)
 	if err != nil {
 		return "", nil, err
 	}
 
-	return blockData.OID, waveobj.ContextGetUpdatesRtn(ctx), nil
+	return blockData.OID, doraobj.ContextGetUpdatesRtn(ctx), nil
 }
 
 func (svc *ObjectService) DeleteBlock_Meta() tsgenmeta.MethodMeta {
@@ -101,15 +101,15 @@ func (svc *ObjectService) DeleteBlock_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (svc *ObjectService) DeleteBlock(uiContext waveobj.UIContext, blockId string) (waveobj.UpdatesRtnType, error) {
+func (svc *ObjectService) DeleteBlock(uiContext doraobj.UIContext, blockId string) (doraobj.UpdatesRtnType, error) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
-	ctx = waveobj.ContextWithUpdates(ctx)
-	err := wcore.DeleteBlock(ctx, blockId, true)
+	ctx = doraobj.ContextWithUpdates(ctx)
+	err := dcore.DeleteBlock(ctx, blockId, true)
 	if err != nil {
 		return nil, fmt.Errorf("error deleting block: %w", err)
 	}
-	return waveobj.ContextGetUpdatesRtn(ctx), nil
+	return doraobj.ContextGetUpdatesRtn(ctx), nil
 }
 
 func (svc *ObjectService) UpdateObjectMeta_Meta() tsgenmeta.MethodMeta {
@@ -118,19 +118,19 @@ func (svc *ObjectService) UpdateObjectMeta_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (svc *ObjectService) UpdateObjectMeta(uiContext waveobj.UIContext, orefStr string, meta waveobj.MetaMapType) (waveobj.UpdatesRtnType, error) {
+func (svc *ObjectService) UpdateObjectMeta(uiContext doraobj.UIContext, orefStr string, meta doraobj.MetaMapType) (doraobj.UpdatesRtnType, error) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
-	ctx = waveobj.ContextWithUpdates(ctx)
+	ctx = doraobj.ContextWithUpdates(ctx)
 	oref, err := parseORef(orefStr)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing object reference: %w", err)
 	}
-	err = wstore.UpdateObjectMeta(ctx, *oref, meta, false)
+	err = dstore.UpdateObjectMeta(ctx, *oref, meta, false)
 	if err != nil {
 		return nil, fmt.Errorf("error updating %q meta: %w", orefStr, err)
 	}
-	return waveobj.ContextGetUpdatesRtn(ctx), nil
+	return doraobj.ContextGetUpdatesRtn(ctx), nil
 }
 
 func (svc *ObjectService) UpdateObject_Meta() tsgenmeta.MethodMeta {
@@ -139,31 +139,31 @@ func (svc *ObjectService) UpdateObject_Meta() tsgenmeta.MethodMeta {
 	}
 }
 
-func (svc *ObjectService) UpdateObject(uiContext waveobj.UIContext, waveObj waveobj.WaveObj, returnUpdates bool) (waveobj.UpdatesRtnType, error) {
+func (svc *ObjectService) UpdateObject(uiContext doraobj.UIContext, waveObj doraobj.WaveObj, returnUpdates bool) (doraobj.UpdatesRtnType, error) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), DefaultTimeout)
 	defer cancelFn()
-	ctx = waveobj.ContextWithUpdates(ctx)
+	ctx = doraobj.ContextWithUpdates(ctx)
 	if waveObj == nil {
 		return nil, fmt.Errorf("update wavobj is nil")
 	}
-	oref := waveobj.ORefFromWaveObj(waveObj)
-	found, err := wstore.DBExistsORef(ctx, *oref)
+	oref := doraobj.ORefFromWaveObj(waveObj)
+	found, err := dstore.DBExistsORef(ctx, *oref)
 	if err != nil {
 		return nil, fmt.Errorf("error getting object: %w", err)
 	}
 	if !found {
 		return nil, fmt.Errorf("object not found: %s", oref)
 	}
-	err = wstore.DBUpdate(ctx, waveObj)
+	err = dstore.DBUpdate(ctx, waveObj)
 	if err != nil {
 		return nil, fmt.Errorf("error updating object: %w", err)
 	}
-	if (waveObj.GetOType() == waveobj.OType_Workspace) && (waveObj.(*waveobj.Workspace).Name != "") {
-		wps.Broker.Publish(wps.WaveEvent{
-			Event: wps.Event_WorkspaceUpdate})
+	if (waveObj.GetOType() == doraobj.OType_Workspace) && (waveObj.(*doraobj.Workspace).Name != "") {
+		dps.Broker.Publish(dps.WaveEvent{
+			Event: dps.Event_WorkspaceUpdate})
 	}
 	if returnUpdates {
-		return waveobj.ContextGetUpdatesRtn(ctx), nil
+		return doraobj.ContextGetUpdatesRtn(ctx), nil
 	}
 	return nil, nil
 }

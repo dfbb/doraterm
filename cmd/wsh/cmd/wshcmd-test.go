@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var testCmd = &cobra.Command{
@@ -21,7 +21,7 @@ func init() {
 }
 
 func runTestCmd(cmd *cobra.Command, args []string) error {
-	rtn, err := wshclient.TestMultiArgCommand(RpcClient, "testarg", 42, true, nil)
+	rtn, err := dshclient.TestMultiArgCommand(RpcClient, "testarg", 42, true, nil)
 	if err != nil {
 		return err
 	}

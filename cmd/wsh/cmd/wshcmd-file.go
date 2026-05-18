@@ -17,8 +17,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 	"golang.org/x/term"
 )
 
@@ -172,8 +172,8 @@ func fileCatRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fileData := wshrpc.FileData{
-		Info: &wshrpc.FileInfo{
+	fileData := dshrpc.FileData{
+		Info: &dshrpc.FileInfo{
 			Path: path}}
 
 	err = streamReadFromFile(cmd.Context(), fileData, os.Stdout)
@@ -189,11 +189,11 @@ func fileInfoRun(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fileData := wshrpc.FileData{
-		Info: &wshrpc.FileInfo{
+	fileData := dshrpc.FileData{
+		Info: &dshrpc.FileInfo{
 			Path: path}}
 
-	info, err := wshclient.FileInfoCommand(RpcClient, fileData, &wshrpc.RpcOpts{Timeout: fileTimeout})
+	info, err := dshclient.FileInfoCommand(RpcClient, fileData, &dshrpc.RpcOpts{Timeout: fileTimeout})
 	err = convertNotFoundErr(err)
 	if err != nil {
 		return fmt.Errorf("getting file info: %w", err)
@@ -230,7 +230,7 @@ func fileRmRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = wshclient.FileDeleteCommand(RpcClient, wshrpc.CommandDeleteFileData{Path: path, Recursive: recursive}, &wshrpc.RpcOpts{Timeout: fileTimeout})
+	err = dshclient.FileDeleteCommand(RpcClient, dshrpc.CommandDeleteFileData{Path: path, Recursive: recursive}, &dshrpc.RpcOpts{Timeout: fileTimeout})
 	if err != nil {
 		return fmt.Errorf("removing file: %w", err)
 	}
@@ -243,8 +243,8 @@ func fileWriteRun(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fileData := wshrpc.FileData{
-		Info: &wshrpc.FileInfo{
+	fileData := dshrpc.FileData{
+		Info: &dshrpc.FileInfo{
 			Path: path}}
 
 	limitReader := io.LimitReader(WrappedStdin, MaxFileSize+1)
@@ -256,7 +256,7 @@ func fileWriteRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("input exceeds maximum file size of %d bytes", MaxFileSize)
 	}
 	fileData.Data64 = base64.StdEncoding.EncodeToString(data)
-	err = wshclient.FileWriteCommand(RpcClient, fileData, &wshrpc.RpcOpts{Timeout: fileTimeout})
+	err = dshclient.FileWriteCommand(RpcClient, fileData, &dshrpc.RpcOpts{Timeout: fileTimeout})
 	if err != nil {
 		return fmt.Errorf("writing file: %w", err)
 	}
@@ -269,8 +269,8 @@ func fileAppendRun(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fileData := wshrpc.FileData{
-		Info: &wshrpc.FileInfo{
+	fileData := dshrpc.FileData{
+		Info: &dshrpc.FileInfo{
 			Path: path}}
 
 	info, err := ensureFile(fileData)
@@ -302,7 +302,7 @@ func fileAppendRun(cmd *cobra.Command, args []string) error {
 
 		if buf.Len() >= 8192 { // 8KB batch size
 			fileData.Data64 = base64.StdEncoding.EncodeToString(buf.Bytes())
-			err = wshclient.FileAppendCommand(RpcClient, fileData, &wshrpc.RpcOpts{Timeout: fileTimeout})
+			err = dshclient.FileAppendCommand(RpcClient, fileData, &dshrpc.RpcOpts{Timeout: fileTimeout})
 			if err != nil {
 				return fmt.Errorf("appending to file: %w", err)
 			}
@@ -313,7 +313,7 @@ func fileAppendRun(cmd *cobra.Command, args []string) error {
 
 	if buf.Len() > 0 {
 		fileData.Data64 = base64.StdEncoding.EncodeToString(buf.Bytes())
-		err = wshclient.FileAppendCommand(RpcClient, fileData, &wshrpc.RpcOpts{Timeout: fileTimeout})
+		err = dshclient.FileAppendCommand(RpcClient, fileData, &dshrpc.RpcOpts{Timeout: fileTimeout})
 		if err != nil {
 			return fmt.Errorf("appending to file: %w", err)
 		}
@@ -322,12 +322,12 @@ func fileAppendRun(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func checkFileSize(path string, maxSize int64) (*wshrpc.FileInfo, error) {
-	fileData := wshrpc.FileData{
-		Info: &wshrpc.FileInfo{
+func checkFileSize(path string, maxSize int64) (*dshrpc.FileInfo, error) {
+	fileData := dshrpc.FileData{
+		Info: &dshrpc.FileInfo{
 			Path: path}}
 
-	info, err := wshclient.FileInfoCommand(RpcClient, fileData, &wshrpc.RpcOpts{Timeout: fileTimeout})
+	info, err := dshclient.FileInfoCommand(RpcClient, fileData, &dshrpc.RpcOpts{Timeout: fileTimeout})
 	err = convertNotFoundErr(err)
 	if err != nil {
 		return nil, fmt.Errorf("getting file info: %w", err)
@@ -370,8 +370,8 @@ func fileCpRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("unable to parse dest path: %w", err)
 	}
 	log.Printf("Copying %s to %s; merge: %v, force: %v", srcPath, destPath, merge, force)
-	rpcOpts := &wshrpc.RpcOpts{Timeout: TimeoutYear}
-	err = wshclient.FileCopyCommand(RpcClient, wshrpc.CommandFileCopyData{SrcUri: srcPath, DestUri: destPath, Opts: &wshrpc.FileCopyOpts{Merge: merge, Overwrite: force, Timeout: TimeoutYear}}, rpcOpts)
+	rpcOpts := &dshrpc.RpcOpts{Timeout: TimeoutYear}
+	err = dshclient.FileCopyCommand(RpcClient, dshrpc.CommandFileCopyData{SrcUri: srcPath, DestUri: destPath, Opts: &dshrpc.FileCopyOpts{Merge: merge, Overwrite: force, Timeout: TimeoutYear}}, rpcOpts)
 	if err != nil {
 		return fmt.Errorf("copying file: %w", err)
 	}
@@ -400,15 +400,15 @@ func fileMvRun(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("unable to parse dest path: %w", err)
 	}
 	log.Printf("Moving %s to %s; force: %v", srcPath, destPath, force)
-	rpcOpts := &wshrpc.RpcOpts{Timeout: TimeoutYear}
-	err = wshclient.FileMoveCommand(RpcClient, wshrpc.CommandFileCopyData{SrcUri: srcPath, DestUri: destPath, Opts: &wshrpc.FileCopyOpts{Overwrite: force, Timeout: TimeoutYear}}, rpcOpts)
+	rpcOpts := &dshrpc.RpcOpts{Timeout: TimeoutYear}
+	err = dshclient.FileMoveCommand(RpcClient, dshrpc.CommandFileCopyData{SrcUri: srcPath, DestUri: destPath, Opts: &dshrpc.FileCopyOpts{Overwrite: force, Timeout: TimeoutYear}}, rpcOpts)
 	if err != nil {
 		return fmt.Errorf("moving file: %w", err)
 	}
 	return nil
 }
 
-func filePrintColumns(filesChan <-chan wshrpc.RespOrErrorUnion[wshrpc.CommandRemoteListEntriesRtnData]) error {
+func filePrintColumns(filesChan <-chan dshrpc.RespOrErrorUnion[dshrpc.CommandRemoteListEntriesRtnData]) error {
 	width := 80
 	w, _, err := term.GetSize(int(os.Stdout.Fd()))
 	if err == nil {
@@ -451,8 +451,8 @@ func filePrintColumns(filesChan <-chan wshrpc.RespOrErrorUnion[wshrpc.CommandRem
 	return nil
 }
 
-func filePrintLong(filesChan <-chan wshrpc.RespOrErrorUnion[wshrpc.CommandRemoteListEntriesRtnData]) error {
-	var allFiles []*wshrpc.FileInfo
+func filePrintLong(filesChan <-chan dshrpc.RespOrErrorUnion[dshrpc.CommandRemoteListEntriesRtnData]) error {
+	var allFiles []*dshrpc.FileInfo
 
 	for respUnion := range filesChan {
 		if respUnion.Error != nil {
@@ -511,7 +511,7 @@ func fileListRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	filesChan := wshclient.FileListStreamCommand(RpcClient, wshrpc.FileListData{Path: path, Opts: &wshrpc.FileListOpts{All: false}}, &wshrpc.RpcOpts{Timeout: 2000})
+	filesChan := dshclient.FileListStreamCommand(RpcClient, dshrpc.FileListData{Path: path, Opts: &dshrpc.FileListOpts{All: false}}, &dshrpc.RpcOpts{Timeout: 2000})
 	// Drain the channel when done
 	defer utilfn.DrainChannelSafe(filesChan, "fileListRun")
 	if longForm {

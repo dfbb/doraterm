@@ -10,8 +10,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
 )
 
 var wavepathCmd = &cobra.Command{
@@ -61,7 +61,7 @@ func wavepathRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		return fmt.Errorf("no WAVETERM_TABID env var set")
 	}
 
-	path, err := wshclient.PathCommand(RpcClient, wshrpc.PathCommandData{
+	path, err := dshclient.PathCommand(RpcClient, dshrpc.PathCommandData{
 		PathType:     pathType,
 		Open:         open,
 		OpenExternal: openExternal,

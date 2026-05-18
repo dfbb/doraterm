@@ -7,9 +7,9 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/dfbb/doraterm/pkg/wshrpc"
-	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
 var notifyTitle string
@@ -34,12 +34,12 @@ func notifyRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		sendActivity("notify", rtnErr == nil)
 	}()
 	message := args[0]
-	notificationOptions := &wshrpc.WaveNotificationOptions{
+	notificationOptions := &dshrpc.WaveNotificationOptions{
 		Title:  notifyTitle,
 		Body:   message,
 		Silent: notifySilent,
 	}
-	err := wshclient.NotifyCommand(RpcClient, *notificationOptions, &wshrpc.RpcOpts{Timeout: 2000, Route: wshutil.ElectronRoute})
+	err := dshclient.NotifyCommand(RpcClient, *notificationOptions, &dshrpc.RpcOpts{Timeout: 2000, Route: dshutil.ElectronRoute})
 	if err != nil {
 		return fmt.Errorf("sending notification: %w", err)
 	}
