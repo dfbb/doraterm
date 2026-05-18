@@ -71,7 +71,7 @@ func GetClientPlatform(ctx context.Context, shell genconn.ShellClient) (string, 
 		return "", "", fmt.Errorf("unexpected output from uname: %s", stdout)
 	}
 	os, arch := normalizeOs(parts[0]), normalizeArch(parts[1])
-	if err := dorabase.ValidateWshSupportedArch(os, arch); err != nil {
+	if err := dorabase.ValidateDshSupportedArch(os, arch); err != nil {
 		return "", "", err
 	}
 	return os, arch, nil
@@ -83,7 +83,7 @@ func GetClientPlatformFromOsArchStr(ctx context.Context, osArchStr string) (stri
 		return "", "", fmt.Errorf("unexpected output from uname: %s", osArchStr)
 	}
 	os, arch := normalizeOs(parts[0]), normalizeArch(parts[1])
-	if err := dorabase.ValidateWshSupportedArch(os, arch); err != nil {
+	if err := dorabase.ValidateDshSupportedArch(os, arch); err != nil {
 		return "", "", err
 	}
 	return os, arch, nil
@@ -102,7 +102,7 @@ func CpWshToRemote(ctx context.Context, client *ssh.Client, clientOs string, cli
 	if ok {
 		blocklogger.Debugf(ctx, "[conndebug] CpWshToRemote, timeout: %v\n", time.Until(deadline))
 	}
-	wshLocalPath, err := shellutil.GetLocalWshBinaryPath(dorabase.WaveVersion, clientOs, clientArch)
+	wshLocalPath, err := shellutil.GetLocalWshBinaryPath(dorabase.DoraVersion, clientOs, clientArch)
 	if err != nil {
 		return err
 	}

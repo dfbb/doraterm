@@ -19,8 +19,6 @@ import (
 	"github.com/dfbb/doraterm/pkg/filestore"
 	"github.com/dfbb/doraterm/pkg/panichandler"
 	"github.com/dfbb/doraterm/pkg/streamclient"
-	"github.com/dfbb/doraterm/pkg/telemetry"
-	"github.com/dfbb/doraterm/pkg/telemetry/telemetrydata"
 	"github.com/dfbb/doraterm/pkg/util/ds"
 	"github.com/dfbb/doraterm/pkg/util/envutil"
 	"github.com/dfbb/doraterm/pkg/util/shellutil"
@@ -635,7 +633,7 @@ func StartJob(ctx context.Context, params StartJobParams) (string, error) {
 		JobAuthToken:     jobAuthToken,
 		JobManagerStatus: JobManagerStatus_Init,
 		AttachedBlockId:  params.BlockId,
-		WaveVersion:      dorabase.WaveVersion,
+		DoraVersion:      dorabase.DoraVersion,
 		Meta:             make(doraobj.MetaMapType),
 	}
 
@@ -669,7 +667,7 @@ func StartJob(ctx context.Context, params StartJobParams) (string, error) {
 	clientId := dstore.GetClientId()
 	publicKey := dorajwt.GetPublicKey()
 	publicKeyBase64 := base64.StdEncoding.EncodeToString(publicKey)
-	jobEnv := envutil.CopyAndAddToEnvMap(params.Env, "WAVETERM_JOBID", jobId)
+	jobEnv := envutil.CopyAndAddToEnvMap(params.Env, "DORATERM_JOBID", jobId)
 	startJobData := dshrpc.CommandRemoteStartJobData{
 		Cmd:                params.Cmd,
 		Args:               params.Args,

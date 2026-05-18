@@ -1,29 +1,30 @@
 // Copyright 2025, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-//go:build windows
+//go:build !windows
 
 package dorabase
 
 import (
-	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
-	"github.com/alexflint/go-filemutex"
+	"golang.org/x/sys/unix"
 )
 
 func AcquireWaveLock() (FDLock, error) {
-	dataHomeDir := GetWaveDataDir()
+	dataHomeDir := GetDoraDataDir()
 	lockFileName := filepath.Join(dataHomeDir, WaveLockFile)
 	log.Printf("[base] acquiring lock on %s\n", lockFileName)
-	m, err := filemutex.New(lockFileName)
+	fd, err := os.OpenFile(lockFileName, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
-		return nil, fmt.Errorf("filemutex new error: %w", err)
+		return nil, err
 	}
-	err = m.TryLock()
+	err = unix.Flock(int(fd.Fd()), unix.LOCK_EX|unix.LOCK_NB)
 	if err != nil {
-		return nil, fmt.Errorf("filemutex trylock error: %w", err)
+		fd.Close()
+		return nil, err
 	}
-	return m, nil
+	return fd, nil
 }

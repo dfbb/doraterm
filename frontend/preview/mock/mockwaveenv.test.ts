@@ -47,7 +47,7 @@ describe("makeMockWaveEnv", () => {
             path: "/Users/mike",
         });
         expect(visibleHomeEntries.some((entry) => entry.name === ".bashrc")).toBe(false);
-        expect(visibleHomeEntries.some((entry) => entry.name === "waveterm")).toBe(true);
+        expect(visibleHomeEntries.some((entry) => entry.name === "doraterm")).toBe(true);
 
         const allHomeEntries = await env.rpc.FileListCommand(null as any, {
             path: "/Users/mike",

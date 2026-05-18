@@ -50,7 +50,7 @@ func InitFilestore() error {
 }
 
 func GetDBName() string {
-	waveHome := dorabase.GetWaveDataDir()
+	waveHome := dorabase.GetDoraDataDir()
 	return filepath.Join(waveHome, dorabase.WaveDBDir, FilestoreDBName)
 }
 

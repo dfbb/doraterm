@@ -48,7 +48,7 @@ import (
 )
 
 // these are set at build time
-var WaveVersion = "0.0.0"
+var DoraVersion = "0.0.0"
 var BuildTime = "0"
 
 const InitialTelemetryWait = 10 * time.Second
@@ -62,7 +62,7 @@ const DiagnosticTick = 10 * time.Minute
 var shutdownOnce sync.Once
 
 func init() {
-	envFilePath := os.Getenv("WAVETERM_ENVFILE")
+	envFilePath := os.Getenv("DORATERM_ENVFILE")
 	if envFilePath != "" {
 		log.Printf("applying env file: %s\n", envFilePath)
 		_ = godotenv.Load(envFilePath)
@@ -131,8 +131,8 @@ func diagnosticLoop() {
 	defer func() {
 		panichandler.PanicHandler("diagnosticLoop", recover())
 	}()
-	if os.Getenv("WAVETERM_NOPING") != "" {
-		log.Printf("WAVETERM_NOPING set, disabling diagnostic ping\n")
+	if os.Getenv("DORATERM_NOPING") != "" {
+		log.Printf("DORATERM_NOPING set, disabling diagnostic ping\n")
 		return
 	}
 	var lastSentDate string
@@ -294,7 +294,7 @@ func startupActivityUpdate(firstLaunch bool) {
 		shellVersion = ""
 	}
 	userSetOnce := &telemetrydata.TEventUserProps{
-		ClientInitialVersion: "v" + WaveVersion,
+		ClientInitialVersion: "v" + DoraVersion,
 	}
 	tosTs := telemetry.GetTosAgreedTs()
 	var cohortTime time.Time
@@ -311,7 +311,7 @@ func startupActivityUpdate(firstLaunch bool) {
 	fullConfig := dconfig.GetWatcher().GetFullConfig()
 	props := telemetrydata.TEventProps{
 		UserSet: &telemetrydata.TEventUserProps{
-			ClientVersion:       "v" + dorabase.WaveVersion,
+			ClientVersion:       "v" + dorabase.DoraVersion,
 			ClientBuildTime:     dorabase.BuildTime,
 			ClientArch:          dorabase.ClientArch(),
 			ClientOSRelease:     dorabase.UnameKernelRelease(),
@@ -383,13 +383,13 @@ func grabAndRemoveEnvVars() error {
 	}
 
 	// Remove WAVETERM env vars that leak from prod => dev
-	os.Unsetenv("WAVETERM_CLIENTID")
-	os.Unsetenv("WAVETERM_WORKSPACEID")
-	os.Unsetenv("WAVETERM_TABID")
-	os.Unsetenv("WAVETERM_BLOCKID")
-	os.Unsetenv("WAVETERM_CONN")
-	os.Unsetenv("WAVETERM_JWT")
-	os.Unsetenv("WAVETERM_VERSION")
+	os.Unsetenv("DORATERM_CLIENTID")
+	os.Unsetenv("DORATERM_WORKSPACEID")
+	os.Unsetenv("DORATERM_TABID")
+	os.Unsetenv("DORATERM_BLOCKID")
+	os.Unsetenv("DORATERM_CONN")
+	os.Unsetenv("DORATERM_JWT")
+	os.Unsetenv("DORATERM_VERSION")
 
 	return nil
 }
@@ -431,7 +431,7 @@ func maybeStartPprofServer() {
 func main() {
 	log.SetFlags(0) // disable timestamp since electron's winston logger already wraps with timestamp
 	log.SetPrefix("[wavesrv] ")
-	dorabase.WaveVersion = WaveVersion
+	dorabase.DoraVersion = DoraVersion
 	dorabase.BuildTime = BuildTime
 	dshutil.DefaultRouter = dshutil.NewWshRouter()
 	dshutil.DefaultRouter.SetAsRootRouter()
@@ -446,29 +446,29 @@ func main() {
 		log.Printf("error validating service map: %v\n", err)
 		return
 	}
-	err = dorabase.EnsureWaveDataDir()
+	err = dorabase.EnsureDoraDataDir()
 	if err != nil {
 		log.Printf("error ensuring wave home dir: %v\n", err)
 		return
 	}
-	err = dorabase.EnsureWaveDBDir()
+	err = dorabase.EnsureDoraDBDir()
 	if err != nil {
 		log.Printf("error ensuring wave db dir: %v\n", err)
 		return
 	}
-	err = dorabase.EnsureWaveConfigDir()
+	err = dorabase.EnsureDoraConfigDir()
 	if err != nil {
 		log.Printf("error ensuring wave config dir: %v\n", err)
 		return
 	}
 
 	// TODO: rather than ensure this dir exists, we should let the editor recursively create parent dirs on save
-	err = dorabase.EnsureWavePresetsDir()
+	err = dorabase.EnsureDoraPresetsDir()
 	if err != nil {
 		log.Printf("error ensuring wave presets dir: %v\n", err)
 		return
 	}
-	err = dorabase.EnsureWaveCachesDir()
+	err = dorabase.EnsureDoraCachesDir()
 	if err != nil {
 		log.Printf("error ensuring wave caches dir: %v\n", err)
 		return
@@ -484,9 +484,9 @@ func main() {
 			log.Printf("error releasing wave lock: %v\n", err)
 		}
 	}()
-	log.Printf("wave version: %s (%s)\n", WaveVersion, BuildTime)
-	log.Printf("wave data dir: %s\n", dorabase.GetWaveDataDir())
-	log.Printf("wave config dir: %s\n", dorabase.GetWaveConfigDir())
+	log.Printf("wave version: %s (%s)\n", DoraVersion, BuildTime)
+	log.Printf("wave data dir: %s\n", dorabase.GetDoraDataDir())
+	log.Printf("wave config dir: %s\n", dorabase.GetDoraConfigDir())
 	err = filestore.InitFilestore()
 	if err != nil {
 		log.Printf("error initializing filestore: %v\n", err)
@@ -578,7 +578,7 @@ func main() {
 			BuildTime = "0"
 		}
 		// use fmt instead of log here to make sure it goes directly to stderr
-		fmt.Fprintf(os.Stderr, "WAVESRV-ESTART ws:%s web:%s version:%s buildtime:%s\n", wsListener.Addr(), webListener.Addr(), WaveVersion, BuildTime)
+		fmt.Fprintf(os.Stderr, "WAVESRV-ESTART ws:%s web:%s version:%s buildtime:%s\n", wsListener.Addr(), webListener.Addr(), DoraVersion, BuildTime)
 	}()
 	go dshutil.RunWshRpcOverListener(unixListener, nil)
 	web.RunWebServer(webListener) // blocking

@@ -13,13 +13,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/dfbb/doraterm/pkg/eventbus"
-	"github.com/dfbb/doraterm/pkg/telemetry"
-	"github.com/dfbb/doraterm/pkg/telemetry/telemetrydata"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
 	"github.com/dfbb/doraterm/pkg/doraobj"
 	"github.com/dfbb/doraterm/pkg/dconfig"
 	"github.com/dfbb/doraterm/pkg/dps"
-	"github.com/dfbb/doraterm/pkg/dshrpc"
 	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
@@ -260,10 +257,6 @@ func CreateTab(ctx context.Context, workspaceId string, tabName string, activate
 			dstore.UpdateObjectMeta(ctx, *tabORef, doraobj.MetaMapType{doraobj.MetaKey_TabBackground: tabBg}, false)
 		}
 	}
-	telemetry.GoUpdateActivityWrap(dshrpc.ActivityUpdate{NewTab: 1}, "createtab")
-	telemetry.GoRecordTEventWrap(&telemetrydata.TEvent{
-		Event: "action:createtab",
-	})
 	return tab.OID, nil
 }
 

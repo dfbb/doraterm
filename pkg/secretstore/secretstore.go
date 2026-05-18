@@ -76,7 +76,7 @@ func getLinuxStorageBackend() error {
 
 // must hold lock
 func readSecretsFromFile() (map[string]string, error) {
-	configDir := dorabase.GetWaveConfigDir()
+	configDir := dorabase.GetDoraConfigDir()
 	secretsPath := filepath.Join(configDir, SecretsFileName)
 
 	encryptedData, err := os.ReadFile(secretsPath)
@@ -199,7 +199,7 @@ func writeSecretsToFile() error {
 		return fmt.Errorf("encryption timeout: %w", ctx.Err())
 	}
 
-	configDir := dorabase.GetWaveConfigDir()
+	configDir := dorabase.GetDoraConfigDir()
 	secretsPath := filepath.Join(configDir, SecretsFileName)
 
 	if err := os.WriteFile(secretsPath, []byte(result.CipherText), 0600); err != nil {

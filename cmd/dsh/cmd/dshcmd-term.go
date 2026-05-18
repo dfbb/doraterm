@@ -58,7 +58,7 @@ func termRun(cmd *cobra.Command, args []string) (rtnErr error) {
 
 	tabId := getTabIdFromEnv()
 	if tabId == "" {
-		return fmt.Errorf("no WAVETERM_TABID env var set")
+		return fmt.Errorf("no DORATERM_TABID env var set")
 	}
 
 	createMeta := map[string]any{

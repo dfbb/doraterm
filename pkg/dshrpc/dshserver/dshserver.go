@@ -15,7 +15,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -30,13 +29,10 @@ import (
 	"github.com/dfbb/doraterm/pkg/panichandler"
 	"github.com/dfbb/doraterm/pkg/remote/fileshare/wshfs"
 	"github.com/dfbb/doraterm/pkg/secretstore"
-	"github.com/dfbb/doraterm/pkg/telemetry"
-	"github.com/dfbb/doraterm/pkg/telemetry/telemetrydata"
 	"github.com/dfbb/doraterm/pkg/util/envutil"
 	"github.com/dfbb/doraterm/pkg/dorabase"
 	"github.com/dfbb/doraterm/pkg/dorajwt"
 	"github.com/dfbb/doraterm/pkg/doraobj"
-	"github.com/dfbb/doraterm/pkg/wcloud"
 	"github.com/dfbb/doraterm/pkg/dconfig"
 	"github.com/dfbb/doraterm/pkg/dcore"
 	"github.com/dfbb/doraterm/pkg/dps"
@@ -623,11 +619,11 @@ func (ws *WshServer) DebugTermCommand(ctx context.Context, data dshrpc.CommandDe
 
 func (ws *WshServer) WaveInfoCommand(ctx context.Context) (*dshrpc.WaveInfoData, error) {
 	return &dshrpc.WaveInfoData{
-		Version:   dorabase.WaveVersion,
+		Version:   dorabase.DoraVersion,
 		ClientId:  dstore.GetClientId(),
 		BuildTime: dorabase.BuildTime,
-		ConfigDir: dorabase.GetWaveConfigDir(),
-		DataDir:   dorabase.GetWaveDataDir(),
+		ConfigDir: dorabase.GetDoraConfigDir(),
+		DataDir:   dorabase.GetDoraDataDir(),
 	}, nil
 }
 
@@ -722,47 +718,9 @@ func (ws *WshServer) WorkspaceListCommand(ctx context.Context) ([]dshrpc.Workspa
 }
 
 
-func (ws WshServer) SendTelemetryCommand(ctx context.Context) error {
-	return wcloud.SendAllTelemetry(dstore.GetClientId())
-}
 
-var wshActivityRe = regexp.MustCompile(`^[a-z:#]+$`)
 
 func (ws *WshServer) WshActivityCommand(ctx context.Context, data map[string]int) error {
-	if len(data) == 0 {
-		return nil
-	}
-	props := telemetrydata.TEventProps{}
-	for key, value := range data {
-		if len(key) > 20 {
-			delete(data, key)
-		}
-		if !wshActivityRe.MatchString(key) {
-			delete(data, key)
-		}
-		if value != 1 {
-			delete(data, key)
-		}
-		if strings.HasSuffix(key, "#error") {
-			props.WshCmd = strings.TrimSuffix(key, "#error")
-			props.WshErrorCount = 1
-		} else {
-			props.WshCmd = key
-		}
-	}
-	activityUpdate := dshrpc.ActivityUpdate{
-		WshCmds: data,
-	}
-	telemetry.GoUpdateActivityWrap(activityUpdate, "wsh-activity")
-	telemetry.GoRecordTEventWrap(&telemetrydata.TEvent{
-		Event: telemetry.WshRunEventName,
-		Props: props,
-	})
-	return nil
-}
-
-func (ws *WshServer) ActivityCommand(ctx context.Context, activity dshrpc.ActivityUpdate) error {
-	telemetry.GoUpdateActivityWrap(activity, "wshrpc-activity")
 	return nil
 }
 
@@ -832,11 +790,11 @@ func (ws *WshServer) PathCommand(ctx context.Context, data dshrpc.PathCommandDat
 	var path string
 	switch pathType {
 	case "config":
-		path = dorabase.GetWaveConfigDir()
+		path = dorabase.GetDoraConfigDir()
 	case "data":
-		path = dorabase.GetWaveDataDir()
+		path = dorabase.GetDoraDataDir()
 	case "log":
-		path = filepath.Join(dorabase.GetWaveDataDir(), "waveapp.log")
+		path = filepath.Join(dorabase.GetDoraDataDir(), "waveapp.log")
 	}
 
 	if openInternal && openExternal {

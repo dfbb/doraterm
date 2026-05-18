@@ -4,14 +4,14 @@ if [ -f /etc/profile ]; then
     . /etc/profile
 fi
 
-WAVETERM_WSHBINDIR={{.WSHBINDIR}}
+DORATERM_DSHBINDIR={{.WSHBINDIR}}
 
 # after /etc/profile which is likely to clobber the path
-export PATH="$WAVETERM_WSHBINDIR:$PATH"
+export PATH="$DORATERM_DSHBINDIR:$PATH"
 
 # Source the dynamic script from wsh token
-eval "$(wsh token "$WAVETERM_SWAPTOKEN" bash 2> /dev/null)"
-unset WAVETERM_SWAPTOKEN
+eval "$(wsh token "$DORATERM_SWAPTOKEN" bash 2> /dev/null)"
+unset DORATERM_SWAPTOKEN
 
 # Source the first of ~/.bash_profile, ~/.bash_login, or ~/.profile that exists
 if [ -f ~/.bash_profile ]; then
@@ -22,10 +22,10 @@ elif [ -f ~/.profile ]; then
     . ~/.profile
 fi
 
-if [[ ":$PATH:" != *":$WAVETERM_WSHBINDIR:"* ]]; then
-    export PATH="$WAVETERM_WSHBINDIR:$PATH"
+if [[ ":$PATH:" != *":$DORATERM_DSHBINDIR:"* ]]; then
+    export PATH="$DORATERM_DSHBINDIR:$PATH"
 fi
-unset WAVETERM_WSHBINDIR
+unset DORATERM_DSHBINDIR
 if type _init_completion &>/dev/null; then
   source <(wsh completion bash)
 fi
@@ -39,11 +39,11 @@ fi
 
 # Source bash-preexec for proper preexec/precmd hook support
 if [ -z "${bash_preexec_imported:-}" ]; then
-    _WAVETERM_SI_BASHRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    if [ -f "$_WAVETERM_SI_BASHRC_DIR/bash_preexec.sh" ]; then
-        source "$_WAVETERM_SI_BASHRC_DIR/bash_preexec.sh"
+    _DORATERM_SI_BASHRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    if [ -f "$_DORATERM_SI_BASHRC_DIR/bash_preexec.sh" ]; then
+        source "$_DORATERM_SI_BASHRC_DIR/bash_preexec.sh"
     fi
-    unset _WAVETERM_SI_BASHRC_DIR
+    unset _DORATERM_SI_BASHRC_DIR
 fi
 
 # Check if bash-preexec was successfully imported
@@ -53,7 +53,7 @@ if [ -z "${bash_preexec_imported:-}" ]; then
     return 0
 fi
 
-_WAVETERM_SI_FIRSTPROMPT=1
+_DORATERM_SI_FIRSTPROMPT=1
 
 # Wave Terminal Shell Integration
 _waveterm_si_blocked() {
@@ -82,7 +82,7 @@ _waveterm_si_precmd() {
     local _waveterm_si_status=$?
     _waveterm_si_blocked && return
     
-    if [ "$_WAVETERM_SI_FIRSTPROMPT" -eq 1 ]; then
+    if [ "$_DORATERM_SI_FIRSTPROMPT" -eq 1 ]; then
         local uname_info
         uname_info=$(uname -smr 2>/dev/null)
         printf '\033]16162;M;{"shell":"bash","shellversion":"%s","uname":"%s","integration":true}\007' "$BASH_VERSION" "$uname_info"
@@ -92,7 +92,7 @@ _waveterm_si_precmd() {
     # OSC 7 sent on every prompt - bash has no chpwd hook for directory changes
     _waveterm_si_osc7
     printf '\033]16162;A\007'
-    _WAVETERM_SI_FIRSTPROMPT=0
+    _DORATERM_SI_FIRSTPROMPT=0
 }
 
 _waveterm_si_preexec() {

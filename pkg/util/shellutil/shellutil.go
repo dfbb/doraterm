@@ -45,10 +45,10 @@ var (
 	//go:embed shellintegration/bash_preexec.sh
 	BashStartup_Preexec string
 
-	//go:embed shellintegration/fish_wavefish.sh
+	//go:embed shellintegration/fish_dorafish.sh
 	FishStartup_Wavefish string
 
-	//go:embed shellintegration/pwsh_wavepwsh.sh
+	//go:embed shellintegration/pwsh_dorapwsh.sh
 	PwshStartup_wavepwsh string
 
 	ZshExtendedHistoryPattern = regexp.MustCompile(`^: [0-9]+:`)
@@ -221,13 +221,13 @@ func WaveshellLocalEnvVars(termType string) map[string]string {
 		rtn["TERM"] = termType
 	}
 	// these are not necessary since they should be set with the swap token, but no harm in setting them here
-	rtn["TERM_PROGRAM"] = "waveterm"
+	rtn["TERM_PROGRAM"] = "doraterm"
 	if os.Getenv("COLORTERM") == "" {
 		rtn["COLORTERM"] = "truecolor"
 	}
 	rtn["WAVETERM"], _ = os.Executable()
-	rtn["WAVETERM_VERSION"] = dorabase.WaveVersion
-	rtn["WAVETERM_WSHBINDIR"] = filepath.Join(dorabase.GetWaveDataDir(), WaveHomeBinDir)
+	rtn["DORATERM_VERSION"] = dorabase.DoraVersion
+	rtn["DORATERM_DSHBINDIR"] = filepath.Join(dorabase.GetDoraDataDir(), WaveHomeBinDir)
 	return rtn
 }
 
@@ -279,19 +279,19 @@ func InitCustomShellStartupFiles() error {
 }
 
 func GetLocalBashRcFileOverride() string {
-	return filepath.Join(dorabase.GetWaveDataDir(), BashIntegrationDir, ".bashrc")
+	return filepath.Join(dorabase.GetDoraDataDir(), BashIntegrationDir, ".bashrc")
 }
 
 func GetLocalWaveFishFilePath() string {
-	return filepath.Join(dorabase.GetWaveDataDir(), FishIntegrationDir, "wave.fish")
+	return filepath.Join(dorabase.GetDoraDataDir(), FishIntegrationDir, "wave.fish")
 }
 
 func GetLocalWavePowershellEnv() string {
-	return filepath.Join(dorabase.GetWaveDataDir(), PwshIntegrationDir, "wavepwsh.ps1")
+	return filepath.Join(dorabase.GetDoraDataDir(), PwshIntegrationDir, "wavepwsh.ps1")
 }
 
 func GetLocalZshZDotDir() string {
-	return filepath.Join(dorabase.GetWaveDataDir(), ZshIntegrationDir)
+	return filepath.Join(dorabase.GetDoraDataDir(), ZshIntegrationDir)
 }
 
 func HasWaveZshHistory() (bool, int64) {
@@ -345,11 +345,11 @@ func GetLocalWshBinaryPath(version string, goos string, goarch string) (string, 
 	if goos == "windows" {
 		ext = ".exe"
 	}
-	if !dorabase.SupportedWshBinaries[fmt.Sprintf("%s-%s", goos, goarch)] {
+	if !dorabase.SupportedDshBinaries[fmt.Sprintf("%s-%s", goos, goarch)] {
 		return "", fmt.Errorf("unsupported wsh platform: %s-%s", goos, goarch)
 	}
 	baseName := fmt.Sprintf("wsh-%s-%s.%s%s", version, goos, goarch, ext)
-	return filepath.Join(dorabase.GetWaveAppBinPath(), baseName), nil
+	return filepath.Join(dorabase.GetDoraAppBinPath(), baseName), nil
 }
 
 // absWshBinDir must be an absolute, expanded path (no ~ or $HOME, etc.)
@@ -428,7 +428,7 @@ func InitRcFiles(waveHome string, absWshBinDir string) error {
 
 func initCustomShellStartupFilesInternal() error {
 	log.Printf("initializing wsh and shell startup files\n")
-	waveDataHome := dorabase.GetWaveDataDir()
+	waveDataHome := dorabase.GetDoraDataDir()
 	binDir := filepath.Join(waveDataHome, WaveHomeBinDir)
 	err := InitRcFiles(waveDataHome, binDir)
 	if err != nil {
@@ -441,7 +441,7 @@ func initCustomShellStartupFilesInternal() error {
 	}
 
 	// copy the correct binary to bin
-	wshFullPath, err := GetLocalWshBinaryPath(dorabase.WaveVersion, runtime.GOOS, runtime.GOARCH)
+	wshFullPath, err := GetLocalWshBinaryPath(dorabase.DoraVersion, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
 		log.Printf("error (non-fatal), could not resolve wsh binary path: %v\n", err)
 	}

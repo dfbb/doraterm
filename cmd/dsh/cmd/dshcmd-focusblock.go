@@ -29,9 +29,9 @@ func focusBlockRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		sendActivity("focusblock", rtnErr == nil)
 	}()
 
-	tabId := os.Getenv("WAVETERM_TABID")
+	tabId := os.Getenv("DORATERM_TABID")
 	if tabId == "" {
-		return fmt.Errorf("no tab id specified (set WAVETERM_TABID environment variable)")
+		return fmt.Errorf("no tab id specified (set DORATERM_TABID environment variable)")
 	}
 
 	fullORef, err := resolveBlockArg()

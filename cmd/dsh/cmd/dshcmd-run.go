@@ -135,7 +135,7 @@ func runRun(cmd *cobra.Command, args []string) (rtnErr error) {
 
 	tabId := getTabIdFromEnv()
 	if tabId == "" {
-		return fmt.Errorf("no WAVETERM_TABID env var set")
+		return fmt.Errorf("no DORATERM_TABID env var set")
 	}
 
 	createBlockData := dshrpc.CommandCreateBlockData{
