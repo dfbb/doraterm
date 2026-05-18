@@ -226,13 +226,13 @@ function DoraBlock(props: DoraBlockProps) {
     const displayName = block.id.replace(/^"|"$/g, "");
     return (
         <div className="waveblock">
-            <div className="wave-block-content">
-                <div className="wave-block-icon">
+            <div className="dora-block-content">
+                <div className="dora-block-icon">
                     <i className="fas fa-file-code"></i>
                 </div>
-                <div className="wave-block-info">
-                    <span className="wave-block-filename">{displayName}</span>
-                    <span className="wave-block-size">{sizeInKB} KB</span>
+                <div className="dora-block-info">
+                    <span className="dora-block-filename">{displayName}</span>
+                    <span className="dora-block-size">{sizeInKB} KB</span>
                 </div>
             </div>
         </div>

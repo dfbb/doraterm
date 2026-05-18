@@ -206,7 +206,7 @@ function createMockFilesystemEntries(): MockFsEntryInput[] {
         makeMockFsInput(`${MockHomePath}/Desktop/demo-script.md`),
         makeMockFsInput(`${MockHomePath}/Desktop/roadmap-draft.txt`),
         makeMockFsInput(`${MockHomePath}/Desktop/pairing-notes.txt`),
-        makeMockFsInput(`${MockHomePath}/Desktop/wave-window.jpg`),
+        makeMockFsInput(`${MockHomePath}/Desktop/dora-window.jpg`),
         makeMockFsInput(
             `${MockHomePath}/Documents/meeting-notes.md`,
             `# File Preview Notes\n\n- Build a richer preview mock environment.\n- Add a fake filesystem rooted at \`${MockHomePath}\`.\n- Make markdown previews resolve relative assets.\n`,
@@ -293,7 +293,7 @@ function createMockFilesystemEntries(): MockFsEntryInput[] {
         makeMockFsInput(`${MockHomePath}/waveterm/docs/connections.md`),
         makeMockFsInput(`${MockHomePath}/waveterm/docs/preview-gallery.md`),
         makeMockFsInput(`${MockHomePath}/waveterm/docs/release-notes.md`),
-        makeMockFsInput(`${MockHomePath}/waveterm/images/wave-logo.png`, TinyPngBytes, "image/png"),
+        makeMockFsInput(`${MockHomePath}/waveterm/images/dora-logo.png`, TinyPngBytes, "image/png"),
         makeMockFsInput(`${MockHomePath}/waveterm/images/hero.png`),
         makeMockFsInput(`${MockHomePath}/waveterm/images/avatar.jpg`),
         makeMockFsInput(`${MockHomePath}/waveterm/images/icon-16.png`),
@@ -303,7 +303,7 @@ function createMockFilesystemEntries(): MockFsEntryInput[] {
             `${MockHomePath}/.config/settings.json`,
             JSON.stringify(
                 {
-                    "app:theme": "wave-dark",
+                    "app:theme": "dora-dark",
                     "preview:lastpath": `${MockHomePath}/Documents/meeting-notes.md`,
                     "window:magnifiedblockopacity": 0.92,
                 },

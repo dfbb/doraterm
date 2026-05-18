@@ -41,7 +41,7 @@ const previewElectronApi: ElectronApi = {
     setActiveTab: (_tabId: string) => {},
     createTab: () => {},
     closeTab: (_workspaceId: string, _tabId: string, _confirmClose: boolean) => Promise.resolve(false),
-    setWindowInitStatus: (_status: "ready" | "wave-ready") => {},
+    setWindowInitStatus: (_status: "ready" | "dora-ready") => {},
     onDoraInit: (_callback: (initOpts: DoraInitOpts) => void) => {},
     sendLog: (_log: string) => {},
     onQuicklook: (_filePath: string) => {},
