@@ -9,7 +9,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/fs"
 	"log"
@@ -524,12 +523,12 @@ func (ws *DshServer) SetConfigCommand(ctx context.Context, data dshrpc.MetaSetti
 	return dconfig.SetBaseConfigValue(data.MetaMapType)
 }
 
-func (ws *DshServer) func (ws *DshServer) GetFullConfigCommand(ctx context.Context) (dconfig.FullConfigType, error) {
+func (ws *DshServer) GetFullConfigCommand(ctx context.Context) (dconfig.FullConfigType, error) {
 	watcher := dconfig.GetWatcher()
 	return watcher.GetFullConfig(), nil
 }
 
-func (ws *DshServer) func (ws *DshServer) func (ws *DshServer) func termCtxWithLogBlockId(ctx context.Context, logBlockId string) context.Context {
+func termCtxWithLogBlockId(ctx context.Context, logBlockId string) context.Context {
 	if logBlockId == "" {
 		return ctx
 	}

@@ -6,7 +6,7 @@ import { TabClient } from "@/app/store/tabrpcclient";
 import { DshRouter } from "@/app/store/wshrouter";
 import { getWSServerEndpoint } from "@/util/endpoints";
 import { addWSReconnectHandler, globalWS, initGlobalWS, WSControl } from "./ws";
-import { DefaultRouter, setDefaultRouter } from "./wshrpcutil-base";
+import { DefaultRouter, setDefaultRouter } from "./dshrpcutil-base";
 
 let TabRpcClient: TabClient;
 
@@ -36,4 +36,4 @@ class UpstreamDshRpcProxy implements AbstractDshClient {
 }
 
 export { DefaultRouter, initWshrpc, TabRpcClient };
-export { initElectronWshrpc, sendRpcCommand, sendRpcResponse, shutdownWshrpc } from "./wshrpcutil-base";
+export { initElectronWshrpc, sendRpcCommand, sendRpcResponse, shutdownWshrpc } from "./dshrpcutil-base";

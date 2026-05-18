@@ -51,6 +51,7 @@ const previewElectronApi: ElectronApi = {
     incrementTermCommands: (_opts?: { isDurable?: boolean }) => {},
     nativePaste: () => {},
     doRefresh: () => {},
+    getPathForFile: (_file: File) => "",
     saveTextFile: (_fileName: string, _content: string) => Promise.resolve(false),
     setIsActive: async () => {},
 };

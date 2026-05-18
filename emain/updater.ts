@@ -6,13 +6,13 @@ import { autoUpdater } from "electron-updater";
 import { readFileSync } from "fs";
 import path from "path";
 import YAML from "yaml";
-import { RpcApi } from "../frontend/app/store/wshclientapi";
+import { RpcApi } from "../frontend/app/store/dshclientapi";
 import { isDev } from "../frontend/util/isdev";
 import { fireAndForget } from "../frontend/util/util";
 import { setUserConfirmedQuit } from "./emain-activity";
 import { delay } from "./emain-util";
 import { focusedDoraWindow, getAllDoraWindows } from "./emain-window";
-import { ElectronDshClient } from "./emain-wsh";
+import { ElectronDshClient } from "./emain-dsh";
 
 export let updater: Updater;
 

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { waveEventSubscribeSingle } from "@/app/store/wps";
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcApi } from "@/app/store/dshclientapi";
 import * as electron from "electron";
 import { fireAndForget } from "../frontend/util/util";
 import { isDev, unamePlatform } from "./emain-platform";
@@ -17,7 +17,7 @@ import {
     relaunchBrowserWindows,
     DoraBrowserWindow,
 } from "./emain-window";
-import { ElectronDshClient } from "./emain-wsh";
+import { ElectronDshClient } from "./emain-dsh";
 import { updater } from "./updater";
 
 type AppMenuCallbacks = {

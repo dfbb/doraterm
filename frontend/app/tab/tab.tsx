@@ -4,7 +4,7 @@
 import { getTabBadgeAtom } from "@/app/store/badge";
 import { refocusNode } from "@/app/store/global";
 import { getTabModelByTabId } from "@/app/store/tab-model";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import { DoraEnv, DoraEnvSubset, useDoraEnv } from "@/app/doraenv/doraenv";
 import { Button } from "@/element/button";
 import { validateCssColor } from "@/util/color-validator";
@@ -19,7 +19,6 @@ import { buildTabContextMenu } from "./tabcontextmenu";
 
 export type TabEnv = DoraEnvSubset<{
     rpc: {
-        ActivityCommand: DoraEnv["rpc"]["ActivityCommand"];
         SetConfigCommand: DoraEnv["rpc"]["SetConfigCommand"];
         SetMetaCommand: DoraEnv["rpc"]["SetMetaCommand"];
         UpdateTabNameCommand: DoraEnv["rpc"]["UpdateTabNameCommand"];

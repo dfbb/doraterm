@@ -144,6 +144,20 @@ declare global {
         sublabel?: string;
     };
 
+    type DoraKeyboardEvent = {
+        type: "keydown" | "keyup" | "keypress" | "unknown";
+        key: string;
+        code: string;
+        repeat?: boolean;
+        location?: number;
+        shift?: boolean;
+        control?: boolean;
+        alt?: boolean;
+        meta?: boolean;
+        cmd?: boolean;
+        option?: boolean;
+    };
+
     type KeyPressDecl = {
         mods: {
             Cmd?: boolean;

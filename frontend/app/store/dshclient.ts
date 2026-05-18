@@ -1,7 +1,7 @@
 // Copyright 2025, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { sendRpcCommand, sendRpcResponse } from "@/app/store/wshrpcutil-base";
+import { sendRpcCommand, sendRpcResponse } from "@/app/store/dshrpcutil-base";
 import * as util from "@/util/util";
 
 const notFoundLogMap = new Map<string, boolean>();

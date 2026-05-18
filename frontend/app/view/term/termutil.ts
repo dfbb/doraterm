@@ -3,7 +3,7 @@
 
 export const DefaultTermTheme = "default-dark";
 import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import * as TermTypes from "@xterm/xterm";
 import base64 from "base64-js";
 import { colord } from "colord";

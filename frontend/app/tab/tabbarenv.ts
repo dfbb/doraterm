@@ -12,7 +12,6 @@ export type TabBarEnv = DoraEnvSubset<{
         installAppUpdate: DoraEnv["electron"]["installAppUpdate"];
     };
     rpc: {
-        ActivityCommand: DoraEnv["rpc"]["ActivityCommand"];
         SetConfigCommand: DoraEnv["rpc"]["SetConfigCommand"];
         SetMetaCommand: DoraEnv["rpc"]["SetMetaCommand"];
         UpdateTabNameCommand: DoraEnv["rpc"]["UpdateTabNameCommand"];

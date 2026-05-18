@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { WindowService } from "@/app/store/services";
-import { RpcResponseHelper, DshClient } from "@/app/store/wshclient";
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcResponseHelper, DshClient } from "@/app/store/dshclient";
+import { RpcApi } from "@/app/store/dshclientapi";
 import { Notification, net, safeStorage, shell } from "electron";
 import { getResolvedUpdateChannel } from "emain/updater";
 import { unamePlatform } from "./emain-platform";

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import {
     getLayoutModelForStaticTab,
     LayoutTreeActionType,
@@ -571,14 +571,7 @@ function refocusNode(blockId: string) {
 }
 
 async function loadConnStatus() {
-    const connStatusArr = await ClientService.GetAllConnStatus();
-    if (connStatusArr == null) {
-        return;
-    }
-    for (const connStatus of connStatusArr) {
-        const curAtom = getConnStatusAtom(connStatus.connection);
-        globalStore.set(curAtom, connStatus);
-    }
+    // SSH/WSL connections removed; only local connection is tracked elsewhere
 }
 
 function subscribeToConnEvents() {
@@ -643,12 +636,8 @@ function setActiveTab(tabId: string) {
     getApi().setActiveTab(tabId);
 }
 
-function recordTEvent(event: string, props?: TEventProps) {
-    if (isPreviewWindow()) return;
-    if (props == null) {
-        props = {};
-    }
-    RpcApi.RecordTEventCommand(TabRpcClient, { event, props }, { noresponse: true });
+function recordTEvent(_event: string, _props?: Record<string, any>) {
+    // telemetry removed; no-op
 }
 
 export {

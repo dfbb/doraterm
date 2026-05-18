@@ -3,7 +3,7 @@
 
 import { ClientService, ObjectService, WindowService, WorkspaceService } from "@/app/store/services";
 import { waveEventSubscribeSingle } from "@/app/store/wps";
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcApi } from "@/app/store/dshclientapi";
 import { fireAndForget } from "@/util/util";
 import { BaseWindow, BaseWindowConstructorOptions, dialog, globalShortcut, ipcMain, screen, webContents } from "electron";
 import { globalEvents } from "emain/emain-events";
@@ -20,7 +20,7 @@ import { log } from "./emain-log";
 import { getElectronAppBasePath, isDev, unamePlatform } from "./emain-platform";
 import { getOrCreateWebViewForTab, getDoraTabViewByWebContentsId, DoraTabView } from "./emain-tabview";
 import { delay, ensureBoundsAreVisible, waveKeyToElectronKey } from "./emain-util";
-import { ElectronDshClient } from "./emain-wsh";
+import { ElectronDshClient } from "./emain-dsh";
 import { updater } from "./updater";
 
 const DevInitTimeoutMs = 5000;

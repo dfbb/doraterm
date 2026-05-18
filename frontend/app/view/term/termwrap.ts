@@ -5,7 +5,7 @@ import type { BlockNodeModel } from "@/app/block/blocktypes";
 import { setBadge } from "@/app/store/badge";
 import { getFileSubject } from "@/app/store/wps";
 import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
+import { TabRpcClient } from "@/app/store/dshrpcutil";
 import {
     fetchDoraFile,
     getApi,

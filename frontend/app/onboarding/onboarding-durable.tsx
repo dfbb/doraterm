@@ -3,10 +3,7 @@
 
 import Logo from "@/app/asset/logo.svg";
 import { EmojiButton } from "@/app/element/emojibutton";
-import { RpcApi } from "@/app/store/dshclientapi";
-import { TabRpcClient } from "@/app/store/wshrpcutil";
 import { useState } from "react";
-import { CurrentOnboardingVersion } from "./onboarding-common";
 import { OnboardingFooter } from "./onboarding-features-footer";
 import { TailDeployLogCommand } from "./onboarding-layout-term";
 
@@ -23,15 +20,6 @@ export const DurableSessionPage = ({
 
     const handleFireClick = () => {
         setFireClicked(!fireClicked);
-        if (!fireClicked) {
-            RpcApi.RecordTEventCommand(TabRpcClient, {
-                event: "onboarding:fire",
-                props: {
-                    "onboarding:feature": "durable",
-                    "onboarding:version": CurrentOnboardingVersion,
-                },
-            });
-        }
     };
 
     return (

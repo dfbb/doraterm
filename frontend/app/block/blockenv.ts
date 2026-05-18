@@ -26,7 +26,6 @@ export type BlockEnv = DoraEnvSubset<{
         openExternal: DoraEnv["electron"]["openExternal"];
     };
     rpc: {
-        ActivityCommand: DoraEnv["rpc"]["ActivityCommand"];
     };
     wos: DoraEnv["wos"];
     getConnStatusAtom: DoraEnv["getConnStatusAtom"];
