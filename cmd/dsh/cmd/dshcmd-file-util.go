@@ -130,7 +130,7 @@ func fixRelativePaths(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if conn.Scheme != connparse.ConnectionTypeWsh || conn.Host != connparse.ConnHostCurrent {
+	if conn.Scheme != connparse.ConnectionTypeDsh || conn.Host != connparse.ConnHostCurrent {
 		return "", fmt.Errorf("remote/wsl paths not supported in doraterm: %s", path)
 	}
 	conn.Host = RpcContext.Conn

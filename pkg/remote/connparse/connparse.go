@@ -14,10 +14,10 @@ import (
 )
 
 const (
-	ConnectionTypeWsh = "wsh"
+	ConnectionTypeDsh = "dsh"
 
 	ConnHostCurrent = "current"
-	ConnHostWaveSrv = "wavesrv"
+	ConnHostDoraSrv = "dorasrv"
 )
 
 var windowsDriveRegex = regexp.MustCompile(`^[a-zA-Z]:`)
@@ -126,7 +126,7 @@ func ParseURI(uri string) (*Connection, error) {
 	addPrecedingSlash := true
 
 	if scheme == "" {
-		scheme = ConnectionTypeWsh
+		scheme = ConnectionTypeDsh
 		addPrecedingSlash = false
 		if isWshShorthand {
 			parseWshPath()
@@ -137,13 +137,13 @@ func ParseURI(uri string) (*Connection, error) {
 			host = ConnHostCurrent
 			remotePath = rest
 		}
-	} else if scheme == ConnectionTypeWsh {
+	} else if scheme == ConnectionTypeDsh {
 		parseWshPath()
 	} else {
 		parseGenericPath()
 	}
 
-	if scheme == ConnectionTypeWsh {
+	if scheme == ConnectionTypeDsh {
 		if host == "" {
 			host = dshrpc.LocalConnName
 		}

@@ -12,7 +12,7 @@ vi.mock("../preview-contextmenu", () => ({
 
 describe("makeMockDoraEnv", () => {
     it("uses the preview context menu by default", async () => {
-        const { makeMockDoraEnv } = await import("./mockwaveenv");
+        const { makeMockDoraEnv } = await import("./mockdoraenv");
         const env = makeMockDoraEnv();
         const menu = [{ label: "Open" }];
         const event = { stopPropagation: vi.fn() } as any;
@@ -29,17 +29,17 @@ describe("makeMockDoraEnv", () => {
     });
 
     it("implements file info, read, list, and join commands", async () => {
-        const { makeMockDoraEnv } = await import("./mockwaveenv");
+        const { makeMockDoraEnv } = await import("./mockdoraenv");
         const env = makeMockDoraEnv();
 
         const bashrcInfo = await env.rpc.FileInfoCommand(null as any, {
-            info: { path: "wsh://local//Users/mike/.bashrc" },
+            info: { path: "dsh://local//Users/mike/.bashrc" },
         });
         expect(bashrcInfo.path).toBe("/Users/mike/.bashrc");
         expect(bashrcInfo.mimetype).toBe("text/plain");
 
         const bashrcData = await env.rpc.FileReadCommand(null as any, {
-            info: { path: "wsh://local//Users/mike/.bashrc" },
+            info: { path: "dsh://local//Users/mike/.bashrc" },
         });
         expect(base64ToString(bashrcData.data64)).toContain('alias gs="git status -sb"');
 
@@ -61,7 +61,7 @@ describe("makeMockDoraEnv", () => {
         expect(dirRead.entries.some((entry) => entry.name === "docs" && entry.isdir)).toBe(true);
 
         const joined = await env.rpc.FileJoinCommand(null as any, [
-            "wsh://local//Users/mike/Documents",
+            "dsh://local//Users/mike/Documents",
             "../waveterm/docs",
             "preview-notes.md",
         ]);
@@ -70,7 +70,7 @@ describe("makeMockDoraEnv", () => {
     });
 
     it("implements file list and read stream commands", async () => {
-        const { makeMockDoraEnv } = await import("./mockwaveenv");
+        const { makeMockDoraEnv } = await import("./mockdoraenv");
         const env = makeMockDoraEnv();
 
         const listPackets: CommandRemoteListEntriesRtnData[] = [];
@@ -85,7 +85,7 @@ describe("makeMockDoraEnv", () => {
     });
 
     it("implements secrets commands with in-memory storage", async () => {
-        const { makeMockDoraEnv } = await import("./mockwaveenv");
+        const { makeMockDoraEnv } = await import("./mockdoraenv");
         const env = makeMockDoraEnv({ platform: "linux" });
 
         await env.rpc.SetSecretsCommand(

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Tooltip } from "@/element/tooltip";
-import { DoraEnv, DoraEnvSubset, useDoraEnv } from "@/app/waveenv/waveenv";
+import { DoraEnv, DoraEnvSubset, useDoraEnv } from "@/app/doraenv/doraenv";
 import { useAtomValue } from "jotai";
 import { memo, useCallback } from "react";
 

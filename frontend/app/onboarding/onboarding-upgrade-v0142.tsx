@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useDoraEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/doraenv/doraenv";
 
 const UpgradeOnboardingModal_v0_14_2_Content = () => {
     const waveEnv = useDoraEnv();

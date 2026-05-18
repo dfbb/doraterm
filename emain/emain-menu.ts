@@ -1,4 +1,4 @@
-// Copyright 2025, Command Line Inc.
+// Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
 import { waveEventSubscribeSingle } from "@/app/store/wps";
@@ -29,11 +29,11 @@ function getWindowWebContents(window: electron.BaseWindow): electron.WebContents
     if (window == null) {
         return null;
     }
-    // Check BrowserWindow first (for Tsunami Builder windows)
+    // Check BrowserWindow first (for legacy app windows)
     if (window instanceof electron.BrowserWindow) {
         return window.webContents;
     }
-    // Check DoraBrowserWindow (for main Wave windows with tab views)
+    // Check DoraBrowserWindow (for main Dora windows with tab views)
     if (window instanceof DoraBrowserWindow) {
         if (window.activeTabView) {
             return window.activeTabView.webContents;
@@ -164,7 +164,7 @@ function makeFileMenu(
 function makeAppMenuItems(webContents: electron.WebContents): Electron.MenuItemConstructorOptions[] {
     const appMenuItems: Electron.MenuItemConstructorOptions[] = [
         {
-            label: "About Wave Terminal",
+            label: "About Dora Terminal",
             click: (_, window) => {
                 (getWindowWebContents(window) ?? webContents)?.send("menu-item-about");
             },
@@ -317,9 +317,9 @@ function makeViewMenu(
     ];
 }
 
-async function makeFullAppMenu(callbacks: AppMenuCallbacks, workspaceOrBuilderId?: string): Promise<Electron.Menu> {
+async function makeFullAppMenu(callbacks: AppMenuCallbacks, workspaceId?: string): Promise<Electron.Menu> {
     const numDoraWindows = getAllDoraWindows().length;
-    const webContents = workspaceOrBuilderId && getWebContentsByWorkspaceOrBuilderId(workspaceOrBuilderId);
+    const webContents = workspaceId && getWebContentsByWorkspaceId(workspaceId);
     const appMenuItems = makeAppMenuItems(webContents);
 
     let fullscreenOnLaunch = false;
@@ -365,13 +365,13 @@ async function makeFullAppMenu(callbacks: AppMenuCallbacks, workspaceOrBuilderId
     return electron.Menu.buildFromTemplate(menuTemplate);
 }
 
-export function instantiateAppMenu(workspaceOrBuilderId?: string): Promise<electron.Menu> {
+export function instantiateAppMenu(workspaceId?: string): Promise<electron.Menu> {
     return makeFullAppMenu(
         {
             createNewDoraWindow,
             relaunchBrowserWindows,
         },
-        workspaceOrBuilderId
+        workspaceId
     );
 }
 
@@ -393,8 +393,8 @@ function initMenuEventSubscriptions() {
     });
 }
 
-function getWebContentsByWorkspaceOrBuilderId(workspaceOrBuilderId: string): electron.WebContents {
-    const ww = getDoraWindowByWorkspaceId(workspaceOrBuilderId);
+function getWebContentsByWorkspaceId(workspaceId: string): electron.WebContents {
+    const ww = getDoraWindowByWorkspaceId(workspaceId);
     if (ww) {
         return ww.activeTabView?.webContents;
     }
@@ -431,10 +431,10 @@ function convertMenuDefArrToMenu(
 
 electron.ipcMain.on(
     "contextmenu-show",
-    (event, workspaceOrBuilderId: string, menuDefArr: ElectronContextMenuItem[]) => {
-        const webContents = getWebContentsByWorkspaceOrBuilderId(workspaceOrBuilderId);
+    (event, workspaceId: string, menuDefArr: ElectronContextMenuItem[]) => {
+        const webContents = getWebContentsByWorkspaceId(workspaceId);
         if (!webContents) {
-            console.error("invalid window for context menu:", workspaceOrBuilderId);
+            console.error("invalid window for context menu:", workspaceId);
             event.returnValue = true;
             return;
         }
@@ -460,25 +460,12 @@ electron.ipcMain.on(
 
 electron.ipcMain.on("workspace-appmenu-show", (event, workspaceId: string) => {
     fireAndForget(async () => {
-        const webContents = getWebContentsByWorkspaceOrBuilderId(workspaceId);
+        const webContents = getWebContentsByWorkspaceId(workspaceId);
         if (!webContents) {
             console.error("invalid window for workspace app menu:", workspaceId);
             return;
         }
         const menu = await instantiateAppMenu(workspaceId);
-        menu.popup();
-    });
-    event.returnValue = true;
-});
-
-electron.ipcMain.on("builder-appmenu-show", (event, builderId: string) => {
-    fireAndForget(async () => {
-        const webContents = getWebContentsByWorkspaceOrBuilderId(builderId);
-        if (!webContents) {
-            console.error("invalid window for builder app menu:", builderId);
-            return;
-        }
-        const menu = await instantiateAppMenu(builderId);
         menu.popup();
     });
     event.returnValue = true;

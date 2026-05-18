@@ -1,4 +1,4 @@
-// Copyright 2025, Command Line Inc
+// Copyright 2026, Command Line Inc
 // SPDX-License-Identifier: Apache-2.0
 
 import * as WOS from "@/app/store/wos";
@@ -12,7 +12,6 @@ class GlobalModel {
     static readonly IsActiveThrottleMs = 5000;
 
     windowId: string;
-    builderId: string;
     platform: NodeJS.Platform;
     lastSetIsActiveTs = 0;
 
@@ -33,7 +32,6 @@ class GlobalModel {
     async initialize(initOpts: GlobalInitOptions): Promise<void> {
         ClientModel.getInstance().initialize(initOpts.clientId);
         this.windowId = initOpts.windowId;
-        this.builderId = initOpts.builderId;
         this.platform = initOpts.platform;
 
         this.windowDataAtom = atom((get) => {

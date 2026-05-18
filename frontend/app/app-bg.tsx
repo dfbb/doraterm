@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { MetaKeyAtomFnType, useDoraEnv, DoraEnv, DoraEnvSubset } from "@/app/waveenv/waveenv";
+import { MetaKeyAtomFnType, useDoraEnv, DoraEnv, DoraEnvSubset } from "@/app/doraenv/doraenv";
 import { PLATFORM, PlatformMacOS } from "@/util/platformutil";
 import { computeBgStyleFromMeta } from "@/util/waveutil";
 import useResizeObserver from "@react-hook/resize-observer";

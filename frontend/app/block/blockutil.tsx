@@ -6,7 +6,7 @@ import {
     MetaKeyAtomFnType,
     DoraEnv,
     DoraEnvSubset,
-} from "@/app/waveenv/waveenv";
+} from "@/app/doraenv/doraenv";
 import { IconButton, ToggleIconButton } from "@/element/iconbutton";
 import { MagnifyIcon } from "@/element/magnify";
 import { MenuButton } from "@/element/menubutton";

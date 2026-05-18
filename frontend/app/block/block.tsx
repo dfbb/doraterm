@@ -9,7 +9,7 @@ import {
     SubBlockProps,
 } from "@/app/block/blocktypes";
 import { useTabModel } from "@/app/store/tab-model";
-import { useDoraEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/doraenv/doraenv";
 import { ErrorBoundary } from "@/element/errorboundary";
 import { CenteredDiv } from "@/element/quickelems";
 import { useDebouncedNodeInnerRect } from "@/layout/index";

@@ -15,7 +15,7 @@ import (
 const (
 	Mode_Normal  = "normal"
 	Mode_Esc     = "esc"
-	Mode_WaveEsc = "waveesc"
+	Mode_DoraEsc = "doraesc"
 )
 
 const MaxBufferedDataSize = 256 * 1024
@@ -89,7 +89,7 @@ func (b *PtyBuffer) run() {
 func (b *PtyBuffer) processData(data []byte) {
 	outputBuf := make([]byte, 0, len(data))
 	for _, ch := range data {
-		if b.EscMode == Mode_WaveEsc {
+		if b.EscMode == Mode_DoraEsc {
 			if ch == ESC {
 				// terminates the escape sequence (and the rest was invalid)
 				b.EscMode = Mode_Normal
@@ -128,7 +128,7 @@ func (b *PtyBuffer) processData(data []byte) {
 			b.EscSeqBuf = append(b.EscSeqBuf, ch)
 			// check to see if we have a full Wave OSC prefix
 			if len(b.EscSeqBuf) == len(b.OSCPrefix) {
-				b.EscMode = Mode_WaveEsc
+				b.EscMode = Mode_DoraEsc
 			}
 			continue
 		}

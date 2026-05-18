@@ -409,7 +409,7 @@ outer:
 		var msg RpcMessage
 		err := json.Unmarshal(inputVal.MsgBytes, &msg)
 		if err != nil {
-			log.Printf("wshrpc received bad message: %v\n", err)
+			log.Printf("dshrpc received bad message: %v\n", err)
 			continue
 		}
 		if msg.Cancel {

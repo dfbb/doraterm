@@ -7,12 +7,12 @@ import { getAtoms, initGlobalAtoms } from "@/app/store/global-atoms";
 import { GlobalModel } from "@/app/store/global-model";
 import { globalStore } from "@/app/store/jotaiStore";
 import { getTabModelByTabId, TabModelContext } from "@/app/store/tab-model";
-import { DoraEnvContext } from "@/app/waveenv/waveenv";
+import { DoraEnvContext } from "@/app/doraenv/doraenv";
 import { loadFonts } from "@/util/fontutil";
 import { Provider } from "jotai";
 import React, { lazy, Suspense, useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { makeMockDoraEnv, PreviewClientId, PreviewTabId, PreviewWindowId } from "./mock/mockwaveenv";
+import { makeMockDoraEnv, PreviewClientId, PreviewTabId, PreviewWindowId } from "./mock/mockdoraenv";
 import { installPreviewElectronApi } from "./mock/preview-electron-api";
 import { PreviewContextMenu } from "./preview-contextmenu";
 

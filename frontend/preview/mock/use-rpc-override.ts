@@ -1,9 +1,9 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useDoraEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/doraenv/doraenv";
 import * as React from "react";
-import { MockDoraEnv, RpcHandlerType, RpcOverrides, RpcStreamHandlerType, RpcStreamOverrides } from "./mockwaveenv";
+import { MockDoraEnv, RpcHandlerType, RpcOverrides, RpcStreamHandlerType, RpcStreamOverrides } from "./mockdoraenv";
 
 export function useRpcOverride<K extends keyof RpcOverrides>(command: K, handler: RpcHandlerType): void {
     const mockEnv = useDoraEnv() as MockDoraEnv;

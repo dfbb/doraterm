@@ -445,7 +445,7 @@ export class DoraBrowserWindow extends BaseWindow {
             tabView.waveTabId,
             primaryStartupTab ? "(primary startup)" : ""
         );
-        tabView.webContents.send("wave-init", initOpts);
+        tabView.webContents.send("dora-init", initOpts);
         await this.awaitWithDevTimeout(tabView.waveReadyPromise, "waveReadyPromise", tabView.waveTabId);
         console.log("wave-ready init time", Date.now() - startTime + "ms");
     }
@@ -493,7 +493,7 @@ export class DoraBrowserWindow extends BaseWindow {
             this.finalizePositioning();
         } else {
             console.log("reusing an existing tab, calling wave-init", tabView.waveTabId);
-            tabView.webContents.send("wave-init", tabView.savedInitOpts); // reinit
+            tabView.webContents.send("dora-init", tabView.savedInitOpts); // reinit
             this.finalizePositioning();
         }
 

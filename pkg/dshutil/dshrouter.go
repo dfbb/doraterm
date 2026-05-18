@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	DefaultRoute     = "wavesrv"
+	DefaultRoute     = "dorasrv"
 	ElectronRoute    = "electron"
 	ControlRoute     = "$control"      // control plane route
 	ControlRootRoute = "$control:root" // control plane route to root router
@@ -185,7 +185,7 @@ func (router *DshRouter) SetAsRootRouter() {
 	linkId := router.routeMap[ControlRoute]
 	if linkId != baseds.NoLinkId {
 		router.routeMap[ControlRootRoute] = linkId
-		log.Printf("wshrouter registered control:root route linkid=%d", linkId)
+		log.Printf("dshrouter registered control:root route linkid=%d", linkId)
 	}
 }
 
@@ -511,7 +511,7 @@ func (router *DshRouter) RegisterUntrustedLink(client AbstractRpcClient) baseds.
 		trusted: false,
 		client:  client,
 	}
-	log.Printf("wshrouter register link %s", lm.Name())
+	log.Printf("dshrouter register link %s", lm.Name())
 	router.linkMap[linkId] = lm
 	go router.runLinkClientRecvLoop(linkId, client)
 	return linkId
@@ -524,7 +524,7 @@ func (router *DshRouter) trustLink(linkId baseds.LinkId, linkKind string) {
 	if lm == nil {
 		return
 	}
-	log.Printf("wshrouter trust link %s kind=%s", lm.Name(), linkKind)
+	log.Printf("dshrouter trust link %s kind=%s", lm.Name(), linkKind)
 	lm.trusted = true
 	lm.linkKind = linkKind
 }
@@ -575,7 +575,7 @@ func (router *DshRouter) runLinkClientRecvLoop(linkId baseds.LinkId, client Abst
 					sendControlUnauthenticatedErrorResponse(rpcMsg, *lm, router)
 					continue
 				}
-				log.Printf("wshrouter control-msg route=%s link=%s command=%s source=%s", rpcMsg.Route, lm.Name(), rpcMsg.Command, rpcMsg.Source)
+				log.Printf("dshrouter control-msg route=%s link=%s command=%s source=%s", rpcMsg.Route, lm.Name(), rpcMsg.Command, rpcMsg.Source)
 			}
 		} else {
 			// non-request messages (responses)
@@ -676,7 +676,7 @@ func (router *DshRouter) registerControlPlane() {
 	if lm != nil {
 		lm.sourceRouteId = ControlRoute
 		router.routeMap[ControlRoute] = linkId
-		log.Printf("wshrouter registered control route %q linkid=%d", ControlRoute, linkId)
+		log.Printf("dshrouter registered control route %q linkid=%d", ControlRoute, linkId)
 	}
 }
 
@@ -721,7 +721,7 @@ func (router *DshRouter) UnregisterLink(linkId baseds.LinkId) {
 	defer router.lock.Unlock()
 	lm := router.linkMap[linkId]
 	if lm != nil {
-		log.Printf("wshrouter unregister link %s", lm.Name())
+		log.Printf("dshrouter unregister link %s", lm.Name())
 	}
 	delete(router.linkMap, linkId)
 	if router.upstreamLinkId == linkId {
@@ -755,7 +755,7 @@ func (router *DshRouter) unbindRoute(linkId baseds.LinkId, routeId string) error
 	}
 	lm := router.getLinkMeta(linkId)
 	if lm != nil {
-		log.Printf("wshrouter unbind route %q from %s", routeId, lm.Name())
+		log.Printf("dshrouter unbind route %q from %s", routeId, lm.Name())
 	}
 	router.unannounceUpstream(routeId)
 	if router.IsRootRouter() {
@@ -804,7 +804,7 @@ func (router *DshRouter) bindRoute(linkId baseds.LinkId, routeId string, isSourc
 	}
 	lm := router.getLinkMeta(linkId)
 	if lm != nil {
-		log.Printf("wshrouter bind route %q to %s", routeId, lm.Name())
+		log.Printf("dshrouter bind route %q to %s", routeId, lm.Name())
 	}
 	// don't announce control routes upstream (they are local only)
 	if !strings.HasPrefix(routeId, ControlPrefix) {

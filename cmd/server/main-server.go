@@ -1,4 +1,4 @@
-// Copyright 2025, Command Line Inc.
+// Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
 package main
@@ -121,7 +121,7 @@ func grabAndRemoveEnvVars() error {
 	if err != nil {
 		return err
 	}
-	// Remove WAVETERM env vars that leak from prod => dev
+	// Remove DORATERM env vars that leak from prod => dev
 	os.Unsetenv("DORATERM_CLIENTID")
 	os.Unsetenv("DORATERM_WORKSPACEID")
 	os.Unsetenv("DORATERM_TABID")
@@ -169,7 +169,7 @@ func maybeStartPprofServer() {
 
 func main() {
 	log.SetFlags(0) // disable timestamp since electron's winston logger already wraps with timestamp
-	log.SetPrefix("[wavesrv] ")
+	log.SetPrefix("[dorasrv] ")
 	dorabase.DoraVersion = DoraVersion
 	dorabase.BuildTime = BuildTime
 	dshutil.DefaultRouter = dshutil.NewDshRouter()
@@ -187,45 +187,45 @@ func main() {
 	}
 	err = dorabase.EnsureDoraDataDir()
 	if err != nil {
-		log.Printf("error ensuring wave home dir: %v\n", err)
+		log.Printf("error ensuring dora home dir: %v\n", err)
 		return
 	}
 	err = dorabase.EnsureDoraDBDir()
 	if err != nil {
-		log.Printf("error ensuring wave db dir: %v\n", err)
+		log.Printf("error ensuring dora db dir: %v\n", err)
 		return
 	}
 	err = dorabase.EnsureDoraConfigDir()
 	if err != nil {
-		log.Printf("error ensuring wave config dir: %v\n", err)
+		log.Printf("error ensuring dora config dir: %v\n", err)
 		return
 	}
 
 	// TODO: rather than ensure this dir exists, we should let the editor recursively create parent dirs on save
 	err = dorabase.EnsureDoraPresetsDir()
 	if err != nil {
-		log.Printf("error ensuring wave presets dir: %v\n", err)
+		log.Printf("error ensuring dora presets dir: %v\n", err)
 		return
 	}
 	err = dorabase.EnsureDoraCachesDir()
 	if err != nil {
-		log.Printf("error ensuring wave caches dir: %v\n", err)
+		log.Printf("error ensuring dora caches dir: %v\n", err)
 		return
 	}
 	waveLock, err := dorabase.AcquireDoraLock()
 	if err != nil {
-		log.Printf("error acquiring wave lock (another instance of Wave is likely running): %v\n", err)
+		log.Printf("error acquiring dora lock (another instance of Dora is likely running): %v\n", err)
 		return
 	}
 	defer func() {
 		err = waveLock.Close()
 		if err != nil {
-			log.Printf("error releasing wave lock: %v\n", err)
+			log.Printf("error releasing dora lock: %v\n", err)
 		}
 	}()
-	log.Printf("wave version: %s (%s)\n", DoraVersion, BuildTime)
-	log.Printf("wave data dir: %s\n", dorabase.GetDoraDataDir())
-	log.Printf("wave config dir: %s\n", dorabase.GetDoraConfigDir())
+	log.Printf("dora version: %s (%s)\n", DoraVersion, BuildTime)
+	log.Printf("dora data dir: %s\n", dorabase.GetDoraDataDir())
+	log.Printf("dora config dir: %s\n", dorabase.GetDoraConfigDir())
 	err = filestore.InitFilestore()
 	if err != nil {
 		log.Printf("error initializing filestore: %v\n", err)
@@ -233,7 +233,7 @@ func main() {
 	}
 	err = dstore.InitWStore()
 	if err != nil {
-		log.Printf("error initializing wstore: %v\n", err)
+		log.Printf("error initializing dstore: %v\n", err)
 		return
 	}
 	go func() {
@@ -242,7 +242,7 @@ func main() {
 		}()
 		err := shellutil.InitCustomShellStartupFiles()
 		if err != nil {
-			log.Printf("error initializing wsh and shell-integration files: %v\n", err)
+			log.Printf("error initializing dsh and shell-integration files: %v\n", err)
 		}
 	}()
 	firstLaunch, err := dcore.EnsureInitialData()
@@ -264,7 +264,7 @@ func main() {
 		return
 	}
 
-	err = shellutil.FixupWaveZshHistory()
+	err = shellutil.FixupDoraZshHistory()
 	if err != nil {
 		log.Printf("error fixing up wave zsh history: %v\n", err)
 	}
@@ -311,7 +311,7 @@ func main() {
 			BuildTime = "0"
 		}
 		// use fmt instead of log here to make sure it goes directly to stderr
-		fmt.Fprintf(os.Stderr, "WAVESRV-ESTART ws:%s web:%s version:%s buildtime:%s\n", wsListener.Addr(), webListener.Addr(), DoraVersion, BuildTime)
+		fmt.Fprintf(os.Stderr, "DORASRV-ESTART ws:%s web:%s version:%s buildtime:%s\n", wsListener.Addr(), webListener.Addr(), DoraVersion, BuildTime)
 	}()
 	go dshutil.RunDshRpcOverListener(unixListener, nil)
 	web.RunWebServer(webListener) // blocking

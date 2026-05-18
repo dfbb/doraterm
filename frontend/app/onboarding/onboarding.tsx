@@ -64,7 +64,7 @@ const InitPage = ({
                 <div className={`${isCompact ? "" : "mb-2.5"} flex justify-center`}>
                     <Logo />
                 </div>
-                <div className="text-center text-[25px] font-normal text-foreground">Welcome to Wave Terminal</div>
+                <div className="text-center text-[25px] font-normal text-foreground">Welcome to Dora Terminal</div>
             </header>
             <OverlayScrollbarsComponent
                 className="flex-1 overflow-y-auto min-h-0"
@@ -75,7 +75,7 @@ const InitPage = ({
                         <div>
                             <a
                                 target="_blank"
-                                href="https://github.com/wavetermdev/waveterm?ref=install"
+                                href="https://github.com/dfbb/doraterm?ref=install"
                                 rel="noopener"
                                 className="text-accent"
                                 onClick={handleStarClick}
@@ -90,12 +90,12 @@ const InitPage = ({
                                 for individual users. Please show your support by giving us a star on{" "}
                                 <a
                                     target="_blank"
-                                    href="https://github.com/wavetermdev/waveterm?ref=install"
+                                    href="https://github.com/dfbb/doraterm?ref=install"
                                     rel="noopener"
                                     className="text-accent"
                                     onClick={handleStarClick}
                                 >
-                                    Github&nbsp;(wavetermdev/waveterm)
+                                    Github&nbsp;(dfbb/doraterm)
                                 </a>
                             </div>
                         </div>
@@ -123,7 +123,7 @@ const InitPage = ({
                                     rel="noopener"
                                     className="text-accent"
                                 >
-                                    Join the Wave&nbsp;Discord&nbsp;Channel
+                                    Join the Dora&nbsp;Discord&nbsp;Channel
                                 </a>
                             </div>
                         </div>

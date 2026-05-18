@@ -42,7 +42,7 @@ Supported URI schemes:
     If a profile is provided, it must be defined in "profiles.json" in the Wave
     configuration directory.
 
-    Format: wsh://[remote]/[path]
+    Format: dsh://[remote]/[path]
 
     Shorthands can be used for the current remote and your local computer:
       [path]              a relative or absolute path on the current remote
@@ -89,7 +89,7 @@ var fileListCmd = &cobra.Command{
 	Aliases: []string{"list"},
 	Short:   "list files",
 	Long:    "List files in a directory. By default, lists files in the current directory." + UriHelpText,
-	Example: "  wsh file ls wsh://user@ec2/home/user/",
+	Example: "  wsh file ls dsh://user@ec2/home/user/",
 	RunE:    activityWrap("file", fileListRun),
 	PreRunE: preRunSetupRpcClient,
 }
@@ -98,7 +98,7 @@ var fileCatCmd = &cobra.Command{
 	Use:     "cat [uri]",
 	Short:   "display contents of a file",
 	Long:    "Display the contents of a file." + UriHelpText,
-	Example: "  wsh file cat wsh://user@ec2/home/user/config.txt",
+	Example: "  wsh file cat dsh://user@ec2/home/user/config.txt",
 	Args:    cobra.ExactArgs(1),
 	RunE:    activityWrap("file", fileCatRun),
 	PreRunE: preRunSetupRpcClient,
@@ -108,7 +108,7 @@ var fileInfoCmd = &cobra.Command{
 	Use:     "info [uri]",
 	Short:   "show wave file information",
 	Long:    "Show information about a file." + UriHelpText,
-	Example: "  wsh file info wsh://user@ec2/home/user/config.txt",
+	Example: "  wsh file info dsh://user@ec2/home/user/config.txt",
 	Args:    cobra.ExactArgs(1),
 	RunE:    activityWrap("file", fileInfoRun),
 	PreRunE: preRunSetupRpcClient,
@@ -118,7 +118,7 @@ var fileRmCmd = &cobra.Command{
 	Use:     "rm [uri]",
 	Short:   "remove a file",
 	Long:    "Remove a file." + UriHelpText,
-	Example: "  wsh file rm wsh://user@ec2/home/user/config.txt",
+	Example: "  wsh file rm dsh://user@ec2/home/user/config.txt",
 	Args:    cobra.ExactArgs(1),
 	RunE:    activityWrap("file", fileRmRun),
 	PreRunE: preRunSetupRpcClient,
@@ -149,7 +149,7 @@ var fileCpCmd = &cobra.Command{
 	Aliases: []string{"copy"},
 	Short:   "copy files between storage systems, recursively if needed",
 	Long:    "Copy files between different storage systems." + UriHelpText,
-	Example: "  wsh file cp wsh://user@ec2/home/user/config.txt ./local-config.txt\n  wsh file cp ./local-config.txt wsh://user@ec2/home/user/config.txt",
+	Example: "  wsh file cp dsh://user@ec2/home/user/config.txt ./local-config.txt\n  wsh file cp ./local-config.txt dsh://user@ec2/home/user/config.txt",
 	Args:    cobra.ExactArgs(2),
 	RunE:    activityWrap("file", fileCpRun),
 	PreRunE: preRunSetupRpcClient,
@@ -160,7 +160,7 @@ var fileMvCmd = &cobra.Command{
 	Aliases: []string{"move"},
 	Short:   "move files between storage systems",
 	Long:    "Move files between different storage systems. The source file will be deleted once the operation completes successfully." + UriHelpText,
-	Example: "  wsh file mv wsh://user@ec2/home/user/config.txt ./local-config.txt\n  wsh file mv ./local-config.txt wsh://user@ec2/home/user/config.txt",
+	Example: "  wsh file mv dsh://user@ec2/home/user/config.txt ./local-config.txt\n  wsh file mv ./local-config.txt dsh://user@ec2/home/user/config.txt",
 	Args:    cobra.ExactArgs(2),
 	RunE:    activityWrap("file", fileMvRun),
 	PreRunE: preRunSetupRpcClient,

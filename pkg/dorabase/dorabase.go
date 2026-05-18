@@ -321,7 +321,7 @@ func determineLang() string {
 
 		return preferredLang
 	} else {
-		// this is specifically to get the wavesrv LANG so waveshell
+		// this is specifically to get the dorasrv LANG so dorashell
 		// on a remote uses the same LANG
 		return os.Getenv("LANG")
 	}

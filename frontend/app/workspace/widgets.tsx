@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Tooltip } from "@/app/element/tooltip";
-import { useDoraEnv, DoraEnv, DoraEnvSubset } from "@/app/waveenv/waveenv";
+import { useDoraEnv, DoraEnv, DoraEnvSubset } from "@/app/doraenv/doraenv";
 import { shouldIncludeWidgetForWorkspace } from "@/app/workspace/widgetfilter";
 import { modalsModel } from "@/store/modalmodel";
 import { fireAndForget, isBlank, makeIconClass } from "@/util/util";

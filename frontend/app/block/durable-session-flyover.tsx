@@ -3,7 +3,7 @@
 
 import { recordTEvent } from "@/app/store/global";
 import { TermViewModel } from "@/app/view/term/term-model";
-import { useDoraEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/doraenv/doraenv";
 import * as util from "@/util/util";
 import { cn } from "@/util/util";
 import {

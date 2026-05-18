@@ -51,7 +51,7 @@ export type DoraEnvSubset<T> = DoraEnvMockFields &
               : never;
     }>;
 
-// default implementation for production is in ./waveenvimpl.ts
+// default implementation for production is in ./doraenvimpl.ts
 export type DoraEnv = {
     isMock: boolean;
     electron: ElectronApi;

@@ -4,7 +4,7 @@
 import { BlockNodeModel } from "@/app/block/blocktypes";
 import type { TabModel } from "@/app/store/tab-model";
 import { LauncherViewModel } from "@/app/view/launcher/launcher";
-import { DoraEnv } from "@/app/waveenv/waveenv";
+import { DoraEnv } from "@/app/doraenv/doraenv";
 import { atom } from "jotai";
 import { DoraConfigViewModel } from "../view/doraconfig/doraconfig-model";
 import { blockViewToIcon, blockViewToName } from "./blockutil";
