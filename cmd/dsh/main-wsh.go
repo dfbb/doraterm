@@ -4,7 +4,7 @@
 package main
 
 import (
-	"github.com/dfbb/doraterm/cmd/wsh/cmd"
+	"github.com/dfbb/doraterm/cmd/dsh/cmd"
 	"github.com/dfbb/doraterm/pkg/dorabase"
 )
 
