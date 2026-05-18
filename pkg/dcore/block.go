@@ -51,6 +51,11 @@ func createSubBlockObj(ctx context.Context, parentBlockId string, blockDef *dora
 	})
 }
 
+func CreateBlockWithTelemetry(ctx context.Context, tabId string, blockDef *doraobj.BlockDef, rtOpts *doraobj.RuntimeOpts, recordTelemetry bool) (rtnBlock *doraobj.Block, rtnErr error) {
+	return CreateBlock(ctx, tabId, blockDef, rtOpts)
+}
+
+
 func CreateBlock(ctx context.Context, tabId string, blockDef *doraobj.BlockDef, rtOpts *doraobj.RuntimeOpts) (rtnBlock *doraobj.Block, rtnErr error) {
 	var blockCreated bool
 	var newBlockOID string

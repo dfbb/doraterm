@@ -4,7 +4,7 @@
 import { globalStore } from "@/app/store/jotaiStore";
 import { isBuilderWindow } from "@/app/store/windowtype";
 import * as WOS from "@/app/store/wos";
-import { RpcApi } from "@/app/store/wshclientapi";
+import { RpcApi } from "@/app/store/dshclientapi";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
 import { atoms, getOrefMetaKeyAtom, getSettingsKeyAtom } from "@/store/global";
 import debug from "debug";

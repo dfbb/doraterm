@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 )
 
 // Buffer size for the output channel

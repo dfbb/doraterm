@@ -57,10 +57,10 @@ var anyRType = reflect.TypeOf((*interface{})(nil)).Elem()
 var metaRType = reflect.TypeOf((*doraobj.MetaMapType)(nil)).Elem()
 var metaSettingsType = reflect.TypeOf((*dshrpc.MetaSettingsType)(nil)).Elem()
 var uiContextRType = reflect.TypeOf((*doraobj.UIContext)(nil)).Elem()
-var waveObjRType = reflect.TypeOf((*doraobj.DoraObj)(nil)).Elem()
+var doraObjRType = reflect.TypeOf((*doraobj.DoraObj)(nil)).Elem()
 var updatesRtnRType = reflect.TypeOf(doraobj.UpdatesRtnType{})
 var orefRType = reflect.TypeOf((*doraobj.ORef)(nil)).Elem()
-var wshRpcInterfaceRType = reflect.TypeOf((*dshrpc.DshRpcInterface)(nil)).Elem()
+var dshRpcInterfaceRType = reflect.TypeOf((*dshrpc.DshRpcInterface)(nil)).Elem()
 
 func generateTSMethodTypes(method reflect.Method, tsTypesMap map[reflect.Type]string, skipFirstArg bool) error {
 	for idx := 0; idx < method.Type.NumIn(); idx++ {
@@ -178,7 +178,7 @@ func generateTSTypeInternal(rtype reflect.Type, tsTypesMap map[reflect.Type]stri
 	}
 	var isDoraObj bool
 	if !embedded {
-		if rtype.Implements(waveObjRType) || reflect.PointerTo(rtype).Implements(waveObjRType) {
+		if rtype.Implements(doraObjRType) || reflect.PointerTo(rtype).Implements(doraObjRType) {
 			isDoraObj = true
 		}
 	}
@@ -308,7 +308,7 @@ func GenerateTSType(rtype reflect.Type, tsTypesMap map[reflect.Type]string) {
 		tsTypesMap[orefRType] = "// doraobj.ORef\ntype ORef = string;\n"
 		return
 	}
-	if rtype == waveObjRType {
+	if rtype == doraObjRType {
 		tsTypesMap[rtype] = GenerateDoraObjTSType()
 		return
 	}
@@ -412,9 +412,9 @@ func GenerateServiceClass(serviceName string, serviceObj any, tsTypesMap map[ref
 	sb.WriteString("export class ")
 	sb.WriteString(tsServiceName + "Type")
 	sb.WriteString(" {\n")
-	sb.WriteString("    waveEnv: DoraEnv;\n\n")
-	sb.WriteString("    constructor(waveEnv?: DoraEnv) {\n")
-	sb.WriteString("        this.waveEnv = waveEnv;\n")
+	sb.WriteString("    doraEnv: DoraEnv;\n\n")
+	sb.WriteString("    constructor(doraEnv?: DoraEnv) {\n")
+	sb.WriteString("        this.doraEnv = waveEnv;\n")
 	sb.WriteString("    }\n\n")
 	isFirst := true
 	for midx := 0; midx < serviceType.NumMethod(); midx++ {
@@ -445,7 +445,7 @@ func GenerateDshClientApiMethod(methodDecl *dshrpc.DshRpcMethodDecl, tsTypesMap 
 	} else if methodDecl.CommandType == dshrpc.RpcType_Call {
 		return generateDshClientApiMethod_Call(methodDecl, tsTypesMap)
 	} else {
-		panic(fmt.Sprintf("cannot generate wshserver commandtype %q", methodDecl.CommandType))
+		panic(fmt.Sprintf("cannot generate dshserver commandtype %q", methodDecl.CommandType))
 	}
 }
 
@@ -544,7 +544,7 @@ func GenerateServiceTypes(tsTypesMap map[reflect.Type]string) error {
 
 func GenerateDshServerTypes(tsTypesMap map[reflect.Type]string) error {
 	GenerateTSType(reflect.TypeOf(dshrpc.RpcOpts{}), tsTypesMap)
-	rtype := wshRpcInterfaceRType
+	rtype := dshRpcInterfaceRType
 	for midx := 0; midx < rtype.NumMethod(); midx++ {
 		method := rtype.Method(midx)
 		err := generateTSMethodTypes(method, tsTypesMap, false)

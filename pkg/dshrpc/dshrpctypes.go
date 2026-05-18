@@ -77,13 +77,10 @@ type DshRpcInterface interface {
 	BlocksListCommand(ctx context.Context, data BlocksListRequest) ([]BlocksListEntry, error)
 	DoraInfoCommand(ctx context.Context) (*DoraInfoData, error)
 	MacOSVersionCommand(ctx context.Context) (string, error)
-	DshActivityCommand(ct context.Context, data map[string]int) error
-	ActivityCommand(ctx context.Context, data ActivityUpdate) error
 	GetVarCommand(ctx context.Context, data CommandVarData) (*CommandVarResponseData, error)
 	GetAllVarsCommand(ctx context.Context, data CommandVarData) ([]CommandVarResponseData, error)
 	SetVarCommand(ctx context.Context, data CommandVarData) error
 	PathCommand(ctx context.Context, data PathCommandData) (string, error)
-	SendTelemetryCommand(ctx context.Context) error
 	GetTabCommand(ctx context.Context, tabId string) (*doraobj.Tab, error)
 	UpdateTabNameCommand(ctx context.Context, tabId string, newName string) error
 	UpdateWorkspaceTabIdsCommand(ctx context.Context, workspaceId string, tabIds []string) error

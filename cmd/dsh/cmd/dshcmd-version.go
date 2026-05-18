@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/dfbb/doraterm/pkg/dorabase"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 

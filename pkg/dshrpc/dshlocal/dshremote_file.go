@@ -19,12 +19,12 @@ import (
 	"github.com/dfbb/doraterm/pkg/panichandler"
 	"github.com/dfbb/doraterm/pkg/remote/connparse"
 	"github.com/dfbb/doraterm/pkg/remote/fileshare/fspath"
-	"github.com/dfbb/doraterm/pkg/remote/fileshare/wshfs"
+	"github.com/dfbb/doraterm/pkg/remote/fileshare/dshfs"
 	"github.com/dfbb/doraterm/pkg/util/fileutil"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
 	"github.com/dfbb/doraterm/pkg/dorabase"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
@@ -60,7 +60,7 @@ func prepareDestForCopy(destPath string, srcBaseName string, destHasSlash bool, 
 
 	if finalInfo != nil {
 		if !overwrite {
-			return "", fmt.Errorf(wshfs.OverwriteRequiredError, finalPath)
+			return "", fmt.Errorf(dshfs.OverwriteRequiredError, finalPath)
 		}
 		if err := os.Remove(finalPath); err != nil {
 			return "", fmt.Errorf("cannot remove file %q: %w", finalPath, err)
@@ -138,7 +138,7 @@ func (impl *ServerImpl) RemoteFileCopyCommand(ctx context.Context, data dshrpc.C
 	}
 
 	// FROM external TO here - only supports single file copying
-	timeout := wshfs.DefaultTimeout
+	timeout := dshfs.DefaultTimeout
 	if opts.Timeout > 0 {
 		timeout = time.Duration(opts.Timeout) * time.Millisecond
 	}
@@ -146,7 +146,7 @@ func (impl *ServerImpl) RemoteFileCopyCommand(ctx context.Context, data dshrpc.C
 	defer timeoutCancel()
 	copyStart := time.Now()
 
-	srcFileInfo, err := dshclient.RemoteFileInfoCommand(wshfs.RpcClient, srcConn.Path, &dshrpc.RpcOpts{Timeout: opts.Timeout, Route: dshutil.MakeConnectionRouteId(srcConn.Host)})
+	srcFileInfo, err := dshclient.RemoteFileInfoCommand(dshfs.RpcClient, srcConn.Path, &dshrpc.RpcOpts{Timeout: opts.Timeout, Route: dshutil.MakeConnectionRouteId(srcConn.Host)})
 	if err != nil {
 		return false, fmt.Errorf("cannot get info for source file %q: %w", data.SrcUri, err)
 	}
@@ -168,11 +168,11 @@ func (impl *ServerImpl) RemoteFileCopyCommand(ctx context.Context, data dshrpc.C
 	}
 	defer destFile.Close()
 
-	if wshfs.RpcClientRouteId == "" {
+	if dshfs.RpcClientRouteId == "" {
 		return false, fmt.Errorf("stream broker route id not available for file copy")
 	}
 	writerRouteId := dshutil.MakeConnectionRouteId(srcConn.Host)
-	reader, streamMeta := wshfs.RpcClient.StreamBroker.CreateStreamReader(wshfs.RpcClientRouteId, writerRouteId, 256*1024)
+	reader, streamMeta := dshfs.RpcClient.StreamBroker.CreateStreamReader(dshfs.RpcClientRouteId, writerRouteId, 256*1024)
 	log.Printf("RemoteFileCopyCommand: readroute=%s writeroute=%s", streamMeta.ReaderRouteId, streamMeta.WriterRouteId)
 	defer reader.Close()
 	go func() {
@@ -183,7 +183,7 @@ func (impl *ServerImpl) RemoteFileCopyCommand(ctx context.Context, data dshrpc.C
 		Path:       srcConn.Path,
 		StreamMeta: *streamMeta,
 	}
-	if _, err = dshclient.RemoteFileStreamCommand(wshfs.RpcClient, streamData, &dshrpc.RpcOpts{Route: writerRouteId}); err != nil {
+	if _, err = dshclient.RemoteFileStreamCommand(dshfs.RpcClient, streamData, &dshrpc.RpcOpts{Route: writerRouteId}); err != nil {
 		return false, fmt.Errorf("error starting file stream for %q: %w", data.SrcUri, err)
 	}
 	if _, err = io.Copy(destFile, reader); err != nil {
@@ -655,7 +655,7 @@ func (*ServerImpl) RemoteFileDeleteCommand(ctx context.Context, data dshrpc.Comm
 	if err != nil {
 		finfo, statErr := os.Stat(cleanedPath)
 		if statErr == nil && finfo.IsDir() {
-			return fmt.Errorf(wshfs.RecursiveRequiredError)
+			return fmt.Errorf(dshfs.RecursiveRequiredError)
 		}
 		return fmt.Errorf("cannot delete file %q: %w", data.Path, err)
 	}

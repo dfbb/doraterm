@@ -20,7 +20,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/filestore"
 	"github.com/dfbb/doraterm/pkg/jobcontroller"
 	"github.com/dfbb/doraterm/pkg/panichandler"
-	"github.com/dfbb/doraterm/pkg/remote/fileshare/wshfs"
+	"github.com/dfbb/doraterm/pkg/remote/fileshare/dshfs"
 	"github.com/dfbb/doraterm/pkg/secretstore"
 	"github.com/dfbb/doraterm/pkg/service"
 	"github.com/dfbb/doraterm/pkg/util/envutil"
@@ -34,9 +34,9 @@ import (
 	"github.com/dfbb/doraterm/pkg/web"
 	"github.com/dfbb/doraterm/pkg/dps"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshlocal"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshserver"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshlocal"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshserver"
 	"github.com/dfbb/doraterm/pkg/dshutil"
 	"github.com/dfbb/doraterm/pkg/dstore"
 
@@ -108,8 +108,8 @@ func createMainDshClient() {
 	localImpl := dshlocal.MakeLocalRpcServerImpl(nil, dshutil.DefaultRouter, dshclient.GetBareRpcClient(), localInitialEnv, sockName)
 	localConnWsh := dshutil.MakeDshRpc(dshrpc.RpcContext{Conn: dshrpc.LocalConnName}, localImpl, "conn:local")
 	dshutil.DefaultRouter.RegisterTrustedLeaf(localConnWsh, dshutil.MakeConnectionRouteId(dshrpc.LocalConnName))
-	wshfs.RpcClient = localConnWsh
-	wshfs.RpcClientRouteId = dshutil.MakeConnectionRouteId(dshrpc.LocalConnName)
+	dshfs.RpcClient = localConnWsh
+	dshfs.RpcClientRouteId = dshutil.MakeConnectionRouteId(dshrpc.LocalConnName)
 }
 
 func grabAndRemoveEnvVars() error {

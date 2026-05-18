@@ -50,27 +50,6 @@ type SettingsType struct {
 	AppDisableCtrlShiftDisplay    bool   `json:"app:disablectrlshiftdisplay,omitempty"`
 	AppFocusFollowsCursor         string `json:"app:focusfollowscursor,omitempty" jsonschema:"enum=off,enum=on,enum=term"`
 	AppTabBar                     string `json:"app:tabbar,omitempty" jsonschema:"enum=top,enum=left"`
-
-	FeatureDoraAppBuilder bool `json:"feature:waveappbuilder,omitempty"`
-
-	AiClear         bool    `json:"ai:*,omitempty"`
-	AiPreset        string  `json:"ai:preset,omitempty"`
-	AiApiType       string  `json:"ai:apitype,omitempty"`
-	AiBaseURL       string  `json:"ai:baseurl,omitempty"`
-	AiApiToken      string  `json:"ai:apitoken,omitempty"`
-	AiName          string  `json:"ai:name,omitempty"`
-	AiModel         string  `json:"ai:model,omitempty"`
-	AiOrgID         string  `json:"ai:orgid,omitempty"`
-	AIApiVersion    string  `json:"ai:apiversion,omitempty"`
-	AiMaxTokens     float64 `json:"ai:maxtokens,omitempty"`
-	AiTimeoutMs     float64 `json:"ai:timeoutms,omitempty"`
-	AiProxyUrl      string  `json:"ai:proxyurl,omitempty"`
-	AiFontSize      float64 `json:"ai:fontsize,omitempty"`
-	AiFixedFontSize float64 `json:"ai:fixedfontsize,omitempty"`
-
-	DoraAiShowCloudModes bool   `json:"waveai:showcloudmodes,omitempty"`
-	DoraAiDefaultMode    string `json:"waveai:defaultmode,omitempty"`
-
 	TermClear               bool     `json:"term:*,omitempty"`
 	TermFontSize            float64  `json:"term:fontsize,omitempty"`
 	TermFontFamily          string   `json:"term:fontfamily,omitempty"`
@@ -144,10 +123,6 @@ type SettingsType struct {
 	WindowSaveLastWindow                bool     `json:"window:savelastwindow,omitempty"`
 	WindowDimensions                    string   `json:"window:dimensions,omitempty"`
 	WindowZoom                          *float64 `json:"window:zoom,omitempty"`
-
-	TelemetryClear   bool `json:"telemetry:*,omitempty"`
-	TelemetryEnabled bool `json:"telemetry:enabled,omitempty"`
-
 	ConnClear                bool    `json:"conn:*,omitempty"`
 	ConnAskBeforeWshInstall  *bool   `json:"conn:askbeforewshinstall,omitempty"`
 	ConnDshEnabled           bool    `json:"conn:wshenabled,omitempty"`
@@ -157,15 +132,7 @@ type SettingsType struct {
 	DebugPprofPort           *int `json:"debug:pprofport,omitempty"`
 	DebugPprofMemProfileRate *int `json:"debug:pprofmemprofilerate,omitempty"`
 	DebugWebGlStatus         bool `json:"debug:webglstatus,omitempty"`
-
-	TsunamiClear          bool   `json:"tsunami:*,omitempty"`
-	TsunamiScaffoldPath   string `json:"tsunami:scaffoldpath,omitempty"`
-	TsunamiSdkReplacePath string `json:"tsunami:sdkreplacepath,omitempty"`
-	TsunamiSdkVersion     string `json:"tsunami:sdkversion,omitempty"`
-	TsunamiGoPath         string `json:"tsunami:gopath,omitempty"`
 }
-
-
 
 type ConfigError struct {
 	File string `json:"file"`
@@ -246,8 +213,6 @@ type FullConfigType struct {
 	Backgrounds    map[string]BackgroundConfigType `json:"backgrounds"`
 	TermThemes     map[string]TermThemeType        `json:"termthemes"`
 	Connections    map[string]ConnKeywords         `json:"connections"`
-	Bookmarks      map[string]WebBookmark          `json:"bookmarks"`
-	DoraAIModes    map[string]AIModeConfigType     `json:"waveai"`
 	ConfigErrors   []ConfigError                   `json:"configerrors" configfile:"-"`
 	Version        string                          `json:"version" configfile:"-"`
 	BuildTime      string                          `json:"buildtime" configfile:"-"`

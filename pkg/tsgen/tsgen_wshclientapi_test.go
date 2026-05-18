@@ -22,7 +22,7 @@ func TestGenerateDshClientApiMethodCall_MultiArg(t *testing.T) {
 	if !strings.Contains(out, "TestCommand(client: DshClient, arg1: string, arg2: number, opts?: RpcOpts): Promise<void> {") {
 		t.Fatalf("generated method missing multi-arg signature:\n%s", out)
 	}
-	if !strings.Contains(out, "return client.wshRpcCall(\"test\", { args: [arg1, arg2] }, opts);") {
+	if !strings.Contains(out, "return client.dshRpcCall(\"test\", { args: [arg1, arg2] }, opts);") {
 		t.Fatalf("generated method missing MultiArg payload:\n%s", out)
 	}
 }

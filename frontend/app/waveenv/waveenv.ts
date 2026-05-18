@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { AllServiceImpls } from "@/app/store/services";
-import { RpcApiType } from "@/app/store/wshclientapi";
+import { RpcApiType } from "@/app/store/dshclientapi";
 import { Atom, PrimitiveAtom } from "jotai";
 import React from "react";
 

@@ -14,7 +14,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/remote/connparse"
 	"github.com/dfbb/doraterm/pkg/util/fileutil"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
-	"github.com/dfbb/doraterm/pkg/dshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 

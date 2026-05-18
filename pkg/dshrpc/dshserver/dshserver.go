@@ -27,7 +27,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/genconn"
 	"github.com/dfbb/doraterm/pkg/jobcontroller"
 	"github.com/dfbb/doraterm/pkg/panichandler"
-	"github.com/dfbb/doraterm/pkg/remote/fileshare/wshfs"
+	"github.com/dfbb/doraterm/pkg/remote/fileshare/dshfs"
 	"github.com/dfbb/doraterm/pkg/secretstore"
 	"github.com/dfbb/doraterm/pkg/util/envutil"
 	"github.com/dfbb/doraterm/pkg/dorabase"
@@ -328,7 +328,7 @@ func (ws *DshServer) ControllerAppendOutputCommand(ctx context.Context, data dsh
 
 func (ws *DshServer) FileCreateCommand(ctx context.Context, data dshrpc.FileData) error {
 	data.Data64 = ""
-	err := wshfs.PutFile(ctx, data)
+	err := dshfs.PutFile(ctx, data)
 	if err != nil {
 		return fmt.Errorf("error creating file: %w", err)
 	}
@@ -336,47 +336,47 @@ func (ws *DshServer) FileCreateCommand(ctx context.Context, data dshrpc.FileData
 }
 
 func (ws *DshServer) FileMkdirCommand(ctx context.Context, data dshrpc.FileData) error {
-	return wshfs.Mkdir(ctx, data.Info.Path)
+	return dshfs.Mkdir(ctx, data.Info.Path)
 }
 
 func (ws *DshServer) FileDeleteCommand(ctx context.Context, data dshrpc.CommandDeleteFileData) error {
-	return wshfs.Delete(ctx, data)
+	return dshfs.Delete(ctx, data)
 }
 
 func (ws *DshServer) FileInfoCommand(ctx context.Context, data dshrpc.FileData) (*dshrpc.FileInfo, error) {
-	return wshfs.Stat(ctx, data.Info.Path)
+	return dshfs.Stat(ctx, data.Info.Path)
 }
 
 func (ws *DshServer) FileListCommand(ctx context.Context, data dshrpc.FileListData) ([]*dshrpc.FileInfo, error) {
-	return wshfs.ListEntries(ctx, data.Path, data.Opts)
+	return dshfs.ListEntries(ctx, data.Path, data.Opts)
 }
 
 func (ws *DshServer) FileListStreamCommand(ctx context.Context, data dshrpc.FileListData) <-chan dshrpc.RespOrErrorUnion[dshrpc.CommandRemoteListEntriesRtnData] {
-	return wshfs.ListEntriesStream(ctx, data.Path, data.Opts)
+	return dshfs.ListEntriesStream(ctx, data.Path, data.Opts)
 }
 
 func (ws *DshServer) FileWriteCommand(ctx context.Context, data dshrpc.FileData) error {
-	return wshfs.PutFile(ctx, data)
+	return dshfs.PutFile(ctx, data)
 }
 
 func (ws *DshServer) FileReadCommand(ctx context.Context, data dshrpc.FileData) (*dshrpc.FileData, error) {
-	return wshfs.Read(ctx, data)
+	return dshfs.Read(ctx, data)
 }
 
 func (ws *DshServer) FileStreamCommand(ctx context.Context, data dshrpc.CommandFileStreamData) (*dshrpc.FileInfo, error) {
-	return wshfs.FileStream(ctx, data)
+	return dshfs.FileStream(ctx, data)
 }
 
 func (ws *DshServer) FileCopyCommand(ctx context.Context, data dshrpc.CommandFileCopyData) error {
-	return wshfs.Copy(ctx, data)
+	return dshfs.Copy(ctx, data)
 }
 
 func (ws *DshServer) FileMoveCommand(ctx context.Context, data dshrpc.CommandFileCopyData) error {
-	return wshfs.Move(ctx, data)
+	return dshfs.Move(ctx, data)
 }
 
 func (ws *DshServer) FileAppendCommand(ctx context.Context, data dshrpc.FileData) error {
-	return wshfs.Append(ctx, data)
+	return dshfs.Append(ctx, data)
 }
 
 func (ws *DshServer) FileJoinCommand(ctx context.Context, paths []string) (*dshrpc.FileInfo, error) {
@@ -384,9 +384,9 @@ func (ws *DshServer) FileJoinCommand(ctx context.Context, paths []string) (*dshr
 		if len(paths) == 0 {
 			return nil, fmt.Errorf("no paths provided")
 		}
-		return wshfs.Stat(ctx, paths[0])
+		return dshfs.Stat(ctx, paths[0])
 	}
-	return wshfs.Join(ctx, paths[0], paths[1:]...)
+	return dshfs.Join(ctx, paths[0], paths[1:]...)
 }
 
 
