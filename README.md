@@ -23,7 +23,7 @@ Wave is an open-source, AI-integrated terminal for macOS, Linux, and Windows. It
 
 Wave also supports durable SSH sessions that survive network interruptions and restarts, with automatic reconnection. Edit remote files with a built-in graphical editor and preview files inline without leaving the terminal.
 
-![WaveTerm Screenshot](./assets/wave-screenshot.webp)
+![WaveTerm Screenshot](./assets/dora-screenshot.webp)
 
 ## Key Features
 
