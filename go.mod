@@ -1,4 +1,4 @@
-module github.com/wavetermdev/waveterm
+module github.com/dfbb/doraterm
 
 go 1.25.6
 

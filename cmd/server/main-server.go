@@ -14,36 +14,34 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"github.com/wavetermdev/waveterm/pkg/authkey"
-	"github.com/wavetermdev/waveterm/pkg/blockcontroller"
-	"github.com/wavetermdev/waveterm/pkg/blocklogger"
-	"github.com/wavetermdev/waveterm/pkg/filestore"
-	"github.com/wavetermdev/waveterm/pkg/jobcontroller"
-	"github.com/wavetermdev/waveterm/pkg/panichandler"
-	"github.com/wavetermdev/waveterm/pkg/remote/conncontroller"
-	"github.com/wavetermdev/waveterm/pkg/remote/fileshare/wshfs"
-	"github.com/wavetermdev/waveterm/pkg/secretstore"
-	"github.com/wavetermdev/waveterm/pkg/service"
-	"github.com/wavetermdev/waveterm/pkg/telemetry"
-	"github.com/wavetermdev/waveterm/pkg/telemetry/telemetrydata"
-	"github.com/wavetermdev/waveterm/pkg/util/envutil"
-	"github.com/wavetermdev/waveterm/pkg/util/shellutil"
-	"github.com/wavetermdev/waveterm/pkg/util/sigutil"
-	"github.com/wavetermdev/waveterm/pkg/util/utilfn"
-	"github.com/wavetermdev/waveterm/pkg/wavebase"
-	"github.com/wavetermdev/waveterm/pkg/waveobj"
-	"github.com/wavetermdev/waveterm/pkg/wcloud"
-	"github.com/wavetermdev/waveterm/pkg/wconfig"
-	"github.com/wavetermdev/waveterm/pkg/wcore"
-	"github.com/wavetermdev/waveterm/pkg/web"
-	"github.com/wavetermdev/waveterm/pkg/wps"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshclient"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshlocal"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshserver"
-	"github.com/wavetermdev/waveterm/pkg/wshutil"
-	"github.com/wavetermdev/waveterm/pkg/wslconn"
-	"github.com/wavetermdev/waveterm/pkg/wstore"
+	"github.com/dfbb/doraterm/pkg/authkey"
+	"github.com/dfbb/doraterm/pkg/blockcontroller"
+	"github.com/dfbb/doraterm/pkg/blocklogger"
+	"github.com/dfbb/doraterm/pkg/filestore"
+	"github.com/dfbb/doraterm/pkg/jobcontroller"
+	"github.com/dfbb/doraterm/pkg/panichandler"
+	"github.com/dfbb/doraterm/pkg/remote/fileshare/wshfs"
+	"github.com/dfbb/doraterm/pkg/secretstore"
+	"github.com/dfbb/doraterm/pkg/service"
+	"github.com/dfbb/doraterm/pkg/telemetry"
+	"github.com/dfbb/doraterm/pkg/telemetry/telemetrydata"
+	"github.com/dfbb/doraterm/pkg/util/envutil"
+	"github.com/dfbb/doraterm/pkg/util/shellutil"
+	"github.com/dfbb/doraterm/pkg/util/sigutil"
+	"github.com/dfbb/doraterm/pkg/util/utilfn"
+	"github.com/dfbb/doraterm/pkg/wavebase"
+	"github.com/dfbb/doraterm/pkg/waveobj"
+	"github.com/dfbb/doraterm/pkg/wcloud"
+	"github.com/dfbb/doraterm/pkg/wconfig"
+	"github.com/dfbb/doraterm/pkg/wcore"
+	"github.com/dfbb/doraterm/pkg/web"
+	"github.com/dfbb/doraterm/pkg/wps"
+	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/wshrpc/wshlocal"
+	"github.com/dfbb/doraterm/pkg/wshrpc/wshserver"
+	"github.com/dfbb/doraterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/wstore"
 
 	"net/http"
 	_ "net/http/pprof"
@@ -215,8 +213,6 @@ func updateTelemetryCounts(lastCounts telemetrydata.TEventProps) telemetrydata.T
 	props.CountTabs, _ = wstore.DBGetCount[*waveobj.Tab](ctx)
 	props.CountWindows, _ = wstore.DBGetCount[*waveobj.Window](ctx)
 	props.CountWorkspaces, _, _ = wstore.DBGetWSCounts(ctx)
-	props.CountSSHConn = conncontroller.GetNumSSHHasConnected()
-	props.CountWSLConn = wslconn.GetNumWSLHasConnected()
 	props.CountJobs = jobcontroller.GetNumJobsRunning()
 	props.CountJobsConnected = jobcontroller.GetNumJobsConnected()
 	props.CountViews, _ = wstore.DBGetBlockViewCounts(ctx)
@@ -272,8 +268,6 @@ func beforeSendActivityUpdate(ctx context.Context) {
 	activity.NumBlocks, _ = wstore.DBGetCount[*waveobj.Block](ctx)
 	activity.Blocks, _ = wstore.DBGetBlockViewCounts(ctx)
 	activity.NumWindows, _ = wstore.DBGetCount[*waveobj.Window](ctx)
-	activity.NumSSHConn = conncontroller.GetNumSSHHasConnected()
-	activity.NumWSLConn = wslconn.GetNumWSLHasConnected()
 	activity.NumWSNamed, activity.NumWS, _ = wstore.DBGetWSCounts(ctx)
 	err := telemetry.UpdateActivity(ctx, activity)
 	if err != nil {
