@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/creack/pty"
-	"github.com/wavetermdev/waveterm/pkg/panichandler"
-	"github.com/wavetermdev/waveterm/pkg/util/unixutil"
+	"github.com/dfbb/doraterm/pkg/panichandler"
+	"github.com/dfbb/doraterm/pkg/util/unixutil"
 )
 
 type ConnInterface interface {

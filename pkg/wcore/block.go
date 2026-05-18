@@ -10,15 +10,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/wavetermdev/waveterm/pkg/filestore"
-	"github.com/wavetermdev/waveterm/pkg/panichandler"
-	"github.com/wavetermdev/waveterm/pkg/telemetry"
-	"github.com/wavetermdev/waveterm/pkg/telemetry/telemetrydata"
-	"github.com/wavetermdev/waveterm/pkg/util/utilfn"
-	"github.com/wavetermdev/waveterm/pkg/waveobj"
-	"github.com/wavetermdev/waveterm/pkg/wps"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc"
-	"github.com/wavetermdev/waveterm/pkg/wstore"
+	"github.com/dfbb/doraterm/pkg/filestore"
+	"github.com/dfbb/doraterm/pkg/panichandler"
+	"github.com/dfbb/doraterm/pkg/telemetry"
+	"github.com/dfbb/doraterm/pkg/telemetry/telemetrydata"
+	"github.com/dfbb/doraterm/pkg/util/utilfn"
+	"github.com/dfbb/doraterm/pkg/waveobj"
+	"github.com/dfbb/doraterm/pkg/wps"
+	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/wstore"
 )
 
 func CreateSubBlock(ctx context.Context, blockId string, blockDef *waveobj.BlockDef) (*waveobj.Block, error) {

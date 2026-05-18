@@ -10,10 +10,10 @@ import (
 	"encoding/json"
 
 	"github.com/google/uuid"
-	"github.com/wavetermdev/waveterm/pkg/baseds"
-	"github.com/wavetermdev/waveterm/pkg/waveobj"
-	"github.com/wavetermdev/waveterm/pkg/wconfig"
-	"github.com/wavetermdev/waveterm/pkg/wps"
+	"github.com/dfbb/doraterm/pkg/baseds"
+	"github.com/dfbb/doraterm/pkg/waveobj"
+	"github.com/dfbb/doraterm/pkg/wconfig"
+	"github.com/dfbb/doraterm/pkg/wps"
 )
 
 type RespOrErrorUnion[T any] struct {

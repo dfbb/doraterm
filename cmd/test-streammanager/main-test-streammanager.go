@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/wavetermdev/waveterm/pkg/jobmanager"
-	"github.com/wavetermdev/waveterm/pkg/streamclient"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/jobmanager"
+	"github.com/dfbb/doraterm/pkg/streamclient"
+	"github.com/dfbb/doraterm/pkg/wshrpc"
 )
 
 type TestConfig struct {

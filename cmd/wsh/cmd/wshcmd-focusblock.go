@@ -8,8 +8,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
 )
 
 var focusBlockCmd = &cobra.Command{

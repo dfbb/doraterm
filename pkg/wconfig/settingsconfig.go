@@ -16,11 +16,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/wavetermdev/waveterm/pkg/util/fileutil"
-	"github.com/wavetermdev/waveterm/pkg/util/utilfn"
-	"github.com/wavetermdev/waveterm/pkg/wavebase"
-	"github.com/wavetermdev/waveterm/pkg/waveobj"
-	"github.com/wavetermdev/waveterm/pkg/wconfig/defaultconfig"
+	"github.com/dfbb/doraterm/pkg/util/fileutil"
+	"github.com/dfbb/doraterm/pkg/util/utilfn"
+	"github.com/dfbb/doraterm/pkg/wavebase"
+	"github.com/dfbb/doraterm/pkg/waveobj"
+	"github.com/dfbb/doraterm/pkg/wconfig/defaultconfig"
 )
 
 const SettingsFile = "settings.json"

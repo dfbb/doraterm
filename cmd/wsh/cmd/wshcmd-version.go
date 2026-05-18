@@ -8,10 +8,10 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/wavetermdev/waveterm/pkg/wavebase"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshclient"
-	"github.com/wavetermdev/waveterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/wavebase"
+	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/wshutil"
 )
 
 var versionVerbose bool

@@ -11,11 +11,11 @@ import (
 	"io/fs"
 	"strings"
 
-	"github.com/wavetermdev/waveterm/pkg/remote/connparse"
-	"github.com/wavetermdev/waveterm/pkg/util/fileutil"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc/wshclient"
-	"github.com/wavetermdev/waveterm/pkg/wshutil"
+	"github.com/dfbb/doraterm/pkg/remote/connparse"
+	"github.com/dfbb/doraterm/pkg/util/fileutil"
+	"github.com/dfbb/doraterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/wshrpc/wshclient"
+	"github.com/dfbb/doraterm/pkg/wshutil"
 )
 
 func convertNotFoundErr(err error) error {
@@ -130,18 +130,14 @@ func fixRelativePaths(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if conn.Scheme == connparse.ConnectionTypeWsh {
-		if conn.Host == connparse.ConnHostCurrent {
-			conn.Host = RpcContext.Conn
-			fixedPath, err := fileutil.FixPath(conn.Path)
-			if err != nil {
-				return "", err
-			}
-			conn.Path = fixedPath
-		}
-		if conn.Host == "" {
-			conn.Host = wshrpc.LocalConnName
-		}
+	if conn.Scheme != connparse.ConnectionTypeWsh || conn.Host != connparse.ConnHostCurrent {
+		return "", fmt.Errorf("remote/wsl paths not supported in doraterm: %s", path)
 	}
+	conn.Host = RpcContext.Conn
+	fixedPath, err := fileutil.FixPath(conn.Path)
+	if err != nil {
+		return "", err
+	}
+	conn.Path = fixedPath
 	return conn.GetFullURI(), nil
 }

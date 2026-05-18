@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/wavetermdev/waveterm/pkg/util/utilfn"
-	"github.com/wavetermdev/waveterm/pkg/wshrpc"
+	"github.com/dfbb/doraterm/pkg/util/utilfn"
+	"github.com/dfbb/doraterm/pkg/wshrpc"
 )
 
 func GenerateBoilerplate(buf *strings.Builder, pkgName string, imports []string) {

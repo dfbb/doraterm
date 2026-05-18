@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wavetermdev/waveterm/pkg/util/utilfn"
+	"github.com/dfbb/doraterm/pkg/util/utilfn"
 )
 
 // set by main-server.go
