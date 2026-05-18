@@ -15,13 +15,13 @@ const (
 	DefaultInputChSize  = 32
 )
 
-var waveSrvClient_Singleton *dshutil.WshRpc
+var waveSrvClient_Singleton *dshutil.DshRpc
 var waveSrvClient_Once = &sync.Once{}
 
 // returns the wavesrv main rpc client singleton
-func GetMainRpcClient() *dshutil.WshRpc {
+func GetMainRpcClient() *dshutil.DshRpc {
 	waveSrvClient_Once.Do(func() {
-		waveSrvClient_Singleton = dshutil.MakeWshRpc(dshrpc.RpcContext{}, &WshServerImpl, "main-client")
+		waveSrvClient_Singleton = dshutil.MakeDshRpc(dshrpc.RpcContext{}, &DshServerImpl, "main-client")
 	})
 	return waveSrvClient_Singleton
 }

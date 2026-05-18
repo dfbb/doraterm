@@ -42,7 +42,7 @@ function validateAiJson(parsed: any): ValidationResult {
     return { success: true };
 }
 
-function validateWaveAiJson(parsed: any): ValidationResult {
+function validateDoraAiJson(parsed: any): ValidationResult {
     const keys = Object.keys(parsed);
     const keyPattern = /^[a-zA-Z0-9_@.-]+$/;
     for (const key of keys) {
@@ -85,9 +85,9 @@ function makeConfigFiles(isWindows: boolean): ConfigFile[] {
             language: "json",
             description: "Local models and BYOK",
             docsUrl: "https://docs.waveterm.dev/waveai-modes",
-            validator: validateWaveAiJson,
+            validator: validateDoraAiJson,
             hasJsonView: true,
-            // visualComponent: WaveAIVisualContent,
+            // visualComponent: DoraAIVisualContent,
         },
         {
             name: "Tab Backgrounds",

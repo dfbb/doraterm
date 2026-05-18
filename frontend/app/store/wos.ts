@@ -1,7 +1,7 @@
 // Copyright 2025, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// WaveObjectStore
+// DoraObjectStore
 
 import { isPreviewWindow } from "@/app/store/windowtype";
 import { waveEventSubscribeSingle } from "@/app/store/wps";
@@ -12,14 +12,14 @@ import { atom, Atom, Getter, PrimitiveAtom, Setter, useAtomValue } from "jotai";
 import { globalStore } from "./jotaiStore";
 import { ObjectService } from "./services";
 
-type WaveObjectDataItemType<T extends WaveObj> = {
+type DoraObjectDataItemType<T extends DoraObj> = {
     value: T;
     loading: boolean;
 };
 
-type WaveObjectValue<T extends WaveObj> = {
+type DoraObjectValue<T extends DoraObj> = {
     pendingPromise: Promise<T>;
-    dataAtom: PrimitiveAtom<WaveObjectDataItemType<T>>;
+    dataAtom: PrimitiveAtom<DoraObjectDataItemType<T>>;
 };
 
 function splitORef(oref: string): [string, string] {
@@ -38,7 +38,7 @@ function isBlankNum(num: number): boolean {
     return num == null || isNaN(num) || num == 0;
 }
 
-function isValidWaveObj(val: WaveObj): boolean {
+function isValidDoraObj(val: DoraObj): boolean {
     if (val == null) {
         return false;
     }
@@ -55,9 +55,9 @@ function makeORef(otype: string, oid: string): string {
     return `${otype}:${oid}`;
 }
 
-const previewMockObjects: Map<string, WaveObj> = new Map();
+const previewMockObjects: Map<string, DoraObj> = new Map();
 
-function mockObjectForPreview<T extends WaveObj>(oref: string, obj: T): void {
+function mockObjectForPreview<T extends DoraObj>(oref: string, obj: T): void {
     if (!isPreviewWindow()) {
         throw new Error("mockObjectForPreview can only be called in a preview window");
     }
@@ -93,7 +93,7 @@ function wpsSubscribeToObject(oref: string): () => void {
         eventType: "waveobj:update",
         scope: oref,
         handler: (event) => {
-            updateWaveObject(event.data);
+            updateDoraObject(event.data);
         },
     });
 }
@@ -134,7 +134,7 @@ function callBackendService(service: string, method: string, args: any[], noUICo
                 return null;
             }
             if (respData.updates != null) {
-                updateWaveObjects(respData.updates);
+                updateDoraObjects(respData.updates);
             }
             if (respData.error != null) {
                 throw new Error(`call ${methodName} error: ${respData.error}`);
@@ -146,12 +146,12 @@ function callBackendService(service: string, method: string, args: any[], noUICo
     return prtn;
 }
 
-const waveObjectValueCache = new Map<string, WaveObjectValue<any>>();
+const waveObjectValueCache = new Map<string, DoraObjectValue<any>>();
 
-function reloadWaveObject<T extends WaveObj>(oref: string): Promise<T> {
+function reloadDoraObject<T extends DoraObj>(oref: string): Promise<T> {
     let wov = waveObjectValueCache.get(oref);
     if (wov === undefined) {
-        wov = getWaveObjectValue<T>(oref, true);
+        wov = getDoraObjectValue<T>(oref, true);
         return wov.pendingPromise;
     }
     const prtn = GetObject<T>(oref);
@@ -161,7 +161,7 @@ function reloadWaveObject<T extends WaveObj>(oref: string): Promise<T> {
     return prtn;
 }
 
-function createWaveValueObject<T extends WaveObj>(oref: string, shouldFetch: boolean): WaveObjectValue<T> {
+function createWaveValueObject<T extends DoraObj>(oref: string, shouldFetch: boolean): DoraObjectValue<T> {
     const wov = { pendingPromise: null, dataAtom: null };
     wov.dataAtom = atom({ value: null, loading: true });
     if (!shouldFetch) {
@@ -185,12 +185,12 @@ function createWaveValueObject<T extends WaveObj>(oref: string, shouldFetch: boo
         }
         wov.pendingPromise = null;
         globalStore.set(wov.dataAtom, { value: val, loading: false });
-        console.log("WaveObj resolved", oref, Date.now() - startTs + "ms");
+        console.log("DoraObj resolved", oref, Date.now() - startTs + "ms");
     });
     return wov;
 }
 
-function getWaveObjectValue<T extends WaveObj>(oref: string, createIfMissing = true): WaveObjectValue<T> {
+function getDoraObjectValue<T extends DoraObj>(oref: string, createIfMissing = true): DoraObjectValue<T> {
     let wov = waveObjectValueCache.get(oref);
     if (wov === undefined && createIfMissing) {
         wov = createWaveValueObject(oref, true);
@@ -199,8 +199,8 @@ function getWaveObjectValue<T extends WaveObj>(oref: string, createIfMissing = t
     return wov;
 }
 
-function loadAndPinWaveObject<T extends WaveObj>(oref: string): Promise<T> {
-    const wov = getWaveObjectValue<T>(oref);
+function loadAndPinDoraObject<T extends DoraObj>(oref: string): Promise<T> {
+    const wov = getDoraObjectValue<T>(oref);
     if (wov.pendingPromise == null) {
         const dataValue = globalStore.get(wov.dataAtom);
         return Promise.resolve(dataValue.value);
@@ -210,25 +210,25 @@ function loadAndPinWaveObject<T extends WaveObj>(oref: string): Promise<T> {
 
 const waveObjectDerivedAtomCache = new Map<string, Atom<any>>();
 
-function getWaveObjectAtom<T extends WaveObj>(oref: string): Atom<T> {
+function getDoraObjectAtom<T extends DoraObj>(oref: string): Atom<T> {
     const cacheKey = oref + ":value";
     let cachedAtom = waveObjectDerivedAtomCache.get(cacheKey) as Atom<T>;
     if (cachedAtom != null) {
         return cachedAtom;
     }
-    const wov = getWaveObjectValue<T>(oref);
+    const wov = getDoraObjectValue<T>(oref);
     cachedAtom = atom((get) => get(wov.dataAtom).value);
     waveObjectDerivedAtomCache.set(cacheKey, cachedAtom);
     return cachedAtom;
 }
 
-function getWaveObjectLoadingAtom(oref: string): Atom<boolean> {
+function getDoraObjectLoadingAtom(oref: string): Atom<boolean> {
     const cacheKey = oref + ":loading";
     let cachedAtom = waveObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
     if (cachedAtom != null) {
         return cachedAtom;
     }
-    const wov = getWaveObjectValue(oref);
+    const wov = getDoraObjectValue(oref);
     cachedAtom = atom((get) => {
         const dataValue = get(wov.dataAtom);
         return dataValue.loading;
@@ -237,58 +237,58 @@ function getWaveObjectLoadingAtom(oref: string): Atom<boolean> {
     return cachedAtom;
 }
 
-function isWaveObjectNullAtom(oref: string): Atom<boolean> {
+function isDoraObjectNullAtom(oref: string): Atom<boolean> {
     const cacheKey = oref + ":isnull";
     let cachedAtom = waveObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
     if (cachedAtom != null) {
         return cachedAtom;
     }
-    cachedAtom = atom((get) => get(getWaveObjectAtom(oref)) == null);
+    cachedAtom = atom((get) => get(getDoraObjectAtom(oref)) == null);
     waveObjectDerivedAtomCache.set(cacheKey, cachedAtom);
     return cachedAtom;
 }
 
-function useWaveObjectValue<T extends WaveObj>(oref: string): [T, boolean] {
-    const wov = getWaveObjectValue<T>(oref);
+function useDoraObjectValue<T extends DoraObj>(oref: string): [T, boolean] {
+    const wov = getDoraObjectValue<T>(oref);
     const atomVal = useAtomValue(wov.dataAtom);
     return [atomVal.value, atomVal.loading];
 }
 
-function updateWaveObject(update: WaveObjUpdate) {
+function updateDoraObject(update: DoraObjUpdate) {
     if (update == null) {
         return;
     }
     const oref = makeORef(update.otype, update.oid);
-    const wov = getWaveObjectValue(oref);
+    const wov = getDoraObjectValue(oref);
     if (update.updatetype == "delete") {
-        console.log("WaveObj deleted", oref);
+        console.log("DoraObj deleted", oref);
         globalStore.set(wov.dataAtom, { value: null, loading: false });
     } else {
-        if (!isValidWaveObj(update.obj)) {
+        if (!isValidDoraObj(update.obj)) {
             console.log("invalid wave object update", update);
             return;
         }
-        const curValue: WaveObjectDataItemType<WaveObj> = globalStore.get(wov.dataAtom);
+        const curValue: DoraObjectDataItemType<DoraObj> = globalStore.get(wov.dataAtom);
         if (curValue.value != null && curValue.value.version >= update.obj.version) {
             return;
         }
-        console.log("WaveObj updated", oref);
+        console.log("DoraObj updated", oref);
         globalStore.set(wov.dataAtom, { value: update.obj, loading: false });
     }
     return;
 }
 
-function updateWaveObjects(vals: WaveObjUpdate[]) {
+function updateDoraObjects(vals: DoraObjUpdate[]) {
     for (const val of vals) {
-        updateWaveObject(val);
+        updateDoraObject(val);
     }
 }
 
-// gets the value of a WaveObject from the cache.
+// gets the value of a DoraObject from the cache.
 // should provide getFn if it is available (e.g. inside of a jotai atom)
 // otherwise it will use the globalStore.get function
-function getObjectValue<T extends WaveObj>(oref: string, getFn?: Getter): T {
-    const wov = getWaveObjectValue<T>(oref);
+function getObjectValue<T extends DoraObj>(oref: string, getFn?: Getter): T {
+    const wov = getDoraObjectValue<T>(oref);
     if (getFn == null) {
         getFn = globalStore.get;
     }
@@ -296,12 +296,12 @@ function getObjectValue<T extends WaveObj>(oref: string, getFn?: Getter): T {
     return atomVal.value;
 }
 
-// sets the value of a WaveObject in the cache.
+// sets the value of a DoraObject in the cache.
 // should provide setFn if it is available (e.g. inside of a jotai atom)
 // otherwise it will use the globalStore.set function
-function setObjectValue<T extends WaveObj>(value: T, setFn?: Setter, pushToServer?: boolean) {
+function setObjectValue<T extends DoraObj>(value: T, setFn?: Setter, pushToServer?: boolean) {
     const oref = makeORef(value.otype, value.oid);
-    const wov = getWaveObjectValue(oref, false);
+    const wov = getDoraObjectValue(oref, false);
     if (wov === undefined) {
         return;
     }
@@ -317,17 +317,17 @@ function setObjectValue<T extends WaveObj>(value: T, setFn?: Setter, pushToServe
 export {
     callBackendService,
     getObjectValue,
-    getWaveObjectAtom,
-    getWaveObjectLoadingAtom,
-    isWaveObjectNullAtom,
-    loadAndPinWaveObject,
+    getDoraObjectAtom,
+    getDoraObjectLoadingAtom,
+    isDoraObjectNullAtom,
+    loadAndPinDoraObject,
     makeORef,
     mockObjectForPreview,
-    reloadWaveObject,
+    reloadDoraObject,
     setObjectValue,
     splitORef,
-    updateWaveObject,
-    updateWaveObjects,
-    useWaveObjectValue,
+    updateDoraObject,
+    updateDoraObjects,
+    useDoraObjectValue,
     wpsSubscribeToObject,
 };

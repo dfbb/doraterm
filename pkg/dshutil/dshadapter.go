@@ -13,7 +13,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/dshrpc"
 )
 
-var WshCommandDeclMap = dshrpc.GenerateWshCommandDeclMap()
+var DshCommandDeclMap = dshrpc.GenerateDshCommandDeclMap()
 var multiArgRType = reflect.TypeOf(dshrpc.MultiArg{})
 
 func findCmdMethod(impl any, cmd string) *reflect.Method {
@@ -58,7 +58,7 @@ func recodeCommandData(command string, data any, commandDataType reflect.Type) (
 	if command == "" || commandDataType == nil {
 		return data, nil
 	}
-	methodDecl := WshCommandDeclMap[command]
+	methodDecl := DshCommandDeclMap[command]
 	if methodDecl == nil {
 		return data, fmt.Errorf("command %q not found", command)
 	}
@@ -83,7 +83,7 @@ func serverImplAdapter(impl any) func(*RpcResponseHandler) bool {
 	// returns isAsync
 	return func(handler *RpcResponseHandler) bool {
 		cmd := handler.GetCommand()
-		methodDecl := WshCommandDeclMap[cmd]
+		methodDecl := DshCommandDeclMap[cmd]
 		if methodDecl == nil {
 			handler.SendResponseError(fmt.Errorf("command %q not found", cmd))
 			return true

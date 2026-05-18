@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	for _, rtype := range doraobj.AllWaveObjTypes() {
+	for _, rtype := range doraobj.AllDoraObjTypes() {
 		doraobj.RegisterType(rtype)
 	}
 }

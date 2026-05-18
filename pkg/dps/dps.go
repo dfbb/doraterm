@@ -18,7 +18,7 @@ import (
 const MaxPersist = 4096
 
 type Client interface {
-	SendEvent(routeId string, event WaveEvent)
+	SendEvent(routeId string, event DoraEvent)
 }
 
 type BrokerSubscription struct {
@@ -33,7 +33,7 @@ type persistKey struct {
 }
 
 type persistEventWrap struct {
-	Events []*WaveEvent
+	Events []*DoraEvent
 }
 
 type BrokerType struct {
@@ -172,7 +172,7 @@ func (b *BrokerType) UnsubscribeAll(subRouteId string) {
 }
 
 // does not take wildcards, use "" for all
-func (b *BrokerType) ReadEventHistory(eventType string, scope string, maxItems int) []*WaveEvent {
+func (b *BrokerType) ReadEventHistory(eventType string, scope string, maxItems int) []*DoraEvent {
 	if maxItems <= 0 {
 		return nil
 	}
@@ -187,12 +187,12 @@ func (b *BrokerType) ReadEventHistory(eventType string, scope string, maxItems i
 		maxItems = len(pe.Events)
 	}
 	// return new arr
-	rtn := make([]*WaveEvent, maxItems)
+	rtn := make([]*DoraEvent, maxItems)
 	copy(rtn, pe.Events[len(pe.Events)-maxItems:])
 	return rtn
 }
 
-func (b *BrokerType) persistEvent(event WaveEvent) {
+func (b *BrokerType) persistEvent(event DoraEvent) {
 	if event.Persist <= 0 {
 		return
 	}
@@ -212,7 +212,7 @@ func (b *BrokerType) persistEvent(event WaveEvent) {
 		pe := b.PersistMap[key]
 		if pe == nil {
 			pe = &persistEventWrap{
-				Events: make([]*WaveEvent, 0, numPersist),
+				Events: make([]*DoraEvent, 0, numPersist),
 			}
 			b.PersistMap[key] = pe
 		}
@@ -223,7 +223,7 @@ func (b *BrokerType) persistEvent(event WaveEvent) {
 	}
 }
 
-func (b *BrokerType) Publish(event WaveEvent) {
+func (b *BrokerType) Publish(event DoraEvent) {
 	// log.Printf("BrokerType.Publish: %v\n", event)
 	if event.Persist > 0 {
 		b.persistEvent(event)
@@ -240,15 +240,15 @@ func (b *BrokerType) Publish(event WaveEvent) {
 
 func (b *BrokerType) SendUpdateEvents(updates doraobj.UpdatesRtnType) {
 	for _, update := range updates {
-		b.Publish(WaveEvent{
-			Event:  Event_WaveObjUpdate,
+		b.Publish(DoraEvent{
+			Event:  Event_DoraObjUpdate,
 			Scopes: []string{doraobj.MakeORef(update.OType, update.OID).String()},
 			Data:   update,
 		})
 	}
 }
 
-func (b *BrokerType) getMatchingRouteIds(event WaveEvent) []string {
+func (b *BrokerType) getMatchingRouteIds(event DoraEvent) []string {
 	b.Lock.Lock()
 	defer b.Lock.Unlock()
 	bs := b.SubMap[event.Event]

@@ -22,7 +22,7 @@ import {
     getApi,
     globalStore,
     initGlobal,
-    initGlobalWaveEventSubs,
+    initGlobalDoraEventSubs,
     loadConnStatus,
     subscribeToConnEvents,
 } from "@/store/global";
@@ -36,7 +36,7 @@ import { createRoot } from "react-dom/client";
 
 const platform = getApi().getPlatform();
 document.title = `Wave Terminal`;
-let savedInitOpts: WaveInitOpts = null;
+let savedInitOpts: DoraInitOpts = null;
 
 (window as any).WOS = WOS;
 (window as any).globalStore = globalStore;
@@ -59,7 +59,7 @@ async function initBare() {
     document.body.style.visibility = "hidden";
     document.body.style.opacity = "0";
     document.body.classList.add("is-transparent");
-    getApi().onWaveInit(initWaveWrap);
+    getApi().onDoraInit(initWaveWrap);
     setKeyUtilPlatform(platform);
     loadFonts();
     updateZoomFactor(getApi().getZoomFactor());
@@ -74,7 +74,7 @@ async function initBare() {
 
 document.addEventListener("DOMContentLoaded", initBare);
 
-async function initWaveWrap(initOpts: WaveInitOpts) {
+async function initWaveWrap(initOpts: DoraInitOpts) {
     try {
         if (savedInitOpts) {
             await reinitWave();
@@ -104,11 +104,11 @@ async function reinitWave() {
         }, 100)
     );
 
-    await WOS.reloadWaveObject<Client>(WOS.makeORef("client", savedInitOpts.clientId));
-    const waveWindow = await WOS.reloadWaveObject<WaveWindow>(WOS.makeORef("window", savedInitOpts.windowId));
-    const ws = await WOS.reloadWaveObject<Workspace>(WOS.makeORef("workspace", waveWindow.workspaceid));
-    const initialTab = await WOS.reloadWaveObject<Tab>(WOS.makeORef("tab", savedInitOpts.tabId));
-    await WOS.reloadWaveObject<LayoutState>(WOS.makeORef("layout", initialTab.layoutstate));
+    await WOS.reloadDoraObject<Client>(WOS.makeORef("client", savedInitOpts.clientId));
+    const waveWindow = await WOS.reloadDoraObject<DoraWindow>(WOS.makeORef("window", savedInitOpts.windowId));
+    const ws = await WOS.reloadDoraObject<Workspace>(WOS.makeORef("workspace", waveWindow.workspaceid));
+    const initialTab = await WOS.reloadDoraObject<Tab>(WOS.makeORef("tab", savedInitOpts.tabId));
+    await WOS.reloadDoraObject<LayoutState>(WOS.makeORef("layout", initialTab.layoutstate));
     reloadAllWorkspaceTabs(ws);
     document.title = `Wave Terminal - ${initialTab.name}`; // TODO update with tab name change
     getApi().setWindowInitStatus("wave-ready");
@@ -124,7 +124,7 @@ function reloadAllWorkspaceTabs(ws: Workspace) {
         return;
     }
     ws.tabids?.forEach((tabid) => {
-        WOS.reloadWaveObject<Tab>(WOS.makeORef("tab", tabid));
+        WOS.reloadDoraObject<Tab>(WOS.makeORef("tab", tabid));
     });
 }
 
@@ -137,7 +137,7 @@ function loadAllWorkspaceTabs(ws: Workspace) {
     });
 }
 
-async function initWave(initOpts: WaveInitOpts) {
+async function initWave(initOpts: DoraInitOpts) {
     getApi().sendLog("Init Wave " + JSON.stringify(initOpts));
     const globalInitOpts: GlobalInitOptions = {
         tabId: initOpts.tabId,
@@ -162,20 +162,20 @@ async function initWave(initOpts: WaveInitOpts) {
     try {
         await loadConnStatus();
         await loadBadges();
-        initGlobalWaveEventSubs(initOpts);
+        initGlobalDoraEventSubs(initOpts);
         subscribeToConnEvents();
         if (isMacOS()) {
             const macOSVersion = await RpcApi.MacOSVersionCommand(TabRpcClient);
             setMacOSVersion(macOSVersion);
         }
         const [_client, waveWindow, initialTab] = await Promise.all([
-            WOS.loadAndPinWaveObject<Client>(WOS.makeORef("client", initOpts.clientId)),
-            WOS.loadAndPinWaveObject<WaveWindow>(WOS.makeORef("window", initOpts.windowId)),
-            WOS.loadAndPinWaveObject<Tab>(WOS.makeORef("tab", initOpts.tabId)),
+            WOS.loadAndPinDoraObject<Client>(WOS.makeORef("client", initOpts.clientId)),
+            WOS.loadAndPinDoraObject<DoraWindow>(WOS.makeORef("window", initOpts.windowId)),
+            WOS.loadAndPinDoraObject<Tab>(WOS.makeORef("tab", initOpts.tabId)),
         ]);
         const [ws, _layoutState] = await Promise.all([
-            WOS.loadAndPinWaveObject<Workspace>(WOS.makeORef("workspace", waveWindow.workspaceid)),
-            WOS.reloadWaveObject<LayoutState>(WOS.makeORef("layout", initialTab.layoutstate)),
+            WOS.loadAndPinDoraObject<Workspace>(WOS.makeORef("workspace", waveWindow.workspaceid)),
+            WOS.reloadDoraObject<LayoutState>(WOS.makeORef("layout", initialTab.layoutstate)),
         ]);
         loadAllWorkspaceTabs(ws);
         WOS.wpsSubscribeToObject(WOS.makeORef("workspace", waveWindow.workspaceid));

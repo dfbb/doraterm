@@ -20,7 +20,7 @@ import {
 import { globalStore } from "@/app/store/jotaiStore";
 import { uxCloseBlock } from "@/app/store/keymodel";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
-import { useWaveEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/waveenv/waveenv";
 import { IconButton } from "@/element/iconbutton";
 import { NodeModel } from "@/layout/index";
 import * as util from "@/util/util";
@@ -75,7 +75,7 @@ type HeaderTextElemsProps = {
 };
 
 const HeaderTextElems = React.memo(({ viewModel, blockId, preview, error }: HeaderTextElemsProps) => {
-    const waveEnv = useWaveEnv<BlockEnv>();
+    const waveEnv = useDoraEnv<BlockEnv>();
     const frameTextAtom = waveEnv.getBlockMetaKeyAtom(blockId, "frame:text");
     const frameText = jotai.useAtomValue(frameTextAtom);
     let headerTextUnion = util.useAtomValueSafe(viewModel?.viewText);
@@ -118,7 +118,7 @@ type HeaderEndIconsProps = {
 };
 
 const HeaderEndIcons = React.memo(({ viewModel, nodeModel, blockId }: HeaderEndIconsProps) => {
-    const blockEnv = useWaveEnv<BlockEnv>();
+    const blockEnv = useDoraEnv<BlockEnv>();
     const endIconButtons = util.useAtomValueSafe(viewModel?.endIconButtons);
     const magnified = jotai.useAtomValue(nodeModel.isMagnified);
     const ephemeral = jotai.useAtomValue(nodeModel.isEphemeral);
@@ -138,7 +138,7 @@ const HeaderEndIcons = React.memo(({ viewModel, nodeModel, blockId }: HeaderEndI
             title: "Split Horizontally",
             click: (e) => {
                 e.stopPropagation();
-                const blockAtom = WOS.getWaveObjectAtom<Block>(WOS.makeORef("block", blockId));
+                const blockAtom = WOS.getDoraObjectAtom<Block>(WOS.makeORef("block", blockId));
                 const blockData = globalStore.get(blockAtom);
                 const blockDef: BlockDef = {
                     meta: blockData?.meta || { view: "term", controller: "shell" },
@@ -152,7 +152,7 @@ const HeaderEndIcons = React.memo(({ viewModel, nodeModel, blockId }: HeaderEndI
             title: "Split Vertically",
             click: (e) => {
                 e.stopPropagation();
-                const blockAtom = WOS.getWaveObjectAtom<Block>(WOS.makeORef("block", blockId));
+                const blockAtom = WOS.getDoraObjectAtom<Block>(WOS.makeORef("block", blockId));
                 const blockData = globalStore.get(blockAtom);
                 const blockDef: BlockDef = {
                     meta: blockData?.meta || { view: "term", controller: "shell" },
@@ -212,7 +212,7 @@ const BlockFrame_Header = ({
     preview,
     error,
 }: BlockFrameProps & { error?: Error }) => {
-    const waveEnv = useWaveEnv<BlockEnv>();
+    const waveEnv = useDoraEnv<BlockEnv>();
     const metaView = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view"));
     const metaFrameTitle = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:title"));
     const metaFrameIcon = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:icon"));

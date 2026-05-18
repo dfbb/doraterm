@@ -17,10 +17,10 @@ import {
 } from "@/app/store/global";
 import { AllServiceImpls } from "@/app/store/services";
 import { RpcApi } from "@/app/store/wshclientapi";
-import { WaveEnv } from "@/app/waveenv/waveenv";
+import { DoraEnv } from "@/app/waveenv/waveenv";
 import { isMacOS, isWindows, PLATFORM } from "@/util/platformutil";
 
-export function makeWaveEnvImpl(): WaveEnv {
+export function makeDoraEnvImpl(): DoraEnv {
     return {
         isMock: false,
         electron: (window as any).api,
@@ -40,18 +40,18 @@ export function makeWaveEnvImpl(): WaveEnv {
         getConnStatusAtom,
         getLocalHostDisplayNameAtom,
         wos: {
-            getWaveObjectAtom: WOS.getWaveObjectAtom,
-            getWaveObjectLoadingAtom: WOS.getWaveObjectLoadingAtom,
-            isWaveObjectNullAtom: WOS.isWaveObjectNullAtom,
-            useWaveObjectValue: WOS.useWaveObjectValue,
+            getDoraObjectAtom: WOS.getDoraObjectAtom,
+            getDoraObjectLoadingAtom: WOS.getDoraObjectLoadingAtom,
+            isDoraObjectNullAtom: WOS.isDoraObjectNullAtom,
+            useDoraObjectValue: WOS.useDoraObjectValue,
         },
         getBlockMetaKeyAtom,
         getTabMetaKeyAtom,
         getConfigBackgroundAtom,
         getConnConfigKeyAtom,
 
-        mockSetWaveObj: <T extends WaveObj>(_oref: string, _obj: T) => {
-            throw new Error("mockSetWaveObj is only available in the preview server");
+        mockSetDoraObj: <T extends DoraObj>(_oref: string, _obj: T) => {
+            throw new Error("mockSetDoraObj is only available in the preview server");
         },
         mockModels: new Map<any, any>(),
     };

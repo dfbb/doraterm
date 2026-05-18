@@ -1,27 +1,27 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { MetaKeyAtomFnType, WaveEnv, WaveEnvSubset } from "@/app/waveenv/waveenv";
+import type { MetaKeyAtomFnType, DoraEnv, DoraEnvSubset } from "@/app/waveenv/waveenv";
 
-export type DoraConfigEnv = WaveEnvSubset<{
+export type DoraConfigEnv = DoraEnvSubset<{
     electron: {
-        getConfigDir: WaveEnv["electron"]["getConfigDir"];
-        getPlatform: WaveEnv["electron"]["getPlatform"];
+        getConfigDir: DoraEnv["electron"]["getConfigDir"];
+        getPlatform: DoraEnv["electron"]["getPlatform"];
     };
     rpc: {
-        FileInfoCommand: WaveEnv["rpc"]["FileInfoCommand"];
-        FileReadCommand: WaveEnv["rpc"]["FileReadCommand"];
-        FileWriteCommand: WaveEnv["rpc"]["FileWriteCommand"];
-        SetMetaCommand: WaveEnv["rpc"]["SetMetaCommand"];
-        GetSecretsLinuxStorageBackendCommand: WaveEnv["rpc"]["GetSecretsLinuxStorageBackendCommand"];
-        GetSecretsNamesCommand: WaveEnv["rpc"]["GetSecretsNamesCommand"];
-        GetSecretsCommand: WaveEnv["rpc"]["GetSecretsCommand"];
-        SetSecretsCommand: WaveEnv["rpc"]["SetSecretsCommand"];
-        RecordTEventCommand: WaveEnv["rpc"]["RecordTEventCommand"];
+        FileInfoCommand: DoraEnv["rpc"]["FileInfoCommand"];
+        FileReadCommand: DoraEnv["rpc"]["FileReadCommand"];
+        FileWriteCommand: DoraEnv["rpc"]["FileWriteCommand"];
+        SetMetaCommand: DoraEnv["rpc"]["SetMetaCommand"];
+        GetSecretsLinuxStorageBackendCommand: DoraEnv["rpc"]["GetSecretsLinuxStorageBackendCommand"];
+        GetSecretsNamesCommand: DoraEnv["rpc"]["GetSecretsNamesCommand"];
+        GetSecretsCommand: DoraEnv["rpc"]["GetSecretsCommand"];
+        SetSecretsCommand: DoraEnv["rpc"]["SetSecretsCommand"];
+        RecordTEventCommand: DoraEnv["rpc"]["RecordTEventCommand"];
     };
     atoms: {
-        fullConfigAtom: WaveEnv["atoms"]["fullConfigAtom"];
+        fullConfigAtom: DoraEnv["atoms"]["fullConfigAtom"];
     };
     getBlockMetaKeyAtom: MetaKeyAtomFnType<"file">;
-    isWindows: WaveEnv["isWindows"];
+    isWindows: DoraEnv["isWindows"];
 }>;

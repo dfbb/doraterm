@@ -5,7 +5,7 @@ import { BlockModel } from "@/app/block/block-model";
 import { BlockFrame_Header } from "@/app/block/blockframe-header";
 import { blockViewToIcon, getViewIconElem, useTabBackground } from "@/app/block/blockutil";
 import { useTabModel } from "@/app/store/tab-model";
-import { useWaveEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/waveenv/waveenv";
 import { WorkspaceLayoutModel } from "@/app/workspace/workspace-layout-model";
 import { ErrorBoundary } from "@/element/errorboundary";
 import { NodeModel } from "@/layout/index";
@@ -20,7 +20,7 @@ import { BlockEnv } from "./blockenv";
 import { BlockFrameProps } from "./blocktypes";
 
 const BlockMask = React.memo(({ nodeModel }: { nodeModel: NodeModel }) => {
-    const waveEnv = useWaveEnv<BlockEnv>();
+    const waveEnv = useDoraEnv<BlockEnv>();
     const tabModel = useTabModel();
     const isFocused = jotai.useAtomValue(nodeModel.isFocused);
     const isEphemeral = jotai.useAtomValue(nodeModel.isEphemeral);
@@ -88,7 +88,7 @@ const BlockMask = React.memo(({ nodeModel }: { nodeModel: NodeModel }) => {
 });
 
 const BlockFrame_Default_Component = (props: BlockFrameProps) => {
-    const waveEnv = useWaveEnv<BlockEnv>();
+    const waveEnv = useDoraEnv<BlockEnv>();
     const { nodeModel, viewModel, blockModel, preview, numBlocksInTab, children } = props;
     const isFocused = jotai.useAtomValue(nodeModel.isFocused);
     const aiPanelVisible = jotai.useAtomValue(WorkspaceLayoutModel.getInstance().panelVisibleAtom);
@@ -152,10 +152,10 @@ const BlockFrame_Default_Component = (props: BlockFrameProps) => {
 const BlockFrame_Default = React.memo(BlockFrame_Default_Component) as typeof BlockFrame_Default_Component;
 
 const BlockFrame = React.memo((props: BlockFrameProps) => {
-    const waveEnv = useWaveEnv<BlockEnv>();
+    const waveEnv = useDoraEnv<BlockEnv>();
     const tabModel = useTabModel();
     const blockId = props.nodeModel.blockId;
-    const blockIsNull = jotai.useAtomValue(waveEnv.wos.isWaveObjectNullAtom(makeORef("block", blockId)));
+    const blockIsNull = jotai.useAtomValue(waveEnv.wos.isDoraObjectNullAtom(makeORef("block", blockId)));
     const numBlocks = jotai.useAtomValue(tabModel.tabNumBlocksAtom);
     if (!blockId || blockIsNull) {
         return null;

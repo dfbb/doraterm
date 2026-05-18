@@ -13,19 +13,19 @@ import (
 	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
-type WshServer struct{}
+type DshServer struct{}
 
-func (*WshServer) WshServerImpl() {}
+func (*DshServer) DshServerImpl() {}
 
-var WshServerImpl = WshServer{}
+var DshServerImpl = DshServer{}
 
-var waveSrvClient_Singleton *dshutil.WshRpc
+var waveSrvClient_Singleton *dshutil.DshRpc
 var waveSrvClient_Once = &sync.Once{}
 var waveSrvClient_RouteId string
 
-func GetBareRpcClient() *dshutil.WshRpc {
+func GetBareRpcClient() *dshutil.DshRpc {
 	waveSrvClient_Once.Do(func() {
-		waveSrvClient_Singleton = dshutil.MakeWshRpc(dshrpc.RpcContext{}, &WshServerImpl, "bare-client")
+		waveSrvClient_Singleton = dshutil.MakeDshRpc(dshrpc.RpcContext{}, &DshServerImpl, "bare-client")
 		waveSrvClient_RouteId = fmt.Sprintf("bare:%s", uuid.New().String())
 		// we can safely ignore the error from RegisterTrustedLeaf since the route is valid
 		dshutil.DefaultRouter.RegisterTrustedLeaf(waveSrvClient_Singleton, waveSrvClient_RouteId)

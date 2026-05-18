@@ -31,7 +31,7 @@ import {
     getElectronAppBasePath,
     getElectronAppUnpackedBasePath,
     getDoraConfigDir,
-    getWaveDataDir,
+    getDoraDataDir,
     isDev,
     unameArch,
     unamePlatform,
@@ -40,18 +40,18 @@ import { ensureHotSpareTab, setMaxTabCacheSize } from "./emain-tabview";
 import { getIsWaveSrvDead, getWaveSrvProc, getWaveSrvReady, runWaveSrv } from "./emain-wavesrv";
 import {
     createBrowserWindow,
-    createNewWaveWindow,
-    focusedWaveWindow,
-    getAllWaveWindows,
+    createNewDoraWindow,
+    focusedDoraWindow,
+    getAllDoraWindows,
     getQuakeWindow,
-    getWaveWindowById,
-    getWaveWindowByWorkspaceId,
+    getDoraWindowById,
+    getDoraWindowByWorkspaceId,
     initGlobalHotkeyEventSubscription,
     registerGlobalHotkey,
     relaunchBrowserWindows,
-    WaveBrowserWindow,
+    DoraBrowserWindow,
 } from "./emain-window";
-import { ElectronWshClient, initElectronWshClient } from "./emain-wsh";
+import { ElectronDshClient, initElectronDshClient } from "./emain-wsh";
 import { getLaunchSettings } from "./launchsettings";
 import { configureAutoUpdater, updater } from "./updater";
 
@@ -59,7 +59,7 @@ const electronApp = electron.app;
 
 let confirmQuit = true;
 
-const waveDataDir = getWaveDataDir();
+const waveDataDir = getDoraDataDir();
 const doraConfigDir = getDoraConfigDir();
 
 electron.nativeTheme.themeSource = "dark";
@@ -87,11 +87,11 @@ function handleWSEvent(evtMsg: WSEventType) {
         if (evtMsg.eventtype == "electron:newwindow") {
             console.log("electron:newwindow", evtMsg.data);
             const windowId: string = evtMsg.data;
-            const windowData: WaveWindow = (await services.ObjectService.GetObject("window:" + windowId)) as WaveWindow;
+            const windowData: DoraWindow = (await services.ObjectService.GetObject("window:" + windowId)) as DoraWindow;
             if (windowData == null) {
                 return;
             }
-            const fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
+            const fullConfig = await RpcApi.GetFullConfigCommand(ElectronDshClient);
             const newWin = await createBrowserWindow(windowData, fullConfig, {
                 unamePlatform,
                 isPrimaryStartupWindow: false,
@@ -100,14 +100,14 @@ function handleWSEvent(evtMsg: WSEventType) {
         } else if (evtMsg.eventtype == "electron:closewindow") {
             console.log("electron:closewindow", evtMsg.data);
             if (evtMsg.data === undefined) return;
-            const ww = getWaveWindowById(evtMsg.data);
+            const ww = getDoraWindowById(evtMsg.data);
             if (ww != null) {
                 ww.destroy(); // bypass the "are you sure?" dialog
             }
         } else if (evtMsg.eventtype == "electron:updateactivetab") {
             const activeTabUpdate: { workspaceid: string; newactivetabid: string } = evtMsg.data;
             console.log("electron:updateactivetab", activeTabUpdate);
-            const ww = getWaveWindowByWorkspaceId(activeTabUpdate.workspaceid);
+            const ww = getDoraWindowByWorkspaceId(activeTabUpdate.workspaceid);
             if (ww == null) {
                 return;
             }
@@ -152,7 +152,7 @@ async function sendDisplaysTDataEvent() {
     props["display:all"] = displays;
     try {
         await RpcApi.RecordTEventCommand(
-            ElectronWshClient,
+            ElectronDshClient,
             {
                 event: "app:display",
                 props,
@@ -168,7 +168,7 @@ function logActiveState() {
     fireAndForget(async () => {
         const astate = getActivityState();
         const activity: ActivityUpdate = { openminutes: 1 };
-        const ww = focusedWaveWindow;
+        const ww = focusedDoraWindow;
 
         if (astate.wasInFg) {
             activity.fgminutes = 1;
@@ -197,9 +197,9 @@ function logActiveState() {
         }
 
         try {
-            await RpcApi.ActivityCommand(ElectronWshClient, activity, { noresponse: true });
+            await RpcApi.ActivityCommand(ElectronDshClient, activity, { noresponse: true });
             await RpcApi.RecordTEventCommand(
-                ElectronWshClient,
+                ElectronDshClient,
                 {
                     event: "app:activity",
                     props,
@@ -221,7 +221,7 @@ function runActiveTimer() {
     setTimeout(runActiveTimer, 60000);
 }
 
-function hideWindowWithCatch(window: WaveBrowserWindow) {
+function hideWindowWithCatch(window: DoraBrowserWindow) {
     if (window == null) {
         return;
     }
@@ -245,7 +245,7 @@ electronApp.on("window-all-closed", () => {
     }
 });
 electronApp.on("before-quit", (e) => {
-    const allWindows = getAllWaveWindows();
+    const allWindows = getAllDoraWindows();
     if (
         confirmQuit &&
         !getForceQuit() &&
@@ -334,13 +334,13 @@ process.on("uncaughtException", (error) => {
     electronApp.quit();
 });
 
-let lastWaveWindowCount = 0;
+let lastDoraWindowCount = 0;
 globalEvents.on("windows-updated", () => {
-    const wwCount = getAllWaveWindows().length;
-    if (wwCount == lastWaveWindowCount) {
+    const wwCount = getAllDoraWindows().length;
+    if (wwCount == lastDoraWindowCount) {
         return;
     }
-    lastWaveWindowCount = wwCount;
+    lastDoraWindowCount = wwCount;
     console.log("windows-updated", wwCount);
     makeAndSetAppMenu();
 });
@@ -362,7 +362,7 @@ async function appMain() {
     }
     electronApp.on("second-instance", (_event, argv, workingDirectory) => {
         console.log("second-instance event, argv:", argv, "workingDirectory:", workingDirectory);
-        fireAndForget(createNewWaveWindow);
+        fireAndForget(createNewDoraWindow);
     });
     try {
         await runWaveSrv(handleWSEvent);
@@ -377,13 +377,13 @@ async function appMain() {
 
     await sleep(10); // wait a bit for wavesrv to be ready
     try {
-        initElectronWshClient();
-        initElectronWshrpc(ElectronWshClient, { authKey: AuthKey });
+        initElectronDshClient();
+        initElectronWshrpc(ElectronDshClient, { authKey: AuthKey });
         initMenuEventSubscriptions();
     } catch (e) {
         console.log("error initializing wshrpc", e);
     }
-    const fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
+    const fullConfig = await RpcApi.GetFullConfigCommand(ElectronDshClient);
     checkIfRunningUnderARM64Translation(fullConfig);
     if (fullConfig?.settings?.["app:confirmquit"] != null) {
         confirmQuit = fullConfig.settings["app:confirmquit"];
@@ -402,7 +402,7 @@ async function appMain() {
     }
 
     electronApp.on("activate", () => {
-        const allWindows = getAllWaveWindows();
+        const allWindows = getAllDoraWindows();
         const anyVisible = allWindows.some((w) => !w.isDestroyed() && w.isVisible());
         if (anyVisible) {
             return;
@@ -414,14 +414,14 @@ async function appMain() {
             return;
         }
         if (allWindows.length === 0) {
-            fireAndForget(createNewWaveWindow);
+            fireAndForget(createNewDoraWindow);
         }
     });
     electron.powerMonitor.on("resume", () => {
         console.log("system resumed from sleep, notifying server");
         fireAndForget(async () => {
             try {
-                await RpcApi.NotifySystemResumeCommand(ElectronWshClient, { noresponse: true });
+                await RpcApi.NotifySystemResumeCommand(ElectronDshClient, { noresponse: true });
             } catch (e) {
                 console.log("error calling NotifySystemResumeCommand", e);
             }

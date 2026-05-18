@@ -21,13 +21,13 @@ import (
 type MainServerConn struct {
 	PeerAuthenticated atomic.Bool
 	SelfAuthenticated atomic.Bool
-	WshRpc            *dshutil.WshRpc
+	DshRpc            *dshutil.DshRpc
 	Conn              net.Conn
 	inputCh           chan baseds.RpcInputChType
 	closeOnce         sync.Once
 }
 
-func (*MainServerConn) WshServerImpl() {}
+func (*MainServerConn) DshServerImpl() {}
 
 func (msc *MainServerConn) Close() {
 	msc.closeOnce.Do(func() {
@@ -37,7 +37,7 @@ func (msc *MainServerConn) Close() {
 }
 
 type routedDataSender struct {
-	wshRpc *dshutil.WshRpc
+	wshRpc *dshutil.DshRpc
 	route  string
 }
 
@@ -51,12 +51,12 @@ func (rds *routedDataSender) SendData(dataPk dshrpc.CommandStreamData) {
 }
 
 func (msc *MainServerConn) authenticateSelfToServer(jobAuthToken string) error {
-	jobId, _ := WshCmdJobManager.GetJobAuthInfo()
+	jobId, _ := DshCmdJobManager.GetJobAuthInfo()
 	authData := dshrpc.CommandAuthenticateJobManagerData{
 		JobId:        jobId,
 		JobAuthToken: jobAuthToken,
 	}
-	err := dshclient.AuthenticateJobManagerCommand(msc.WshRpc, authData, &dshrpc.RpcOpts{Route: dshutil.ControlRoute})
+	err := dshclient.AuthenticateJobManagerCommand(msc.DshRpc, authData, &dshrpc.RpcOpts{Route: dshutil.ControlRoute})
 	if err != nil {
 		log.Printf("authenticateSelfToServer: failed to authenticate to server: %v\n", err)
 		return fmt.Errorf("failed to authenticate to server: %w", err)
@@ -67,7 +67,7 @@ func (msc *MainServerConn) authenticateSelfToServer(jobAuthToken string) error {
 }
 
 func (msc *MainServerConn) AuthenticateToJobManagerCommand(ctx context.Context, data dshrpc.CommandAuthenticateToJobData) error {
-	jobId, jobAuthToken := WshCmdJobManager.GetJobAuthInfo()
+	jobId, jobAuthToken := DshCmdJobManager.GetJobAuthInfo()
 
 	claims, err := dorajwt.ValidateAndExtract(data.JobAccessToken)
 	if err != nil {
@@ -91,7 +91,7 @@ func (msc *MainServerConn) AuthenticateToJobManagerCommand(ctx context.Context, 
 		return err
 	}
 
-	WshCmdJobManager.SetAttachedClient(msc)
+	DshCmdJobManager.SetAttachedClient(msc)
 	return nil
 }
 
@@ -101,7 +101,7 @@ func (msc *MainServerConn) StartJobCommand(ctx context.Context, data dshrpc.Comm
 		log.Printf("StartJobCommand: not authenticated")
 		return nil, fmt.Errorf("not authenticated")
 	}
-	return WshCmdJobManager.StartJob(msc, data)
+	return DshCmdJobManager.StartJob(msc, data)
 }
 
 func (msc *MainServerConn) JobPrepareConnectCommand(ctx context.Context, data dshrpc.CommandJobPrepareConnectData) (*dshrpc.CommandJobConnectRtnData, error) {
@@ -111,24 +111,24 @@ func (msc *MainServerConn) JobPrepareConnectCommand(ctx context.Context, data ds
 	if !msc.SelfAuthenticated.Load() {
 		return nil, fmt.Errorf("not authenticated to server")
 	}
-	return WshCmdJobManager.PrepareConnect(msc, data)
+	return DshCmdJobManager.PrepareConnect(msc, data)
 }
 
 func (msc *MainServerConn) JobStartStreamCommand(ctx context.Context, data dshrpc.CommandJobStartStreamData) error {
 	if !msc.PeerAuthenticated.Load() {
 		return fmt.Errorf("not authenticated")
 	}
-	return WshCmdJobManager.StartStream(msc)
+	return DshCmdJobManager.StartStream(msc)
 }
 
 func (msc *MainServerConn) JobInputCommand(ctx context.Context, data dshrpc.CommandJobInputData) error {
 	if !msc.PeerAuthenticated.Load() {
 		return fmt.Errorf("not authenticated")
 	}
-	if !WshCmdJobManager.IsJobStarted() {
+	if !DshCmdJobManager.IsJobStarted() {
 		return fmt.Errorf("job not started")
 	}
 
-	WshCmdJobManager.InputQueue.QueueItem(data.InputSessionId, data.SeqNum, data)
+	DshCmdJobManager.InputQueue.QueueItem(data.InputSessionId, data.SeqNum, data)
 	return nil
 }

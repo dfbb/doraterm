@@ -1,7 +1,7 @@
 // Copyright 2025, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { handleWaveEvent } from "@/app/store/wps";
+import { handleDoraEvent } from "@/app/store/wps";
 import * as util from "@/util/util";
 import debug from "debug";
 
@@ -24,12 +24,12 @@ function makeTabRouteId(tabId: string): string {
     return `tab:${tabId}`;
 }
 
-class WshRouter {
-    routeMap: Map<string, AbstractWshClient>; // routeid -> client
-    upstreamClient: AbstractWshClient;
+class DshRouter {
+    routeMap: Map<string, AbstractDshClient>; // routeid -> client
+    upstreamClient: AbstractDshClient;
     rpcMap: Map<string, RouteInfo>; // rpcid -> routeinfo
 
-    constructor(upstreamClient: AbstractWshClient) {
+    constructor(upstreamClient: AbstractDshClient) {
         this.routeMap = new Map();
         this.rpcMap = new Map();
         if (upstreamClient == null) {
@@ -85,7 +85,7 @@ class WshRouter {
         }
         // handle events
         if (msg.command == "eventrecv") {
-            handleWaveEvent(msg.data);
+            handleDoraEvent(msg.data);
             return;
         }
         if (!util.isBlank(msg.command)) {
@@ -123,7 +123,7 @@ class WshRouter {
         dlog("bad rpc message recevied by router, no command, reqid, or resid (discarding)", msg);
     }
 
-    registerRoute(routeId: string, client: AbstractWshClient) {
+    registerRoute(routeId: string, client: AbstractDshClient) {
         if (routeId == SysRouteName) {
             throw new Error(`Cannot register route with reserved name (${routeId})`);
         }
@@ -153,4 +153,4 @@ class WshRouter {
     }
 }
 
-export { makeFeBlockRouteId, makeTabRouteId, WshRouter };
+export { makeFeBlockRouteId, makeTabRouteId, DshRouter };

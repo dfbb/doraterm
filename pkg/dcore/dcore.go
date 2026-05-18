@@ -103,7 +103,7 @@ func GetClientData(ctx context.Context) (*doraobj.Client, error) {
 	return clientData, nil
 }
 
-func SendWaveObjUpdate(oref doraobj.ORef) {
+func SendDoraObjUpdate(oref doraobj.ORef) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancelFn()
 	// send a waveobj:update event
@@ -112,10 +112,10 @@ func SendWaveObjUpdate(oref doraobj.ORef) {
 		log.Printf("error getting object for update event: %v", err)
 		return
 	}
-	dps.Broker.Publish(dps.WaveEvent{
-		Event:  dps.Event_WaveObjUpdate,
+	dps.Broker.Publish(dps.DoraEvent{
+		Event:  dps.Event_DoraObjUpdate,
 		Scopes: []string{oref.String()},
-		Data: doraobj.WaveObjUpdate{
+		Data: doraobj.DoraObjUpdate{
 			UpdateType: doraobj.UpdateType_Update,
 			OType:      waveObj.GetOType(),
 			OID:        doraobj.GetOID(waveObj),

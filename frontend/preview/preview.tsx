@@ -7,12 +7,12 @@ import { getAtoms, initGlobalAtoms } from "@/app/store/global-atoms";
 import { GlobalModel } from "@/app/store/global-model";
 import { globalStore } from "@/app/store/jotaiStore";
 import { getTabModelByTabId, TabModelContext } from "@/app/store/tab-model";
-import { WaveEnvContext } from "@/app/waveenv/waveenv";
+import { DoraEnvContext } from "@/app/waveenv/waveenv";
 import { loadFonts } from "@/util/fontutil";
 import { Provider } from "jotai";
 import React, { lazy, Suspense, useRef } from "react";
 import { createRoot } from "react-dom/client";
-import { makeMockWaveEnv, PreviewClientId, PreviewTabId, PreviewWindowId } from "./mock/mockwaveenv";
+import { makeMockDoraEnv, PreviewClientId, PreviewTabId, PreviewWindowId } from "./mock/mockwaveenv";
 import { installPreviewElectronApi } from "./mock/preview-electron-api";
 import { PreviewContextMenu } from "./preview-contextmenu";
 
@@ -94,15 +94,15 @@ function PreviewHeader({ previewName }: { previewName: string }) {
 }
 
 function PreviewRoot() {
-    const waveEnvRef = useRef(makeMockWaveEnv());
+    const waveEnvRef = useRef(makeMockDoraEnv());
     return (
         <Provider store={globalStore}>
-            <WaveEnvContext.Provider value={waveEnvRef.current}>
+            <DoraEnvContext.Provider value={waveEnvRef.current}>
                 <TabModelContext.Provider value={getTabModelByTabId(PreviewTabId, waveEnvRef.current)}>
                     <PreviewApp />
                     <PreviewContextMenu />
                 </TabModelContext.Provider>
-            </WaveEnvContext.Provider>
+            </DoraEnvContext.Provider>
         </Provider>
     );
 }

@@ -10,10 +10,10 @@ vi.mock("../preview-contextmenu", () => ({
     showPreviewContextMenu,
 }));
 
-describe("makeMockWaveEnv", () => {
+describe("makeMockDoraEnv", () => {
     it("uses the preview context menu by default", async () => {
-        const { makeMockWaveEnv } = await import("./mockwaveenv");
-        const env = makeMockWaveEnv();
+        const { makeMockDoraEnv } = await import("./mockwaveenv");
+        const env = makeMockDoraEnv();
         const menu = [{ label: "Open" }];
         const event = { stopPropagation: vi.fn() } as any;
 
@@ -29,8 +29,8 @@ describe("makeMockWaveEnv", () => {
     });
 
     it("implements file info, read, list, and join commands", async () => {
-        const { makeMockWaveEnv } = await import("./mockwaveenv");
-        const env = makeMockWaveEnv();
+        const { makeMockDoraEnv } = await import("./mockwaveenv");
+        const env = makeMockDoraEnv();
 
         const bashrcInfo = await env.rpc.FileInfoCommand(null as any, {
             info: { path: "wsh://local//Users/mike/.bashrc" },
@@ -70,8 +70,8 @@ describe("makeMockWaveEnv", () => {
     });
 
     it("implements file list and read stream commands", async () => {
-        const { makeMockWaveEnv } = await import("./mockwaveenv");
-        const env = makeMockWaveEnv();
+        const { makeMockDoraEnv } = await import("./mockwaveenv");
+        const env = makeMockDoraEnv();
 
         const listPackets: CommandRemoteListEntriesRtnData[] = [];
         for await (const packet of env.rpc.FileListStreamCommand(null as any, {
@@ -85,8 +85,8 @@ describe("makeMockWaveEnv", () => {
     });
 
     it("implements secrets commands with in-memory storage", async () => {
-        const { makeMockWaveEnv } = await import("./mockwaveenv");
-        const env = makeMockWaveEnv({ platform: "linux" });
+        const { makeMockDoraEnv } = await import("./mockwaveenv");
+        const env = makeMockDoraEnv({ platform: "linux" });
 
         await env.rpc.SetSecretsCommand(
             null as any,

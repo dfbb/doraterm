@@ -18,9 +18,9 @@ import {
 } from "./emain-activity";
 import { log } from "./emain-log";
 import { getElectronAppBasePath, isDev, unamePlatform } from "./emain-platform";
-import { getOrCreateWebViewForTab, getWaveTabViewByWebContentsId, WaveTabView } from "./emain-tabview";
+import { getOrCreateWebViewForTab, getDoraTabViewByWebContentsId, DoraTabView } from "./emain-tabview";
 import { delay, ensureBoundsAreVisible, waveKeyToElectronKey } from "./emain-util";
-import { ElectronWshClient } from "./emain-wsh";
+import { ElectronDshClient } from "./emain-wsh";
 import { updater } from "./updater";
 
 const DevInitTimeoutMs = 5000;
@@ -96,16 +96,16 @@ export function calculateWindowBounds(
     return ensureBoundsAreVisible(winBounds);
 }
 
-export const waveWindowMap = new Map<string, WaveBrowserWindow>(); // waveWindowId -> WaveBrowserWindow
+export const waveWindowMap = new Map<string, DoraBrowserWindow>(); // waveWindowId -> DoraBrowserWindow
 
 // on blur we do not set this to null (but on destroy we do), so this tracks the *last* focused window
 // e.g. it persists when the app itself is not focused
-export let focusedWaveWindow: WaveBrowserWindow = null;
+export let focusedDoraWindow: DoraBrowserWindow = null;
 
 // quake window for toggle hotkey (show/hide behavior)
-let quakeWindow: WaveBrowserWindow | null = null;
+let quakeWindow: DoraBrowserWindow | null = null;
 
-export function getQuakeWindow(): WaveBrowserWindow | null {
+export function getQuakeWindow(): DoraBrowserWindow | null {
     return quakeWindow;
 }
 
@@ -144,16 +144,16 @@ function isNonEmptyUnsavedWorkspace(workspace: Workspace): boolean {
     return !workspace.name && !workspace.icon && workspace.tabids?.length > 1;
 }
 
-export class WaveBrowserWindow extends BaseWindow {
+export class DoraBrowserWindow extends BaseWindow {
     waveWindowId: string;
     workspaceId: string;
-    allLoadedTabViews: Map<string, WaveTabView>;
-    activeTabView: WaveTabView;
+    allLoadedTabViews: Map<string, DoraTabView>;
+    activeTabView: DoraTabView;
     private canClose: boolean;
     private deleteAllowed: boolean;
     private actionQueue: WindowActionQueueEntry[];
 
-    constructor(waveWindow: WaveWindow, fullConfig: FullConfigType, opts: WindowOpts) {
+    constructor(waveWindow: DoraWindow, fullConfig: FullConfigType, opts: WindowOpts) {
         const settings = fullConfig?.settings;
 
         console.log("create win", waveWindow.oid);
@@ -227,7 +227,7 @@ export class WaveBrowserWindow extends BaseWindow {
         this.actionQueue = [];
         this.waveWindowId = waveWindow.oid;
         this.workspaceId = waveWindow.workspaceid;
-        this.allLoadedTabViews = new Map<string, WaveTabView>();
+        this.allLoadedTabViews = new Map<string, DoraTabView>();
         const winBoundsPoller = setInterval(() => {
             if (this.isDestroyed()) {
                 clearInterval(winBoundsPoller);
@@ -282,7 +282,7 @@ export class WaveBrowserWindow extends BaseWindow {
             if (getGlobalIsRelaunching()) {
                 return;
             }
-            focusedWaveWindow = this; // eslint-disable-line @typescript-eslint/no-this-alias
+            focusedDoraWindow = this; // eslint-disable-line @typescript-eslint/no-this-alias
             console.log("focus win", this.waveWindowId);
             fireAndForget(() => ClientService.FocusWindow(this.waveWindowId));
             setWasInFg(true);
@@ -307,7 +307,7 @@ export class WaveBrowserWindow extends BaseWindow {
             e.preventDefault();
             fireAndForget(async () => {
                 const numWindows = waveWindowMap.size;
-                const fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
+                const fullConfig = await RpcApi.GetFullConfigCommand(ElectronDshClient);
                 if (numWindows > 1 || !fullConfig.settings["window:savelastwindow"]) {
                     if (fullConfig.settings["window:confirmclose"]) {
                         const workspace = await WorkspaceService.GetWorkspace(this.workspaceId);
@@ -338,8 +338,8 @@ export class WaveBrowserWindow extends BaseWindow {
             }
             setTimeout(() => globalEvents.emit("windows-updated"), 50);
             waveWindowMap.delete(this.waveWindowId);
-            if (focusedWaveWindow == this) {
-                focusedWaveWindow = null;
+            if (focusedDoraWindow == this) {
+                focusedDoraWindow = null;
             }
             if (quakeWindow == this) {
                 quakeWindow = null;
@@ -421,13 +421,13 @@ export class WaveBrowserWindow extends BaseWindow {
         await this._queueActionInternal({ op: "switchtab", tabId, setInBackend, primaryStartupTab });
     }
 
-    private async initializeTab(tabView: WaveTabView, primaryStartupTab: boolean) {
+    private async initializeTab(tabView: DoraTabView, primaryStartupTab: boolean) {
         const clientId = await getClientId();
         await this.awaitWithDevTimeout(tabView.initPromise, "initPromise", tabView.waveTabId);
         const winBounds = this.getContentBounds();
         tabView.setBounds({ x: 0, y: 0, width: winBounds.width, height: winBounds.height });
         this.contentView.addChildView(tabView);
-        const initOpts: WaveInitOpts = {
+        const initOpts: DoraInitOpts = {
             tabId: tabView.waveTabId,
             clientId: clientId,
             windowId: this.waveWindowId,
@@ -476,7 +476,7 @@ export class WaveBrowserWindow extends BaseWindow {
         }
     }
 
-    private async setTabViewIntoWindow(tabView: WaveTabView, tabInitialized: boolean, primaryStartupTab = false) {
+    private async setTabViewIntoWindow(tabView: DoraTabView, tabInitialized: boolean, primaryStartupTab = false) {
         if (this.activeTabView == tabView) {
             return;
         }
@@ -667,7 +667,7 @@ export class WaveBrowserWindow extends BaseWindow {
     }
 }
 
-export function getWaveWindowByTabId(tabId: string): WaveBrowserWindow {
+export function getDoraWindowByTabId(tabId: string): DoraBrowserWindow {
     for (const ww of waveWindowMap.values()) {
         if (ww.allLoadedTabViews.has(tabId)) {
             return ww;
@@ -675,22 +675,22 @@ export function getWaveWindowByTabId(tabId: string): WaveBrowserWindow {
     }
 }
 
-export function getWaveWindowByWebContentsId(webContentsId: number): WaveBrowserWindow {
+export function getDoraWindowByWebContentsId(webContentsId: number): DoraBrowserWindow {
     if (webContentsId == null) {
         return null;
     }
-    const tabView = getWaveTabViewByWebContentsId(webContentsId);
+    const tabView = getDoraTabViewByWebContentsId(webContentsId);
     if (tabView == null) {
         return null;
     }
-    return getWaveWindowByTabId(tabView.waveTabId);
+    return getDoraWindowByTabId(tabView.waveTabId);
 }
 
-export function getWaveWindowById(windowId: string): WaveBrowserWindow {
+export function getDoraWindowById(windowId: string): DoraBrowserWindow {
     return waveWindowMap.get(windowId);
 }
 
-export function getWaveWindowByWorkspaceId(workspaceId: string): WaveBrowserWindow {
+export function getDoraWindowByWorkspaceId(workspaceId: string): DoraBrowserWindow {
     for (const waveWindow of waveWindowMap.values()) {
         if (waveWindow.workspaceId === workspaceId) {
             return waveWindow;
@@ -698,7 +698,7 @@ export function getWaveWindowByWorkspaceId(workspaceId: string): WaveBrowserWind
     }
 }
 
-export function getAllWaveWindows(): WaveBrowserWindow[] {
+export function getAllDoraWindows(): DoraBrowserWindow[] {
     return Array.from(waveWindowMap.values());
 }
 
@@ -707,7 +707,7 @@ export async function createWindowForWorkspace(workspaceId: string) {
     if (!newWin) {
         console.log("error creating new window", this.waveWindowId);
     }
-    const newBwin = await createBrowserWindow(newWin, await RpcApi.GetFullConfigCommand(ElectronWshClient), {
+    const newBwin = await createBrowserWindow(newWin, await RpcApi.GetFullConfigCommand(ElectronDshClient), {
         unamePlatform,
         isPrimaryStartupWindow: false,
     });
@@ -717,10 +717,10 @@ export async function createWindowForWorkspace(workspaceId: string) {
 // note, this does not *show* the window.
 // to show, await win.readyPromise and then win.show()
 export async function createBrowserWindow(
-    waveWindow: WaveWindow,
+    waveWindow: DoraWindow,
     fullConfig: FullConfigType,
     opts: WindowOpts
-): Promise<WaveBrowserWindow> {
+): Promise<DoraBrowserWindow> {
     if (!waveWindow) {
         console.log("createBrowserWindow: no waveWindow");
         waveWindow = await WindowService.CreateWindow(null, "");
@@ -733,7 +733,7 @@ export async function createBrowserWindow(
         workspace = await WorkspaceService.GetWorkspace(waveWindow.workspaceid);
     }
     console.log("createBrowserWindow", waveWindow.oid, workspace.oid, workspace);
-    const bwin = new WaveBrowserWindow(waveWindow, fullConfig, opts);
+    const bwin = new DoraBrowserWindow(waveWindow, fullConfig, opts);
 
     if (workspace.activetabid) {
         await bwin.setActiveTab(workspace.activetabid, false, opts.isPrimaryStartupWindow ?? false);
@@ -742,14 +742,14 @@ export async function createBrowserWindow(
 }
 
 ipcMain.on("set-active-tab", async (event, tabId) => {
-    const ww = getWaveWindowByWebContentsId(event.sender.id);
+    const ww = getDoraWindowByWebContentsId(event.sender.id);
     console.log("set-active-tab", tabId, ww?.waveWindowId);
     await ww?.setActiveTab(tabId, true);
 });
 
 ipcMain.on("create-tab", async (event, _opts) => {
     const senderWc = event.sender;
-    const ww = getWaveWindowByWebContentsId(senderWc.id);
+    const ww = getDoraWindowByWebContentsId(senderWc.id);
     if (ww != null) {
         await ww.queueCreateTab();
     }
@@ -758,14 +758,14 @@ ipcMain.on("create-tab", async (event, _opts) => {
 });
 
 ipcMain.on("set-waveai-open", (event, isOpen: boolean) => {
-    const tabView = getWaveTabViewByWebContentsId(event.sender.id);
+    const tabView = getDoraTabViewByWebContentsId(event.sender.id);
     if (tabView) {
-        tabView.isWaveAIOpen = isOpen;
+        tabView.isDoraAIOpen = isOpen;
     }
 });
 
 ipcMain.handle("close-tab", async (event, workspaceId: string, tabId: string, confirmClose: boolean) => {
-    const ww = getWaveWindowByWorkspaceId(workspaceId);
+    const ww = getDoraWindowByWorkspaceId(workspaceId);
     if (ww == null) {
         console.log(`close-tab: no window found for workspace ws=${workspaceId} tab=${tabId}`);
         return false;
@@ -789,13 +789,13 @@ ipcMain.handle("close-tab", async (event, workspaceId: string, tabId: string, co
 
 ipcMain.on("switch-workspace", (event, workspaceId) => {
     fireAndForget(async () => {
-        const ww = getWaveWindowByWebContentsId(event.sender.id);
+        const ww = getDoraWindowByWebContentsId(event.sender.id);
         console.log("switch-workspace", workspaceId, ww?.waveWindowId);
         await ww?.switchWorkspace(workspaceId);
     });
 });
 
-export async function createWorkspace(window: WaveBrowserWindow) {
+export async function createWorkspace(window: DoraBrowserWindow) {
     const newWsId = await WorkspaceService.CreateWorkspace("", "", "", true);
     if (newWsId) {
         if (window) {
@@ -808,7 +808,7 @@ export async function createWorkspace(window: WaveBrowserWindow) {
 
 ipcMain.on("create-workspace", (event) => {
     fireAndForget(async () => {
-        const ww = getWaveWindowByWebContentsId(event.sender.id);
+        const ww = getDoraWindowByWebContentsId(event.sender.id);
         console.log("create-workspace", ww?.waveWindowId);
         await createWorkspace(ww);
     });
@@ -816,7 +816,7 @@ ipcMain.on("create-workspace", (event) => {
 
 ipcMain.on("delete-workspace", (event, workspaceId) => {
     fireAndForget(async () => {
-        const ww = getWaveWindowByWebContentsId(event.sender.id);
+        const ww = getDoraWindowByWebContentsId(event.sender.id);
         console.log("delete-workspace", workspaceId, ww?.waveWindowId);
 
         const workspaceList = await WorkspaceService.ListWorkspaces();
@@ -847,17 +847,17 @@ ipcMain.on("delete-workspace", (event, workspaceId) => {
     });
 });
 
-export async function createNewWaveWindow() {
-    log("createNewWaveWindow");
+export async function createNewDoraWindow() {
+    log("createNewDoraWindow");
     const clientData = await ClientService.GetClientData();
-    const fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
+    const fullConfig = await RpcApi.GetFullConfigCommand(ElectronDshClient);
     let recreatedWindow = false;
-    const allWindows = getAllWaveWindows();
+    const allWindows = getAllDoraWindows();
     if (allWindows.length === 0 && clientData?.windowids?.length >= 1) {
         console.log("no windows, but clientData has windowids, recreating first window");
         // reopen the first window
         const existingWindowId = clientData.windowids[0];
-        const existingWindowData = (await ObjectService.GetObject("window:" + existingWindowId)) as WaveWindow;
+        const existingWindowData = (await ObjectService.GetObject("window:" + existingWindowId)) as DoraWindow;
         if (existingWindowData != null) {
             const win = await createBrowserWindow(existingWindowData, fullConfig, {
                 unamePlatform,
@@ -888,7 +888,7 @@ export async function createNewWaveWindow() {
 export async function relaunchBrowserWindows() {
     console.log("relaunchBrowserWindows");
     setGlobalIsRelaunching(true);
-    const windows = getAllWaveWindows();
+    const windows = getAllDoraWindows();
     if (windows.length > 0) {
         for (const window of windows) {
             console.log("relaunch -- closing window", window.waveWindowId);
@@ -899,13 +899,13 @@ export async function relaunchBrowserWindows() {
     setGlobalIsRelaunching(false);
 
     const clientData = await ClientService.GetClientData();
-    const fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
+    const fullConfig = await RpcApi.GetFullConfigCommand(ElectronDshClient);
     const windowIds = clientData.windowids ?? [];
-    const wins: WaveBrowserWindow[] = [];
+    const wins: DoraBrowserWindow[] = [];
     const isFirstRelaunch = !hasCompletedFirstRelaunch;
     const primaryWindowId = windowIds.length > 0 ? windowIds[0] : null;
     for (const windowId of windowIds.slice().reverse()) {
-        const windowData: WaveWindow = await WindowService.GetWindow(windowId);
+        const windowData: DoraWindow = await WindowService.GetWindow(windowId);
         if (windowData == null) {
             console.log("relaunch -- window data not found, closing window", windowId);
             await WindowService.CloseWindow(windowId, true);
@@ -952,7 +952,7 @@ function getDisplayForQuakeToggle() {
     return displayAtCursor ?? screen.getDisplayNearestPoint(cursorPoint);
 }
 
-function moveWindowToDisplay(win: WaveBrowserWindow, targetDisplay: Electron.Display) {
+function moveWindowToDisplay(win: DoraBrowserWindow, targetDisplay: Electron.Display) {
     if (!win || !targetDisplay || win.isDestroyed()) {
         return;
     }
@@ -982,7 +982,7 @@ const FullscreenTransitionTimeoutMs = 2000;
 let quakeToggleInProgress = false;
 let quakeRestoreFullscreenOnShow = false;
 
-function waitForFullscreenLeave(window: WaveBrowserWindow): Promise<void> {
+function waitForFullscreenLeave(window: DoraBrowserWindow): Promise<void> {
     if (!window.isFullScreen()) {
         return Promise.resolve();
     }
@@ -1001,7 +1001,7 @@ function waitForFullscreenLeave(window: WaveBrowserWindow): Promise<void> {
     });
 }
 
-function waitForFullscreenEnter(window: WaveBrowserWindow): Promise<void> {
+function waitForFullscreenEnter(window: DoraBrowserWindow): Promise<void> {
     if (window.isFullScreen()) {
         return Promise.resolve();
     }
@@ -1032,7 +1032,7 @@ async function quakeToggle() {
             window = null;
         }
         if (window == null) {
-            await createNewWaveWindow();
+            await createNewDoraWindow();
             return;
         }
         // Some environments don't hide or move the window if it's fullscreen (even when hidden), so leave fullscreen first

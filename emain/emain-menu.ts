@@ -9,19 +9,19 @@ import { isDev, unamePlatform } from "./emain-platform";
 import { clearTabCache } from "./emain-tabview";
 import { decreaseZoomLevel, increaseZoomLevel, resetZoomLevel } from "./emain-util";
 import {
-    createNewWaveWindow,
+    createNewDoraWindow,
     createWorkspace,
-    focusedWaveWindow,
-    getAllWaveWindows,
-    getWaveWindowByWorkspaceId,
+    focusedDoraWindow,
+    getAllDoraWindows,
+    getDoraWindowByWorkspaceId,
     relaunchBrowserWindows,
-    WaveBrowserWindow,
+    DoraBrowserWindow,
 } from "./emain-window";
-import { ElectronWshClient } from "./emain-wsh";
+import { ElectronDshClient } from "./emain-wsh";
 import { updater } from "./updater";
 
 type AppMenuCallbacks = {
-    createNewWaveWindow: () => Promise<void>;
+    createNewDoraWindow: () => Promise<void>;
     relaunchBrowserWindows: () => Promise<void>;
 };
 
@@ -33,8 +33,8 @@ function getWindowWebContents(window: electron.BaseWindow): electron.WebContents
     if (window instanceof electron.BrowserWindow) {
         return window.webContents;
     }
-    // Check WaveBrowserWindow (for main Wave windows with tab views)
-    if (window instanceof WaveBrowserWindow) {
+    // Check DoraBrowserWindow (for main Wave windows with tab views)
+    if (window instanceof DoraBrowserWindow) {
         if (window.activeTabView) {
             return window.activeTabView.webContents;
         }
@@ -43,12 +43,12 @@ function getWindowWebContents(window: electron.BaseWindow): electron.WebContents
     return null;
 }
 
-async function getWorkspaceMenu(ww?: WaveBrowserWindow): Promise<Electron.MenuItemConstructorOptions[]> {
-    const workspaceList = await RpcApi.WorkspaceListCommand(ElectronWshClient);
+async function getWorkspaceMenu(ww?: DoraBrowserWindow): Promise<Electron.MenuItemConstructorOptions[]> {
+    const workspaceList = await RpcApi.WorkspaceListCommand(ElectronDshClient);
     const workspaceMenu: Electron.MenuItemConstructorOptions[] = [
         {
             label: "Create Workspace",
-            click: (_, window) => fireAndForget(() => createWorkspace((window as WaveBrowserWindow) ?? ww)),
+            click: (_, window) => fireAndForget(() => createWorkspace((window as DoraBrowserWindow) ?? ww)),
         },
     ];
     function getWorkspaceSwitchAccelerator(i: number): string {
@@ -63,7 +63,7 @@ async function getWorkspaceMenu(ww?: WaveBrowserWindow): Promise<Electron.MenuIt
                 return {
                     label: `${workspace.workspacedata.name}`,
                     click: (_, window) => {
-                        ((window as WaveBrowserWindow) ?? ww)?.switchWorkspace(workspace.workspacedata.oid);
+                        ((window as DoraBrowserWindow) ?? ww)?.switchWorkspace(workspace.workspacedata.oid);
                     },
                     accelerator: getWorkspaceSwitchAccelerator(i),
                 };
@@ -124,7 +124,7 @@ function makeEditMenu(fullConfig?: FullConfigType): Electron.MenuItemConstructor
 }
 
 function makeFileMenu(
-    numWaveWindows: number,
+    numDoraWindows: number,
     callbacks: AppMenuCallbacks,
     fullConfig: FullConfigType
 ): Electron.MenuItemConstructorOptions[] {
@@ -132,30 +132,30 @@ function makeFileMenu(
         {
             label: "New Window",
             accelerator: "CommandOrControl+Shift+N",
-            click: () => fireAndForget(callbacks.createNewWaveWindow),
+            click: () => fireAndForget(callbacks.createNewDoraWindow),
         },
         {
             role: "close",
             accelerator: "",
             click: () => {
-                focusedWaveWindow?.close();
+                focusedDoraWindow?.close();
             },
         },
     ];
-    if (numWaveWindows == 0) {
+    if (numDoraWindows == 0) {
         fileMenu.push({
             label: "New Window (hidden-1)",
             accelerator: unamePlatform === "darwin" ? "Command+N" : "Alt+N",
             acceleratorWorksWhenHidden: true,
             visible: false,
-            click: () => fireAndForget(callbacks.createNewWaveWindow),
+            click: () => fireAndForget(callbacks.createNewDoraWindow),
         });
         fileMenu.push({
             label: "New Window (hidden-2)",
             accelerator: unamePlatform === "darwin" ? "Command+T" : "Alt+T",
             acceleratorWorksWhenHidden: true,
             visible: false,
-            click: () => fireAndForget(callbacks.createNewWaveWindow),
+            click: () => fireAndForget(callbacks.createNewDoraWindow),
         });
     }
     return fileMenu;
@@ -283,7 +283,7 @@ function makeViewMenu(
                     type: "radio",
                     checked: fullscreenOnLaunch,
                     click: () => {
-                        RpcApi.SetConfigCommand(ElectronWshClient, { "window:fullscreenonlaunch": true });
+                        RpcApi.SetConfigCommand(ElectronDshClient, { "window:fullscreenonlaunch": true });
                     },
                 },
                 {
@@ -291,7 +291,7 @@ function makeViewMenu(
                     type: "radio",
                     checked: !fullscreenOnLaunch,
                     click: () => {
-                        RpcApi.SetConfigCommand(ElectronWshClient, { "window:fullscreenonlaunch": false });
+                        RpcApi.SetConfigCommand(ElectronDshClient, { "window:fullscreenonlaunch": false });
                     },
                 },
             ],
@@ -305,12 +305,12 @@ function makeViewMenu(
             label: "Toggle Widgets Bar",
             click: () => {
                 fireAndForget(async () => {
-                    const workspaceId = focusedWaveWindow?.workspaceId;
+                    const workspaceId = focusedDoraWindow?.workspaceId;
                     if (!workspaceId) return;
                     const oref = `workspace:${workspaceId}`;
-                    const meta = await RpcApi.GetMetaCommand(ElectronWshClient, { oref });
+                    const meta = await RpcApi.GetMetaCommand(ElectronDshClient, { oref });
                     const current = meta?.["layout:widgetsvisible"] ?? true;
-                    await RpcApi.SetMetaCommand(ElectronWshClient, { oref, meta: { "layout:widgetsvisible": !current } });
+                    await RpcApi.SetMetaCommand(ElectronDshClient, { oref, meta: { "layout:widgetsvisible": !current } });
                 });
             },
         },
@@ -318,20 +318,20 @@ function makeViewMenu(
 }
 
 async function makeFullAppMenu(callbacks: AppMenuCallbacks, workspaceOrBuilderId?: string): Promise<Electron.Menu> {
-    const numWaveWindows = getAllWaveWindows().length;
+    const numDoraWindows = getAllDoraWindows().length;
     const webContents = workspaceOrBuilderId && getWebContentsByWorkspaceOrBuilderId(workspaceOrBuilderId);
     const appMenuItems = makeAppMenuItems(webContents);
 
     let fullscreenOnLaunch = false;
     let fullConfig: FullConfigType = null;
     try {
-        fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
+        fullConfig = await RpcApi.GetFullConfigCommand(ElectronDshClient);
         fullscreenOnLaunch = fullConfig?.settings["window:fullscreenonlaunch"];
     } catch (e) {
         console.error("Error fetching config:", e);
     }
     const editMenu = makeEditMenu(fullConfig);
-    const fileMenu = makeFileMenu(numWaveWindows, callbacks, fullConfig);
+    const fileMenu = makeFileMenu(numDoraWindows, callbacks, fullConfig);
     const viewMenu = makeViewMenu(webContents, callbacks, fullscreenOnLaunch);
     let workspaceMenu: Electron.MenuItemConstructorOptions[] = null;
     try {
@@ -368,7 +368,7 @@ async function makeFullAppMenu(callbacks: AppMenuCallbacks, workspaceOrBuilderId
 export function instantiateAppMenu(workspaceOrBuilderId?: string): Promise<electron.Menu> {
     return makeFullAppMenu(
         {
-            createNewWaveWindow,
+            createNewDoraWindow,
             relaunchBrowserWindows,
         },
         workspaceOrBuilderId
@@ -394,7 +394,7 @@ function initMenuEventSubscriptions() {
 }
 
 function getWebContentsByWorkspaceOrBuilderId(workspaceOrBuilderId: string): electron.WebContents {
-    const ww = getWaveWindowByWorkspaceId(workspaceOrBuilderId);
+    const ww = getDoraWindowByWorkspaceId(workspaceOrBuilderId);
     if (ww) {
         return ww.activeTabView?.webContents;
     }
@@ -488,7 +488,7 @@ const dockMenu = electron.Menu.buildFromTemplate([
     {
         label: "New Window",
         click() {
-            fireAndForget(createNewWaveWindow);
+            fireAndForget(createNewDoraWindow);
         },
     },
 ]);

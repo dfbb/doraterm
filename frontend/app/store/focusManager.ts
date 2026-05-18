@@ -30,7 +30,7 @@ export class FocusManager {
         return FocusManager.instance;
     }
 
-    setWaveAIFocused(force: boolean = false) {}
+    setDoraAIFocused(force: boolean = false) {}
 
     setBlockFocus(force: boolean = false) {
         const ftype = globalStore.get(this.focusType);
@@ -53,7 +53,7 @@ export class FocusManager {
         globalStore.set(this.focusType, "node");
     }
 
-    requestWaveAIFocus(): void {}
+    requestDoraAIFocus(): void {}
 
     getFocusType(): FocusStrType {
         return globalStore.get(this.focusType);

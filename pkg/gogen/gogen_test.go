@@ -12,7 +12,7 @@ import (
 )
 
 func TestGetWshMethodDataParamsAndExpr_MultiArg(t *testing.T) {
-	methodDecl := &dshrpc.WshRpcMethodDecl{
+	methodDecl := &dshrpc.DshRpcMethodDecl{
 		CommandDataTypes: []reflect.Type{
 			reflect.TypeOf(""),
 			reflect.TypeOf(0),
@@ -28,7 +28,7 @@ func TestGetWshMethodDataParamsAndExpr_MultiArg(t *testing.T) {
 }
 
 func TestGenMethodCall_MultiArg(t *testing.T) {
-	methodDecl := &dshrpc.WshRpcMethodDecl{
+	methodDecl := &dshrpc.DshRpcMethodDecl{
 		Command:          "test",
 		CommandType:      dshrpc.RpcType_Call,
 		MethodName:       "TestCommand",
@@ -37,7 +37,7 @@ func TestGenMethodCall_MultiArg(t *testing.T) {
 	var sb strings.Builder
 	GenMethod_Call(&sb, methodDecl)
 	out := sb.String()
-	if !strings.Contains(out, "func TestCommand(w *dshutil.WshRpc, arg1 string, arg2 int, opts *dshrpc.RpcOpts) error {") {
+	if !strings.Contains(out, "func TestCommand(w *dshutil.DshRpc, arg1 string, arg2 int, opts *dshrpc.RpcOpts) error {") {
 		t.Fatalf("generated method missing multi-arg signature:\n%s", out)
 	}
 	if !strings.Contains(out, "sendRpcRequestCallHelper[any](w, \"test\", dshrpc.MultiArg{Args: []any{arg1, arg2}}, opts)") {

@@ -546,7 +546,7 @@ func (*ServerImpl) RemoteWriteFileCommand(ctx context.Context, data dshrpc.FileD
 }
 
 func (impl *ServerImpl) RemoteFileStreamCommand(ctx context.Context, data dshrpc.CommandRemoteFileStreamData) (*dshrpc.FileInfo, error) {
-	wshRpc := dshutil.GetWshRpcFromContext(ctx)
+	wshRpc := dshutil.GetDshRpcFromContext(ctx)
 	if wshRpc == nil || wshRpc.StreamBroker == nil {
 		return nil, fmt.Errorf("no stream broker available")
 	}

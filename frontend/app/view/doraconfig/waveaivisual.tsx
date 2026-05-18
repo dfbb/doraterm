@@ -4,11 +4,11 @@
 import type { DoraConfigViewModel } from "@/app/view/doraconfig/doraconfig-model";
 import { memo } from "react";
 
-interface WaveAIVisualContentProps {
+interface DoraAIVisualContentProps {
     model: DoraConfigViewModel;
 }
 
-export const WaveAIVisualContent = memo(({ model }: WaveAIVisualContentProps) => {
+export const DoraAIVisualContent = memo(({ model }: DoraAIVisualContentProps) => {
     return (
         <div className="flex flex-col gap-4 p-6 h-full">
             <div className="text-lg font-semibold">Wave AI Modes - Visual Editor</div>
@@ -17,4 +17,4 @@ export const WaveAIVisualContent = memo(({ model }: WaveAIVisualContentProps) =>
     );
 });
 
-WaveAIVisualContent.displayName = "WaveAIVisualContent";
+DoraAIVisualContent.displayName = "DoraAIVisualContent";

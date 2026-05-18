@@ -1,10 +1,10 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { useWaveEnv } from "@/app/waveenv/waveenv";
+import { useDoraEnv } from "@/app/waveenv/waveenv";
 
 const UpgradeOnboardingModal_v0_14_2_Content = () => {
-    const waveEnv = useWaveEnv();
+    const waveEnv = useDoraEnv();
     return (
         <div className="flex flex-col items-start w-full mb-2 unselectable">
             <div className="text-secondary leading-relaxed mb-4">

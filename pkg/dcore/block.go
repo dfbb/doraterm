@@ -195,7 +195,7 @@ func deleteBlockObj(ctx context.Context, blockId string) (int, error) {
 }
 
 func sendBlockCloseEvent(blockId string) {
-	waveEvent := dps.WaveEvent{
+	waveEvent := dps.DoraEvent{
 		Event: dps.Event_BlockClose,
 		Scopes: []string{
 			doraobj.MakeORef(doraobj.OType_Block, blockId).String(),

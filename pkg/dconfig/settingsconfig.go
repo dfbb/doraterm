@@ -70,7 +70,7 @@ type SettingsType struct {
 	AppFocusFollowsCursor         string `json:"app:focusfollowscursor,omitempty" jsonschema:"enum=off,enum=on,enum=term"`
 	AppTabBar                     string `json:"app:tabbar,omitempty" jsonschema:"enum=top,enum=left"`
 
-	FeatureWaveAppBuilder bool `json:"feature:waveappbuilder,omitempty"`
+	FeatureDoraAppBuilder bool `json:"feature:waveappbuilder,omitempty"`
 
 	AiClear         bool    `json:"ai:*,omitempty"`
 	AiPreset        string  `json:"ai:preset,omitempty"`
@@ -87,8 +87,8 @@ type SettingsType struct {
 	AiFontSize      float64 `json:"ai:fontsize,omitempty"`
 	AiFixedFontSize float64 `json:"ai:fixedfontsize,omitempty"`
 
-	WaveAiShowCloudModes bool   `json:"waveai:showcloudmodes,omitempty"`
-	WaveAiDefaultMode    string `json:"waveai:defaultmode,omitempty"`
+	DoraAiShowCloudModes bool   `json:"waveai:showcloudmodes,omitempty"`
+	DoraAiDefaultMode    string `json:"waveai:defaultmode,omitempty"`
 
 	TermClear               bool     `json:"term:*,omitempty"`
 	TermFontSize            float64  `json:"term:fontsize,omitempty"`
@@ -169,7 +169,7 @@ type SettingsType struct {
 
 	ConnClear                bool    `json:"conn:*,omitempty"`
 	ConnAskBeforeWshInstall  *bool   `json:"conn:askbeforewshinstall,omitempty"`
-	ConnWshEnabled           bool    `json:"conn:wshenabled,omitempty"`
+	ConnDshEnabled           bool    `json:"conn:wshenabled,omitempty"`
 	ConnLocalHostnameDisplay *string `json:"conn:localhostdisplayname,omitempty"`
 
 	DebugClear               bool `json:"debug:*,omitempty"`
@@ -303,8 +303,8 @@ type AIModeConfigType struct {
 	AzureDeployment    string   `json:"ai:azuredeployment,omitempty"`
 	Capabilities       []string `json:"ai:capabilities,omitempty" jsonschema:"enum=pdfs,enum=images,enum=tools"`
 	SwitchCompat       []string `json:"ai:switchcompat,omitempty"`
-	WaveAICloud        bool     `json:"waveai:cloud,omitempty"`
-	WaveAIPremium      bool     `json:"waveai:premium,omitempty"`
+	DoraAICloud        bool     `json:"waveai:cloud,omitempty"`
+	DoraAIPremium      bool     `json:"waveai:premium,omitempty"`
 }
 
 type AIModeConfigUpdate struct {
@@ -375,14 +375,14 @@ type FullConfigType struct {
 	TermThemes     map[string]TermThemeType        `json:"termthemes"`
 	Connections    map[string]ConnKeywords         `json:"connections"`
 	Bookmarks      map[string]WebBookmark          `json:"bookmarks"`
-	WaveAIModes    map[string]AIModeConfigType     `json:"waveai"`
+	DoraAIModes    map[string]AIModeConfigType     `json:"waveai"`
 	ConfigErrors   []ConfigError                   `json:"configerrors" configfile:"-"`
 	Version        string                          `json:"version" configfile:"-"`
 	BuildTime      string                          `json:"buildtime" configfile:"-"`
 }
 
 type ConnKeywords struct {
-	ConnWshEnabled          *bool  `json:"conn:wshenabled,omitempty"`
+	ConnDshEnabled          *bool  `json:"conn:wshenabled,omitempty"`
 	ConnAskBeforeWshInstall *bool  `json:"conn:askbeforewshinstall,omitempty"`
 	ConnWshPath             string `json:"conn:wshpath,omitempty"`
 	ConnShellPath           string `json:"conn:shellpath,omitempty"`
@@ -564,13 +564,13 @@ func ReadDefaultsConfigFile(fileName string) (doraobj.MetaMapType, []ConfigError
 	return readConfigFileFS(defaultconfig.ConfigFS, "defaults:", fileName)
 }
 
-func ReadWaveHomeConfigFile(fileName string) (doraobj.MetaMapType, []ConfigError) {
+func ReadDoraHomeConfigFile(fileName string) (doraobj.MetaMapType, []ConfigError) {
 	configDirAbsPath := dorabase.GetDoraConfigDir()
 	configDirFsys := os.DirFS(configDirAbsPath)
 	return readConfigFileFS(configDirFsys, "", fileName)
 }
 
-func WriteWaveHomeConfigFile(fileName string, m doraobj.MetaMapType) error {
+func WriteDoraHomeConfigFile(fileName string, m doraobj.MetaMapType) error {
 	configWriteLock.Lock()
 	defer configWriteLock.Unlock()
 
@@ -843,7 +843,7 @@ func convertJsonNumber(num json.Number, ctype reflect.Type) (interface{}, error)
 }
 
 func SetBaseConfigValue(toMerge doraobj.MetaMapType) error {
-	m, cerrs := ReadWaveHomeConfigFile(SettingsFile)
+	m, cerrs := ReadDoraHomeConfigFile(SettingsFile)
 	if len(cerrs) > 0 {
 		return fmt.Errorf("error reading config file: %v", cerrs[0])
 	}
@@ -877,11 +877,11 @@ func SetBaseConfigValue(toMerge doraobj.MetaMapType) error {
 			m[configKey] = val
 		}
 	}
-	return WriteWaveHomeConfigFile(SettingsFile, m)
+	return WriteDoraHomeConfigFile(SettingsFile, m)
 }
 
 func SetConnectionsConfigValue(connName string, toMerge doraobj.MetaMapType) error {
-	m, cerrs := ReadWaveHomeConfigFile(ConnectionsFile)
+	m, cerrs := ReadDoraHomeConfigFile(ConnectionsFile)
 	if len(cerrs) > 0 {
 		return fmt.Errorf("error reading config file: %v", cerrs[0])
 	}
@@ -896,7 +896,7 @@ func SetConnectionsConfigValue(connName string, toMerge doraobj.MetaMapType) err
 		connData[configKey] = val
 	}
 	m[connName] = connData
-	return WriteWaveHomeConfigFile(ConnectionsFile, m)
+	return WriteDoraHomeConfigFile(ConnectionsFile, m)
 }
 
 func MigratePresetsBackgrounds() {
@@ -970,7 +970,7 @@ func (fc *FullConfigType) CountCustomAIPresets() int {
 // Custom AI modes are identified as modes that don't start with "waveai@".
 func (fc *FullConfigType) CountCustomAIModes() int {
 	count := 0
-	for modeID := range fc.WaveAIModes {
+	for modeID := range fc.DoraAIModes {
 		if !strings.HasPrefix(modeID, "waveai@") {
 			count++
 		}
@@ -982,7 +982,7 @@ func (fc *FullConfigType) CountCustomAIModes() int {
 // This excludes telemetry:enabled and autoupdate:channel which don't count as customizations.
 func CountCustomSettings() int {
 	// Load user settings
-	userSettings, _ := ReadWaveHomeConfigFile("settings.json")
+	userSettings, _ := ReadDoraHomeConfigFile("settings.json")
 	if userSettings == nil {
 		return 0
 	}

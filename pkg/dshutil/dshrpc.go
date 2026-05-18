@@ -38,7 +38,7 @@ type ResponseFnType = func(any) error
 type CommandHandlerFnType = func(*RpcResponseHandler) bool
 
 type ServerImpl interface {
-	WshServerImpl()
+	DshServerImpl()
 }
 
 type AbstractRpcClient interface {
@@ -47,7 +47,7 @@ type AbstractRpcClient interface {
 	RecvRpcMessage() ([]byte, bool) // blocking
 }
 
-type WshRpc struct {
+type DshRpc struct {
 	Lock               *sync.Mutex
 	InputCh            chan baseds.RpcInputChType
 	OutputCh           chan []byte
@@ -66,7 +66,7 @@ type WshRpc struct {
 type wshRpcContextKey struct{}
 type wshRpcRespHandlerContextKey struct{}
 
-func withWshRpcContext(ctx context.Context, wshRpc *WshRpc) context.Context {
+func withDshRpcContext(ctx context.Context, wshRpc *DshRpc) context.Context {
 	return context.WithValue(ctx, wshRpcContextKey{}, wshRpc)
 }
 
@@ -74,12 +74,12 @@ func withRespHandler(ctx context.Context, handler *RpcResponseHandler) context.C
 	return context.WithValue(ctx, wshRpcRespHandlerContextKey{}, handler)
 }
 
-func GetWshRpcFromContext(ctx context.Context) *WshRpc {
+func GetDshRpcFromContext(ctx context.Context) *DshRpc {
 	rtn := ctx.Value(wshRpcContextKey{})
 	if rtn == nil {
 		return nil
 	}
-	return rtn.(*WshRpc)
+	return rtn.(*DshRpc)
 }
 
 func GetRpcSourceFromContext(ctx context.Context) string {
@@ -106,11 +106,11 @@ func GetRpcResponseHandlerFromContext(ctx context.Context) *RpcResponseHandler {
 	return rtn.(*RpcResponseHandler)
 }
 
-func (w *WshRpc) GetPeerInfo() string {
+func (w *DshRpc) GetPeerInfo() string {
 	return w.DebugName
 }
 
-func (w *WshRpc) SendRpcMessage(msg []byte, ingressLinkId baseds.LinkId, debugStr string) bool {
+func (w *DshRpc) SendRpcMessage(msg []byte, ingressLinkId baseds.LinkId, debugStr string) bool {
 	select {
 	case w.InputCh <- baseds.RpcInputChType{MsgBytes: msg, IngressLinkId: ingressLinkId}:
 		return true
@@ -119,7 +119,7 @@ func (w *WshRpc) SendRpcMessage(msg []byte, ingressLinkId baseds.LinkId, debugSt
 	}
 }
 
-func (w *WshRpc) RecvRpcMessage() ([]byte, bool) {
+func (w *DshRpc) RecvRpcMessage() ([]byte, bool) {
 	msg, more := <-w.OutputCh
 	return msg, more
 }
@@ -212,7 +212,7 @@ func validateServerImpl(serverImpl ServerImpl) {
 }
 
 // closes outputCh when inputCh is closed/done
-func MakeWshRpcWithChannels(inputCh chan baseds.RpcInputChType, outputCh chan []byte, rpcCtx dshrpc.RpcContext, serverImpl ServerImpl, debugName string) *WshRpc {
+func MakeDshRpcWithChannels(inputCh chan baseds.RpcInputChType, outputCh chan []byte, rpcCtx dshrpc.RpcContext, serverImpl ServerImpl, debugName string) *DshRpc {
 	if inputCh == nil {
 		inputCh = make(chan baseds.RpcInputChType, DefaultInputChSize)
 	}
@@ -220,7 +220,7 @@ func MakeWshRpcWithChannels(inputCh chan baseds.RpcInputChType, outputCh chan []
 		outputCh = make(chan []byte, DefaultOutputChSize)
 	}
 	validateServerImpl(serverImpl)
-	rtn := &WshRpc{
+	rtn := &DshRpc{
 		Lock:               &sync.Mutex{},
 		DebugName:          debugName,
 		InputCh:            inputCh,
@@ -233,37 +233,37 @@ func MakeWshRpcWithChannels(inputCh chan baseds.RpcInputChType, outputCh chan []
 		ResponseHandlerMap: make(map[string]*RpcResponseHandler),
 	}
 	rtn.RpcContext.Store(&rpcCtx)
-	rtn.StreamBroker = streamclient.NewBroker(AdaptWshRpc(rtn))
+	rtn.StreamBroker = streamclient.NewBroker(AdaptDshRpc(rtn))
 	go rtn.runServer()
 	return rtn
 }
 
-func MakeWshRpc(rpcCtx dshrpc.RpcContext, serverImpl ServerImpl, debugName string) *WshRpc {
-	return MakeWshRpcWithChannels(nil, nil, rpcCtx, serverImpl, debugName)
+func MakeDshRpc(rpcCtx dshrpc.RpcContext, serverImpl ServerImpl, debugName string) *DshRpc {
+	return MakeDshRpcWithChannels(nil, nil, rpcCtx, serverImpl, debugName)
 }
 
-func (w *WshRpc) GetRpcContext() dshrpc.RpcContext {
+func (w *DshRpc) GetRpcContext() dshrpc.RpcContext {
 	rtnPtr := w.RpcContext.Load()
 	return *rtnPtr
 }
 
-func (w *WshRpc) SetRpcContext(ctx dshrpc.RpcContext) {
+func (w *DshRpc) SetRpcContext(ctx dshrpc.RpcContext) {
 	w.RpcContext.Store(&ctx)
 }
 
-func (w *WshRpc) registerResponseHandler(reqId string, handler *RpcResponseHandler) {
+func (w *DshRpc) registerResponseHandler(reqId string, handler *RpcResponseHandler) {
 	w.Lock.Lock()
 	defer w.Lock.Unlock()
 	w.ResponseHandlerMap[reqId] = handler
 }
 
-func (w *WshRpc) unregisterResponseHandler(reqId string) {
+func (w *DshRpc) unregisterResponseHandler(reqId string) {
 	w.Lock.Lock()
 	defer w.Lock.Unlock()
 	delete(w.ResponseHandlerMap, reqId)
 }
 
-func (w *WshRpc) cancelRequest(reqId string) {
+func (w *DshRpc) cancelRequest(reqId string) {
 	if reqId == "" {
 		return
 	}
@@ -276,17 +276,17 @@ func (w *WshRpc) cancelRequest(reqId string) {
 
 }
 
-func (w *WshRpc) handleRequest(req *RpcMessage, ingressLinkId baseds.LinkId) {
+func (w *DshRpc) handleRequest(req *RpcMessage, ingressLinkId baseds.LinkId) {
 	pprof.Do(context.Background(), pprof.Labels("rpc", req.Command), func(pprofCtx context.Context) {
 		w.handleRequestInternal(req, ingressLinkId, pprofCtx)
 	})
 }
 
-func (w *WshRpc) handleEventRecv(req *RpcMessage) {
+func (w *DshRpc) handleEventRecv(req *RpcMessage) {
 	if req.Data == nil {
 		return
 	}
-	var waveEvent dps.WaveEvent
+	var waveEvent dps.DoraEvent
 	err := utilfn.ReUnmarshal(&waveEvent, req.Data)
 	if err != nil {
 		return
@@ -294,7 +294,7 @@ func (w *WshRpc) handleEventRecv(req *RpcMessage) {
 	w.EventListener.RecvEvent(&waveEvent)
 }
 
-func (w *WshRpc) handleStreamData(req *RpcMessage) {
+func (w *DshRpc) handleStreamData(req *RpcMessage) {
 	if w.StreamBroker == nil {
 		return
 	}
@@ -309,7 +309,7 @@ func (w *WshRpc) handleStreamData(req *RpcMessage) {
 	w.StreamBroker.RecvData(dataPk)
 }
 
-func (w *WshRpc) handleStreamAck(req *RpcMessage) {
+func (w *DshRpc) handleStreamAck(req *RpcMessage) {
 	if w.StreamBroker == nil {
 		return
 	}
@@ -324,7 +324,7 @@ func (w *WshRpc) handleStreamAck(req *RpcMessage) {
 	w.StreamBroker.RecvAck(ackPk)
 }
 
-func (w *WshRpc) handleRequestInternal(req *RpcMessage, ingressLinkId baseds.LinkId, pprofCtx context.Context) {
+func (w *DshRpc) handleRequestInternal(req *RpcMessage, ingressLinkId baseds.LinkId, pprofCtx context.Context) {
 	if req.Command == dshrpc.Command_EventRecv {
 		w.handleEventRecv(req)
 		return
@@ -336,7 +336,7 @@ func (w *WshRpc) handleRequestInternal(req *RpcMessage, ingressLinkId baseds.Lin
 		timeoutMs = DefaultTimeoutMs
 	}
 	ctx, cancelFn := context.WithTimeout(context.Background(), time.Duration(timeoutMs)*time.Millisecond)
-	ctx = withWshRpcContext(ctx, w)
+	ctx = withDshRpcContext(ctx, w)
 	respHandler = &RpcResponseHandler{
 		w:               w,
 		ctx:             ctx,
@@ -378,7 +378,7 @@ func (w *WshRpc) handleRequestInternal(req *RpcMessage, ingressLinkId baseds.Lin
 	isAsync = !handlerFn(respHandler)
 }
 
-func (w *WshRpc) runServer() {
+func (w *DshRpc) runServer() {
 	defer func() {
 		panichandler.PanicHandler("dshrpc.runServer", recover())
 		close(w.OutputCh)
@@ -446,7 +446,7 @@ outer:
 	}
 }
 
-func (w *WshRpc) getResponseCh(resId string) (chan *RpcMessage, *rpcData) {
+func (w *DshRpc) getResponseCh(resId string) (chan *RpcMessage, *rpcData) {
 	if resId == "" {
 		return nil, nil
 	}
@@ -459,14 +459,14 @@ func (w *WshRpc) getResponseCh(resId string) (chan *RpcMessage, *rpcData) {
 	return rd.ResCh, rd
 }
 
-func (w *WshRpc) SetServerImpl(serverImpl ServerImpl) {
+func (w *DshRpc) SetServerImpl(serverImpl ServerImpl) {
 	validateServerImpl(serverImpl)
 	w.Lock.Lock()
 	defer w.Lock.Unlock()
 	w.ServerImpl = serverImpl
 }
 
-func (w *WshRpc) registerRpc(handler *RpcRequestHandler, command string, route string, reqId string) chan *RpcMessage {
+func (w *DshRpc) registerRpc(handler *RpcRequestHandler, command string, route string, reqId string) chan *RpcMessage {
 	w.Lock.Lock()
 	defer w.Lock.Unlock()
 	rpcCh := make(chan *RpcMessage, RespChSize)
@@ -486,7 +486,7 @@ func (w *WshRpc) registerRpc(handler *RpcRequestHandler, command string, route s
 	return rpcCh
 }
 
-func (w *WshRpc) unregisterRpc(reqId string, err error) {
+func (w *DshRpc) unregisterRpc(reqId string, err error) {
 	w.Lock.Lock()
 	defer w.Lock.Unlock()
 	rd := w.RpcMap[reqId]
@@ -512,7 +512,7 @@ func (w *WshRpc) unregisterRpc(reqId string, err error) {
 }
 
 // no response
-func (w *WshRpc) SendCommand(command string, data any, opts *dshrpc.RpcOpts) error {
+func (w *DshRpc) SendCommand(command string, data any, opts *dshrpc.RpcOpts) error {
 	var optsCopy dshrpc.RpcOpts
 	if opts != nil {
 		optsCopy = *opts
@@ -528,7 +528,7 @@ func (w *WshRpc) SendCommand(command string, data any, opts *dshrpc.RpcOpts) err
 }
 
 // single response
-func (w *WshRpc) SendRpcRequest(command string, data any, opts *dshrpc.RpcOpts) (any, error) {
+func (w *DshRpc) SendRpcRequest(command string, data any, opts *dshrpc.RpcOpts) (any, error) {
 	var optsCopy dshrpc.RpcOpts
 	if opts != nil {
 		optsCopy = *opts
@@ -543,7 +543,7 @@ func (w *WshRpc) SendRpcRequest(command string, data any, opts *dshrpc.RpcOpts) 
 }
 
 type RpcRequestHandler struct {
-	w           *WshRpc
+	w           *DshRpc
 	ctx         context.Context
 	ctxCancelFn *atomic.Pointer[context.CancelFunc]
 	reqId       string
@@ -622,7 +622,7 @@ func (handler *RpcRequestHandler) callContextCancelFn() {
 }
 
 type RpcResponseHandler struct {
-	w               *WshRpc
+	w               *DshRpc
 	ctx             context.Context
 	contextCancelFn *atomic.Pointer[context.CancelFunc]
 	reqId           string
@@ -760,7 +760,7 @@ func (handler *RpcResponseHandler) IsDone() bool {
 	return handler.done.Load()
 }
 
-func (w *WshRpc) SendComplexRequest(command string, data any, opts *dshrpc.RpcOpts) (rtnHandler *RpcRequestHandler, rtnErr error) {
+func (w *DshRpc) SendComplexRequest(command string, data any, opts *dshrpc.RpcOpts) (rtnHandler *RpcRequestHandler, rtnErr error) {
 	if w.IsServerDone() {
 		return nil, errors.New("server is no longer running, cannot send new requests")
 	}
@@ -808,13 +808,13 @@ func (w *WshRpc) SendComplexRequest(command string, data any, opts *dshrpc.RpcOp
 	}
 }
 
-func (w *WshRpc) IsServerDone() bool {
+func (w *DshRpc) IsServerDone() bool {
 	w.Lock.Lock()
 	defer w.Lock.Unlock()
 	return w.ServerDone
 }
 
-func (w *WshRpc) setServerDone() {
+func (w *DshRpc) setServerDone() {
 	w.Lock.Lock()
 	defer w.Lock.Unlock()
 	w.ServerDone = true
@@ -822,7 +822,7 @@ func (w *WshRpc) setServerDone() {
 	utilfn.DrainChannelSafe(w.InputCh, "dshrpc.setServerDone")
 }
 
-func (w *WshRpc) retrySendTimeout(resId string) {
+func (w *DshRpc) retrySendTimeout(resId string) {
 	done := func() bool {
 		w.Lock.Lock()
 		defer w.Lock.Unlock()
@@ -844,7 +844,7 @@ func (w *WshRpc) retrySendTimeout(resId string) {
 	}
 }
 
-func (w *WshRpc) sendRespWithBlockMessage(msg RpcMessage) {
+func (w *DshRpc) sendRespWithBlockMessage(msg RpcMessage) {
 	respCh, rd := w.getResponseCh(msg.ResId)
 	if respCh == nil {
 		return

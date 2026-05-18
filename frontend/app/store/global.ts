@@ -52,12 +52,12 @@ function initGlobal(initOpts: GlobalInitOptions) {
     }
 }
 
-function initGlobalWaveEventSubs(initOpts: WaveInitOpts) {
+function initGlobalDoraEventSubs(initOpts: DoraInitOpts) {
     waveEventSubscribeSingle({
         eventType: "waveobj:update",
         handler: (event) => {
             // console.log("waveobj:update wave event handler", event);
-            WOS.updateWaveObject(event.data);
+            WOS.updateDoraObject(event.data);
         },
     });
     waveEventSubscribeSingle({
@@ -112,7 +112,7 @@ function getBlockMetaKeyAtom<T extends keyof MetaType>(blockId: string, key: T):
         return metaAtom;
     }
     metaAtom = atom((get) => {
-        const blockAtom = WOS.getWaveObjectAtom(WOS.makeORef("block", blockId));
+        const blockAtom = WOS.getDoraObjectAtom(WOS.makeORef("block", blockId));
         const blockData = get(blockAtom);
         return blockData?.meta?.[key];
     });
@@ -132,7 +132,7 @@ function getOrefMetaKeyAtom<T extends keyof MetaType>(oref: string, key: T): Ato
         return metaAtom;
     }
     metaAtom = atom((get) => {
-        const objAtom = WOS.getWaveObjectAtom(oref);
+        const objAtom = WOS.getDoraObjectAtom(oref);
         const objData = get(objAtom);
         return objData?.meta?.[key];
     });
@@ -283,7 +283,7 @@ function getBlockTermDurableAtom(blockId: string): Atom<null | boolean> {
         return durableAtom;
     }
     durableAtom = atom((get) => {
-        const blockAtom = WOS.getWaveObjectAtom<Block>(WOS.makeORef("block", blockId));
+        const blockAtom = WOS.getDoraObjectAtom<Block>(WOS.makeORef("block", blockId));
         const block = get(blockAtom);
 
         if (block == null) {
@@ -433,11 +433,11 @@ async function replaceBlock(blockId: string, blockDef: BlockDef, focus: boolean)
 }
 
 // when file is not found, returns {data: null, fileInfo: null}
-async function fetchWaveFile(
+async function fetchDoraFile(
     zoneId: string,
     fileName: string,
     offset?: number
-): Promise<{ data: Uint8Array; fileInfo: WaveFile }> {
+): Promise<{ data: Uint8Array; fileInfo: DoraFile }> {
     const usp = new URLSearchParams();
     usp.set("zoneid", zoneId);
     usp.set("name", fileName);
@@ -657,7 +657,7 @@ export {
     createBlockSplitHorizontally,
     createBlockSplitVertically,
     createTab,
-    fetchWaveFile,
+    fetchDoraFile,
     getAllBlockComponentModels,
     getApi,
     getBlockComponentModel,
@@ -679,7 +679,7 @@ export {
     globalPrimaryTabStartup,
     globalStore,
     initGlobal,
-    initGlobalWaveEventSubs,
+    initGlobalDoraEventSubs,
     isDev,
     loadConnStatus,
     makeDefaultConnStatus,

@@ -29,9 +29,9 @@ type MultiArg struct {
 // * methods must end with Command
 // * methods must take context as their first parameter
 // * methods may take additional typed parameters, and may return either just an error, or one return value plus an error
-// * after modifying WshRpcInterface, run `task generate` to regnerate bindings
+// * after modifying DshRpcInterface, run `task generate` to regnerate bindings
 
-type WshRpcInterface interface {
+type DshRpcInterface interface {
 	AuthenticateCommand(ctx context.Context, data string) (CommandAuthenticateRtnData, error)
 	AuthenticateTokenCommand(ctx context.Context, data CommandAuthenticateTokenData) (CommandAuthenticateRtnData, error)
 	AuthenticateTokenVerifyCommand(ctx context.Context, data CommandAuthenticateTokenData) (CommandAuthenticateRtnData, error) // (special) validates token without binding, root router only
@@ -58,11 +58,11 @@ type WshRpcInterface interface {
 	DeleteSubBlockCommand(ctx context.Context, data CommandDeleteBlockData) error
 	WaitForRouteCommand(ctx context.Context, data CommandWaitForRouteData) (bool, error)
 
-	EventPublishCommand(ctx context.Context, data dps.WaveEvent) error
+	EventPublishCommand(ctx context.Context, data dps.DoraEvent) error
 	EventSubCommand(ctx context.Context, data dps.SubscriptionRequest) error
 	EventUnsubCommand(ctx context.Context, data string) error
 	EventUnsubAllCommand(ctx context.Context) error
-	EventReadHistoryCommand(ctx context.Context, data CommandEventReadHistoryData) ([]*dps.WaveEvent, error)
+	EventReadHistoryCommand(ctx context.Context, data CommandEventReadHistoryData) ([]*dps.DoraEvent, error)
 
 	GetTempDirCommand(ctx context.Context, data CommandGetTempDirData) (string, error)
 	WriteTempFileCommand(ctx context.Context, data CommandWriteTempFileData) (string, error)
@@ -75,9 +75,9 @@ type WshRpcInterface interface {
 	BlockInfoCommand(ctx context.Context, blockId string) (*BlockInfoData, error)
 	DebugTermCommand(ctx context.Context, data CommandDebugTermData) (*CommandDebugTermRtnData, error)
 	BlocksListCommand(ctx context.Context, data BlocksListRequest) ([]BlocksListEntry, error)
-	WaveInfoCommand(ctx context.Context) (*WaveInfoData, error)
+	DoraInfoCommand(ctx context.Context) (*DoraInfoData, error)
 	MacOSVersionCommand(ctx context.Context) (string, error)
-	WshActivityCommand(ct context.Context, data map[string]int) error
+	DshActivityCommand(ct context.Context, data map[string]int) error
 	ActivityCommand(ctx context.Context, data ActivityUpdate) error
 	GetVarCommand(ctx context.Context, data CommandVarData) (*CommandVarResponseData, error)
 	GetAllVarsCommand(ctx context.Context, data CommandVarData) ([]CommandVarResponseData, error)
@@ -89,11 +89,11 @@ type WshRpcInterface interface {
 	UpdateWorkspaceTabIdsCommand(ctx context.Context, workspaceId string, tabIds []string) error
 	GetAllBadgesCommand(ctx context.Context) ([]baseds.BadgeEvent, error)
 
-	// eventrecv is special, it's handled internally by WshRpc with EventListener
-	EventRecvCommand(ctx context.Context, data dps.WaveEvent) error
+	// eventrecv is special, it's handled internally by DshRpc with EventListener
+	EventRecvCommand(ctx context.Context, data dps.DoraEvent) error
 
 	// remotes
-	WshRpcRemoteFileInterface
+	DshRpcRemoteFileInterface
 	RemoteStreamCpuDataCommand(ctx context.Context) chan RespOrErrorUnion[TimeSeriesData]
 	RemoteGetInfoCommand(ctx context.Context) (RemoteInfo, error)
 	RemoteInstallRcFilesCommand(ctx context.Context) error
@@ -107,7 +107,7 @@ type WshRpcInterface interface {
 
 	// emain
 	WebSelectorCommand(ctx context.Context, data CommandWebSelectorData) ([]string, error)
-	NotifyCommand(ctx context.Context, notificationOptions WaveNotificationOptions) error
+	NotifyCommand(ctx context.Context, notificationOptions DoraNotificationOptions) error
 	FocusWindowCommand(ctx context.Context, windowId string) error
 	ElectronEncryptCommand(ctx context.Context, data CommandElectronEncryptData) (*CommandElectronEncryptRtnData, error)
 	ElectronDecryptCommand(ctx context.Context, data CommandElectronDecryptData) (*CommandElectronDecryptRtnData, error)
@@ -138,8 +138,8 @@ type WshRpcInterface interface {
 	TermGetScrollbackLinesCommand(ctx context.Context, data CommandTermGetScrollbackLinesData) (*CommandTermGetScrollbackLinesRtnData, error)
 
 	// file
-	WshRpcFileInterface
-	WaveFileReadStreamCommand(ctx context.Context, data CommandWaveFileReadStreamData) (*WaveFileInfo, error)
+	DshRpcFileInterface
+	DoraFileReadStreamCommand(ctx context.Context, data CommandDoraFileReadStreamData) (*DoraFileInfo, error)
 
 	// streams
 	StreamDataCommand(ctx context.Context, data CommandStreamData) error
@@ -169,7 +169,7 @@ type WshRpcInterface interface {
 }
 
 // for frontend
-type WshServerCommandMeta struct {
+type DshServerCommandMeta struct {
 	CommandType string `json:"commandtype"`
 }
 
@@ -355,15 +355,15 @@ func (m MetaSettingsType) MarshalJSON() ([]byte, error) {
 type ConnStatus struct {
 	Status                        string `json:"status"`
 	ConnHealthStatus              string `json:"connhealthstatus,omitempty"`
-	WshEnabled                    bool   `json:"wshenabled"`
+	DshEnabled                    bool   `json:"wshenabled"`
 	Connection                    string `json:"connection"`
 	Connected                     bool   `json:"connected"`
 	HasConnected                  bool   `json:"hasconnected"` // true if it has *ever* connected successfully
 	ActiveConnNum                 int    `json:"activeconnnum"`
 	Error                         string `json:"error,omitempty"`
-	WshError                      string `json:"wsherror,omitempty"`
+	DshError                      string `json:"wsherror,omitempty"`
 	NoWshReason                   string `json:"nowshreason,omitempty"`
-	WshVersion                    string `json:"wshversion,omitempty"`
+	DshVersion                    string `json:"wshversion,omitempty"`
 	LastActivityBeforeStalledTime int64  `json:"lastactivitybeforestalledtime,omitempty"`
 	KeepAliveSentTime             int64  `json:"keepalivesenttime,omitempty"`
 }
@@ -386,16 +386,16 @@ type BlockInfoData struct {
 	TabId       string          `json:"tabid"`
 	WorkspaceId string          `json:"workspaceid"`
 	Block       *doraobj.Block  `json:"block"`
-	Files       []*WaveFileInfo `json:"files"`
+	Files       []*DoraFileInfo `json:"files"`
 }
 
-type WaveNotificationOptions struct {
+type DoraNotificationOptions struct {
 	Title  string `json:"title,omitempty"`
 	Body   string `json:"body,omitempty"`
 	Silent bool   `json:"silent,omitempty"`
 }
 
-type WaveInfoData struct {
+type DoraInfoData struct {
 	Version   string `json:"version"`
 	ClientId  string `json:"clientid"`
 	BuildTime string `json:"buildtime"`
@@ -467,8 +467,8 @@ type ActivityUpdate struct {
 	FgMinutes           int                   `json:"fgminutes,omitempty"`
 	ActiveMinutes       int                   `json:"activeminutes,omitempty"`
 	OpenMinutes         int                   `json:"openminutes,omitempty"`
-	WaveAIFgMinutes     int                   `json:"waveaifgminutes,omitempty"`
-	WaveAIActiveMinutes int                   `json:"waveaiactiveminutes,omitempty"`
+	DoraAIFgMinutes     int                   `json:"waveaifgminutes,omitempty"`
+	DoraAIActiveMinutes int                   `json:"waveaiactiveminutes,omitempty"`
 	NumTabs             int                   `json:"numtabs,omitempty"`
 	NewTab              int                   `json:"newtab,omitempty"`
 	NumBlocks           int                   `json:"numblocks,omitempty"`
@@ -488,7 +488,7 @@ type ActivityUpdate struct {
 	Displays            []ActivityDisplayType `json:"displays,omitempty"`
 	Renderers           map[string]int        `json:"renderers,omitempty"`
 	Blocks              map[string]int        `json:"blocks,omitempty"`
-	WshCmds             map[string]int        `json:"wshcmds,omitempty"`
+	DshCmds             map[string]int        `json:"wshcmds,omitempty"`
 	Conn                map[string]int        `json:"conn,omitempty"`
 }
 
@@ -670,14 +670,14 @@ type JobManagerStatusUpdate struct {
 	JobManagerStatus string `json:"jobmanagerstatus"`
 }
 
-type CommandWaveFileReadStreamData struct {
+type CommandDoraFileReadStreamData struct {
 	ZoneId     string     `json:"zoneid"`
 	Name       string     `json:"name"`
 	StreamMeta StreamMeta `json:"streammeta"`
 }
 
-// see blockstore.go (WaveFile)
-type WaveFileInfo struct {
+// see blockstore.go (DoraFile)
+type DoraFileInfo struct {
 	ZoneId    string   `json:"zoneid"`
 	Name      string   `json:"name"`
 	Opts      FileOpts `json:"opts"`

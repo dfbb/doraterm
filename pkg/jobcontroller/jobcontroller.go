@@ -220,7 +220,7 @@ func SendBlockJobStatusEvent(ctx context.Context, blockId string) {
 		log.Printf("[block:%s] error getting block job status: %v", blockId, err)
 		return
 	}
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event:  dps.Event_BlockJobStatus,
 		Scopes: []string{fmt.Sprintf("block:%s", blockId)},
 		Data:   data,
@@ -343,15 +343,15 @@ func pruneUnusedJobs(previousCandidates []string) []string {
 	return currentCandidates
 }
 
-func handleRouteUpEvent(event *dps.WaveEvent) {
+func handleRouteUpEvent(event *dps.DoraEvent) {
 	handleRouteEvent(event, JobConnStatus_Connected)
 }
 
-func handleRouteDownEvent(event *dps.WaveEvent) {
+func handleRouteDownEvent(event *dps.DoraEvent) {
 	handleRouteEvent(event, JobConnStatus_Disconnected)
 }
 
-func handleRouteEvent(event *dps.WaveEvent, newStatus string) {
+func handleRouteEvent(event *dps.DoraEvent, newStatus string) {
 	ctx := context.Background()
 	for _, scope := range event.Scopes {
 		if strings.HasPrefix(scope, "job:") {
@@ -411,7 +411,7 @@ func attemptAutoReconnect(jobId string, connName string) {
 	}
 }
 
-func handleConnChangeEvent(event *dps.WaveEvent) {
+func handleConnChangeEvent(event *dps.DoraEvent) {
 	var connStatus dshrpc.ConnStatus
 	err := utilfn.ReUnmarshal(&connStatus, event.Data)
 	if err != nil {
@@ -445,7 +445,7 @@ func handleConnChangeEvent(event *dps.WaveEvent) {
 	}
 }
 
-func handleBlockCloseEvent(event *dps.WaveEvent) {
+func handleBlockCloseEvent(event *dps.DoraEvent) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFn()
 	blockId, ok := event.Data.(string)
@@ -613,7 +613,7 @@ func StartJob(ctx context.Context, params StartJobParams) (string, error) {
 		return "", fmt.Errorf("failed to generate job auth token: %w", err)
 	}
 
-	jobAccessClaims := &dorajwt.WaveJwtClaims{
+	jobAccessClaims := &dorajwt.DoraJwtClaims{
 		MainServer: true,
 		JobId:      jobId,
 	}
@@ -661,7 +661,7 @@ func StartJob(ctx context.Context, params StartJobParams) (string, error) {
 	}
 	err = filestore.WFS.MakeFile(ctx, jobId, JobOutputFileName, dshrpc.FileMeta{}, fileOpts)
 	if err != nil {
-		return "", fmt.Errorf("failed to create WaveFS file: %w", err)
+		return "", fmt.Errorf("failed to create DoraFS file: %w", err)
 	}
 
 	clientId := dstore.GetClientId()
@@ -737,7 +737,7 @@ func doWFSAppend(ctx context.Context, oref doraobj.ORef, fileName string, data [
 	if err != nil {
 		return err
 	}
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event: dps.Event_BlockFile,
 		Scopes: []string{
 			oref.String(),
@@ -790,7 +790,7 @@ func runOutputLoop(ctx context.Context, jobId string, streamId string, reader *s
 		if n > 0 {
 			appendErr := handleAppendJobFile(ctx, jobId, JobOutputFileName, buf[:n])
 			if appendErr != nil {
-				log.Printf("[job:%s] error appending data to WaveFS: %v", jobId, appendErr)
+				log.Printf("[job:%s] error appending data to DoraFS: %v", jobId, appendErr)
 			}
 		}
 
@@ -1034,7 +1034,7 @@ func doReconnectJob(ctx context.Context, jobId string, rtOpts *doraobj.RuntimeOp
 
 	bareRpc := dshclient.GetBareRpcClient()
 
-	jobAccessClaims := &dorajwt.WaveJwtClaims{
+	jobAccessClaims := &dorajwt.DoraJwtClaims{
 		MainServer: true,
 		JobId:      jobId,
 	}
@@ -1316,7 +1316,7 @@ func DeleteJob(ctx context.Context, jobId string) error {
 	jobTerminationMessageWritten.Delete(jobId)
 	err := filestore.WFS.DeleteZone(ctx, jobId)
 	if err != nil {
-		log.Printf("[job:%s] warning: error deleting WaveFS zone: %v", jobId, err)
+		log.Printf("[job:%s] warning: error deleting DoraFS zone: %v", jobId, err)
 	}
 	return dstore.DBDelete(ctx, doraobj.OType_Job, jobId)
 }
@@ -1363,7 +1363,7 @@ func AttachJobToBlock(ctx context.Context, jobId string, blockId string) error {
 	}
 
 	SendBlockJobStatusEvent(ctx, blockId)
-	dcore.SendWaveObjUpdate(doraobj.MakeORef(doraobj.OType_Block, blockId))
+	dcore.SendDoraObjUpdate(doraobj.MakeORef(doraobj.OType_Block, blockId))
 	return nil
 }
 
@@ -1412,7 +1412,7 @@ func DetachJobFromBlock(ctx context.Context, jobId string, updateBlock bool) err
 	if blockId != "" {
 		SendBlockJobStatusEvent(ctx, blockId)
 		if blockUpdated {
-			dcore.SendWaveObjUpdate(doraobj.MakeORef(doraobj.OType_Block, blockId))
+			dcore.SendDoraObjUpdate(doraobj.MakeORef(doraobj.OType_Block, blockId))
 		}
 	}
 

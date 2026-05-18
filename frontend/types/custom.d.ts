@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { WaveEnv } from "@/app/waveenv/waveenv";
+import type { DoraEnv } from "@/app/waveenv/waveenv";
 import { type Placement } from "@floating-ui/react";
 import type * as jotai from "jotai";
 import type * as rxjs from "rxjs";
@@ -61,7 +61,7 @@ declare global {
         isPreview?: boolean;
     };
 
-    type WaveInitOpts = {
+    type DoraInitOpts = {
         tabId: string;
         clientId: string;
         windowId: string;
@@ -105,7 +105,7 @@ declare global {
         installAppUpdate: () => void; // install-app-update
         onMenuItemAbout: (callback: () => void) => void; // menu-item-about
         updateWindowControlsOverlay: (rect: Dimensions) => void; // update-window-controls-overlay
-        onReinjectKey: (callback: (waveEvent: WaveKeyboardEvent) => void) => void; // reinject-key
+        onReinjectKey: (callback: (waveEvent: DoraKeyboardEvent) => void) => void; // reinject-key
         setWebviewFocus: (focusedId: number) => void; // webview-focus, focusedId is the getWebContentsId of the webview
         registerGlobalWebviewKeys: (keys: string[]) => void; // register-global-webview-keys
         onControlShiftStateUpdate: (callback: (state: boolean) => void) => void; // control-shift-state-update
@@ -116,7 +116,7 @@ declare global {
         createTab: () => void; // create-tab
         closeTab: (workspaceId: string, tabId: string, confirmClose: boolean) => Promise<boolean>; // close-tab
         setWindowInitStatus: (status: "ready" | "wave-ready") => void; // set-window-init-status
-        onWaveInit: (callback: (initOpts: WaveInitOpts) => void) => void; // wave-init
+        onDoraInit: (callback: (initOpts: DoraInitOpts) => void) => void; // wave-init
         onBuilderInit: (callback: (initOpts: BuilderInitOpts) => void) => void; // builder-init
         sendLog: (log: string) => void; // fe-log
         onQuicklook: (filePath: string) => void; // quicklook
@@ -282,7 +282,7 @@ declare global {
         blockId: string;
         nodeModel: BlockNodeModel;
         tabModel: TabModel;
-        waveEnv: WaveEnv;
+        waveEnv: DoraEnv;
     };
 
     type ViewModelClass = new (initOpts: ViewModelInitType) => ViewModel;
@@ -340,7 +340,7 @@ declare global {
         giveFocus?: () => boolean;
 
         // Handles keydown events within the block.
-        keyDownHandler?: (e: WaveKeyboardEvent) => boolean;
+        keyDownHandler?: (e: DoraKeyboardEvent) => boolean;
 
         // Cleans up resources when the block is disposed.
         dispose?: () => void;
@@ -397,7 +397,7 @@ declare global {
         baseDir: string;
     };
 
-    interface AbstractWshClient {
+    interface AbstractDshClient {
         recvRpcMessage(msg: RpcMessage): void;
     }
 

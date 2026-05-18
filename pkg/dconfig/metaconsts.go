@@ -19,7 +19,7 @@ const (
 	ConfigKey_AppFocusFollowsCursor          = "app:focusfollowscursor"
 	ConfigKey_AppTabBar                      = "app:tabbar"
 
-	ConfigKey_FeatureWaveAppBuilder          = "feature:waveappbuilder"
+	ConfigKey_FeatureDoraAppBuilder          = "feature:waveappbuilder"
 
 	ConfigKey_AiClear                        = "ai:*"
 	ConfigKey_AiPreset                       = "ai:preset"
@@ -36,8 +36,8 @@ const (
 	ConfigKey_AiFontSize                     = "ai:fontsize"
 	ConfigKey_AiFixedFontSize                = "ai:fixedfontsize"
 
-	ConfigKey_WaveAiShowCloudModes           = "waveai:showcloudmodes"
-	ConfigKey_WaveAiDefaultMode              = "waveai:defaultmode"
+	ConfigKey_DoraAiShowCloudModes           = "waveai:showcloudmodes"
+	ConfigKey_DoraAiDefaultMode              = "waveai:defaultmode"
 
 	ConfigKey_TermClear                      = "term:*"
 	ConfigKey_TermFontSize                   = "term:fontsize"
@@ -118,7 +118,7 @@ const (
 
 	ConfigKey_ConnClear                      = "conn:*"
 	ConfigKey_ConnAskBeforeWshInstall        = "conn:askbeforewshinstall"
-	ConfigKey_ConnWshEnabled                 = "conn:wshenabled"
+	ConfigKey_ConnDshEnabled                 = "conn:wshenabled"
 	ConfigKey_ConnLocalHostnameDisplay       = "conn:localhostdisplayname"
 
 	ConfigKey_DebugClear                     = "debug:*"

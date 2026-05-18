@@ -80,7 +80,7 @@ func tabIndicatorRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		}
 	}
 
-	event := dps.WaveEvent{
+	event := dps.DoraEvent{
 		Event:  dps.Event_Badge,
 		Scopes: []string{oref.String()},
 		Data:   eventData,

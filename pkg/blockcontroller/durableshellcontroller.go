@@ -115,7 +115,7 @@ func (dsc *DurableShellController) GetConnName() string {
 func (dsc *DurableShellController) sendUpdate_withlock() {
 	rtStatus := dsc.getRuntimeStatus_withlock()
 	log.Printf("sending blockcontroller update %#v\n", rtStatus)
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event: dps.Event_ControllerStatus,
 		Scopes: []string{
 			doraobj.MakeORef(doraobj.OType_Tab, dsc.TabId).String(),
@@ -245,7 +245,7 @@ func (dsc *DurableShellController) startNewJob(ctx context.Context, blockMeta do
 		return "", fmt.Errorf("error making jwt token: %w", err)
 	}
 	swapToken.RpcContext = &rpcContext
-	swapToken.Env[dshutil.WaveJwtTokenVarName] = jwtStr
+	swapToken.Env[dshutil.DoraJwtTokenVarName] = jwtStr
 	cmdOpts := shellexec.CommandOptsType{
 		Interactive: true,
 		Login:       true,

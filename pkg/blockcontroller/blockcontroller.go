@@ -132,7 +132,7 @@ func InitBlockController() {
 	}, nil)
 }
 
-func handleBlockCloseEvent(event *dps.WaveEvent) {
+func handleBlockCloseEvent(event *dps.DoraEvent) {
 	blockId, ok := event.Data.(string)
 	if !ok {
 		log.Printf("[blockclose] invalid event data type")
@@ -330,7 +330,7 @@ func HandleAppendBlockFile(blockId string, blockFile string, data []byte) error 
 	if err != nil {
 		return fmt.Errorf("error appending to blockfile: %w", err)
 	}
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event: dps.Event_BlockFile,
 		Scopes: []string{
 			doraobj.MakeORef(doraobj.OType_Block, blockId).String(),
@@ -362,7 +362,7 @@ func HandleTruncateBlockFile(blockId string) error {
 	if err != nil {
 		log.Printf("error deleting cache file (continuing): %v\n", err)
 	}
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event:  dps.Event_BlockFile,
 		Scopes: []string{doraobj.MakeORef(doraobj.OType_Block, blockId).String()},
 		Data: &dps.WSFileEventData{

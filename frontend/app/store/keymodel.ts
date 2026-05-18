@@ -27,10 +27,10 @@ import * as jotai from "jotai";
 import { modalsModel } from "./modalmodel";
 import { isTabWindow } from "./windowtype";
 
-type KeyHandler = (event: WaveKeyboardEvent) => boolean;
+type KeyHandler = (event: DoraKeyboardEvent) => boolean;
 
 const simpleControlShiftAtom = jotai.atom(false);
-const globalKeyMap = new Map<string, (waveEvent: WaveKeyboardEvent) => boolean>();
+const globalKeyMap = new Map<string, (waveEvent: DoraKeyboardEvent) => boolean>();
 const globalChordMap = new Map<string, Map<string, KeyHandler>>();
 let globalKeybindingsDisabled = false;
 
@@ -97,7 +97,7 @@ function enableGlobalKeybindings() {
     globalKeybindingsDisabled = false;
 }
 
-function shouldDispatchToBlock(e: WaveKeyboardEvent): boolean {
+function shouldDispatchToBlock(e: DoraKeyboardEvent): boolean {
     if (globalStore.get(atoms.modalOpen)) {
         return false;
     }
@@ -119,7 +119,7 @@ function shouldDispatchToBlock(e: WaveKeyboardEvent): boolean {
 function getStaticTabBlockCount(): number {
     const tabId = globalStore.get(atoms.staticTabId);
     const tabORef = WOS.makeORef("tab", tabId);
-    const tabAtom = WOS.getWaveObjectAtom<Tab>(tabORef);
+    const tabAtom = WOS.getDoraObjectAtom<Tab>(tabORef);
     const tabData = globalStore.get(tabAtom);
     return tabData?.blockids?.length ?? 0;
 }
@@ -141,7 +141,7 @@ function simpleCloseStaticTab() {
 }
 
 function uxCloseBlock(blockId: string) {
-    const blockAtom = WOS.getWaveObjectAtom<Block>(WOS.makeORef("block", blockId));
+    const blockAtom = WOS.getDoraObjectAtom<Block>(WOS.makeORef("block", blockId));
     const blockData = globalStore.get(blockAtom);
 
     if (getStaticTabBlockCount() === 1) {
@@ -280,7 +280,7 @@ function getDefaultNewBlockDef(): BlockDef {
     const layoutModel = getLayoutModelForStaticTab();
     const focusedNode = globalStore.get(layoutModel.focusedNode);
     if (focusedNode != null) {
-        const blockAtom = WOS.getWaveObjectAtom<Block>(WOS.makeORef("block", focusedNode.data?.blockId));
+        const blockAtom = WOS.getDoraObjectAtom<Block>(WOS.makeORef("block", focusedNode.data?.blockId));
         const blockData = globalStore.get(blockAtom);
         if (blockData?.meta?.view == "term") {
             if (blockData?.meta?.["cmd:cwd"] != null) {
@@ -322,7 +322,7 @@ async function handleSplitVertical(position: "before" | "after") {
 let lastHandledEvent: KeyboardEvent | null = null;
 
 // returns [keymatch, T]
-function checkKeyMap<T>(waveEvent: WaveKeyboardEvent, keyMap: Map<string, T>): [string, T] {
+function checkKeyMap<T>(waveEvent: DoraKeyboardEvent, keyMap: Map<string, T>): [string, T] {
     for (const key of keyMap.keys()) {
         if (keyutil.checkKeyPressed(waveEvent, key)) {
             const val = keyMap.get(key);
@@ -332,7 +332,7 @@ function checkKeyMap<T>(waveEvent: WaveKeyboardEvent, keyMap: Map<string, T>): [
     return [null, null];
 }
 
-function appHandleKeyDown(waveEvent: WaveKeyboardEvent): boolean {
+function appHandleKeyDown(waveEvent: DoraKeyboardEvent): boolean {
     if (globalKeybindingsDisabled) {
         return false;
     }
@@ -397,12 +397,12 @@ function registerControlShiftStateUpdateHandler() {
 }
 
 function registerElectronReinjectKeyHandler() {
-    getApi().onReinjectKey((event: WaveKeyboardEvent) => {
+    getApi().onReinjectKey((event: DoraKeyboardEvent) => {
         appHandleKeyDown(event);
     });
 }
 
-function tryReinjectKey(event: WaveKeyboardEvent): boolean {
+function tryReinjectKey(event: DoraKeyboardEvent): boolean {
     return appHandleKeyDown(event);
 }
 
@@ -596,7 +596,7 @@ function registerGlobalKeys() {
             return true;
         });
     }
-    function activateSearch(event: WaveKeyboardEvent): boolean {
+    function activateSearch(event: DoraKeyboardEvent): boolean {
         const bcm = getBlockComponentModel(getFocusedBlockInStaticTab());
         // Ctrl+f is reserved in most shells
         if (event.control && bcm.viewModel.viewType == "term") {

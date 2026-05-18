@@ -5,11 +5,11 @@ import {
     ConnConfigKeyAtomFnType,
     MetaKeyAtomFnType,
     SettingsKeyAtomFnType,
-    WaveEnv,
-    WaveEnvSubset,
+    DoraEnv,
+    DoraEnvSubset,
 } from "@/app/waveenv/waveenv";
 
-export type BlockEnv = WaveEnvSubset<{
+export type BlockEnv = DoraEnvSubset<{
     getSettingsKeyAtom: SettingsKeyAtomFnType<
         | "app:focusfollowscursor"
         | "app:showoverlayblocknums"
@@ -17,20 +17,20 @@ export type BlockEnv = WaveEnvSubset<{
         | "window:magnifiedblockblurprimarypx"
         | "window:magnifiedblockopacity"
     >;
-    showContextMenu: WaveEnv["showContextMenu"];
+    showContextMenu: DoraEnv["showContextMenu"];
     atoms: {
-        modalOpen: WaveEnv["atoms"]["modalOpen"];
-        controlShiftDelayAtom: WaveEnv["atoms"]["controlShiftDelayAtom"];
+        modalOpen: DoraEnv["atoms"]["modalOpen"];
+        controlShiftDelayAtom: DoraEnv["atoms"]["controlShiftDelayAtom"];
     };
     electron: {
-        openExternal: WaveEnv["electron"]["openExternal"];
+        openExternal: DoraEnv["electron"]["openExternal"];
     };
     rpc: {
-        ActivityCommand: WaveEnv["rpc"]["ActivityCommand"];
+        ActivityCommand: DoraEnv["rpc"]["ActivityCommand"];
     };
-    wos: WaveEnv["wos"];
-    getConnStatusAtom: WaveEnv["getConnStatusAtom"];
-    getLocalHostDisplayNameAtom: WaveEnv["getLocalHostDisplayNameAtom"];
+    wos: DoraEnv["wos"];
+    getConnStatusAtom: DoraEnv["getConnStatusAtom"];
+    getLocalHostDisplayNameAtom: DoraEnv["getLocalHostDisplayNameAtom"];
     getConnConfigKeyAtom: ConnConfigKeyAtomFnType<"conn:wshenabled">;
     getBlockMetaKeyAtom: MetaKeyAtomFnType<
         | "frame:text"
@@ -43,5 +43,5 @@ export type BlockEnv = WaveEnvSubset<{
         | "frame:icon"
     >;
     getTabMetaKeyAtom: MetaKeyAtomFnType<"bg:activebordercolor" | "bg:bordercolor" | "tab:background">;
-    getConfigBackgroundAtom: WaveEnv["getConfigBackgroundAtom"];
+    getConfigBackgroundAtom: DoraEnv["getConfigBackgroundAtom"];
 }>;

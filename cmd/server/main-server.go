@@ -99,14 +99,14 @@ func startConfigWatcher() {
 		watcher.Start()
 	}
 }
-func createMainWshClient() {
+func createMainDshClient() {
 	rpc := dshserver.GetMainRpcClient()
 	dshutil.DefaultRouter.RegisterTrustedLeaf(rpc, dshutil.DefaultRoute)
 	dps.Broker.SetClient(dshutil.DefaultRouter)
 	localInitialEnv := envutil.PruneInitialEnv(envutil.SliceToMap(os.Environ()))
 	sockName := dorabase.GetDomainSocketName()
 	localImpl := dshlocal.MakeLocalRpcServerImpl(nil, dshutil.DefaultRouter, dshclient.GetBareRpcClient(), localInitialEnv, sockName)
-	localConnWsh := dshutil.MakeWshRpc(dshrpc.RpcContext{Conn: dshrpc.LocalConnName}, localImpl, "conn:local")
+	localConnWsh := dshutil.MakeDshRpc(dshrpc.RpcContext{Conn: dshrpc.LocalConnName}, localImpl, "conn:local")
 	dshutil.DefaultRouter.RegisterTrustedLeaf(localConnWsh, dshutil.MakeConnectionRouteId(dshrpc.LocalConnName))
 	wshfs.RpcClient = localConnWsh
 	wshfs.RpcClientRouteId = dshutil.MakeConnectionRouteId(dshrpc.LocalConnName)
@@ -172,7 +172,7 @@ func main() {
 	log.SetPrefix("[wavesrv] ")
 	dorabase.DoraVersion = DoraVersion
 	dorabase.BuildTime = BuildTime
-	dshutil.DefaultRouter = dshutil.NewWshRouter()
+	dshutil.DefaultRouter = dshutil.NewDshRouter()
 	dshutil.DefaultRouter.SetAsRootRouter()
 
 	err := grabAndRemoveEnvVars()
@@ -212,7 +212,7 @@ func main() {
 		log.Printf("error ensuring wave caches dir: %v\n", err)
 		return
 	}
-	waveLock, err := dorabase.AcquireWaveLock()
+	waveLock, err := dorabase.AcquireDoraLock()
 	if err != nil {
 		log.Printf("error acquiring wave lock (another instance of Wave is likely running): %v\n", err)
 		return
@@ -268,7 +268,7 @@ func main() {
 	if err != nil {
 		log.Printf("error fixing up wave zsh history: %v\n", err)
 	}
-	createMainWshClient()
+	createMainDshClient()
 	sigutil.InstallShutdownSignalHandlers(doShutdown)
 	sigutil.InstallSIGUSR1Handler()
 	dconfig.MigratePresetsBackgrounds()
@@ -313,7 +313,7 @@ func main() {
 		// use fmt instead of log here to make sure it goes directly to stderr
 		fmt.Fprintf(os.Stderr, "WAVESRV-ESTART ws:%s web:%s version:%s buildtime:%s\n", wsListener.Addr(), webListener.Addr(), DoraVersion, BuildTime)
 	}()
-	go dshutil.RunWshRpcOverListener(unixListener, nil)
+	go dshutil.RunDshRpcOverListener(unixListener, nil)
 	web.RunWebServer(webListener) // blocking
 	runtime.KeepAlive(waveLock)
 }

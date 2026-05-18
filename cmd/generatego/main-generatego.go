@@ -31,7 +31,7 @@ func GenerateDshClient() error {
 		"github.com/dfbb/doraterm/pkg/dshrpc",
 		"github.com/dfbb/doraterm/pkg/dshutil",
 	})
-	wshDeclMap := dshrpc.GenerateWshCommandDeclMap()
+	wshDeclMap := dshrpc.GenerateDshCommandDeclMap()
 	for _, key := range utilfn.GetOrderedMapKeys(wshDeclMap) {
 		methodDecl := wshDeclMap[key]
 		if methodDecl.CommandType == dshrpc.RpcType_ResponseStream {

@@ -4,9 +4,9 @@
 import * as electron from "electron";
 import { getWebServerEndpoint } from "../frontend/util/endpoints";
 
-export const WaveAppPathVarName = "DORATERM_APP_PATH";
-export const WaveAppResourcesPathVarName = "DORATERM_RESOURCES_PATH";
-export const WaveAppElectronExecPath = "DORATERM_ELECTRONEXECPATH";
+export const DoraAppPathVarName = "DORATERM_APP_PATH";
+export const DoraAppResourcesPathVarName = "DORATERM_RESOURCES_PATH";
+export const DoraAppElectronExecPath = "DORATERM_ELECTRONEXECPATH";
 
 const MinZoomLevel = 0.4;
 const MaxZoomLevel = 2.6;
@@ -66,7 +66,7 @@ export function handleCtrlShiftFocus(sender: Electron.WebContents, focused: bool
     }
 }
 
-export function handleCtrlShiftState(sender: Electron.WebContents, waveEvent: WaveKeyboardEvent) {
+export function handleCtrlShiftState(sender: Electron.WebContents, waveEvent: DoraKeyboardEvent) {
     if (waveEvent.type == "keyup") {
         if (waveEvent.key === "Control" || waveEvent.key === "Shift") {
             setCtrlShift(sender, false);

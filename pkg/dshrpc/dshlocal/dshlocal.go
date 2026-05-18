@@ -27,14 +27,14 @@ import (
 type JobManagerConnection struct {
 	JobId     string
 	Conn      net.Conn
-	WshRpc    *dshutil.WshRpc
+	DshRpc    *dshutil.DshRpc
 	CleanupFn func()
 }
 
 type ServerImpl struct {
 	LogWriter     io.Writer
-	Router        *dshutil.WshRouter
-	RpcClient     *dshutil.WshRpc
+	Router        *dshutil.DshRouter
+	RpcClient     *dshutil.DshRpc
 	IsLocal       bool
 	InitialEnv    map[string]string
 	JobManagerMap map[string]*JobManagerConnection
@@ -42,7 +42,7 @@ type ServerImpl struct {
 	Lock          sync.Mutex
 }
 
-func MakeLocalRpcServerImpl(logWriter io.Writer, router *dshutil.WshRouter, rpcClient *dshutil.WshRpc, initialEnv map[string]string, sockName string) *ServerImpl {
+func MakeLocalRpcServerImpl(logWriter io.Writer, router *dshutil.DshRouter, rpcClient *dshutil.DshRpc, initialEnv map[string]string, sockName string) *ServerImpl {
 	return &ServerImpl{
 		LogWriter:     logWriter,
 		Router:        router,
@@ -54,7 +54,7 @@ func MakeLocalRpcServerImpl(logWriter io.Writer, router *dshutil.WshRouter, rpcC
 	}
 }
 
-func (*ServerImpl) WshServerImpl() {}
+func (*ServerImpl) DshServerImpl() {}
 
 func (impl *ServerImpl) Log(format string, args ...interface{}) {
 	if impl.LogWriter != nil {
@@ -117,7 +117,7 @@ func (impl *ServerImpl) BadgeWatchPidCommand(ctx context.Context, data dshrpc.Co
 				continue
 			}
 			orefStr := data.ORef.String()
-			event := dps.WaveEvent{
+			event := dps.DoraEvent{
 				Event:  dps.Event_Badge,
 				Scopes: []string{orefStr},
 				Data: baseds.BadgeEvent{

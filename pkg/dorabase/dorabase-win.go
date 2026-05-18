@@ -13,9 +13,9 @@ import (
 	"github.com/alexflint/go-filemutex"
 )
 
-func AcquireWaveLock() (FDLock, error) {
+func AcquireDoraLock() (FDLock, error) {
 	dataHomeDir := GetDoraDataDir()
-	lockFileName := filepath.Join(dataHomeDir, WaveLockFile)
+	lockFileName := filepath.Join(dataHomeDir, DoraLockFile)
 	log.Printf("[base] acquiring lock on %s\n", lockFileName)
 	m, err := filemutex.New(lockFileName)
 	if err != nil {

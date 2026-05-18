@@ -81,7 +81,7 @@ export class TermViewModel implements ViewModel {
         this.blockId = blockId;
         this.tabModel = tabModel;
         this.nodeModel = nodeModel;
-        this.blockAtom = WOS.getWaveObjectAtom<Block>(`block:${blockId}`);
+        this.blockAtom = WOS.getDoraObjectAtom<Block>(`block:${blockId}`);
         this.termMode = jotai.atom((get) => {
             const blockData = get(this.blockAtom);
             return blockData?.meta?.["term:mode"] ?? "term";
@@ -511,7 +511,7 @@ export class TermViewModel implements ViewModel {
         return false;
     }
 
-    keyDownHandler(waveEvent: WaveKeyboardEvent): boolean {
+    keyDownHandler(waveEvent: DoraKeyboardEvent): boolean {
         if (keyutil.checkKeyPressed(waveEvent, "Ctrl:r")) {
             const shellIntegrationStatus = readAtom(this.termRef?.current?.shellIntegrationStatusAtom);
             if (shellIntegrationStatus === "ready") {

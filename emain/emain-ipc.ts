@@ -18,11 +18,11 @@ import {
     setWasActive,
 } from "./emain-activity";
 import { callWithOriginalXdgCurrentDesktopAsync, unamePlatform } from "./emain-platform";
-import { getWaveTabViewByWebContentsId } from "./emain-tabview";
+import { getDoraTabViewByWebContentsId } from "./emain-tabview";
 import { handleCtrlShiftState } from "./emain-util";
-import { getWaveVersion } from "./emain-wavesrv";
-import { createNewWaveWindow, getWaveWindowByWebContentsId } from "./emain-window";
-import { ElectronWshClient } from "./emain-wsh";
+import { getDoraVersion } from "./emain-wavesrv";
+import { createNewDoraWindow, getDoraWindowByWebContentsId } from "./emain-window";
+import { ElectronDshClient } from "./emain-wsh";
 
 const electronApp = electron.app;
 
@@ -195,7 +195,7 @@ export function initIpcHandlers() {
 
     electron.ipcMain.on("webview-image-contextmenu", (event: electron.IpcMainEvent, payload: { src: string }) => {
         const menu = new electron.Menu();
-        const win = getWaveWindowByWebContentsId(event.sender.hostWebContents?.id);
+        const win = getDoraWindowByWebContentsId(event.sender.hostWebContents?.id);
         if (win == null) {
             return;
         }
@@ -238,7 +238,7 @@ export function initIpcHandlers() {
     });
 
     electron.ipcMain.on("get-cursor-point", (event) => {
-        const tabView = getWaveTabViewByWebContentsId(event.sender.id);
+        const tabView = getDoraTabViewByWebContentsId(event.sender.id);
         if (tabView == null) {
             event.returnValue = null;
             return;
@@ -253,7 +253,7 @@ export function initIpcHandlers() {
     });
 
     electron.ipcMain.handle("capture-screenshot", async (event, rect) => {
-        const tabView = getWaveTabViewByWebContentsId(event.sender.id);
+        const tabView = getDoraTabViewByWebContentsId(event.sender.id);
         if (!tabView) {
             throw new Error("No tab view found for the given webContents id");
         }
@@ -267,7 +267,7 @@ export function initIpcHandlers() {
     });
 
     electron.ipcMain.on("get-about-modal-details", (event) => {
-        event.returnValue = getWaveVersion() as AboutModalDetails;
+        event.returnValue = getDoraVersion() as AboutModalDetails;
     });
 
     electron.ipcMain.on("get-zoom-factor", (event) => {
@@ -320,7 +320,7 @@ export function initIpcHandlers() {
 
     electron.ipcMain.on("set-keyboard-chord-mode", (event) => {
         event.returnValue = null;
-        const tabView = getWaveTabViewByWebContentsId(event.sender.id);
+        const tabView = getDoraTabViewByWebContentsId(event.sender.id);
         tabView?.setKeyboardChordMode(true);
     });
 
@@ -332,7 +332,7 @@ export function initIpcHandlers() {
     electron.ipcMain.on("update-window-controls-overlay", async (event, rect: Dimensions) => {
         if (unamePlatform === "darwin") return;
         try {
-            const fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
+            const fullConfig = await RpcApi.GetFullConfigCommand(ElectronDshClient);
             if (fullConfig?.settings?.["window:nativetitlebar"] && unamePlatform !== "win32") return;
 
             const zoomFactor = event.sender.getZoomFactor();
@@ -346,7 +346,7 @@ export function initIpcHandlers() {
             const overlayBuffer = overlay.toPNG();
             const png = PNG.sync.read(overlayBuffer);
             const color = fac.prepareResult(fac.getColorFromArray4(png.data));
-            const ww = getWaveWindowByWebContentsId(event.sender.id);
+            const ww = getDoraWindowByWebContentsId(event.sender.id);
             if (ww == null) return;
             ww.setTitleBarOverlay({
                 color: unamePlatform === "linux" ? color.rgba : "#00000000",
@@ -392,7 +392,7 @@ export function initIpcHandlers() {
     });
 
     electron.ipcMain.on("set-window-init-status", (event, status: "ready" | "wave-ready") => {
-        const tabView = getWaveTabViewByWebContentsId(event.sender.id);
+        const tabView = getDoraTabViewByWebContentsId(event.sender.id);
         if (tabView != null && tabView.initResolve != null) {
             if (status === "ready") {
                 tabView.initResolve();
@@ -427,7 +427,7 @@ export function initIpcHandlers() {
         event.sender.paste();
     });
 
-    electron.ipcMain.on("open-new-window", () => fireAndForget(createNewWaveWindow));
+    electron.ipcMain.on("open-new-window", () => fireAndForget(createNewDoraWindow));
 
     electron.ipcMain.on("do-refresh", (event) => {
         event.sender.reloadIgnoringCache();

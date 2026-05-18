@@ -27,7 +27,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/dstore"
 )
 
-func setupWaveEnvVars() error {
+func setupDoraEnvVars() error {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return fmt.Errorf("failed to get home directory: %w", err)
@@ -63,7 +63,7 @@ func setupWaveEnvVars() error {
 func initTestHarness(autoAccept bool) error {
 	log.Printf("Initializing test harness...")
 
-	err := setupWaveEnvVars()
+	err := setupDoraEnvVars()
 	if err != nil {
 		return fmt.Errorf("failed to setup wave env vars: %w", err)
 	}
@@ -73,7 +73,7 @@ func initTestHarness(autoAccept bool) error {
 		return fmt.Errorf("failed to cache env vars: %w", err)
 	}
 
-	dshutil.DefaultRouter = dshutil.NewWshRouter()
+	dshutil.DefaultRouter = dshutil.NewDshRouter()
 	dshutil.DefaultRouter.SetAsRootRouter()
 
 	dstore.SetClientId("test-client-" + fmt.Sprintf("%d", time.Now().Unix()))
@@ -124,13 +124,13 @@ func testBasicConnect(connName string, timeout time.Duration) error {
 	status := conn.DeriveConnStatus()
 	log.Printf("✓ Connected!")
 	log.Printf("  Status: %s", status.Status)
-	log.Printf("  WshEnabled: %v", status.WshEnabled)
+	log.Printf("  DshEnabled: %v", status.DshEnabled)
 	log.Printf("  Connection: %s", status.Connection)
-	if status.WshVersion != "" {
-		log.Printf("  WshVersion: %s", status.WshVersion)
+	if status.DshVersion != "" {
+		log.Printf("  DshVersion: %s", status.DshVersion)
 	}
-	if status.WshError != "" {
-		log.Printf("  WshError: %s", status.WshError)
+	if status.DshError != "" {
+		log.Printf("  DshError: %s", status.DshError)
 	}
 	if status.NoWshReason != "" {
 		log.Printf("  NoWshReason: %s", status.NoWshReason)
@@ -203,18 +203,18 @@ func testWshExec(connName string, cmd string, timeout time.Duration) error {
 
 	wshEnabled := true
 	err = conn.Connect(ctx, &dconfig.ConnKeywords{
-		ConnWshEnabled: &wshEnabled,
+		ConnDshEnabled: &wshEnabled,
 	})
 	if err != nil {
 		return fmt.Errorf("connection failed: %w", err)
 	}
 
 	status := conn.DeriveConnStatus()
-	log.Printf("✓ Connected! (wsh enabled: %v)", status.WshEnabled)
-	if status.WshVersion != "" {
-		log.Printf("  wsh version: %s", status.WshVersion)
+	log.Printf("✓ Connected! (wsh enabled: %v)", status.DshEnabled)
+	if status.DshVersion != "" {
+		log.Printf("  wsh version: %s", status.DshVersion)
 	}
-	if !status.WshEnabled {
+	if !status.DshEnabled {
 		log.Printf("  WARNING: wsh not enabled - reason: %s", status.NoWshReason)
 	}
 

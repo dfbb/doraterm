@@ -11,8 +11,8 @@ import { isDev } from "../frontend/util/isdev";
 import { fireAndForget } from "../frontend/util/util";
 import { setUserConfirmedQuit } from "./emain-activity";
 import { delay } from "./emain-util";
-import { focusedWaveWindow, getAllWaveWindows } from "./emain-window";
-import { ElectronWshClient } from "./emain-wsh";
+import { focusedDoraWindow, getAllDoraWindows } from "./emain-window";
+import { ElectronDshClient } from "./emain-wsh";
 
 export let updater: Updater;
 
@@ -28,7 +28,7 @@ function getUpdateChannel(settings: SettingsType): string {
     // If the user was previously on the `latest` channel and has downloaded a `beta` version, update their configured channel to `beta` to prevent downgrading.
     if (!settingsChannel || (settingsChannel == "latest" && updaterChannel == "beta")) {
         console.log("Update channel setting does not exist, setting to value from updater config.");
-        RpcApi.SetConfigCommand(ElectronWshClient, { "autoupdate:channel": updaterChannel });
+        RpcApi.SetConfigCommand(ElectronDshClient, { "autoupdate:channel": updaterChannel });
         retVal = updaterChannel;
     }
     console.log("Update channel:", retVal);
@@ -112,7 +112,7 @@ export class Updater {
 
     private set status(value: UpdaterStatus) {
         this._status = value;
-        getAllWaveWindows().forEach((window) => {
+        getAllDoraWindows().forEach((window) => {
             const allTabs = Array.from(window.allLoadedTabViews.values());
             allTabs.forEach((tab) => {
                 tab.webContents.send("app-update-status", value);
@@ -165,8 +165,8 @@ export class Updater {
                     type: "info",
                     message: "There are currently no updates available.",
                 };
-                if (focusedWaveWindow) {
-                    dialog.showMessageBox(focusedWaveWindow, dialogOpts);
+                if (focusedDoraWindow) {
+                    dialog.showMessageBox(focusedDoraWindow, dialogOpts);
                 }
             }
 
@@ -187,9 +187,9 @@ export class Updater {
             detail: "A new version has been downloaded. Restart the application to apply the updates.",
         };
 
-        const allWindows = getAllWaveWindows();
+        const allWindows = getAllDoraWindows();
         if (allWindows.length > 0) {
-            await dialog.showMessageBox(focusedWaveWindow ?? allWindows[0], dialogOpts).then(({ response }) => {
+            await dialog.showMessageBox(focusedDoraWindow ?? allWindows[0], dialogOpts).then(({ response }) => {
                 if (response === 0) {
                     fireAndForget(this.installUpdate.bind(this));
                 }
@@ -242,7 +242,7 @@ export async function configureAutoUpdater() {
 
     try {
         console.log("Configuring updater");
-        const settings = (await RpcApi.GetFullConfigCommand(ElectronWshClient)).settings;
+        const settings = (await RpcApi.GetFullConfigCommand(ElectronDshClient)).settings;
         updater = new Updater(settings);
         await updater.start();
     } catch (e) {

@@ -362,13 +362,13 @@ func jobDebugGetOutputRun(cmd *cobra.Command, args []string) error {
 	reader, streamMeta := broker.CreateStreamReader(readerRouteId, writerRouteId, 64*1024)
 	defer reader.Close()
 
-	data := dshrpc.CommandWaveFileReadStreamData{
+	data := dshrpc.CommandDoraFileReadStreamData{
 		ZoneId:     jobIdFlag,
 		Name:       "term",
 		StreamMeta: *streamMeta,
 	}
 
-	_, err = dshclient.WaveFileReadStreamCommand(RpcClient, data, nil)
+	_, err = dshclient.DoraFileReadStreamCommand(RpcClient, data, nil)
 	if err != nil {
 		return fmt.Errorf("starting stream read: %w", err)
 	}

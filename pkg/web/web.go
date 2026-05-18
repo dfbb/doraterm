@@ -48,7 +48,7 @@ const (
 	ContentLengthHeaderKey = "Content-Length"
 	LastModifiedHeaderKey  = "Last-Modified"
 
-	WaveZoneFileInfoHeaderKey = "X-ZoneFileInfo"
+	DoraZoneFileInfoHeaderKey = "X-ZoneFileInfo"
 )
 
 const HttpReadTimeout = 5 * time.Second
@@ -146,7 +146,7 @@ func marshalReturnValue(data any, err error) []byte {
 	return rtn
 }
 
-func handleWaveFile(w http.ResponseWriter, r *http.Request) {
+func handleDoraFile(w http.ResponseWriter, r *http.Request) {
 	zoneId := r.URL.Query().Get("zoneid")
 	name := r.URL.Query().Get("name")
 	offsetStr := r.URL.Query().Get("offset")
@@ -187,7 +187,7 @@ func handleWaveFile(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set(ContentTypeHeaderKey, ContentTypeBinary)
 	w.Header().Set(ContentLengthHeaderKey, fmt.Sprintf("%d", file.Size-dataStartIdx))
-	w.Header().Set(WaveZoneFileInfoHeaderKey, base64.StdEncoding.EncodeToString(jsonFileBArr))
+	w.Header().Set(DoraZoneFileInfoHeaderKey, base64.StdEncoding.EncodeToString(jsonFileBArr))
 	w.Header().Set(LastModifiedHeaderKey, time.UnixMilli(file.ModTs).UTC().Format(http.TimeFormat))
 	if dataStartIdx >= file.Size {
 		w.WriteHeader(http.StatusOK)
@@ -452,7 +452,7 @@ func RunWebServer(listener net.Listener) {
 	gr.PathPrefix("/wave/stream-file/").HandlerFunc(WebFnWrap(WebFnOpts{AllowCaching: true}, handleStreamFile))
 	// Non-streaming /wave/ routes get timeout protection
 	waveRouter := mux.NewRouter()
-	waveRouter.HandleFunc("/wave/file", WebFnWrap(WebFnOpts{AllowCaching: false}, handleWaveFile))
+	waveRouter.HandleFunc("/wave/file", WebFnWrap(WebFnOpts{AllowCaching: false}, handleDoraFile))
 	waveRouter.HandleFunc("/wave/service", WebFnWrap(WebFnOpts{JsonErrors: true}, handleService))
 
 	gr.PathPrefix("/wave/").Handler(http.TimeoutHandler(waveRouter, HttpTimeoutDuration, "Timeout"))

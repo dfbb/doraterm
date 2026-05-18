@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { WindowService } from "@/app/store/services";
-import { RpcResponseHelper, WshClient } from "@/app/store/wshclient";
+import { RpcResponseHelper, DshClient } from "@/app/store/wshclient";
 import { RpcApi } from "@/app/store/wshclientapi";
 import { Notification, net, safeStorage, shell } from "electron";
 import { getResolvedUpdateChannel } from "emain/updater";
 import { unamePlatform } from "./emain-platform";
 import { getWebContentsByBlockId, webGetSelector } from "./emain-web";
-import { createBrowserWindow, getWaveWindowById, getWaveWindowByWorkspaceId } from "./emain-window";
+import { createBrowserWindow, getDoraWindowById, getDoraWindowByWorkspaceId } from "./emain-window";
 
-export class ElectronWshClientType extends WshClient {
+export class ElectronDshClientType extends DshClient {
     constructor() {
         super("electron");
     }
@@ -19,7 +19,7 @@ export class ElectronWshClientType extends WshClient {
         if (!data.tabid || !data.blockid || !data.workspaceid) {
             throw new Error("tabid and blockid are required");
         }
-        const ww = getWaveWindowByWorkspaceId(data.workspaceid);
+        const ww = getDoraWindowByWorkspaceId(data.workspaceid);
         if (ww == null) {
             throw new Error(`no window found with workspace ${data.workspaceid}`);
         }
@@ -31,7 +31,7 @@ export class ElectronWshClientType extends WshClient {
         return rtn;
     }
 
-    async handle_notify(rh: RpcResponseHelper, notificationOptions: WaveNotificationOptions) {
+    async handle_notify(rh: RpcResponseHelper, notificationOptions: DoraNotificationOptions) {
         new Notification({
             title: notificationOptions.title,
             body: notificationOptions.body,
@@ -45,8 +45,8 @@ export class ElectronWshClientType extends WshClient {
 
     async handle_focuswindow(rh: RpcResponseHelper, windowId: string) {
         console.log(`focuswindow ${windowId}`);
-        const fullConfig = await RpcApi.GetFullConfigCommand(ElectronWshClient);
-        let ww = getWaveWindowById(windowId);
+        const fullConfig = await RpcApi.GetFullConfigCommand(ElectronDshClient);
+        let ww = getDoraWindowById(windowId);
         if (ww == null) {
             const window = await WindowService.GetWindow(windowId);
             if (window == null) {
@@ -121,8 +121,8 @@ export class ElectronWshClientType extends WshClient {
     // }
 }
 
-export let ElectronWshClient: ElectronWshClientType;
+export let ElectronDshClient: ElectronDshClientType;
 
-export function initElectronWshClient() {
-    ElectronWshClient = new ElectronWshClientType();
+export function initElectronDshClient() {
+    ElectronDshClient = new ElectronDshClientType();
 }

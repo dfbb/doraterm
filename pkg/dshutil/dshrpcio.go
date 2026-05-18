@@ -48,7 +48,7 @@ func AdaptMsgChToPty(outputCh chan []byte, oscEsc string, output io.Writer) erro
 		panic("oscEsc must be 5 characters")
 	}
 	for msg := range outputCh {
-		barr, err := EncodeWaveOSCBytes(oscEsc, msg)
+		barr, err := EncodeDoraOSCBytes(oscEsc, msg)
 		if err != nil {
 			return fmt.Errorf("error encoding osc message (AdaptMsgChToPty): %w", err)
 		}

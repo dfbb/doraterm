@@ -29,12 +29,12 @@ import (
 )
 
 // these should both be 5 characters
-const WaveOSC = "23198"
-const WaveServerOSC = "23199"
-const WaveOSCPrefixLen = 5 + 3 // \x1b] + WaveOSC + ; + \x07
+const DoraOSC = "23198"
+const DoraServerOSC = "23199"
+const DoraOSCPrefixLen = 5 + 3 // \x1b] + DoraOSC + ; + \x07
 
-const WaveOSCPrefix = "\x1b]" + WaveOSC + ";"
-const WaveServerOSCPrefix = "\x1b]" + WaveServerOSC + ";"
+const DoraOSCPrefix = "\x1b]" + DoraOSC + ";"
+const DoraServerOSCPrefix = "\x1b]" + DoraServerOSC + ";"
 
 const HexChars = "0123456789ABCDEF"
 const BEL = 0x07
@@ -44,7 +44,7 @@ const ESC = 0x1b
 const DefaultOutputChSize = 32
 const DefaultInputChSize = 32
 
-const WaveJwtTokenVarName = dorabase.WaveJwtTokenVarName
+const DoraJwtTokenVarName = dorabase.DoraJwtTokenVarName
 
 // OSC escape types
 // OSC 23198 ; (JSON | base64-JSON) ST
@@ -71,7 +71,7 @@ func makeOscPrefix(oscNum string) []byte {
 	return output
 }
 
-func EncodeWaveOSCBytes(oscNum string, barr []byte) ([]byte, error) {
+func EncodeDoraOSCBytes(oscNum string, barr []byte) ([]byte, error) {
 	if len(oscNum) != 5 {
 		return nil, fmt.Errorf("oscNum must be 5 characters")
 	}
@@ -88,7 +88,7 @@ func EncodeWaveOSCBytes(oscNum string, barr []byte) ([]byte, error) {
 	}
 	if !hasControlChars {
 		// If no control characters, directly construct the output
-		// \x1b] (2) + WaveOSC + ; (1) + message + \x07 (1)
+		// \x1b] (2) + DoraOSC + ; (1) + message + \x07 (1)
 		output := make([]byte, oscPrefixLen(oscNum)+len(barr)+1)
 		copyOscPrefix(output, oscNum)
 		copy(output[oscPrefixLen(oscNum):], barr)
@@ -112,7 +112,7 @@ func EncodeWaveOSCBytes(oscNum string, barr []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func EncodeWaveOSCMessageEx(oscNum string, msg *RpcMessage) ([]byte, error) {
+func EncodeDoraOSCMessageEx(oscNum string, msg *RpcMessage) ([]byte, error) {
 	if msg == nil {
 		return nil, fmt.Errorf("nil message")
 	}
@@ -120,7 +120,7 @@ func EncodeWaveOSCMessageEx(oscNum string, msg *RpcMessage) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error marshalling message to json: %w", err)
 	}
-	return EncodeWaveOSCBytes(oscNum, barr)
+	return EncodeDoraOSCBytes(oscNum, barr)
 }
 
 var shutdownOnce sync.Once
@@ -134,11 +134,11 @@ func DoShutdown(reason string, exitCode int, quiet bool) {
 	})
 }
 
-func SetupPacketRpcClient(input io.Reader, output io.Writer, serverImpl ServerImpl, debugStr string) (*WshRpc, chan []byte) {
+func SetupPacketRpcClient(input io.Reader, output io.Writer, serverImpl ServerImpl, debugStr string) (*DshRpc, chan []byte) {
 	messageCh := make(chan baseds.RpcInputChType, DefaultInputChSize)
 	outputCh := make(chan []byte, DefaultOutputChSize)
 	rawCh := make(chan []byte, DefaultOutputChSize)
-	rpcClient := MakeWshRpcWithChannels(messageCh, outputCh, dshrpc.RpcContext{}, serverImpl, debugStr)
+	rpcClient := MakeDshRpcWithChannels(messageCh, outputCh, dshrpc.RpcContext{}, serverImpl, debugStr)
 	go packetparser.Parse(input, messageCh, rawCh)
 	go func() {
 		defer func() {
@@ -151,7 +151,7 @@ func SetupPacketRpcClient(input io.Reader, output io.Writer, serverImpl ServerIm
 	return rpcClient, rawCh
 }
 
-func SetupConnRpcClient(conn net.Conn, serverImpl ServerImpl, debugStr string) (*WshRpc, chan error, error) {
+func SetupConnRpcClient(conn net.Conn, serverImpl ServerImpl, debugStr string) (*DshRpc, chan error, error) {
 	inputCh := make(chan baseds.RpcInputChType, DefaultInputChSize)
 	outputCh := make(chan []byte, DefaultOutputChSize)
 	writeErrCh := make(chan error, 1)
@@ -173,7 +173,7 @@ func SetupConnRpcClient(conn net.Conn, serverImpl ServerImpl, debugStr string) (
 		defer conn.Close()
 		AdaptStreamToMsgCh(conn, inputCh, nil)
 	}()
-	rtn := MakeWshRpcWithChannels(inputCh, outputCh, dshrpc.RpcContext{}, serverImpl, debugStr)
+	rtn := MakeDshRpcWithChannels(inputCh, outputCh, dshrpc.RpcContext{}, serverImpl, debugStr)
 	return rtn, writeErrCh, nil
 }
 
@@ -185,7 +185,7 @@ func tryTcpSocket(sockName string) (net.Conn, error) {
 	return net.DialTCP("tcp", nil, addr)
 }
 
-func SetupDomainSocketRpcClient(sockName string, serverImpl ServerImpl, debugName string) (*WshRpc, error) {
+func SetupDomainSocketRpcClient(sockName string, serverImpl ServerImpl, debugName string) (*DshRpc, error) {
 	sockName = dorabase.ExpandHomeDirSafe(sockName)
 	resolvedPath, err := filepath.EvalSymlinks(sockName)
 	if err == nil {
@@ -225,7 +225,7 @@ func MakeClientJWTToken(rpcCtx dshrpc.RpcContext) (string, error) {
 			panic("Invalid RpcCtx, no routeid")
 		}
 	}
-	claims := &dorajwt.WaveJwtClaims{
+	claims := &dorajwt.DoraJwtClaims{
 		Sock:      rpcCtx.SockName,
 		RouteId:   rpcCtx.RouteId,
 		ProcRoute: rpcCtx.ProcRoute,
@@ -236,7 +236,7 @@ func MakeClientJWTToken(rpcCtx dshrpc.RpcContext) (string, error) {
 	return dorajwt.Sign(claims)
 }
 
-func claimsToRpcCtx(claims *dorajwt.WaveJwtClaims) *dshrpc.RpcContext {
+func claimsToRpcCtx(claims *dorajwt.DoraJwtClaims) *dshrpc.RpcContext {
 	return &dshrpc.RpcContext{
 		SockName:  claims.Sock,
 		RouteId:   claims.RouteId,
@@ -255,7 +255,7 @@ func ValidateAndExtractRpcContextFromToken(tokenStr string) (*dshrpc.RpcContext,
 	return claimsToRpcCtx(claims), nil
 }
 
-func RunWshRpcOverListener(listener net.Listener, readCallback func()) {
+func RunDshRpcOverListener(listener net.Listener, readCallback func()) {
 	defer log.Printf("domain socket listener shutting down\n")
 	for {
 		conn, err := listener.Accept()
@@ -358,11 +358,11 @@ func handleDomainSocketClient(conn net.Conn, readCallback func()) {
 
 // only for use on client
 func ExtractUnverifiedRpcContext(tokenStr string) (*dshrpc.RpcContext, error) {
-	token, _, err := new(jwt.Parser).ParseUnverified(tokenStr, &dorajwt.WaveJwtClaims{})
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenStr, &dorajwt.DoraJwtClaims{})
 	if err != nil {
 		return nil, fmt.Errorf("error parsing token: %w", err)
 	}
-	claims, ok := token.Claims.(*dorajwt.WaveJwtClaims)
+	claims, ok := token.Claims.(*dorajwt.DoraJwtClaims)
 	if !ok {
 		return nil, fmt.Errorf("error getting claims from token")
 	}
@@ -371,11 +371,11 @@ func ExtractUnverifiedRpcContext(tokenStr string) (*dshrpc.RpcContext, error) {
 
 // only for use on client
 func ExtractUnverifiedSocketName(tokenStr string) (string, error) {
-	token, _, err := new(jwt.Parser).ParseUnverified(tokenStr, &dorajwt.WaveJwtClaims{})
+	token, _, err := new(jwt.Parser).ParseUnverified(tokenStr, &dorajwt.DoraJwtClaims{})
 	if err != nil {
 		return "", fmt.Errorf("error parsing token: %w", err)
 	}
-	claims, ok := token.Claims.(*dorajwt.WaveJwtClaims)
+	claims, ok := token.Claims.(*dorajwt.DoraJwtClaims)
 	if !ok {
 		return "", fmt.Errorf("error getting claims from token")
 	}
@@ -410,8 +410,8 @@ func GetInfo() dshrpc.RemoteInfo {
 
 func InstallRcFiles() error {
 	home := dorabase.GetHomeDir()
-	waveDir := filepath.Join(home, dorabase.RemoteWaveHomeDirName)
-	wshBinDir := filepath.Join(waveDir, dorabase.RemoteWshBinDirName)
+	waveDir := filepath.Join(home, dorabase.RemoteDoraHomeDirName)
+	wshBinDir := filepath.Join(waveDir, dorabase.RemoteDshBinDirName)
 	return shellutil.InitRcFiles(waveDir, wshBinDir)
 }
 

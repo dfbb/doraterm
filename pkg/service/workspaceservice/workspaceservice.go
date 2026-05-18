@@ -52,7 +52,7 @@ func (svc *WorkspaceService) UpdateWorkspace(ctx context.Context, workspaceId st
 		return nil, nil
 	}
 
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event: dps.Event_WorkspaceUpdate,
 	})
 

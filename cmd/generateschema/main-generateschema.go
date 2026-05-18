@@ -16,12 +16,9 @@ import (
 	"github.com/dfbb/doraterm/pkg/dconfig"
 )
 
-const WaveSchemaSettingsFileName = "schema/settings.json"
-const WaveSchemaConnectionsFileName = "schema/connections.json"
-const WaveSchemaAiPresetsFileName = "schema/aipresets.json"
-const WaveSchemaWidgetsFileName = "schema/widgets.json"
-const WaveSchemaBackgroundsFileName = "schema/backgrounds.json"
-const WaveSchemaWaveAIFileName = "schema/waveai.json"
+const DoraSchemaSettingsFileName = "schema/settings.json"
+const DoraSchemaWidgetsFileName = "schema/widgets.json"
+const DoraSchemaBackgroundsFileName = "schema/backgrounds.json"
 
 // ViewNameType is a string type whose JSON Schema offers enum suggestions for the most
 // common widget view names while still accepting any arbitrary string value.
@@ -182,37 +179,19 @@ func generateWidgetsSchema(dir string) error {
 }
 
 func main() {
-	err := generateSchema(&dconfig.SettingsType{}, WaveSchemaSettingsFileName, false)
+	err := generateSchema(&dconfig.SettingsType{}, DoraSchemaSettingsFileName, false)
 	if err != nil {
 		log.Fatalf("settings schema error: %v", err)
 	}
 
-	connectionTemplate := make(map[string]dconfig.ConnKeywords)
-	err = generateSchema(&connectionTemplate, WaveSchemaConnectionsFileName, false)
-	if err != nil {
-		log.Fatalf("connections schema error: %v", err)
-	}
-
-	aiPresetsTemplate := make(map[string]dconfig.AiSettingsType)
-	err = generateSchema(&aiPresetsTemplate, WaveSchemaAiPresetsFileName, false)
-	if err != nil {
-		log.Fatalf("ai presets schema error: %v", err)
-	}
-
-	err = generateWidgetsSchema(WaveSchemaWidgetsFileName)
+	err = generateWidgetsSchema(DoraSchemaWidgetsFileName)
 	if err != nil {
 		log.Fatalf("widgets schema error: %v", err)
 	}
 
 	backgroundsTemplate := make(map[string]dconfig.BackgroundConfigType)
-	err = generateSchema(&backgroundsTemplate, WaveSchemaBackgroundsFileName, true)
+	err = generateSchema(&backgroundsTemplate, DoraSchemaBackgroundsFileName, true)
 	if err != nil {
 		log.Fatalf("backgrounds schema error: %v", err)
-	}
-
-	waveAITemplate := make(map[string]dconfig.AIModeConfigType)
-	err = generateSchema(&waveAITemplate, WaveSchemaWaveAIFileName, false)
-	if err != nil {
-		log.Fatalf("waveai schema error: %v", err)
 	}
 }

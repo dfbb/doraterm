@@ -167,12 +167,12 @@ func StartLocalShellProc(logCtx context.Context, termSize doraobj.TermSize, cmdS
 		blocklogger.Infof(logCtx, "error packing swap token: %v", err)
 	} else {
 		blocklogger.Debugf(logCtx, "packed swaptoken %s\n", packedToken)
-		shellutil.UpdateCmdEnv(ecmd, map[string]string{dorabase.WaveSwapTokenVarName: packedToken})
+		shellutil.UpdateCmdEnv(ecmd, map[string]string{dorabase.DoraSwapTokenVarName: packedToken})
 	}
-	jwtToken := cmdOpts.SwapToken.Env[dorabase.WaveJwtTokenVarName]
+	jwtToken := cmdOpts.SwapToken.Env[dorabase.DoraJwtTokenVarName]
 	if jwtToken != "" && cmdOpts.ForceJwt {
 		blocklogger.Debugf(logCtx, "adding JWT token to environment\n")
-		shellutil.UpdateCmdEnv(ecmd, map[string]string{dorabase.WaveJwtTokenVarName: jwtToken})
+		shellutil.UpdateCmdEnv(ecmd, map[string]string{dorabase.DoraJwtTokenVarName: jwtToken})
 	}
 
 	/*

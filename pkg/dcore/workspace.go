@@ -64,7 +64,7 @@ func CreateWorkspace(ctx context.Context, name string, icon string, color string
 		return nil, fmt.Errorf("error creating tab: %w", err)
 	}
 
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event: dps.Event_WorkspaceUpdate,
 	})
 
@@ -144,7 +144,7 @@ func DeleteWorkspace(ctx context.Context, workspaceId string, force bool) (bool,
 		return false, "", fmt.Errorf("error deleting workspace: %w", err)
 	}
 	log.Printf("deleted workspace %s\n", workspaceId)
-	dps.Broker.Publish(dps.WaveEvent{
+	dps.Broker.Publish(dps.DoraEvent{
 		Event: dps.Event_WorkspaceUpdate,
 	})
 
@@ -253,7 +253,7 @@ func CreateTab(ctx context.Context, workspaceId string, tabName string, activate
 		}
 		tabBg := getTabBackground()
 		if tabBg != "" {
-			tabORef := doraobj.ORefFromWaveObj(tab)
+			tabORef := doraobj.ORefFromDoraObj(tab)
 			dstore.UpdateObjectMeta(ctx, *tabORef, doraobj.MetaMapType{doraobj.MetaKey_TabBackground: tabBg}, false)
 		}
 	}

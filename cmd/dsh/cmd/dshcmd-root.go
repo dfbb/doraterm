@@ -29,12 +29,12 @@ var (
 var WrappedStdin io.Reader = os.Stdin
 var WrappedStdout io.Writer = &WrappedWriter{dest: os.Stdout}
 var WrappedStderr io.Writer = &WrappedWriter{dest: os.Stderr}
-var RpcClient *dshutil.WshRpc
+var RpcClient *dshutil.DshRpc
 var RpcContext dshrpc.RpcContext
 var RpcClientRouteId string
 var UsingTermWshMode bool
 var blockArg string
-var WshExitCode int
+var DshExitCode int
 
 type WrappedWriter struct {
 	dest io.Writer
@@ -83,7 +83,7 @@ func OutputHelpMessage(cmd *cobra.Command) {
 }
 
 func preRunSetupRpcClient(cmd *cobra.Command, args []string) error {
-	jwtToken := os.Getenv(dshutil.WaveJwtTokenVarName)
+	jwtToken := os.Getenv(dshutil.DoraJwtTokenVarName)
 	if jwtToken == "" {
 		return fmt.Errorf("wsh must be run inside a Wave-managed SSH session (DORATERM_JWT not found)")
 	}
@@ -153,12 +153,12 @@ func setupRpcClientWithToken(swapTokenStr string) (dshrpc.CommandAuthenticateRtn
 func setupRpcClient(serverImpl dshutil.ServerImpl, jwtToken string) error {
 	rpcCtx, err := dshutil.ExtractUnverifiedRpcContext(jwtToken)
 	if err != nil {
-		return fmt.Errorf("error extracting rpc context from %s: %v", dshutil.WaveJwtTokenVarName, err)
+		return fmt.Errorf("error extracting rpc context from %s: %v", dshutil.DoraJwtTokenVarName, err)
 	}
 	RpcContext = *rpcCtx
 	sockName, err := dshutil.ExtractUnverifiedSocketName(jwtToken)
 	if err != nil {
-		return fmt.Errorf("error extracting socket name from %s: %v", dshutil.WaveJwtTokenVarName, err)
+		return fmt.Errorf("error extracting socket name from %s: %v", dshutil.DoraJwtTokenVarName, err)
 	}
 	RpcClient, err = dshutil.SetupDomainSocketRpcClient(sockName, serverImpl, "wshcmd")
 	if err != nil {
@@ -227,7 +227,7 @@ func sendActivity(wshCmdName string, success bool) {
 	if !success {
 		dataMap[wshCmdName+"#"+"error"] = 1
 	}
-	dshclient.WshActivityCommand(RpcClient, dataMap, nil)
+	dshclient.DshActivityCommand(RpcClient, dataMap, nil)
 }
 
 // Execute executes the root command.
@@ -239,7 +239,7 @@ func Execute() {
 			debug.PrintStack()
 			dshutil.DoShutdown("", 1, true)
 		} else {
-			dshutil.DoShutdown("", WshExitCode, false)
+			dshutil.DoShutdown("", DshExitCode, false)
 		}
 	}()
 	rootCmd.PersistentFlags().StringVarP(&blockArg, "block", "b", "", "for commands which require a block id")

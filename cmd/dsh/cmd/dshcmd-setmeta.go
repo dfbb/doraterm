@@ -189,11 +189,11 @@ func setMetaRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		return err
 	}
 
-	setMetaWshCmd := &dshrpc.CommandSetMetaData{
+	setMetaDshCmd := &dshrpc.CommandSetMetaData{
 		ORef: *fullORef,
 		Meta: fullMeta,
 	}
-	err = dshclient.SetMetaCommand(RpcClient, *setMetaWshCmd, &dshrpc.RpcOpts{Timeout: 2000})
+	err = dshclient.SetMetaCommand(RpcClient, *setMetaDshCmd, &dshrpc.RpcOpts{Timeout: 2000})
 	if err != nil {
 		return fmt.Errorf("setting metadata: %v", err)
 	}
