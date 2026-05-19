@@ -187,10 +187,13 @@ tasks:
             - dist/bin/dorasrv.x64.exe
 
     build:server:windows:
-        desc: Build the dorasrv component for Windows platforms (only generates artifacts for the current architecture).
-        platforms: [windows]
+        desc: Build the dorasrv component for Windows platforms (cross-compiles on macOS/Linux).
         cmds:
-            - cmd: powershell -NoProfile -NonInteractive -Command "Remove-Item -Force -ErrorAction SilentlyContinue -Path dist/bin/dorasrv*"
+            - cmd: rm -f dist/bin/dorasrv*.exe
+              platforms: [darwin, linux]
+              ignore_error: true
+            - cmd: powershell -NoProfile -NonInteractive -Command "Remove-Item -Force -ErrorAction SilentlyContinue -Path dist/bin/dorasrv*.exe"
+              platforms: [windows]
               ignore_error: true
             - task: build:server:internal
               vars:

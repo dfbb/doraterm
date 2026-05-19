@@ -22,7 +22,7 @@ const config = {
         {
             from: "./dist",
             to: "./dist",
-            filter: ["**/*", "!bin/*", "bin/dorasrv.${arch}*", "bin/dsh*", "!tsunamiscaffold/**/*"],
+            filter: ["**/*", "!bin/*", "!tsunamiscaffold/**/*"],
         },
         {
             from: ".",
@@ -45,6 +45,13 @@ const config = {
         "dist/schema/**/*", // schema files for Monaco editor
     ],
     mac: {
+        files: [
+            {
+                from: "./dist",
+                to: "./dist",
+                filter: ["bin/dorasrv.*", "!bin/dorasrv.*.exe", "bin/dsh*-darwin-*"],
+            },
+        ],
         target: [
             {
                 target: "zip",
@@ -96,6 +103,14 @@ const config = {
         afterInstall: "build/deb-postinstall.tpl",
     },
     win: {
+        artifactName: "${productName}-win32-${arch}-${version}.${ext}",
+        files: [
+            {
+                from: "./dist",
+                to: "./dist",
+                filter: ["bin/dorasrv.${arch}.exe", "bin/dsh*.exe"],
+            },
+        ],
         target: ["nsis", "msi", "zip"],
         signtoolOptions: windowsShouldSign && {
             signingHashAlgorithms: ["sha256"],
