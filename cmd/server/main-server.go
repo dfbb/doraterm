@@ -211,13 +211,13 @@ func main() {
 		log.Printf("error ensuring dora caches dir: %v\n", err)
 		return
 	}
-	waveLock, err := dorabase.AcquireDoraLock()
+	doraLock, err := dorabase.AcquireDoraLock()
 	if err != nil {
 		log.Printf("error acquiring dora lock (another instance of Dora is likely running): %v\n", err)
 		return
 	}
 	defer func() {
-		err = waveLock.Close()
+		err = doraLock.Close()
 		if err != nil {
 			log.Printf("error releasing dora lock: %v\n", err)
 		}
@@ -265,7 +265,7 @@ func main() {
 
 	err = shellutil.FixupDoraZshHistory()
 	if err != nil {
-		log.Printf("error fixing up wave zsh history: %v\n", err)
+		log.Printf("error fixing up dora zsh history: %v\n", err)
 	}
 	createMainDshClient()
 	sigutil.InstallShutdownSignalHandlers(doShutdown)
@@ -345,6 +345,6 @@ func main() {
 	}
 	go dshutil.RunDshRpcOverListener(unixListener, nil)
 	web.RunWebServer(webListener) // blocking
-	runtime.KeepAlive(waveLock)
+	runtime.KeepAlive(doraLock)
 }
 

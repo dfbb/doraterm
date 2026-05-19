@@ -41,7 +41,7 @@ export class FocusManager {
         this.refocusNode();
     }
 
-    waveAIFocusWithin(): boolean {
+    doraAIFocusWithin(): boolean {
         return false;
     }
 

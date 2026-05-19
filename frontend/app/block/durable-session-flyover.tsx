@@ -26,11 +26,11 @@ function isTermViewModel(viewModel: ViewModel): viewModel is TermViewModel {
 }
 
 function LearnMoreButton() {
-    const waveEnv = useDoraEnv<BlockEnv>();
+    const doraEnv = useDoraEnv<BlockEnv>();
     return (
         <button
             className="text-muted text-xs hover:underline cursor-pointer text-left"
-            onClick={() => waveEnv.electron.openExternal("https://docs.doraterm.dev/durable-sessions")}
+            onClick={() => doraEnv.electron.openExternal("https://docs.doraterm.dev/durable-sessions")}
         >
             Learn More
         </button>
@@ -57,7 +57,7 @@ function StandardSessionContent({ viewModel, onClose }: StandardSessionContentPr
             </div>
             <div className="text-xs text-secondary leading-relaxed">
                 Standard SSH sessions end when the connection drops. Durable sessions keep your shell state, running
-                programs, and history alive through network changes, computer sleep, and Wave restarts.
+                programs, and history alive through network changes, computer sleep, and Dora restarts.
             </div>
             <button
                 className="bg-zinc-700 text-foreground rounded px-3 py-1.5 text-xs font-medium hover:bg-zinc-600 transition-colors cursor-pointer flex items-center justify-center gap-2 mt-1"
@@ -103,7 +103,7 @@ function DurableDetachedContent({ onClose }: DurableDetachedContentProps) {
                 Durable Session (Detached)
             </div>
             <div className="text-xs text-secondary leading-relaxed">
-                Connection lost, but your session is still running on the remote server. Wave will automatically
+                Connection lost, but your session is still running on the remote server. Dora will automatically
                 reconnect when the connection is restored.
             </div>
             <LearnMoreButton />
@@ -335,11 +335,11 @@ export function DurableSessionFlyover({
     placement = "bottom",
     divClassName,
 }: DurableSessionFlyoverProps) {
-    const waveEnv = useDoraEnv<BlockEnv>();
-    const connName = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(blockId, "connection"));
+    const doraEnv = useDoraEnv<BlockEnv>();
+    const connName = jotai.useAtomValue(doraEnv.getBlockMetaKeyAtom(blockId, "connection"));
     const termDurableStatus = util.useAtomValueSafe(viewModel?.termDurableStatus);
     const termConfigedDurable = util.useAtomValueSafe(viewModel?.termConfigedDurable);
-    const connStatus = jotai.useAtomValue(waveEnv.getConnStatusAtom(connName));
+    const connStatus = jotai.useAtomValue(doraEnv.getConnStatusAtom(connName));
 
     const { color: durableIconColor, iconType: durableIconType } = getIconProps(
         termDurableStatus,

@@ -225,7 +225,7 @@ function DoraBlock(props: DoraBlockProps) {
     const sizeInKB = Math.round((block.content.length / 1024) * 10) / 10;
     const displayName = block.id.replace(/^"|"$/g, "");
     return (
-        <div className="waveblock">
+        <div className="dorablock">
             <div className="dora-block-content">
                 <div className="dora-block-icon">
                     <i className="fas fa-file-code"></i>
@@ -367,7 +367,7 @@ const Markdown = ({
             <CodeBlock children={props.children} onClickExecute={onClickExecute} />
         ),
     };
-    markdownComponents["waveblock"] = (props: any) => <DoraBlock {...props} blockmap={contentBlocksMap} />;
+    markdownComponents["dorablock"] = (props: any) => <DoraBlock {...props} blockmap={contentBlocksMap} />;
     markdownComponents["mermaidblock"] = (props: any) => {
         const getTextContent = (children: any): string => {
             if (typeof children === "string") {
@@ -432,12 +432,12 @@ const Markdown = ({
                             // Alternatively, to allow only certain class names:
                             // ['className', 'hljs-number', 'hljs-title', 'hljs-variable']
                         ],
-                        waveblock: [["blockkey"]],
+                        dorablock: [["blockkey"]],
                     },
                     tagNames: [
                         ...(defaultSchema.tagNames || []),
                         "span",
-                        "waveblock",
+                        "dorablock",
                         "picture",
                         "source",
                         "mermaidblock",

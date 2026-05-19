@@ -11,7 +11,7 @@ declare global {
         | "connchange"
         | "sysinfo"
         | "controllerstatus"
-        | "waveobj:update"
+        | "doraobj:update"
         | "blockfile"
         | "config"
         | "userinput"
@@ -34,7 +34,7 @@ declare global {
         { event: "connchange"; data?: ConnStatus; } | 
         { event: "sysinfo"; data?: TimeSeriesData; } | 
         { event: "controllerstatus"; data?: BlockControllerRuntimeStatus; } | 
-        { event: "waveobj:update"; data?: DoraObjUpdate; } | 
+        { event: "doraobj:update"; data?: DoraObjUpdate; } | 
         { event: "blockfile"; data?: WSFileEventData; } | 
         { event: "config"; data?: WatcherUpdate; } | 
         { event: "userinput"; data?: UserInputRequest; } | 

@@ -28,7 +28,7 @@ import {
 import { updater } from "./updater";
 
 let isDoraSrvDead = false;
-let waveSrvProc: child_process.ChildProcessWithoutNullStreams | null = null;
+let doraSrvProc: child_process.ChildProcessWithoutNullStreams | null = null;
 let DoraVersion = "unknown"; // set by DORASRV-ESTART
 let DoraBuildTime = 0; // set by DORASRV-ESTART
 
@@ -36,17 +36,17 @@ export function getDoraVersion(): { version: string; buildTime: number } {
     return { version: DoraVersion, buildTime: DoraBuildTime };
 }
 
-let waveSrvReadyResolve = (value: boolean) => {};
-const waveSrvReady: Promise<boolean> = new Promise((resolve, _) => {
-    waveSrvReadyResolve = resolve;
+let doraSrvReadyResolve = (value: boolean) => {};
+const doraSrvReady: Promise<boolean> = new Promise((resolve, _) => {
+    doraSrvReadyResolve = resolve;
 });
 
 export function getDoraSrvReady(): Promise<boolean> {
-    return waveSrvReady;
+    return doraSrvReady;
 }
 
 export function getDoraSrvProc(): child_process.ChildProcessWithoutNullStreams | null {
-    return waveSrvProc;
+    return doraSrvProc;
 }
 
 export function getIsDoraSrvDead(): boolean {
@@ -58,7 +58,7 @@ export function runDoraSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promis
     if (remote.isRemote && remote.target != null) {
         process.env[WSServerEndpointVarName] = remote.target.baseUrl;
         process.env[WebServerEndpointVarName] = remote.target.baseUrl;
-        waveSrvReadyResolve(true);
+        doraSrvReadyResolve(true);
         return Promise.resolve(true);
     }
     let pResolve: (value: boolean) => void;
@@ -78,8 +78,8 @@ export function runDoraSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promis
     envCopy[DoraAuthKeyEnv] = AuthKey;
     envCopy[DoraDataHomeVarName] = getDoraDataDir();
     envCopy[DoraConfigHomeVarName] = getDoraConfigDir();
-    const waveSrvCmd = getDoraSrvPath();
-    console.log("trying to run local server", waveSrvCmd);
+    const doraSrvCmd = getDoraSrvPath();
+    console.log("trying to run local server", doraSrvCmd);
     const proc = child_process.spawn(getDoraSrvPath(), {
         cwd: getDoraSrvCwd(),
         env: envCopy,
@@ -95,7 +95,7 @@ export function runDoraSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promis
     });
     proc.on("spawn", (e) => {
         console.log("spawned dorasrv");
-        waveSrvProc = proc;
+        doraSrvProc = proc;
         pResolve(true);
     });
     proc.on("error", (e) => {
@@ -128,7 +128,7 @@ export function runDoraSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promis
             process.env[WebServerEndpointVarName] = startParams[2];
             DoraVersion = startParams[3];
             DoraBuildTime = parseInt(startParams[4]);
-            waveSrvReadyResolve(true);
+            doraSrvReadyResolve(true);
             return;
         }
         if (line.startsWith("DORASRV-EVENT:")) {

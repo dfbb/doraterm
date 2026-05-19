@@ -75,8 +75,8 @@ type HeaderTextElemsProps = {
 };
 
 const HeaderTextElems = React.memo(({ viewModel, blockId, preview, error }: HeaderTextElemsProps) => {
-    const waveEnv = useDoraEnv<BlockEnv>();
-    const frameTextAtom = waveEnv.getBlockMetaKeyAtom(blockId, "frame:text");
+    const doraEnv = useDoraEnv<BlockEnv>();
+    const frameTextAtom = doraEnv.getBlockMetaKeyAtom(blockId, "frame:text");
     const frameText = jotai.useAtomValue(frameTextAtom);
     let headerTextUnion = util.useAtomValueSafe(viewModel?.viewText);
     headerTextUnion = frameText ?? headerTextUnion;
@@ -212,10 +212,10 @@ const BlockFrame_Header = ({
     preview,
     error,
 }: BlockFrameProps & { error?: Error }) => {
-    const waveEnv = useDoraEnv<BlockEnv>();
-    const metaView = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view"));
-    const metaFrameTitle = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:title"));
-    const metaFrameIcon = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:icon"));
+    const doraEnv = useDoraEnv<BlockEnv>();
+    const metaView = jotai.useAtomValue(doraEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view"));
+    const metaFrameTitle = jotai.useAtomValue(doraEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:title"));
+    const metaFrameIcon = jotai.useAtomValue(doraEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:icon"));
     let viewName = util.useAtomValueSafe(viewModel?.viewName) ?? blockViewToName(metaView);
     let viewIconUnion = util.useAtomValueSafe(viewModel?.viewIcon) ?? blockViewToIcon(metaView);
     const preIconButton = util.useAtomValueSafe(viewModel?.preIconButton);
@@ -225,7 +225,7 @@ const BlockFrame_Header = ({
     const badge = jotai.useAtomValue(getBlockBadgeAtom(useTermHeader ? nodeModel.blockId : null));
     const magnified = jotai.useAtomValue(nodeModel.isMagnified);
     const prevMagifiedState = React.useRef(magnified);
-    const iconColor = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "icon:color"));
+    const iconColor = jotai.useAtomValue(doraEnv.getBlockMetaKeyAtom(nodeModel.blockId, "icon:color"));
     const dragHandleRef = preview ? null : nodeModel.dragHandleRef;
     viewName = metaFrameTitle ?? viewName;
     viewIconUnion = metaFrameIcon ?? viewIconUnion;
@@ -244,7 +244,7 @@ const BlockFrame_Header = ({
             className={cn("block-frame-default-header", useTermHeader && "!pl-[2px]")}
             data-role="block-header"
             ref={dragHandleRef}
-            onContextMenu={(e) => handleHeaderContextMenu(e, nodeModel.blockId, viewModel, nodeModel, waveEnv)}
+            onContextMenu={(e) => handleHeaderContextMenu(e, nodeModel.blockId, viewModel, nodeModel, doraEnv)}
         >
             {!useTermHeader && (
                 <>

@@ -19,7 +19,7 @@ import (
 
 var ErrNotFound = fmt.Errorf("not found")
 
-func waveObjTableName(w doraobj.DoraObj) string {
+func doraObjTableName(w doraobj.DoraObj) string {
 	return "db_" + w.GetOType()
 }
 
@@ -174,12 +174,12 @@ func dbSelectOIDs(ctx context.Context, otype string, oids []string) ([]doraobj.D
 		tx.Select(&rows, query, dbutil.QuickJson(oids))
 		rtn := make([]doraobj.DoraObj, 0, len(rows))
 		for _, row := range rows {
-			waveObj, err := doraobj.FromJson(row.Data)
+			doraObj, err := doraobj.FromJson(row.Data)
 			if err != nil {
 				return nil, err
 			}
-			doraobj.SetVersion(waveObj, row.Version)
-			rtn = append(rtn, waveObj)
+			doraobj.SetVersion(doraObj, row.Version)
+			rtn = append(rtn, doraObj)
 		}
 		return rtn, nil
 	})
@@ -225,13 +225,13 @@ func DBGetAllObjsByType[T doraobj.DoraObj](ctx context.Context, otype string) ([
 		var rows []idDataType
 		tx.Select(&rows, query)
 		for _, row := range rows {
-			waveObj, err := doraobj.FromJson(row.Data)
+			doraObj, err := doraobj.FromJson(row.Data)
 			if err != nil {
 				return nil, err
 			}
-			doraobj.SetVersion(waveObj, row.Version)
+			doraobj.SetVersion(doraObj, row.Version)
 
-			rtn = append(rtn, waveObj.(T))
+			rtn = append(rtn, doraObj.(T))
 		}
 		return rtn, nil
 	})
@@ -308,7 +308,7 @@ func DBUpdate(ctx context.Context, val doraobj.DoraObj) error {
 		return err
 	}
 	return WithTx(ctx, func(tx *TxWrap) error {
-		table := waveObjTableName(val)
+		table := doraObjTableName(val)
 		query := fmt.Sprintf("UPDATE %s SET data = ?, version = version+1 WHERE oid = ? RETURNING version", table)
 		newVersion := tx.GetInt(query, jsonData, oid)
 		doraobj.SetVersion(val, newVersion)
@@ -352,7 +352,7 @@ func DBInsert(ctx context.Context, val doraobj.DoraObj) error {
 		return err
 	}
 	return WithTx(ctx, func(tx *TxWrap) error {
-		table := waveObjTableName(val)
+		table := doraObjTableName(val)
 		doraobj.SetVersion(val, 1)
 		query := fmt.Sprintf("INSERT INTO %s (oid, version, data) VALUES (?, ?, ?)", table)
 		tx.Exec(query, oid, 1, jsonData)

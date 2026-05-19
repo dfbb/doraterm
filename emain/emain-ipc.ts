@@ -233,7 +233,7 @@ export function initIpcHandlers() {
     electron.ipcMain.on("download", (event, payload) => {
         const baseName = encodeURIComponent(path.basename(payload.filePath));
         const streamingUrl =
-            getWebServerEndpoint() + "/wave/stream-file/" + baseName + "?path=" + encodeURIComponent(payload.filePath);
+            getWebServerEndpoint() + "/dora/stream-file/" + baseName + "?path=" + encodeURIComponent(payload.filePath);
         event.sender.downloadURL(streamingUrl);
     });
 
@@ -291,8 +291,8 @@ export function initIpcHandlers() {
         if (!hasBeforeInputRegisteredMap.get(focusedId)) {
             hasBeforeInputRegisteredMap.set(focusedId, true);
             webviewWc.on("before-input-event", (e, input) => {
-                let waveEvent = keyutil.adaptFromElectronKeyEvent(input);
-                handleCtrlShiftState(parentWc, waveEvent);
+                let doraEvent = keyutil.adaptFromElectronKeyEvent(input);
+                handleCtrlShiftState(parentWc, doraEvent);
                 if (webviewFocusId != focusedId) {
                     return;
                 }
@@ -300,9 +300,9 @@ export function initIpcHandlers() {
                     return;
                 }
                 for (let keyDesc of webviewKeys) {
-                    if (keyutil.checkKeyPressed(waveEvent, keyDesc)) {
+                    if (keyutil.checkKeyPressed(doraEvent, keyDesc)) {
                         e.preventDefault();
-                        parentWc.send("reinject-key", waveEvent);
+                        parentWc.send("reinject-key", doraEvent);
                         console.log("webview reinject-key", keyDesc);
                         return;
                     }
@@ -400,7 +400,7 @@ export function initIpcHandlers() {
                     tabView.webContents.send("dora-init", tabView.savedInitOpts);
                 }
             } else if (status === "dora-ready") {
-                tabView.waveReadyResolve();
+                tabView.doraReadyResolve();
             }
             return;
         }

@@ -15,13 +15,13 @@ const (
 	DefaultInputChSize  = 32
 )
 
-var waveSrvClient_Singleton *dshutil.DshRpc
-var waveSrvClient_Once = &sync.Once{}
+var doraSrvClient_Singleton *dshutil.DshRpc
+var doraSrvClient_Once = &sync.Once{}
 
 // returns the dorasrv main rpc client singleton
 func GetMainRpcClient() *dshutil.DshRpc {
-	waveSrvClient_Once.Do(func() {
-		waveSrvClient_Singleton = dshutil.MakeDshRpc(dshrpc.RpcContext{}, &DshServerImpl, "main-client")
+	doraSrvClient_Once.Do(func() {
+		doraSrvClient_Singleton = dshutil.MakeDshRpc(dshrpc.RpcContext{}, &DshServerImpl, "main-client")
 	})
-	return waveSrvClient_Singleton
+	return doraSrvClient_Singleton
 }

@@ -21,7 +21,7 @@ import WorkspaceSVG from "../asset/workspace.svg";
 import { IconButton } from "../element/iconbutton";
 import { globalStore } from "@/app/store/jotaiStore";
 import { makeORef } from "../store/wos";
-import { waveEventSubscribeSingle } from "../store/wps";
+import { doraEventSubscribeSingle } from "../store/wps";
 import { WorkspaceEditor } from "./workspaceeditor";
 import "./workspaceswitcher.scss";
 
@@ -75,7 +75,7 @@ const WorkspaceSwitcher = forwardRef<HTMLDivElement>((_, ref) => {
 
     useEffect(
         () =>
-            waveEventSubscribeSingle({
+            doraEventSubscribeSingle({
                 eventType: "workspace:update",
                 handler: () => fireAndForget(updateWorkspaceList),
             }),

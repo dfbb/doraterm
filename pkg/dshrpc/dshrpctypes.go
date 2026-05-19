@@ -458,8 +458,8 @@ type ActivityUpdate struct {
 	FgMinutes           int                   `json:"fgminutes,omitempty"`
 	ActiveMinutes       int                   `json:"activeminutes,omitempty"`
 	OpenMinutes         int                   `json:"openminutes,omitempty"`
-	DoraAIFgMinutes     int                   `json:"waveaifgminutes,omitempty"`
-	DoraAIActiveMinutes int                   `json:"waveaiactiveminutes,omitempty"`
+	DoraAIFgMinutes     int                   `json:"doraaifgminutes,omitempty"`
+	DoraAIActiveMinutes int                   `json:"doraaiactiveminutes,omitempty"`
 	NumTabs             int                   `json:"numtabs,omitempty"`
 	NewTab              int                   `json:"newtab,omitempty"`
 	NumBlocks           int                   `json:"numblocks,omitempty"`

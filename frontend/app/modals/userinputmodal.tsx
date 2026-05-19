@@ -64,12 +64,12 @@ const UserInputModal = (userInputRequest: UserInputRequest) => {
     }, [handleSendConfirm, handleSendText, userInputRequest.responsetype]);
 
     const handleKeyDown = useCallback(
-        (waveEvent: DoraKeyboardEvent): boolean => {
-            if (keyutil.checkKeyPressed(waveEvent, "Escape")) {
+        (doraEvent: DoraKeyboardEvent): boolean => {
+            if (keyutil.checkKeyPressed(doraEvent, "Escape")) {
                 handleSendErrResponse();
                 return true;
             }
-            if (keyutil.checkKeyPressed(waveEvent, "Enter")) {
+            if (keyutil.checkKeyPressed(doraEvent, "Enter")) {
                 handleSubmit();
                 return true;
             }

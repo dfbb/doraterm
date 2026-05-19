@@ -215,7 +215,7 @@ func DefaultTermSize() doraobj.TermSize {
 	return doraobj.TermSize{Rows: DefaultTermRows, Cols: DefaultTermCols}
 }
 
-func WaveshellLocalEnvVars(termType string) map[string]string {
+func DorashellLocalEnvVars(termType string) map[string]string {
 	rtn := make(map[string]string)
 	if termType != "" {
 		rtn["TERM"] = termType
@@ -282,11 +282,11 @@ func GetLocalBashRcFileOverride() string {
 	return filepath.Join(dorabase.GetDoraDataDir(), BashIntegrationDir, ".bashrc")
 }
 
-func GetLocalWaveFishFilePath() string {
+func GetLocalDoraFishFilePath() string {
 	return filepath.Join(dorabase.GetDoraDataDir(), FishIntegrationDir, "dora.fish")
 }
 
-func GetLocalWavePowershellEnv() string {
+func GetLocalDoraPowershellEnv() string {
 	return filepath.Join(dorabase.GetDoraDataDir(), PwshIntegrationDir, "dorapwsh.ps1")
 }
 
@@ -294,7 +294,7 @@ func GetLocalZshZDotDir() string {
 	return filepath.Join(dorabase.GetDoraDataDir(), ZshIntegrationDir)
 }
 
-func HasWaveZshHistory() (bool, int64) {
+func HasDoraZshHistory() (bool, int64) {
 	zshDir := GetLocalZshZDotDir()
 	historyFile := filepath.Join(zshDir, ZshHistoryFileName)
 	fileInfo, err := os.Stat(historyFile)
@@ -354,24 +354,24 @@ func GetLocalDshBinaryPath(version string, goos string, goarch string) (string, 
 
 // absDshBinDir must be an absolute, expanded path (no ~ or $HOME, etc.)
 // it will be hard-quoted appropriately for the shell
-func InitRcFiles(waveHome string, absDshBinDir string) error {
+func InitRcFiles(doraHome string, absDshBinDir string) error {
 	// ensure directories exist
-	zshDir := filepath.Join(waveHome, ZshIntegrationDir)
+	zshDir := filepath.Join(doraHome, ZshIntegrationDir)
 	err := dorabase.CacheEnsureDir(zshDir, ZshIntegrationDir, 0755, ZshIntegrationDir)
 	if err != nil {
 		return err
 	}
-	bashDir := filepath.Join(waveHome, BashIntegrationDir)
+	bashDir := filepath.Join(doraHome, BashIntegrationDir)
 	err = dorabase.CacheEnsureDir(bashDir, BashIntegrationDir, 0755, BashIntegrationDir)
 	if err != nil {
 		return err
 	}
-	fishDir := filepath.Join(waveHome, FishIntegrationDir)
+	fishDir := filepath.Join(doraHome, FishIntegrationDir)
 	err = dorabase.CacheEnsureDir(fishDir, FishIntegrationDir, 0755, FishIntegrationDir)
 	if err != nil {
 		return err
 	}
-	pwshDir := filepath.Join(waveHome, PwshIntegrationDir)
+	pwshDir := filepath.Join(doraHome, PwshIntegrationDir)
 	err = dorabase.CacheEnsureDir(pwshDir, PwshIntegrationDir, 0755, PwshIntegrationDir)
 	if err != nil {
 		return err
@@ -428,9 +428,9 @@ func InitRcFiles(waveHome string, absDshBinDir string) error {
 
 func initCustomShellStartupFilesInternal() error {
 	log.Printf("initializing dsh and shell startup files\n")
-	waveDataHome := dorabase.GetDoraDataDir()
-	binDir := filepath.Join(waveDataHome, DoraHomeBinDir)
-	err := InitRcFiles(waveDataHome, binDir)
+	doraDataHome := dorabase.GetDoraDataDir()
+	binDir := filepath.Join(doraDataHome, DoraHomeBinDir)
+	err := InitRcFiles(doraDataHome, binDir)
 	if err != nil {
 		return err
 	}
@@ -553,23 +553,23 @@ func FixupDoraZshHistory() error {
 		return nil
 	}
 
-	hasHistory, size := HasWaveZshHistory()
+	hasHistory, size := HasDoraZshHistory()
 	if !hasHistory {
 		return nil
 	}
 
 	zshDir := GetLocalZshZDotDir()
-	waveHistFile := filepath.Join(zshDir, ZshHistoryFileName)
+	doraHistFile := filepath.Join(zshDir, ZshHistoryFileName)
 
 	if size == 0 {
-		err := os.Remove(waveHistFile)
+		err := os.Remove(doraHistFile)
 		if err != nil {
-			log.Printf("error removing wave zsh history file %s: %v\n", waveHistFile, err)
+			log.Printf("error removing dora zsh history file %s: %v\n", doraHistFile, err)
 		}
 		return nil
 	}
 
-	log.Printf("merging wave zsh history %s into ~/.zsh_history\n", waveHistFile)
+	log.Printf("merging dora zsh history %s into ~/.zsh_history\n", doraHistFile)
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -587,7 +587,7 @@ func FixupDoraZshHistory() error {
 		hasExtendedStr = "true"
 	}
 
-	quotedWaveHistFile := utilfn.ShellQuote(waveHistFile, true, -1)
+	quotedDoraHistFile := utilfn.ShellQuote(doraHistFile, true, -1)
 
 	script := fmt.Sprintf(`
 		HISTFILE=~/.zsh_history
@@ -598,7 +598,7 @@ func FixupDoraZshHistory() error {
 		fc -RI
 		fc -RI %s
 		fc -W
-	`, hasExtendedStr, quotedWaveHistFile)
+	`, hasExtendedStr, quotedDoraHistFile)
 
 	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelFn()
@@ -613,11 +613,11 @@ func FixupDoraZshHistory() error {
 		return fmt.Errorf("error executing zsh history fixup script: %w, output: %s", err, string(output))
 	}
 
-	err = os.Remove(waveHistFile)
+	err = os.Remove(doraHistFile)
 	if err != nil {
-		log.Printf("error removing wave zsh history file %s: %v\n", waveHistFile, err)
+		log.Printf("error removing dora zsh history file %s: %v\n", doraHistFile, err)
 	}
-	log.Printf("successfully merged wave zsh history %s into ~/.zsh_history\n", waveHistFile)
+	log.Printf("successfully merged dora zsh history %s into ~/.zsh_history\n", doraHistFile)
 
 	return nil
 }

@@ -16,11 +16,11 @@ import (
 func dbInsertFile(ctx context.Context, file *DoraFile) error {
 	// will fail if file already exists
 	return WithTx(ctx, func(tx *TxWrap) error {
-		query := "SELECT zoneid FROM db_wave_file WHERE zoneid = ? AND name = ?"
+		query := "SELECT zoneid FROM db_dora_file WHERE zoneid = ? AND name = ?"
 		if tx.Exists(query, file.ZoneId, file.Name) {
 			return fs.ErrExist
 		}
-		query = "INSERT INTO db_wave_file (zoneid, name, size, createdts, modts, opts, meta) VALUES (?, ?, ?, ?, ?, ?, ?)"
+		query = "INSERT INTO db_dora_file (zoneid, name, size, createdts, modts, opts, meta) VALUES (?, ?, ?, ?, ?, ?, ?)"
 		tx.Exec(query, file.ZoneId, file.Name, file.Size, file.CreatedTs, file.ModTs, dbutil.QuickJson(file.Opts), dbutil.QuickJson(file.Meta))
 		return nil
 	})
@@ -28,7 +28,7 @@ func dbInsertFile(ctx context.Context, file *DoraFile) error {
 
 func dbDeleteFile(ctx context.Context, zoneId string, name string) error {
 	return WithTx(ctx, func(tx *TxWrap) error {
-		query := "DELETE FROM db_wave_file WHERE zoneid = ? AND name = ?"
+		query := "DELETE FROM db_dora_file WHERE zoneid = ? AND name = ?"
 		tx.Exec(query, zoneId, name)
 		query = "DELETE FROM db_file_data WHERE zoneid = ? AND name = ?"
 		tx.Exec(query, zoneId, name)
@@ -39,7 +39,7 @@ func dbDeleteFile(ctx context.Context, zoneId string, name string) error {
 func dbGetZoneFileNames(ctx context.Context, zoneId string) ([]string, error) {
 	return WithTxRtn(ctx, func(tx *TxWrap) ([]string, error) {
 		var files []string
-		query := "SELECT name FROM db_wave_file WHERE zoneid = ?"
+		query := "SELECT name FROM db_dora_file WHERE zoneid = ?"
 		tx.Select(&files, query, zoneId)
 		return files, nil
 	})
@@ -47,7 +47,7 @@ func dbGetZoneFileNames(ctx context.Context, zoneId string) ([]string, error) {
 
 func dbGetZoneFile(ctx context.Context, zoneId string, name string) (*DoraFile, error) {
 	return WithTxRtn(ctx, func(tx *TxWrap) (*DoraFile, error) {
-		query := "SELECT * FROM db_wave_file WHERE zoneid = ? AND name = ?"
+		query := "SELECT * FROM db_dora_file WHERE zoneid = ? AND name = ?"
 		file := dbutil.GetMappable[*DoraFile](tx, query, zoneId, name)
 		return file, nil
 	})
@@ -56,7 +56,7 @@ func dbGetZoneFile(ctx context.Context, zoneId string, name string) (*DoraFile, 
 func dbGetAllZoneIds(ctx context.Context) ([]string, error) {
 	return WithTxRtn(ctx, func(tx *TxWrap) ([]string, error) {
 		var ids []string
-		query := "SELECT DISTINCT zoneid FROM db_wave_file"
+		query := "SELECT DISTINCT zoneid FROM db_dora_file"
 		tx.Select(&ids, query)
 		return ids, nil
 	})
@@ -85,7 +85,7 @@ func dbGetFileParts(ctx context.Context, zoneId string, name string, parts []int
 
 func dbGetZoneFiles(ctx context.Context, zoneId string) ([]*DoraFile, error) {
 	return WithTxRtn(ctx, func(tx *TxWrap) ([]*DoraFile, error) {
-		query := "SELECT * FROM db_wave_file WHERE zoneid = ?"
+		query := "SELECT * FROM db_dora_file WHERE zoneid = ?"
 		files := dbutil.SelectMappable[*DoraFile](tx, query, zoneId)
 		return files, nil
 	})
@@ -93,13 +93,13 @@ func dbGetZoneFiles(ctx context.Context, zoneId string) ([]*DoraFile, error) {
 
 func dbWriteCacheEntry(ctx context.Context, file *DoraFile, dataEntries map[int]*DataCacheEntry, replace bool) error {
 	return WithTx(ctx, func(tx *TxWrap) error {
-		query := `SELECT zoneid FROM db_wave_file WHERE zoneid = ? AND name = ?`
+		query := `SELECT zoneid FROM db_dora_file WHERE zoneid = ? AND name = ?`
 		if !tx.Exists(query, file.ZoneId, file.Name) {
 			// since deletion is synchronous this stops us from writing to a deleted file
 			return os.ErrNotExist
 		}
 		// we don't update CreatedTs or Opts
-		query = `UPDATE db_wave_file SET size = ?, modts = ?, meta = ? WHERE zoneid = ? AND name = ?`
+		query = `UPDATE db_dora_file SET size = ?, modts = ?, meta = ? WHERE zoneid = ? AND name = ?`
 		tx.Exec(query, file.Size, file.ModTs, dbutil.QuickJson(file.Meta), file.ZoneId, file.Name)
 		if replace {
 			query = `DELETE FROM db_file_data WHERE zoneid = ? AND name = ?`

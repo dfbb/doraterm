@@ -42,13 +42,13 @@ const focusLog = debug("dora:focus");
 
 const App = ({ onFirstRender }: { onFirstRender: () => void }) => {
     const tabId = useAtomValue(atoms.staticTabId);
-    const waveEnvRef = useRef(makeDoraEnvImpl());
+    const doraEnvRef = useRef(makeDoraEnvImpl());
     useEffect(() => {
         onFirstRender();
     }, []);
     return (
         <Provider store={globalStore}>
-            <DoraEnvContext.Provider value={waveEnvRef.current}>
+            <DoraEnvContext.Provider value={doraEnvRef.current}>
                 <TabModelContext.Provider value={getTabModelByTabId(tabId)}>
                     <AppInner />
                 </TabModelContext.Provider>

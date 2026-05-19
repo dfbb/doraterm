@@ -42,8 +42,8 @@ func InitWStore() error {
 }
 
 func GetDBName() string {
-	waveHome := dorabase.GetDoraDataDir()
-	return filepath.Join(waveHome, dorabase.DoraDBDir, WStoreDBName)
+	doraHome := dorabase.GetDoraDataDir()
+	return filepath.Join(doraHome, dorabase.DoraDBDir, WStoreDBName)
 }
 
 func MakeDB(ctx context.Context) (*sqlx.DB, error) {

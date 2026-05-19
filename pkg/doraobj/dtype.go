@@ -119,11 +119,11 @@ func (update *DoraObjUpdate) UnmarshalJSON(data []byte) error {
 		if !ok {
 			return fmt.Errorf("in DoraObjUpdate bad obj type %T", objMap["obj"])
 		}
-		waveObj, err := FromJsonMap(objMap)
+		doraObj, err := FromJsonMap(objMap)
 		if err != nil {
 			return fmt.Errorf("in DoraObjUpdate error decoding obj: %w", err)
 		}
-		update.Obj = waveObj
+		update.Obj = doraObj
 	}
 	return nil
 }
@@ -319,9 +319,9 @@ type Job struct {
 	Cmd             string            `json:"cmd"`
 	CmdArgs         []string          `json:"cmdargs,omitempty"`
 	CmdEnv          map[string]string `json:"cmdenv,omitempty"`
-	JobAuthToken    string            `json:"jobauthtoken"` // job manger -> wave
+	JobAuthToken    string            `json:"jobauthtoken"` // job manger -> dora
 	AttachedBlockId string            `json:"attachedblockid,omitempty"`
-	DoraVersion     string            `json:"waveversion,omitempty"`
+	DoraVersion     string            `json:"doraversion,omitempty"`
 
 	// reconnect option (e.g. orphaned, so we need to kill on connect)
 	TerminateOnReconnect bool `json:"terminateonreconnect,omitempty"`

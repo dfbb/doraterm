@@ -397,17 +397,17 @@ export function makeMockDoraEnv(mockEnv?: MockEnv): MockDoraEnv {
     };
     const platform = mergedOverrides.platform ?? PlatformMacOS;
     const connStatusAtomCache = new Map<string, PrimitiveAtom<ConnStatus>>();
-    const waveObjectValueAtomCache = new Map<string, PrimitiveAtom<any>>();
-    const waveObjectDerivedAtomCache = new Map<string, Atom<any>>();
+    const doraObjectValueAtomCache = new Map<string, PrimitiveAtom<any>>();
+    const doraObjectDerivedAtomCache = new Map<string, Atom<any>>();
     const orefMetaKeyAtomCache = new Map<string, Atom<any>>();
     const connConfigKeyAtomCache = new Map<string, Atom<any>>();
     const configBackgroundAtomCache = new Map<string, Atom<BackgroundConfigType>>();
     const getDoraObjectAtom = <T extends DoraObj>(oref: string): PrimitiveAtom<T> => {
-        if (!waveObjectValueAtomCache.has(oref)) {
+        if (!doraObjectValueAtomCache.has(oref)) {
             const obj = (mergedOverrides.mockDoraObjs?.[oref] ?? null) as T;
-            waveObjectValueAtomCache.set(oref, atom(obj) as PrimitiveAtom<T>);
+            doraObjectValueAtomCache.set(oref, atom(obj) as PrimitiveAtom<T>);
         }
-        return waveObjectValueAtomCache.get(oref) as PrimitiveAtom<T>;
+        return doraObjectValueAtomCache.get(oref) as PrimitiveAtom<T>;
     };
     const atoms = makeMockGlobalAtoms(
         mergedOverrides.settings,
@@ -427,10 +427,10 @@ export function makeMockDoraEnv(mockEnv?: MockEnv): MockDoraEnv {
         fullConfigAtom: atoms.fullConfigAtom,
         platform,
         mockSetDoraObj: <T extends DoraObj>(oref: string, obj: T) => {
-            if (!waveObjectValueAtomCache.has(oref)) {
-                waveObjectValueAtomCache.set(oref, atom(null as DoraObj));
+            if (!doraObjectValueAtomCache.has(oref)) {
+                doraObjectValueAtomCache.set(oref, atom(null as DoraObj));
             }
-            globalStore.set(waveObjectValueAtomCache.get(oref), obj);
+            globalStore.set(doraObjectValueAtomCache.get(oref), obj);
         },
     };
     const { rpc, setRpcHandler, setRpcStreamHandler } = makeMockRpc(
@@ -494,20 +494,20 @@ export function makeMockDoraEnv(mockEnv?: MockEnv): MockDoraEnv {
             getDoraObjectAtom: mockWosFns.getDoraObjectAtom,
             getDoraObjectLoadingAtom: (oref: string) => {
                 const cacheKey = oref + ":loading";
-                if (!waveObjectDerivedAtomCache.has(cacheKey)) {
-                    waveObjectDerivedAtomCache.set(cacheKey, atom(false));
+                if (!doraObjectDerivedAtomCache.has(cacheKey)) {
+                    doraObjectDerivedAtomCache.set(cacheKey, atom(false));
                 }
-                return waveObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
+                return doraObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
             },
             isDoraObjectNullAtom: (oref: string) => {
                 const cacheKey = oref + ":isnull";
-                if (!waveObjectDerivedAtomCache.has(cacheKey)) {
-                    waveObjectDerivedAtomCache.set(
+                if (!doraObjectDerivedAtomCache.has(cacheKey)) {
+                    doraObjectDerivedAtomCache.set(
                         cacheKey,
                         atom((get) => get(env.wos.getDoraObjectAtom(oref)) == null)
                     );
                 }
-                return waveObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
+                return doraObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
             },
             useDoraObjectValue: <T extends DoraObj>(oref: string): [T, boolean] => {
                 const objAtom = env.wos.getDoraObjectAtom<T>(oref);

@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { waveEventSubscribeSingle } from "@/app/store/wps";
+import { doraEventSubscribeSingle } from "@/app/store/wps";
 import { RpcApi } from "@/app/store/dshclientapi";
 import * as electron from "electron";
 import { fireAndForget } from "../frontend/util/util";
@@ -387,7 +387,7 @@ export function makeAndSetAppMenu() {
 }
 
 function initMenuEventSubscriptions() {
-    waveEventSubscribeSingle({
+    doraEventSubscribeSingle({
         eventType: "workspace:update",
         handler: makeAndSetAppMenu,
     });

@@ -35,10 +35,10 @@ type DoraEventUnsubscribe = {
 
 // key is "eventType" or "eventType|oref"
 const fileSubjects = new Map<string, SubjectWithRef<WSFileEventData>>();
-const waveEventSubjects = new Map<string, DoraEventSubjectContainer[]>();
+const doraEventSubjects = new Map<string, DoraEventSubjectContainer[]>();
 
 function wpsReconnectHandler() {
-    for (const eventType of waveEventSubjects.keys()) {
+    for (const eventType of doraEventSubjects.keys()) {
         updateDoraEventSub(eventType);
     }
 }
@@ -47,7 +47,7 @@ function updateDoraEventSub(eventType: string) {
     if (isPreviewWindow()) {
         return;
     }
-    const subjects = waveEventSubjects.get(eventType);
+    const subjects = doraEventSubjects.get(eventType);
     if (subjects == null) {
         RpcApi.EventUnsubCommand(WpsRpcClient, eventType, { noresponse: true });
         return;
@@ -64,16 +64,16 @@ function updateDoraEventSub(eventType: string) {
     RpcApi.EventSubCommand(WpsRpcClient, subreq, { noresponse: true });
 }
 
-function waveEventSubscribeSingle<T extends DoraEventName>(subscription: DoraEventSubscription<T>): () => void {
-    // console.log("waveEventSubscribeSingle", subscription);
+function doraEventSubscribeSingle<T extends DoraEventName>(subscription: DoraEventSubscription<T>): () => void {
+    // console.log("doraEventSubscribeSingle", subscription);
     if (subscription.handler == null) {
         return () => {};
     }
     const id: string = crypto.randomUUID();
-    let subjects = waveEventSubjects.get(subscription.eventType);
+    let subjects = doraEventSubjects.get(subscription.eventType);
     if (subjects == null) {
         subjects = [];
-        waveEventSubjects.set(subscription.eventType, subjects);
+        doraEventSubjects.set(subscription.eventType, subjects);
     }
     const subcont: DoraEventSubjectContainer = {
         id,
@@ -82,13 +82,13 @@ function waveEventSubscribeSingle<T extends DoraEventName>(subscription: DoraEve
     };
     subjects.push(subcont);
     updateDoraEventSub(subscription.eventType);
-    return () => waveEventUnsubscribe({ id, eventType: subscription.eventType });
+    return () => doraEventUnsubscribe({ id, eventType: subscription.eventType });
 }
 
-function waveEventUnsubscribe(...unsubscribes: DoraEventUnsubscribe[]) {
+function doraEventUnsubscribe(...unsubscribes: DoraEventUnsubscribe[]) {
     const eventTypeSet = new Set<string>();
     for (const unsubscribe of unsubscribes) {
-        const subjects = waveEventSubjects.get(unsubscribe.eventType);
+        const subjects = doraEventSubjects.get(unsubscribe.eventType);
         if (subjects == null) {
             return;
         }
@@ -98,7 +98,7 @@ function waveEventUnsubscribe(...unsubscribes: DoraEventUnsubscribe[]) {
         }
         subjects.splice(idx, 1);
         if (subjects.length === 0) {
-            waveEventSubjects.delete(unsubscribe.eventType);
+            doraEventSubjects.delete(unsubscribe.eventType);
         }
         eventTypeSet.add(unsubscribe.eventType);
     }
@@ -129,7 +129,7 @@ function getFileSubject(zoneId: string, fileName: string): SubjectWithRef<WSFile
 
 function handleDoraEvent(event: DoraEvent) {
     // console.log("handleDoraEvent", event);
-    const subjects = waveEventSubjects.get(event.event);
+    const subjects = doraEventSubjects.get(event.event);
     if (subjects == null) {
         return;
     }
@@ -151,7 +151,7 @@ export {
     getFileSubject,
     handleDoraEvent,
     setWpsRpcClient,
-    waveEventSubscribeSingle,
-    waveEventUnsubscribe,
+    doraEventSubscribeSingle,
+    doraEventUnsubscribe,
     wpsReconnectHandler,
 };

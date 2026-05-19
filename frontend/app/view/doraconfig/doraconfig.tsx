@@ -126,8 +126,8 @@ const DoraConfigView = memo(({ blockId, model }: ViewComponentProps<DoraConfigVi
             model.editorRef.current = editor;
 
             const keyDownDisposer = editor.onKeyDown((e: MonacoTypes.IKeyboardEvent) => {
-                const waveEvent = adaptFromReactOrNativeKeyEvent(e.browserEvent);
-                const handled = tryReinjectKey(waveEvent);
+                const doraEvent = adaptFromReactOrNativeKeyEvent(e.browserEvent);
+                const handled = tryReinjectKey(doraEvent);
                 if (handled) {
                     e.stopPropagation();
                     e.preventDefault();
@@ -298,7 +298,7 @@ const DoraConfigView = memo(({ blockId, model }: ViewComponentProps<DoraConfigVi
                                     <CodeEditor
                                         blockId={blockId}
                                         text={fileContent}
-                                        fileName={`WAVECONFIGPATH/${selectedFile.path}`}
+                                        fileName={`DORACONFIGPATH/${selectedFile.path}`}
                                         language={selectedFile.language}
                                         readonly={false}
                                         onChange={handleContentChange}

@@ -30,7 +30,7 @@ const previewElectronApi: ElectronApi = {
     installAppUpdate: () => {},
     onMenuItemAbout: (_callback: () => void) => {},
     updateWindowControlsOverlay: (_rect: Dimensions) => {},
-    onReinjectKey: (_callback: (waveEvent: DoraKeyboardEvent) => void) => {},
+    onReinjectKey: (_callback: (doraEvent: DoraKeyboardEvent) => void) => {},
     setWebviewFocus: (_focusedId: number) => {},
     registerGlobalWebviewKeys: (_keys: string[]) => {},
     onControlShiftStateUpdate: (_callback: (state: boolean) => void) => {},

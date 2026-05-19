@@ -10,7 +10,7 @@ import { useTabModel } from "@/app/store/tab-model";
 import type { TermViewModel } from "@/app/view/term/term-model";
 import { atoms, getOverrideConfigAtom, getSettingsPrefixAtom, WOS } from "@/store/global";
 import { fireAndForget, useAtomValueSafe } from "@/util/util";
-import { computeBgStyleFromMeta } from "@/util/waveutil";
+import { computeBgStyleFromMeta } from "@/util/dorautil";
 import { ISearchOptions } from "@xterm/addon-search";
 import * as jotai from "jotai";
 import * as React from "react";

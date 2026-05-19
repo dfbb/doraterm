@@ -45,9 +45,9 @@ export function createContentBlockPlugin(opts: ContentBlockPluginOptions) {
 
                     if (block) {
                         parts.push({
-                            type: "waveblock",
+                            type: "dorablock",
                             data: {
-                                hName: "waveblock",
+                                hName: "dorablock",
                                 hProperties: {
                                     blockkey: key,
                                 },

@@ -11,7 +11,7 @@ import { NodeModel } from "@/layout/index";
 import { makeORef } from "@/store/wos";
 import * as util from "@/util/util";
 import { makeIconClass } from "@/util/util";
-import { computeBgStyleFromMeta } from "@/util/waveutil";
+import { computeBgStyleFromMeta } from "@/util/dorautil";
 import clsx from "clsx";
 import * as jotai from "jotai";
 import * as React from "react";
@@ -19,19 +19,19 @@ import { BlockEnv } from "./blockenv";
 import { BlockFrameProps } from "./blocktypes";
 
 const BlockMask = React.memo(({ nodeModel }: { nodeModel: NodeModel }) => {
-    const waveEnv = useDoraEnv<BlockEnv>();
+    const doraEnv = useDoraEnv<BlockEnv>();
     const tabModel = useTabModel();
     const isFocused = jotai.useAtomValue(nodeModel.isFocused);
     const isEphemeral = jotai.useAtomValue(nodeModel.isEphemeral);
     const blockNum = jotai.useAtomValue(nodeModel.blockNum);
-    const isLayoutMode = jotai.useAtomValue(waveEnv.atoms.controlShiftDelayAtom);
-    const showOverlayBlockNums = jotai.useAtomValue(waveEnv.getSettingsKeyAtom("app:showoverlayblocknums")) ?? true;
+    const isLayoutMode = jotai.useAtomValue(doraEnv.atoms.controlShiftDelayAtom);
+    const showOverlayBlockNums = jotai.useAtomValue(doraEnv.getSettingsKeyAtom("app:showoverlayblocknums")) ?? true;
     const blockHighlight = jotai.useAtomValue(BlockModel.getInstance().getBlockHighlightAtom(nodeModel.blockId));
     const frameActiveBorderColor = jotai.useAtomValue(
-        waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:activebordercolor")
+        doraEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:activebordercolor")
     );
-    const frameBorderColor = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:bordercolor"));
-    const [tabBorderColor, tabActiveBorderColor] = useTabBackground(waveEnv, tabModel.tabId);
+    const frameBorderColor = jotai.useAtomValue(doraEnv.getBlockMetaKeyAtom(nodeModel.blockId, "frame:bordercolor"));
+    const [tabBorderColor, tabActiveBorderColor] = useTabBackground(doraEnv, tabModel.tabId);
     const style: React.CSSProperties = {};
     let showBlockMask = false;
 
@@ -87,23 +87,23 @@ const BlockMask = React.memo(({ nodeModel }: { nodeModel: NodeModel }) => {
 });
 
 const BlockFrame_Default_Component = (props: BlockFrameProps) => {
-    const waveEnv = useDoraEnv<BlockEnv>();
+    const doraEnv = useDoraEnv<BlockEnv>();
     const { nodeModel, viewModel, blockModel, preview, numBlocksInTab, children } = props;
     const isFocused = jotai.useAtomValue(nodeModel.isFocused);
-    const metaView = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view"));
+    const metaView = jotai.useAtomValue(doraEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view"));
     const viewIconUnion = util.useAtomValueSafe(viewModel?.viewIcon) ?? blockViewToIcon(metaView);
     const customBg = util.useAtomValueSafe(viewModel?.blockBg);
     const isMagnified = jotai.useAtomValue(nodeModel.isMagnified);
     const isEphemeral = jotai.useAtomValue(nodeModel.isEphemeral);
     const [magnifiedBlockBlurAtom] = React.useState(() =>
-        waveEnv.getSettingsKeyAtom("window:magnifiedblockblurprimarypx")
+        doraEnv.getSettingsKeyAtom("window:magnifiedblockblurprimarypx")
     );
     const magnifiedBlockBlur = jotai.useAtomValue(magnifiedBlockBlurAtom);
     const [magnifiedBlockOpacityAtom] = React.useState(() =>
-        waveEnv.getSettingsKeyAtom("window:magnifiedblockopacity")
+        doraEnv.getSettingsKeyAtom("window:magnifiedblockopacity")
     );
     const magnifiedBlockOpacity = jotai.useAtomValue(magnifiedBlockOpacityAtom);
-    const iconColor = jotai.useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "icon:color"));
+    const iconColor = jotai.useAtomValue(doraEnv.getBlockMetaKeyAtom(nodeModel.blockId, "icon:color"));
     const noHeader = util.useAtomValueSafe(viewModel?.noHeader);
 
     const viewIconElem = getViewIconElem(viewIconUnion, iconColor);
@@ -150,10 +150,10 @@ const BlockFrame_Default_Component = (props: BlockFrameProps) => {
 const BlockFrame_Default = React.memo(BlockFrame_Default_Component) as typeof BlockFrame_Default_Component;
 
 const BlockFrame = React.memo((props: BlockFrameProps) => {
-    const waveEnv = useDoraEnv<BlockEnv>();
+    const doraEnv = useDoraEnv<BlockEnv>();
     const tabModel = useTabModel();
     const blockId = props.nodeModel.blockId;
-    const blockIsNull = jotai.useAtomValue(waveEnv.wos.isDoraObjectNullAtom(makeORef("block", blockId)));
+    const blockIsNull = jotai.useAtomValue(doraEnv.wos.isDoraObjectNullAtom(makeORef("block", blockId)));
     const numBlocks = jotai.useAtomValue(tabModel.tabNumBlocksAtom);
     if (!blockId || blockIsNull) {
         return null;

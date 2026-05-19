@@ -4,7 +4,7 @@
 // DoraObjectStore
 
 import { isPreviewWindow } from "@/app/store/windowtype";
-import { waveEventSubscribeSingle } from "@/app/store/wps";
+import { doraEventSubscribeSingle } from "@/app/store/wps";
 import { getWebServerEndpoint } from "@/util/endpoints";
 import { fetch } from "@/util/fetchutil";
 import { fireAndForget } from "@/util/util";
@@ -89,8 +89,8 @@ function debugLogBackendCall(methodName: string, durationStr: string, args: any[
 }
 
 function wpsSubscribeToObject(oref: string): () => void {
-    return waveEventSubscribeSingle({
-        eventType: "waveobj:update",
+    return doraEventSubscribeSingle({
+        eventType: "doraobj:update",
         scope: oref,
         handler: (event) => {
             updateDoraObject(event.data);
@@ -104,7 +104,7 @@ function callBackendService(service: string, method: string, args: any[], noUICo
     if (!noUIContext && globalThis.window != null) {
         uiContext = globalStore.get(((window as any).globalAtoms as GlobalAtomsType).uiContext);
     }
-    const waveCall: WebCallType = {
+    const doraCall: WebCallType = {
         service: service,
         method: method,
         args: args,
@@ -117,10 +117,10 @@ function callBackendService(service: string, method: string, args: any[], noUICo
     usp.set("method", method);
     const webEndpoint = getWebServerEndpoint();
     if (webEndpoint == null) throw new Error(`cannot call ${methodName}: no web endpoint`);
-    const url = webEndpoint + "/wave/service?" + usp.toString();
+    const url = webEndpoint + "/dora/service?" + usp.toString();
     const fetchPromise = fetch(url, {
         method: "POST",
-        body: JSON.stringify(waveCall),
+        body: JSON.stringify(doraCall),
     });
     const prtn = fetchPromise
         .then((resp) => {
@@ -146,10 +146,10 @@ function callBackendService(service: string, method: string, args: any[], noUICo
     return prtn;
 }
 
-const waveObjectValueCache = new Map<string, DoraObjectValue<any>>();
+const doraObjectValueCache = new Map<string, DoraObjectValue<any>>();
 
 function reloadDoraObject<T extends DoraObj>(oref: string): Promise<T> {
-    let wov = waveObjectValueCache.get(oref);
+    let wov = doraObjectValueCache.get(oref);
     if (wov === undefined) {
         wov = getDoraObjectValue<T>(oref, true);
         return wov.pendingPromise;
@@ -161,7 +161,7 @@ function reloadDoraObject<T extends DoraObj>(oref: string): Promise<T> {
     return prtn;
 }
 
-function createWaveValueObject<T extends DoraObj>(oref: string, shouldFetch: boolean): DoraObjectValue<T> {
+function createDoraValueObject<T extends DoraObj>(oref: string, shouldFetch: boolean): DoraObjectValue<T> {
     const wov = { pendingPromise: null, dataAtom: null };
     wov.dataAtom = atom({ value: null, loading: true });
     if (!shouldFetch) {
@@ -191,10 +191,10 @@ function createWaveValueObject<T extends DoraObj>(oref: string, shouldFetch: boo
 }
 
 function getDoraObjectValue<T extends DoraObj>(oref: string, createIfMissing = true): DoraObjectValue<T> {
-    let wov = waveObjectValueCache.get(oref);
+    let wov = doraObjectValueCache.get(oref);
     if (wov === undefined && createIfMissing) {
-        wov = createWaveValueObject(oref, true);
-        waveObjectValueCache.set(oref, wov);
+        wov = createDoraValueObject(oref, true);
+        doraObjectValueCache.set(oref, wov);
     }
     return wov;
 }
@@ -208,23 +208,23 @@ function loadAndPinDoraObject<T extends DoraObj>(oref: string): Promise<T> {
     return wov.pendingPromise;
 }
 
-const waveObjectDerivedAtomCache = new Map<string, Atom<any>>();
+const doraObjectDerivedAtomCache = new Map<string, Atom<any>>();
 
 function getDoraObjectAtom<T extends DoraObj>(oref: string): Atom<T> {
     const cacheKey = oref + ":value";
-    let cachedAtom = waveObjectDerivedAtomCache.get(cacheKey) as Atom<T>;
+    let cachedAtom = doraObjectDerivedAtomCache.get(cacheKey) as Atom<T>;
     if (cachedAtom != null) {
         return cachedAtom;
     }
     const wov = getDoraObjectValue<T>(oref);
     cachedAtom = atom((get) => get(wov.dataAtom).value);
-    waveObjectDerivedAtomCache.set(cacheKey, cachedAtom);
+    doraObjectDerivedAtomCache.set(cacheKey, cachedAtom);
     return cachedAtom;
 }
 
 function getDoraObjectLoadingAtom(oref: string): Atom<boolean> {
     const cacheKey = oref + ":loading";
-    let cachedAtom = waveObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
+    let cachedAtom = doraObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
     if (cachedAtom != null) {
         return cachedAtom;
     }
@@ -233,18 +233,18 @@ function getDoraObjectLoadingAtom(oref: string): Atom<boolean> {
         const dataValue = get(wov.dataAtom);
         return dataValue.loading;
     });
-    waveObjectDerivedAtomCache.set(cacheKey, cachedAtom);
+    doraObjectDerivedAtomCache.set(cacheKey, cachedAtom);
     return cachedAtom;
 }
 
 function isDoraObjectNullAtom(oref: string): Atom<boolean> {
     const cacheKey = oref + ":isnull";
-    let cachedAtom = waveObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
+    let cachedAtom = doraObjectDerivedAtomCache.get(cacheKey) as Atom<boolean>;
     if (cachedAtom != null) {
         return cachedAtom;
     }
     cachedAtom = atom((get) => get(getDoraObjectAtom(oref)) == null);
-    waveObjectDerivedAtomCache.set(cacheKey, cachedAtom);
+    doraObjectDerivedAtomCache.set(cacheKey, cachedAtom);
     return cachedAtom;
 }
 
@@ -265,7 +265,7 @@ function updateDoraObject(update: DoraObjUpdate) {
         globalStore.set(wov.dataAtom, { value: null, loading: false });
     } else {
         if (!isValidDoraObj(update.obj)) {
-            console.log("invalid wave object update", update);
+            console.log("invalid dora object update", update);
             return;
         }
         const curValue: DoraObjectDataItemType<DoraObj> = globalStore.get(wov.dataAtom);

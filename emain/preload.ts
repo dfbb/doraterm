@@ -41,7 +41,7 @@ contextBridge.exposeInMainWorld("api", {
     installAppUpdate: () => ipcRenderer.send("install-app-update"),
     onMenuItemAbout: (callback) => ipcRenderer.on("menu-item-about", callback),
     updateWindowControlsOverlay: (rect) => ipcRenderer.send("update-window-controls-overlay", rect),
-    onReinjectKey: (callback) => ipcRenderer.on("reinject-key", (_event, waveEvent) => callback(waveEvent)),
+    onReinjectKey: (callback) => ipcRenderer.on("reinject-key", (_event, doraEvent) => callback(doraEvent)),
     setWebviewFocus: (focused: number) => ipcRenderer.send("webview-focus", focused),
     registerGlobalWebviewKeys: (keys) => ipcRenderer.send("register-global-webview-keys", keys),
     onControlShiftStateUpdate: (callback) =>
@@ -60,7 +60,6 @@ contextBridge.exposeInMainWorld("api", {
     captureScreenshot: (rect: Rectangle) => ipcRenderer.invoke("capture-screenshot", rect),
     setKeyboardChordMode: () => ipcRenderer.send("set-keyboard-chord-mode"),
     clearWebviewStorage: (webContentsId: number) => ipcRenderer.invoke("clear-webview-storage", webContentsId),
-    setDoraAIOpen: (isOpen: boolean) => ipcRenderer.send("set-waveai-open", isOpen),
     closeBuilderWindow: () => ipcRenderer.send("close-builder-window"),
     incrementTermCommands: (opts?: { isRemote?: boolean; isWsl?: boolean; isDurable?: boolean }) =>
         ipcRenderer.send("increment-term-commands", opts),

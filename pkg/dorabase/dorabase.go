@@ -70,8 +70,8 @@ const AppPathBinDir = "bin"
 var baseLock = &sync.Mutex{}
 var ensureDirCache = map[string]bool{}
 
-var waveCachesDirOnce = &sync.Once{}
-var waveCachesDir string
+var doraCachesDirOnce = &sync.Once{}
+var doraCachesDir string
 
 var SupportedDshBinaries = map[string]bool{
 	"darwin-x64":    true,
@@ -189,19 +189,19 @@ func GetPersistentRemoteSockName(clientId string) string {
 }
 
 func EnsureDoraDataDir() error {
-	return CacheEnsureDir(GetDoraDataDir(), "dorahome", 0700, "wave home directory")
+	return CacheEnsureDir(GetDoraDataDir(), "dorahome", 0700, "dora home directory")
 }
 
 func EnsureDoraDBDir() error {
-	return CacheEnsureDir(filepath.Join(GetDoraDataDir(), DoraDBDir), "doradb", 0700, "wave db directory")
+	return CacheEnsureDir(filepath.Join(GetDoraDataDir(), DoraDBDir), "doradb", 0700, "dora db directory")
 }
 
 func EnsureDoraConfigDir() error {
-	return CacheEnsureDir(GetDoraConfigDir(), "doraconfig", 0700, "wave config directory")
+	return CacheEnsureDir(GetDoraConfigDir(), "doraconfig", 0700, "dora config directory")
 }
 
 func EnsureDoraPresetsDir() error {
-	return CacheEnsureDir(filepath.Join(GetDoraConfigDir(), "presets"), "dorapresets", 0700, "wave presets directory")
+	return CacheEnsureDir(filepath.Join(GetDoraConfigDir(), "presets"), "dorapresets", 0700, "dora presets directory")
 }
 
 func resolveDoraCachesDir() string {
@@ -239,14 +239,14 @@ func resolveDoraCachesDir() string {
 }
 
 func GetDoraCachesDir() string {
-	waveCachesDirOnce.Do(func() {
-		waveCachesDir = resolveDoraCachesDir()
+	doraCachesDirOnce.Do(func() {
+		doraCachesDir = resolveDoraCachesDir()
 	})
-	return waveCachesDir
+	return doraCachesDir
 }
 
 func EnsureDoraCachesDir() error {
-	return CacheEnsureDir(GetDoraCachesDir(), "doracaches", 0700, "wave caches directory")
+	return CacheEnsureDir(GetDoraCachesDir(), "doracaches", 0700, "dora caches directory")
 }
 
 func CacheEnsureDir(dirName string, cacheKey string, perm os.FileMode, dirDesc string) error {

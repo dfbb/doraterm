@@ -24,8 +24,8 @@ import (
 	"github.com/dfbb/doraterm/pkg/dshutil"
 )
 
-const JobAccessTokenLabel = "Wave-JobAccessToken"
-const JobManagerStartLabel = "Wave-JobManagerStart"
+const JobAccessTokenLabel = "Dora-JobAccessToken"
+const JobManagerStartLabel = "Dora-JobManagerStart"
 const JobInputQueueTimeout = 100 * time.Millisecond
 const JobInputQueueSize = 1000
 

@@ -32,11 +32,11 @@ function makeViewModel(
     blockView: string,
     nodeModel: BlockNodeModel,
     tabModel: TabModel,
-    waveEnv: DoraEnv
+    doraEnv: DoraEnv
 ): ViewModel {
     const ctor = BlockRegistry.get(blockView);
     if (ctor != null) {
-        return new ctor({ blockId, nodeModel, tabModel, waveEnv });
+        return new ctor({ blockId, nodeModel, tabModel, doraEnv });
     }
     return makeDefaultViewModel(blockView);
 }

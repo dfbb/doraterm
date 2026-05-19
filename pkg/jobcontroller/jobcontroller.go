@@ -1150,10 +1150,10 @@ func restartStreaming(ctx context.Context, jobId string, knownConnected bool, rt
 
 	var currentSeq int64 = 0
 	var totalGap int64 = 0
-	waveFile, err := filestore.WFS.Stat(ctx, jobId, JobOutputFileName)
+	doraFile, err := filestore.WFS.Stat(ctx, jobId, JobOutputFileName)
 	if err == nil {
-		currentSeq = waveFile.Size
-		totalGap = getMetaInt64(waveFile.Meta, MetaKey_TotalGap)
+		currentSeq = doraFile.Size
+		totalGap = getMetaInt64(doraFile.Meta, MetaKey_TotalGap)
 		currentSeq += totalGap
 	}
 
@@ -1175,7 +1175,7 @@ func restartStreaming(ctx context.Context, jobId string, knownConnected bool, rt
 		Timeout: 5000,
 	}
 
-	log.Printf("[job:%s] sending JobPrepareConnectCommand with seq=%d (fileSize=%d, totalGap=%d)", jobId, currentSeq, waveFile.Size, totalGap)
+	log.Printf("[job:%s] sending JobPrepareConnectCommand with seq=%d (fileSize=%d, totalGap=%d)", jobId, currentSeq, doraFile.Size, totalGap)
 	rtnData, err := dshclient.JobPrepareConnectCommand(bareRpc, prepareData, rpcOpts)
 	if err != nil {
 		reader.Close()

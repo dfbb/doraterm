@@ -19,8 +19,4 @@ type ObjRTInfo struct {
 	BuilderLayout map[string]float64 `json:"builder:layout,omitempty"`
 	BuilderAppId  string             `json:"builder:appid,omitempty"`
 	BuilderEnv    map[string]string  `json:"builder:env,omitempty"`
-
-	DoraAIChatId          string `json:"waveai:chatid,omitempty"`
-	DoraAIMode            string `json:"waveai:mode,omitempty"`
-	DoraAIMaxOutputTokens int    `json:"waveai:maxoutputtokens,omitempty"`
 }

@@ -286,12 +286,12 @@ func (w *DshRpc) handleEventRecv(req *RpcMessage) {
 	if req.Data == nil {
 		return
 	}
-	var waveEvent dps.DoraEvent
-	err := utilfn.ReUnmarshal(&waveEvent, req.Data)
+	var doraEvent dps.DoraEvent
+	err := utilfn.ReUnmarshal(&doraEvent, req.Data)
 	if err != nil {
 		return
 	}
-	w.EventListener.RecvEvent(&waveEvent)
+	w.EventListener.RecvEvent(&doraEvent)
 }
 
 func (w *DshRpc) handleStreamData(req *RpcMessage) {

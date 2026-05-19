@@ -23,23 +23,23 @@ import {
 import { ElectronDshClient } from "./emain-dsh";
 
 function handleWindowsMenuAccelerators(
-    waveEvent: DoraKeyboardEvent,
+    doraEvent: DoraKeyboardEvent,
     tabView: DoraTabView,
     fullConfig: FullConfigType
 ): boolean {
-    const waveWindow = getDoraWindowById(tabView.waveWindowId);
+    const doraWindow = getDoraWindowById(tabView.doraWindowId);
 
-    if (checkKeyPressed(waveEvent, "Ctrl:Shift:n")) {
+    if (checkKeyPressed(doraEvent, "Ctrl:Shift:n")) {
         createNewDoraWindow();
         return true;
     }
 
-    if (checkKeyPressed(waveEvent, "Ctrl:Shift:r")) {
+    if (checkKeyPressed(doraEvent, "Ctrl:Shift:r")) {
         tabView.webContents.reloadIgnoringCache();
         return true;
     }
 
-    if (checkKeyPressed(waveEvent, "Ctrl:v")) {
+    if (checkKeyPressed(doraEvent, "Ctrl:v")) {
         const ctrlVPaste = fullConfig?.settings?.["app:ctrlvpaste"];
         const shouldPaste = ctrlVPaste ?? true;
         if (!shouldPaste) {
@@ -49,36 +49,36 @@ function handleWindowsMenuAccelerators(
         return true;
     }
 
-    if (checkKeyPressed(waveEvent, "Ctrl:0")) {
+    if (checkKeyPressed(doraEvent, "Ctrl:0")) {
         resetZoomLevel(tabView.webContents);
         return true;
     }
 
-    if (checkKeyPressed(waveEvent, "Ctrl:=") || checkKeyPressed(waveEvent, "Ctrl:Shift:=")) {
+    if (checkKeyPressed(doraEvent, "Ctrl:=") || checkKeyPressed(doraEvent, "Ctrl:Shift:=")) {
         increaseZoomLevel(tabView.webContents);
         return true;
     }
 
-    if (checkKeyPressed(waveEvent, "Ctrl:-") || checkKeyPressed(waveEvent, "Ctrl:Shift:-")) {
+    if (checkKeyPressed(doraEvent, "Ctrl:-") || checkKeyPressed(doraEvent, "Ctrl:Shift:-")) {
         decreaseZoomLevel(tabView.webContents);
         return true;
     }
 
-    if (checkKeyPressed(waveEvent, "F11")) {
-        if (waveWindow) {
-            waveWindow.setFullScreen(!waveWindow.isFullScreen());
+    if (checkKeyPressed(doraEvent, "F11")) {
+        if (doraWindow) {
+            doraWindow.setFullScreen(!doraWindow.isFullScreen());
         }
         return true;
     }
 
     for (let i = 1; i <= 9; i++) {
-        if (checkKeyPressed(waveEvent, `Alt:Ctrl:${i}`)) {
+        if (checkKeyPressed(doraEvent, `Alt:Ctrl:${i}`)) {
             const workspaceNum = i - 1;
             RpcApi.WorkspaceListCommand(ElectronDshClient).then((workspaceList) => {
                 if (workspaceList && workspaceNum < workspaceList.length) {
                     const workspace = workspaceList[workspaceNum];
-                    if (waveWindow) {
-                        waveWindow.switchWorkspace(workspace.workspacedata.oid);
+                    if (doraWindow) {
+                        doraWindow.switchWorkspace(workspace.workspacedata.oid);
                     }
                 }
             });
@@ -86,7 +86,7 @@ function handleWindowsMenuAccelerators(
         }
     }
 
-    if (checkKeyPressed(waveEvent, "Alt:Shift:i")) {
+    if (checkKeyPressed(doraEvent, "Alt:Shift:i")) {
         tabView.webContents.toggleDevTools();
         return true;
     }
@@ -117,19 +117,18 @@ export function getDoraTabViewByWebContentsId(webContentsId: number): DoraTabVie
 }
 
 export class DoraTabView extends WebContentsView {
-    waveWindowId: string; // this will be set for any tabviews that are initialized. (unset for the hot spare)
+    doraWindowId: string; // this will be set for any tabviews that are initialized. (unset for the hot spare)
     isActiveTab: boolean;
-    isDoraAIOpen: boolean;
-    private _waveTabId: string; // always set, DoraTabViews are unique per tab
+    private _doraTabId: string; // always set, DoraTabViews are unique per tab
     lastUsedTs: number; // ts milliseconds
     createdTs: number; // ts milliseconds
     initPromise: Promise<void>;
     initResolve: () => void;
     savedInitOpts: DoraInitOpts;
-    waveReadyPromise: Promise<void>;
-    waveReadyResolve: () => void;
+    doraReadyPromise: Promise<void>;
+    doraReadyResolve: () => void;
     isInitialized: boolean = false;
-    isWaveReady: boolean = false;
+    isDoraReady: boolean = false;
     isDestroyed: boolean = false;
     keyboardChordMode: boolean = false;
     resetChordModeTimeout: NodeJS.Timeout = null;
@@ -143,7 +142,6 @@ export class DoraTabView extends WebContentsView {
             },
         });
         this.createdTs = Date.now();
-        this.isDoraAIOpen = false;
         this.savedInitOpts = null;
         this.initPromise = new Promise((resolve, _) => {
             this.initResolve = resolve;
@@ -152,11 +150,11 @@ export class DoraTabView extends WebContentsView {
             this.isInitialized = true;
             console.log("tabview init", Date.now() - this.createdTs + "ms");
         });
-        this.waveReadyPromise = new Promise((resolve, _) => {
-            this.waveReadyResolve = resolve;
+        this.doraReadyPromise = new Promise((resolve, _) => {
+            this.doraReadyResolve = resolve;
         });
-        this.waveReadyPromise.then(() => {
-            this.isWaveReady = true;
+        this.doraReadyPromise.then(() => {
+            this.isDoraReady = true;
         });
         const wcId = this.webContents.id;
         wcIdToDoraTabMap.set(wcId, this);
@@ -167,18 +165,18 @@ export class DoraTabView extends WebContentsView {
         }
         this.webContents.on("destroyed", () => {
             wcIdToDoraTabMap.delete(wcId);
-            removeDoraTabView(this.waveTabId);
+            removeDoraTabView(this.doraTabId);
             this.isDestroyed = true;
         });
         this.setBackgroundColor(computeBgColor(fullConfig));
     }
 
-    get waveTabId(): string {
-        return this._waveTabId;
+    get doraTabId(): string {
+        return this._doraTabId;
     }
 
-    set waveTabId(waveTabId: string) {
-        this._waveTabId = waveTabId;
+    set doraTabId(doraTabId: string) {
+        this._doraTabId = doraTabId;
     }
 
     setKeyboardChordMode(mode: boolean) {
@@ -226,8 +224,8 @@ export class DoraTabView extends WebContentsView {
     }
 
     destroy() {
-        console.log("destroy tab", this.waveTabId);
-        removeDoraTabView(this.waveTabId);
+        console.log("destroy tab", this.doraTabId);
+        removeDoraTabView(this.doraTabId);
         if (!this.isDestroyed) {
             this.webContents?.close();
         }
@@ -243,16 +241,16 @@ export function setMaxTabCacheSize(size: number) {
     MaxCacheSize = size;
 }
 
-export function getDoraTabView(waveTabId: string): DoraTabView | undefined {
-    const rtn = wcvCache.get(waveTabId);
+export function getDoraTabView(doraTabId: string): DoraTabView | undefined {
+    const rtn = wcvCache.get(doraTabId);
     if (rtn) {
         rtn.lastUsedTs = Date.now();
     }
     return rtn;
 }
 
-function tryEvictEntry(waveTabId: string): boolean {
-    const tabView = wcvCache.get(waveTabId);
+function tryEvictEntry(doraTabId: string): boolean {
+    const tabView = wcvCache.get(doraTabId);
     if (!tabView) {
         return false;
     }
@@ -263,15 +261,15 @@ function tryEvictEntry(waveTabId: string): boolean {
     if (lastUsedDiff < 1000) {
         return false;
     }
-    const ww = getDoraWindowById(tabView.waveWindowId);
+    const ww = getDoraWindowById(tabView.doraWindowId);
     if (!ww) {
         // this shouldn't happen, but if it does, just destroy the tabview
-        console.log("[error] DoraWindow not found for DoraTabView", tabView.waveTabId);
+        console.log("[error] DoraWindow not found for DoraTabView", tabView.doraTabId);
         tabView.destroy();
         return true;
     } else {
         // will trigger a destroy on the tabview
-        ww.removeTabView(tabView.waveTabId, false);
+        ww.removeTabView(tabView.doraTabId, false);
         return true;
     }
 }
@@ -289,7 +287,7 @@ function checkAndEvictCache(): void {
         return a.lastUsedTs - b.lastUsedTs;
     });
     for (let i = 0; i < sorted.length - MaxCacheSize; i++) {
-        tryEvictEntry(sorted[i].waveTabId);
+        tryEvictEntry(sorted[i].doraTabId);
     }
 }
 
@@ -297,22 +295,22 @@ export function clearTabCache() {
     const wcVals = Array.from(wcvCache.values());
     for (let i = 0; i < wcVals.length; i++) {
         const tabView = wcVals[i];
-        tryEvictEntry(tabView.waveTabId);
+        tryEvictEntry(tabView.doraTabId);
     }
 }
 
 // returns [tabview, initialized]
-export async function getOrCreateWebViewForTab(waveWindowId: string, tabId: string): Promise<[DoraTabView, boolean]> {
+export async function getOrCreateWebViewForTab(doraWindowId: string, tabId: string): Promise<[DoraTabView, boolean]> {
     let tabView = getDoraTabView(tabId);
     if (tabView) {
         return [tabView, true];
     }
     const fullConfig = await RpcApi.GetFullConfigCommand(ElectronDshClient);
     tabView = getSpareTab(fullConfig);
-    tabView.waveWindowId = waveWindowId;
+    tabView.doraWindowId = doraWindowId;
     tabView.lastUsedTs = Date.now();
     setDoraTabView(tabId, tabView);
-    tabView.waveTabId = tabId;
+    tabView.doraTabId = tabId;
     tabView.webContents.on("will-navigate", shNavHandler);
     tabView.webContents.on("will-frame-navigate", shFrameNavHandler);
     tabView.webContents.on("did-attach-webview", (event, wc) => {
@@ -325,19 +323,19 @@ export async function getOrCreateWebViewForTab(waveWindowId: string, tabId: stri
         });
     });
     tabView.webContents.on("before-input-event", (e, input) => {
-        const waveEvent = adaptFromElectronKeyEvent(input);
-        // console.log("WIN bie", tabView.waveTabId.substring(0, 8), waveEvent.type, waveEvent.code);
-        handleCtrlShiftState(tabView.webContents, waveEvent);
+        const doraEvent = adaptFromElectronKeyEvent(input);
+        // console.log("WIN bie", tabView.doraTabId.substring(0, 8), doraEvent.type, doraEvent.code);
+        handleCtrlShiftState(tabView.webContents, doraEvent);
         setWasActive(true);
         if (input.type == "keyDown" && tabView.keyboardChordMode) {
             e.preventDefault();
             tabView.setKeyboardChordMode(false);
-            tabView.webContents.send("reinject-key", waveEvent);
+            tabView.webContents.send("reinject-key", doraEvent);
             return;
         }
 
         if (unamePlatform === "win32" && input.type == "keyDown") {
-            if (handleWindowsMenuAccelerators(waveEvent, tabView, fullConfig)) {
+            if (handleWindowsMenuAccelerators(doraEvent, tabView, fullConfig)) {
                 e.preventDefault();
                 return;
             }
@@ -363,19 +361,19 @@ export async function getOrCreateWebViewForTab(waveWindowId: string, tabId: stri
     return [tabView, false];
 }
 
-export function setDoraTabView(waveTabId: string, wcv: DoraTabView): void {
-    if (waveTabId == null) {
+export function setDoraTabView(doraTabId: string, wcv: DoraTabView): void {
+    if (doraTabId == null) {
         return;
     }
-    wcvCache.set(waveTabId, wcv);
+    wcvCache.set(doraTabId, wcv);
     checkAndEvictCache();
 }
 
-function removeDoraTabView(waveTabId: string): void {
-    if (waveTabId == null) {
+function removeDoraTabView(doraTabId: string): void {
+    if (doraTabId == null) {
         return;
     }
-    wcvCache.delete(waveTabId);
+    wcvCache.delete(doraTabId);
 }
 
 let HotSpareTab: DoraTabView = null;

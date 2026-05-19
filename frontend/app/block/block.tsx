@@ -44,8 +44,8 @@ function getViewElem(
 }
 
 const BlockPreview = memo(({ nodeModel, viewModel }: FullBlockProps) => {
-    const waveEnv = useDoraEnv<BlockEnv>();
-    const blockIsNull = useAtomValue(waveEnv.wos.isDoraObjectNullAtom(makeORef("block", nodeModel.blockId)));
+    const doraEnv = useDoraEnv<BlockEnv>();
+    const blockIsNull = useAtomValue(doraEnv.wos.isDoraObjectNullAtom(makeORef("block", nodeModel.blockId)));
     if (blockIsNull) {
         return null;
     }
@@ -61,9 +61,9 @@ const BlockPreview = memo(({ nodeModel, viewModel }: FullBlockProps) => {
 });
 
 const BlockSubBlock = memo(({ nodeModel, viewModel }: FullSubBlockProps) => {
-    const waveEnv = useDoraEnv<BlockEnv>();
-    const blockIsNull = useAtomValue(waveEnv.wos.isDoraObjectNullAtom(makeORef("block", nodeModel.blockId)));
-    const blockView = useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view")) ?? "";
+    const doraEnv = useDoraEnv<BlockEnv>();
+    const blockIsNull = useAtomValue(doraEnv.wos.isDoraObjectNullAtom(makeORef("block", nodeModel.blockId)));
+    const blockView = useAtomValue(doraEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view")) ?? "";
     const blockRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const viewElem = useMemo(
@@ -85,20 +85,20 @@ const BlockSubBlock = memo(({ nodeModel, viewModel }: FullSubBlockProps) => {
 
 const BlockFull = memo(({ nodeModel, viewModel }: FullBlockProps) => {
     counterInc("render-BlockFull");
-    const waveEnv = useDoraEnv<BlockEnv>();
+    const doraEnv = useDoraEnv<BlockEnv>();
     const focusElemRef = useRef<HTMLInputElement>(null);
     const blockRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const pendingFocusRafRef = useRef<number | null>(null);
     const [blockClicked, setBlockClicked] = useState(false);
-    const blockView = useAtomValue(waveEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view")) ?? "";
+    const blockView = useAtomValue(doraEnv.getBlockMetaKeyAtom(nodeModel.blockId, "view")) ?? "";
     const isFocused = useAtomValue(nodeModel.isFocused);
     const disablePointerEvents = useAtomValue(nodeModel.disablePointerEvents);
     const isResizing = useAtomValue(nodeModel.isResizing);
     const isMagnified = useAtomValue(nodeModel.isMagnified);
     const anyMagnified = useAtomValue(nodeModel.anyMagnified);
-    const modalOpen = useAtomValue(waveEnv.atoms.modalOpen);
-    const focusFollowsCursorMode = useAtomValue(waveEnv.getSettingsKeyAtom("app:focusfollowscursor")) ?? "off";
+    const modalOpen = useAtomValue(doraEnv.atoms.modalOpen);
+    const focusFollowsCursorMode = useAtomValue(doraEnv.getSettingsKeyAtom("app:focusfollowscursor")) ?? "off";
     const innerRect = useDebouncedNodeInnerRect(nodeModel);
     const noPadding = useAtomValueSafe(viewModel.noPadding);
 
@@ -270,12 +270,12 @@ const BlockInner = memo((props: BlockProps & { viewType: string }) => {
     counterInc("render-Block");
     counterInc("render-Block-" + props.nodeModel?.blockId?.substring(0, 8));
     const tabModel = useTabModel();
-    const waveEnv = useDoraEnv();
+    const doraEnv = useDoraEnv();
     const bcm = getBlockComponentModel(props.nodeModel.blockId);
     let viewModel = bcm?.viewModel;
     if (viewModel == null) {
-        // viewModel gets the full waveEnv
-        viewModel = makeViewModel(props.nodeModel.blockId, props.viewType, props.nodeModel, tabModel, waveEnv);
+        // viewModel gets the full doraEnv
+        viewModel = makeViewModel(props.nodeModel.blockId, props.viewType, props.nodeModel, tabModel, doraEnv);
         registerBlockComponentModel(props.nodeModel.blockId, { viewModel });
     }
     useEffect(() => {
@@ -292,9 +292,9 @@ const BlockInner = memo((props: BlockProps & { viewType: string }) => {
 BlockInner.displayName = "BlockInner";
 
 const Block = memo((props: BlockProps) => {
-    const waveEnv = useDoraEnv<BlockEnv>();
-    const isNull = useAtomValue(waveEnv.wos.isDoraObjectNullAtom(makeORef("block", props.nodeModel.blockId)));
-    const viewType = useAtomValue(waveEnv.getBlockMetaKeyAtom(props.nodeModel.blockId, "view")) ?? "";
+    const doraEnv = useDoraEnv<BlockEnv>();
+    const isNull = useAtomValue(doraEnv.wos.isDoraObjectNullAtom(makeORef("block", props.nodeModel.blockId)));
+    const viewType = useAtomValue(doraEnv.getBlockMetaKeyAtom(props.nodeModel.blockId, "view")) ?? "";
     if (isNull || isBlank(props.nodeModel.blockId)) {
         return null;
     }
@@ -305,12 +305,12 @@ const SubBlockInner = memo((props: SubBlockProps & { viewType: string }) => {
     counterInc("render-Block");
     counterInc("render-Block-" + props.nodeModel.blockId?.substring(0, 8));
     const tabModel = useTabModel();
-    const waveEnv = useDoraEnv();
+    const doraEnv = useDoraEnv();
     const bcm = getBlockComponentModel(props.nodeModel.blockId);
     let viewModel = bcm?.viewModel;
     if (viewModel == null) {
-        // viewModel gets the full waveEnv
-        viewModel = makeViewModel(props.nodeModel.blockId, props.viewType, props.nodeModel, tabModel, waveEnv);
+        // viewModel gets the full doraEnv
+        viewModel = makeViewModel(props.nodeModel.blockId, props.viewType, props.nodeModel, tabModel, doraEnv);
         registerBlockComponentModel(props.nodeModel.blockId, { viewModel });
     }
     useEffect(() => {
@@ -324,9 +324,9 @@ const SubBlockInner = memo((props: SubBlockProps & { viewType: string }) => {
 SubBlockInner.displayName = "SubBlockInner";
 
 const SubBlock = memo((props: SubBlockProps) => {
-    const waveEnv = useDoraEnv<BlockEnv>();
-    const isNull = useAtomValue(waveEnv.wos.isDoraObjectNullAtom(makeORef("block", props.nodeModel.blockId)));
-    const viewType = useAtomValue(waveEnv.getBlockMetaKeyAtom(props.nodeModel.blockId, "view")) ?? "";
+    const doraEnv = useDoraEnv<BlockEnv>();
+    const isNull = useAtomValue(doraEnv.wos.isDoraObjectNullAtom(makeORef("block", props.nodeModel.blockId)));
+    const viewType = useAtomValue(doraEnv.getBlockMetaKeyAtom(props.nodeModel.blockId, "view")) ?? "";
     if (isNull || isBlank(props.nodeModel.blockId)) {
         return null;
     }

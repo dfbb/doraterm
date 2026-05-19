@@ -16,19 +16,19 @@ export const activeTabIdAtom = atom<string>(null) as PrimitiveAtom<string>;
 
 export class TabModel {
     tabId: string;
-    waveEnv: TabModelEnv;
+    doraEnv: TabModelEnv;
     tabAtom: Atom<Tab>;
     tabNumBlocksAtom: Atom<number>;
     isTermMultiInput = atom(false) as PrimitiveAtom<boolean>;
     metaCache: Map<string, Atom<any>> = new Map();
     startRenameCallback: (() => void) | null = null;
 
-    constructor(tabId: string, waveEnv?: TabModelEnv) {
+    constructor(tabId: string, doraEnv?: TabModelEnv) {
         this.tabId = tabId;
-        this.waveEnv = waveEnv;
+        this.doraEnv = doraEnv;
         this.tabAtom = atom((get) => {
-            if (this.waveEnv != null) {
-                return get(this.waveEnv.wos.getDoraObjectAtom<Tab>(WOS.makeORef("tab", this.tabId)));
+            if (this.doraEnv != null) {
+                return get(this.doraEnv.wos.getDoraObjectAtom<Tab>(WOS.makeORef("tab", this.tabId)));
             }
             return WOS.getObjectValue(WOS.makeORef("tab", this.tabId), get);
         });
@@ -51,30 +51,30 @@ export class TabModel {
     }
 }
 
-export function getTabModelByTabId(tabId: string, waveEnv?: TabModelEnv): TabModel {
-    if (!waveEnv?.isMock) {
+export function getTabModelByTabId(tabId: string, doraEnv?: TabModelEnv): TabModel {
+    if (!doraEnv?.isMock) {
         let model = tabModelCache.get(tabId);
         if (model == null) {
-            model = new TabModel(tabId, waveEnv);
+            model = new TabModel(tabId, doraEnv);
             tabModelCache.set(tabId, model);
         }
         return model;
     }
     const key = `TabModel:${tabId}`;
-    let model = waveEnv.mockModels.get(key);
+    let model = doraEnv.mockModels.get(key);
     if (model == null) {
-        model = new TabModel(tabId, waveEnv);
-        waveEnv.mockModels.set(key, model);
+        model = new TabModel(tabId, doraEnv);
+        doraEnv.mockModels.set(key, model);
     }
     return model;
 }
 
-export function getActiveTabModel(waveEnv?: TabModelEnv): TabModel | null {
+export function getActiveTabModel(doraEnv?: TabModelEnv): TabModel | null {
     const activeTabId = globalStore.get(activeTabIdAtom);
     if (activeTabId == null) {
         return null;
     }
-    return getTabModelByTabId(activeTabId, waveEnv);
+    return getTabModelByTabId(activeTabId, doraEnv);
 }
 
 export const TabModelContext = createContext<TabModel | undefined>(undefined);

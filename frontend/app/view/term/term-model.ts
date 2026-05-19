@@ -5,7 +5,7 @@ import { BlockNodeModel } from "@/app/block/blocktypes";
 import { appHandleKeyDown } from "@/app/store/keymodel";
 import { modalsModel } from "@/app/store/modalmodel";
 import type { TabModel } from "@/app/store/tab-model";
-import { waveEventSubscribeSingle } from "@/app/store/wps";
+import { doraEventSubscribeSingle } from "@/app/store/wps";
 import { RpcApi } from "@/app/store/dshclientapi";
 import { TabRpcClient } from "@/app/store/dshrpcutil";
 import { TermClaudeIcon, TerminalView } from "@/app/view/term/term";
@@ -270,7 +270,7 @@ export class TermViewModel implements ViewModel {
         initialShellProcStatus.then((rts) => {
             this.updateShellProcStatus(rts);
         });
-        this.shellProcStatusUnsubFn = waveEventSubscribeSingle({
+        this.shellProcStatusUnsubFn = doraEventSubscribeSingle({
             eventType: "controllerstatus",
             scope: WOS.makeORef("block", blockId),
             handler: (event) => {
@@ -303,7 +303,7 @@ export class TermViewModel implements ViewModel {
             .catch((error) => {
                 console.log("error getting initial block job status", error);
             });
-        this.blockJobStatusUnsubFn = waveEventSubscribeSingle({
+        this.blockJobStatusUnsubFn = doraEventSubscribeSingle({
             eventType: "block:jobstatus",
             scope: `block:${blockId}`,
             handler: (event) => {
@@ -342,7 +342,7 @@ export class TermViewModel implements ViewModel {
                 elemtype: "iconbutton",
                 icon,
                 className: "text-muted",
-                title: "No shell integration — Wave AI unable to run commands.",
+                title: "No shell integration — Dora AI unable to run commands.",
                 noAction: true,
             };
         }
@@ -351,21 +351,21 @@ export class TermViewModel implements ViewModel {
                 elemtype: "iconbutton",
                 icon,
                 className: "text-accent",
-                title: "Shell ready — Wave AI can run commands in this terminal.",
+                title: "Shell ready — Dora AI can run commands in this terminal.",
                 noAction: true,
             };
         }
         if (shellIntegrationStatus === "running-command") {
             let title = claudeCodeActive
                 ? "Claude Code Detected"
-                : "Shell busy — Wave AI unable to run commands while another command is running.";
+                : "Shell busy — Dora AI unable to run commands while another command is running.";
 
             if (this.termRef.current) {
                 const inAltBuffer = this.termRef.current.terminal?.buffer?.active?.type === "alternate";
                 const lastCommand = get(this.termRef.current.lastCommandAtom);
                 const blockingCmd = getBlockingCommand(lastCommand, inAltBuffer);
                 if (blockingCmd) {
-                    title = `Wave AI integration disabled while you're inside ${blockingCmd}.`;
+                    title = `Dora AI integration disabled while you're inside ${blockingCmd}.`;
                 }
             }
 
@@ -502,8 +502,8 @@ export class TermViewModel implements ViewModel {
         return false;
     }
 
-    keyDownHandler(waveEvent: DoraKeyboardEvent): boolean {
-        if (keyutil.checkKeyPressed(waveEvent, "Ctrl:r")) {
+    keyDownHandler(doraEvent: DoraKeyboardEvent): boolean {
+        if (keyutil.checkKeyPressed(doraEvent, "Ctrl:r")) {
             const shellIntegrationStatus = readAtom(this.termRef?.current?.shellIntegrationStatusAtom);
             if (shellIntegrationStatus === "ready") {
                 recordTEvent("action:term", { "action:type": "term:ctrlr" });
@@ -511,37 +511,37 @@ export class TermViewModel implements ViewModel {
             // just for telemetry, we allow this keybinding through, back to the terminal
             return false;
         }
-        if (keyutil.checkKeyPressed(waveEvent, "Shift:End")) {
+        if (keyutil.checkKeyPressed(doraEvent, "Shift:End")) {
             if (this.termRef?.current?.terminal) {
                 this.termRef.current.terminal.scrollToBottom();
             }
             return true;
         }
-        if (keyutil.checkKeyPressed(waveEvent, "Shift:Home")) {
+        if (keyutil.checkKeyPressed(doraEvent, "Shift:Home")) {
             if (this.termRef?.current?.terminal) {
                 this.termRef.current.terminal.scrollToLine(0);
             }
             return true;
         }
-        if (isMacOS() && keyutil.checkKeyPressed(waveEvent, "Cmd:End")) {
+        if (isMacOS() && keyutil.checkKeyPressed(doraEvent, "Cmd:End")) {
             if (this.termRef?.current?.terminal) {
                 this.termRef.current.terminal.scrollToBottom();
             }
             return true;
         }
-        if (isMacOS() && keyutil.checkKeyPressed(waveEvent, "Cmd:Home")) {
+        if (isMacOS() && keyutil.checkKeyPressed(doraEvent, "Cmd:Home")) {
             if (this.termRef?.current?.terminal) {
                 this.termRef.current.terminal.scrollToLine(0);
             }
             return true;
         }
-        if (keyutil.checkKeyPressed(waveEvent, "Shift:PageDown")) {
+        if (keyutil.checkKeyPressed(doraEvent, "Shift:PageDown")) {
             if (this.termRef?.current?.terminal) {
                 this.termRef.current.terminal.scrollPages(1);
             }
             return true;
         }
-        if (keyutil.checkKeyPressed(waveEvent, "Shift:PageUp")) {
+        if (keyutil.checkKeyPressed(doraEvent, "Shift:PageUp")) {
             if (this.termRef?.current?.terminal) {
                 this.termRef.current.terminal.scrollPages(-1);
             }
@@ -570,32 +570,32 @@ export class TermViewModel implements ViewModel {
     }
 
     handleTerminalKeydown(event: KeyboardEvent): boolean {
-        const waveEvent = keyutil.adaptFromReactOrNativeKeyEvent(event);
-        if (waveEvent.type != "keydown") {
+        const doraEvent = keyutil.adaptFromReactOrNativeKeyEvent(event);
+        if (doraEvent.type != "keydown") {
             return true;
         }
 
-        if (this.keyDownHandler(waveEvent)) {
+        if (this.keyDownHandler(doraEvent)) {
             event.preventDefault();
             event.stopPropagation();
             return false;
         }
 
         if (isMacOS()) {
-            if (keyutil.checkKeyPressed(waveEvent, "Cmd:ArrowLeft")) {
+            if (keyutil.checkKeyPressed(doraEvent, "Cmd:ArrowLeft")) {
                 this.sendDataToController("\x01"); // Ctrl-A (beginning of line)
                 event.preventDefault();
                 event.stopPropagation();
                 return false;
             }
-            if (keyutil.checkKeyPressed(waveEvent, "Cmd:ArrowRight")) {
+            if (keyutil.checkKeyPressed(doraEvent, "Cmd:ArrowRight")) {
                 this.sendDataToController("\x05"); // Ctrl-E (end of line)
                 event.preventDefault();
                 event.stopPropagation();
                 return false;
             }
         }
-        if (keyutil.checkKeyPressed(waveEvent, "Shift:Enter")) {
+        if (keyutil.checkKeyPressed(doraEvent, "Shift:Enter")) {
             const shiftEnterNewlineAtom = getOverrideConfigAtom(this.blockId, "term:shiftenternewline");
             const shiftEnterNewlineEnabled = globalStore.get(shiftEnterNewlineAtom) ?? true;
             if (shiftEnterNewlineEnabled) {
@@ -607,20 +607,20 @@ export class TermViewModel implements ViewModel {
         }
 
         // Check for Ctrl-V paste (platform-dependent)
-        if (this.shouldHandleCtrlVPaste() && keyutil.checkKeyPressed(waveEvent, "Ctrl:v")) {
+        if (this.shouldHandleCtrlVPaste() && keyutil.checkKeyPressed(doraEvent, "Ctrl:v")) {
             event.preventDefault();
             event.stopPropagation();
             getApi().nativePaste();
             return false;
         }
 
-        if (keyutil.checkKeyPressed(waveEvent, "Ctrl:Shift:v")) {
+        if (keyutil.checkKeyPressed(doraEvent, "Ctrl:Shift:v")) {
             event.preventDefault();
             event.stopPropagation();
             getApi().nativePaste();
             // this.termRef.current?.pasteHandler();
             return false;
-        } else if (keyutil.checkKeyPressed(waveEvent, "Ctrl:Shift:c")) {
+        } else if (keyutil.checkKeyPressed(doraEvent, "Ctrl:Shift:c")) {
             event.preventDefault();
             event.stopPropagation();
             let sel = this.termRef.current?.terminal.getSelection();
@@ -632,18 +632,18 @@ export class TermViewModel implements ViewModel {
             }
             navigator.clipboard.writeText(sel);
             return false;
-        } else if (keyutil.checkKeyPressed(waveEvent, "Cmd:k")) {
+        } else if (keyutil.checkKeyPressed(doraEvent, "Cmd:k")) {
             event.preventDefault();
             event.stopPropagation();
             this.termRef.current?.terminal?.clear();
             return false;
         }
         const shellProcStatus = globalStore.get(this.shellProcStatus);
-        if ((shellProcStatus == "done" || shellProcStatus == "init") && keyutil.checkKeyPressed(waveEvent, "Enter")) {
+        if ((shellProcStatus == "done" || shellProcStatus == "init") && keyutil.checkKeyPressed(doraEvent, "Enter")) {
             fireAndForget(() => this.forceRestartController());
             return false;
         }
-        const appHandled = appHandleKeyDown(waveEvent);
+        const appHandled = appHandleKeyDown(doraEvent);
         if (appHandled) {
             event.preventDefault();
             event.stopPropagation();

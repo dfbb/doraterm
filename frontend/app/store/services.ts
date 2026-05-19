@@ -80,7 +80,7 @@ export class ObjectServiceType {
         return callBackendService(this?.doraEnv, "object", "DeleteBlock", Array.from(arguments))
     }
 
-    // get wave object by oref
+    // get dora object by oref
     GetObject(oref: string): Promise<DoraObj> {
         return callBackendService(this?.doraEnv, "object", "GetObject", Array.from(arguments))
     }
@@ -91,7 +91,7 @@ export class ObjectServiceType {
     }
 
     // @returns object updates
-    UpdateObject(waveObj: DoraObj, returnUpdates: boolean): Promise<void> {
+    UpdateObject(doraObj: DoraObj, returnUpdates: boolean): Promise<void> {
         return callBackendService(this?.doraEnv, "object", "UpdateObject", Array.from(arguments))
     }
 

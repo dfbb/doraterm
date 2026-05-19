@@ -109,26 +109,26 @@ type DoraObj interface {
 	GetOType() string // should not depend on object state (should work with nil value)
 }
 
-type waveObjDesc struct {
+type doraObjDesc struct {
 	RType        reflect.Type
 	OIDField     reflect.StructField
 	VersionField reflect.StructField
 	MetaField    reflect.StructField
 }
 
-var waveObjMap = sync.Map{}
-var waveObjRType = reflect.TypeOf((*DoraObj)(nil)).Elem()
+var doraObjMap = sync.Map{}
+var doraObjRType = reflect.TypeOf((*DoraObj)(nil)).Elem()
 var metaMapRType = reflect.TypeOf(MetaMapType{})
 
 func RegisterType(rtype reflect.Type) {
 	if rtype.Kind() != reflect.Ptr {
-		panic(fmt.Sprintf("wave object must be a pointer for %v", rtype))
+		panic(fmt.Sprintf("dora object must be a pointer for %v", rtype))
 	}
-	if !rtype.Implements(waveObjRType) {
-		panic(fmt.Sprintf("wave object must implement DoraObj for %v", rtype))
+	if !rtype.Implements(doraObjRType) {
+		panic(fmt.Sprintf("dora object must implement DoraObj for %v", rtype))
 	}
-	waveObj := reflect.Zero(rtype).Interface().(DoraObj)
-	otype := waveObj.GetOType()
+	doraObj := reflect.Zero(rtype).Interface().(DoraObj)
+	otype := doraObj.GetOType()
 	if otype == "" {
 		panic(fmt.Sprintf("otype is empty for %v", rtype))
 	}
@@ -161,11 +161,11 @@ func RegisterType(rtype reflect.Type) {
 	if metaField.Type != metaMapRType {
 		panic(fmt.Sprintf("Meta field must be MetaMapType for %v", rtype))
 	}
-	_, found = waveObjMap.Load(otype)
+	_, found = doraObjMap.Load(otype)
 	if found {
 		panic(fmt.Sprintf("otype %q already registered", otype))
 	}
-	waveObjMap.Store(otype, &waveObjDesc{
+	doraObjMap.Store(otype, &doraObjDesc{
 		RType:        rtype,
 		OIDField:     oidField,
 		VersionField: versionField,
@@ -173,64 +173,64 @@ func RegisterType(rtype reflect.Type) {
 	})
 }
 
-func getDoraObjDesc(otype string) *waveObjDesc {
-	desc, _ := waveObjMap.Load(otype)
+func getDoraObjDesc(otype string) *doraObjDesc {
+	desc, _ := doraObjMap.Load(otype)
 	if desc == nil {
 		return nil
 	}
-	return desc.(*waveObjDesc)
+	return desc.(*doraObjDesc)
 }
 
-func GetOID(waveObj DoraObj) string {
-	desc := getDoraObjDesc(waveObj.GetOType())
+func GetOID(doraObj DoraObj) string {
+	desc := getDoraObjDesc(doraObj.GetOType())
 	if desc == nil {
 		return ""
 	}
-	return reflect.ValueOf(waveObj).Elem().FieldByIndex(desc.OIDField.Index).String()
+	return reflect.ValueOf(doraObj).Elem().FieldByIndex(desc.OIDField.Index).String()
 }
 
-func SetOID(waveObj DoraObj, oid string) {
-	desc := getDoraObjDesc(waveObj.GetOType())
+func SetOID(doraObj DoraObj, oid string) {
+	desc := getDoraObjDesc(doraObj.GetOType())
 	if desc == nil {
 		return
 	}
-	reflect.ValueOf(waveObj).Elem().FieldByIndex(desc.OIDField.Index).SetString(oid)
+	reflect.ValueOf(doraObj).Elem().FieldByIndex(desc.OIDField.Index).SetString(oid)
 }
 
-func GetVersion(waveObj DoraObj) int {
-	desc := getDoraObjDesc(waveObj.GetOType())
+func GetVersion(doraObj DoraObj) int {
+	desc := getDoraObjDesc(doraObj.GetOType())
 	if desc == nil {
 		return 0
 	}
-	return int(reflect.ValueOf(waveObj).Elem().FieldByIndex(desc.VersionField.Index).Int())
+	return int(reflect.ValueOf(doraObj).Elem().FieldByIndex(desc.VersionField.Index).Int())
 }
 
-func SetVersion(waveObj DoraObj, version int) {
-	desc := getDoraObjDesc(waveObj.GetOType())
+func SetVersion(doraObj DoraObj, version int) {
+	desc := getDoraObjDesc(doraObj.GetOType())
 	if desc == nil {
 		return
 	}
-	reflect.ValueOf(waveObj).Elem().FieldByIndex(desc.VersionField.Index).SetInt(int64(version))
+	reflect.ValueOf(doraObj).Elem().FieldByIndex(desc.VersionField.Index).SetInt(int64(version))
 }
 
-func GetMeta(waveObj DoraObj) MetaMapType {
-	desc := getDoraObjDesc(waveObj.GetOType())
+func GetMeta(doraObj DoraObj) MetaMapType {
+	desc := getDoraObjDesc(doraObj.GetOType())
 	if desc == nil {
 		return nil
 	}
-	mval := reflect.ValueOf(waveObj).Elem().FieldByIndex(desc.MetaField.Index).Interface()
+	mval := reflect.ValueOf(doraObj).Elem().FieldByIndex(desc.MetaField.Index).Interface()
 	if mval == nil {
 		return nil
 	}
 	return mval.(MetaMapType)
 }
 
-func SetMeta(waveObj DoraObj, meta map[string]any) {
-	desc := getDoraObjDesc(waveObj.GetOType())
+func SetMeta(doraObj DoraObj, meta map[string]any) {
+	desc := getDoraObjDesc(doraObj.GetOType())
 	if desc == nil {
 		return
 	}
-	reflect.ValueOf(waveObj).Elem().FieldByIndex(desc.MetaField.Index).Set(reflect.ValueOf(meta))
+	reflect.ValueOf(doraObj).Elem().FieldByIndex(desc.MetaField.Index).Set(reflect.ValueOf(meta))
 }
 
 func ToJsonMap(w DoraObj) (map[string]any, error) {

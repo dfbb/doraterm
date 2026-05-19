@@ -68,7 +68,7 @@ export class DoraConfigViewModel implements ViewModel {
     blockId: string;
     viewType = "doraconfig";
     viewIcon = atom("gear");
-    viewName = atom("Wave Config");
+    viewName = atom("Dora Config");
     viewComponent = DoraConfigView;
     noPadding = atom(true);
     nodeModel: BlockNodeModel;
@@ -92,11 +92,11 @@ export class DoraConfigViewModel implements ViewModel {
     editorRef: React.RefObject<MonacoTypes.editor.IStandaloneCodeEditor>;
 
 
-    constructor({ blockId, nodeModel, tabModel, waveEnv }: ViewModelInitType) {
+    constructor({ blockId, nodeModel, tabModel, doraEnv }: ViewModelInitType) {
         this.blockId = blockId;
         this.nodeModel = nodeModel;
         this.tabModel = tabModel;
-        this.env = waveEnv as DoraConfigEnv;
+        this.env = doraEnv as DoraConfigEnv;
         this.configDir = this.env.electron.getConfigDir();
         const platform = this.env.electron.getPlatform();
         this.saveShortcut = platform === "darwin" ? "Cmd+S" : "Alt+S";

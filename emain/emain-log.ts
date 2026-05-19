@@ -76,9 +76,9 @@ function pruneOldLogs(logsDir: string): { pruned: string[]; error: any } {
 }
 
 function rotateLogIfNeeded(): string | null {
-    const waveDataDir = getDoraDataDir();
-    const logFile = path.join(waveDataDir, `${LogBaseName}.log`);
-    const logsDir = path.join(waveDataDir, "logs");
+    const doraDataDir = getDoraDataDir();
+    const logFile = path.join(doraDataDir, `${LogBaseName}.log`);
+    const logsDir = path.join(doraDataDir, "logs");
 
     if (!fs.existsSync(logsDir)) {
         fs.mkdirSync(logsDir, { recursive: true });

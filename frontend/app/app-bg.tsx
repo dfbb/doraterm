@@ -3,7 +3,7 @@
 
 import { MetaKeyAtomFnType, useDoraEnv, DoraEnv, DoraEnvSubset } from "@/app/doraenv/doraenv";
 import { PLATFORM, PlatformMacOS } from "@/util/platformutil";
-import { computeBgStyleFromMeta } from "@/util/waveutil";
+import { computeBgStyleFromMeta } from "@/util/dorautil";
 import useResizeObserver from "@react-hook/resize-observer";
 import { useAtomValue } from "jotai";
 import { CSSProperties, useCallback, useLayoutEffect, useRef } from "react";

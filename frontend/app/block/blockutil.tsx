@@ -33,7 +33,7 @@ export function blockViewToIcon(view: string): string {
     if (view == "web") {
         return "globe";
     }
-    if (view == "waveai") {
+    if (view == "doraai") {
         return "sparkles";
     }
     if (view == "help") {
@@ -61,7 +61,7 @@ export function blockViewToName(view: string): string {
     if (view == "web") {
         return "Web";
     }
-    if (view == "waveai") {
+    if (view == "doraai") {
         return "DoraAI";
     }
     if (view == "help") {
@@ -173,13 +173,13 @@ export function getViewIconElem(
 }
 
 export function useTabBackground(
-    waveEnv: TabBackgroundEnv,
+    doraEnv: TabBackgroundEnv,
     tabId: string | null
 ): [string, string, BackgroundConfigType] {
-    const tabActiveBorderColorDirect = jotai.useAtomValue(waveEnv.getTabMetaKeyAtom(tabId, "bg:activebordercolor"));
-    const tabBorderColorDirect = jotai.useAtomValue(waveEnv.getTabMetaKeyAtom(tabId, "bg:bordercolor"));
-    const tabBg = jotai.useAtomValue(waveEnv.getTabMetaKeyAtom(tabId, "tab:background"));
-    const configBg = jotai.useAtomValue(waveEnv.getConfigBackgroundAtom(tabBg));
+    const tabActiveBorderColorDirect = jotai.useAtomValue(doraEnv.getTabMetaKeyAtom(tabId, "bg:activebordercolor"));
+    const tabBorderColorDirect = jotai.useAtomValue(doraEnv.getTabMetaKeyAtom(tabId, "bg:bordercolor"));
+    const tabBg = jotai.useAtomValue(doraEnv.getTabMetaKeyAtom(tabId, "tab:background"));
+    const configBg = jotai.useAtomValue(doraEnv.getConfigBackgroundAtom(tabBg));
     const tabActiveBorderColor = tabActiveBorderColorDirect ?? configBg?.["bg:activebordercolor"];
     const tabBorderColor = tabBorderColorDirect ?? configBg?.["bg:bordercolor"];
     return [tabBorderColor, tabActiveBorderColor, configBg];

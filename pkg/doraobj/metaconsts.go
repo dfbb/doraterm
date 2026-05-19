@@ -102,12 +102,6 @@ const (
 	MetaKey_LayoutVTabBarWidth               = "layout:vtabbarwidth"
 	MetaKey_LayoutWidgetsVisible             = "layout:widgetsvisible"
 
-	MetaKey_DoraAiPanelOpen                  = "waveai:panelopen"
-	MetaKey_DoraAiPanelWidth                 = "waveai:panelwidth"
-	MetaKey_DoraAiModel                      = "waveai:model"
-	MetaKey_DoraAiChatId                     = "waveai:chatid"
-	MetaKey_DoraAiWidgetContext              = "waveai:widgetcontext"
-
 	MetaKey_TermClear                        = "term:*"
 	MetaKey_TermFontSize                     = "term:fontsize"
 	MetaKey_TermFontFamily                   = "term:fontfamily"
