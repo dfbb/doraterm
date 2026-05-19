@@ -148,28 +148,6 @@ const SettingsFloatingWindow = memo(
                     onClose();
                 },
             },
-            {
-                icon: "lock",
-                label: "Secrets",
-                onClick: () => {
-                    const blockDef: BlockDef = {
-                        meta: {
-                            view: "doraconfig",
-                            file: "secrets",
-                        },
-                    };
-                    env.createBlock(blockDef, false, true);
-                    onClose();
-                },
-            },
-            {
-                icon: "book-open",
-                label: "Release Notes",
-                onClick: () => {
-                    modalsModel.pushModal("UpgradeOnboardingPatch", { isReleaseNotes: true });
-                    onClose();
-                },
-            },
         ];
 
         return (

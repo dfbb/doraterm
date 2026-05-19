@@ -98,7 +98,6 @@ declare global {
     // doraobj.Client
     type Client = DoraObj & {
         windowids: string[];
-        tosagreed?: number;
         hasoldhistory?: boolean;
         tempoid?: string;
         installid?: string;
@@ -925,8 +924,6 @@ declare global {
         "term:localshellpath"?: string;
         "term:localshellopts"?: string[];
         "term:scrollback"?: number;
-        "term:vdomblockid"?: string;
-        "term:vdomtoolbarblockid"?: string;
         "term:transparency"?: number;
         "term:allowbracketedpaste"?: boolean;
         "term:shiftenternewline"?: boolean;
@@ -944,19 +941,6 @@ declare global {
         "web:useragenttype"?: string;
         "markdown:fontsize"?: number;
         "markdown:fixedfontsize"?: number;
-        "tsunami:*"?: boolean;
-        "tsunami:sdkreplacepath"?: string;
-        "tsunami:apppath"?: string;
-        "tsunami:appid"?: string;
-        "tsunami:scaffoldpath"?: string;
-        "tsunami:env"?: {[key: string]: string};
-        "vdom:*"?: boolean;
-        "vdom:initialized"?: boolean;
-        "vdom:correlationid"?: string;
-        "vdom:route"?: string;
-        "vdom:persist"?: boolean;
-        "onboarding:githubstar"?: boolean;
-        "onboarding:lastversion"?: string;
         count?: number;
     };
 
@@ -978,8 +962,6 @@ declare global {
 
     // doraobj.ObjRTInfo
     type ObjRTInfo = {
-        "tsunami:appmeta"?: AppMeta;
-        "tsunami:schemas"?: any;
         "shell:hascurcwd"?: boolean;
         "shell:state"?: string;
         "shell:type"?: string;

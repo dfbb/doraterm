@@ -41,22 +41,6 @@ func (cs *ClientService) FocusWindow(ctx context.Context, windowId string) error
 	return dcore.FocusWindow(ctx, windowId)
 }
 
-func (cs *ClientService) AgreeTos(ctx context.Context) (doraobj.UpdatesRtnType, error) {
-	ctx = doraobj.ContextWithUpdates(ctx)
-	clientData, err := dstore.DBGetSingleton[*doraobj.Client](ctx)
-	if err != nil {
-		return nil, fmt.Errorf("error getting client data: %w", err)
-	}
-	timestamp := time.Now().UnixMilli()
-	clientData.TosAgreed = timestamp
-	err = dstore.DBUpdate(ctx, clientData)
-	if err != nil {
-		return nil, fmt.Errorf("error updating client data: %w", err)
-	}
-	dcore.BootstrapStarterLayout(ctx)
-	return doraobj.ContextGetUpdatesRtn(ctx), nil
-}
-
 func (cs *ClientService) TelemetryUpdate(ctx context.Context, telemetryEnabled bool) error {
 	meta := doraobj.MetaMapType{
 	}

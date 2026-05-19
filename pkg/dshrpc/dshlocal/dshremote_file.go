@@ -307,7 +307,7 @@ func checkIsReadOnly(path string, fileInfo fs.FileInfo, exists bool) bool {
 			// we're not sure, just return false
 			return false
 		}
-		tmpFileName := filepath.Join(dirName, "wsh-tmp-"+randHexStr)
+		tmpFileName := filepath.Join(dirName, "dsh-tmp-"+randHexStr)
 		fd, err := os.Create(tmpFileName)
 		if err != nil {
 			return true

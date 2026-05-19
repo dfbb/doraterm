@@ -389,10 +389,10 @@ func makeSwapToken(ctx context.Context, logCtx context.Context, blockId string, 
 		Env:   make(map[string]string),
 		Exp:   time.Now().Add(5 * time.Minute),
 	}
-	token.Env["TERM_PROGRAM"] = "waveterm"
+	token.Env["TERM_PROGRAM"] = "doraterm"
 	token.Env["DORATERM_BLOCKID"] = blockId
 	token.Env["DORATERM_VERSION"] = dorabase.DoraVersion
-	token.Env["WAVETERM"] = "1"
+	token.Env["DORATERM"] = "1"
 	tabId, err := dstore.DBFindTabForBlockId(ctx, blockId)
 	if err != nil {
 		log.Printf("error finding tab for block: %v\n", err)

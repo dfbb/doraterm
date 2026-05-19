@@ -337,24 +337,6 @@ func GetRTInfoCommand(w *dshutil.DshRpc, data dshrpc.CommandGetRTInfoData, opts 
 	return resp, err
 }
 
-// command "getsecrets", dshserver.GetSecretsCommand
-func GetSecretsCommand(w *dshutil.DshRpc, data []string, opts *dshrpc.RpcOpts) (map[string]string, error) {
-	resp, err := sendRpcRequestCallHelper[map[string]string](w, "getsecrets", data, opts)
-	return resp, err
-}
-
-// command "getsecretslinuxstoragebackend", dshserver.GetSecretsLinuxStorageBackendCommand
-func GetSecretsLinuxStorageBackendCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) (string, error) {
-	resp, err := sendRpcRequestCallHelper[string](w, "getsecretslinuxstoragebackend", nil, opts)
-	return resp, err
-}
-
-// command "getsecretsnames", dshserver.GetSecretsNamesCommand
-func GetSecretsNamesCommand(w *dshutil.DshRpc, opts *dshrpc.RpcOpts) ([]string, error) {
-	resp, err := sendRpcRequestCallHelper[[]string](w, "getsecretsnames", nil, opts)
-	return resp, err
-}
-
 // command "gettab", dshserver.GetTabCommand
 func GetTabCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) (*doraobj.Tab, error) {
 	resp, err := sendRpcRequestCallHelper[*doraobj.Tab](w, "gettab", data, opts)
@@ -662,12 +644,6 @@ func SetPeerInfoCommand(w *dshutil.DshRpc, data string, opts *dshrpc.RpcOpts) er
 // command "setrtinfo", dshserver.SetRTInfoCommand
 func SetRTInfoCommand(w *dshutil.DshRpc, data dshrpc.CommandSetRTInfoData, opts *dshrpc.RpcOpts) error {
 	_, err := sendRpcRequestCallHelper[any](w, "setrtinfo", data, opts)
-	return err
-}
-
-// command "setsecrets", dshserver.SetSecretsCommand
-func SetSecretsCommand(w *dshutil.DshRpc, data map[string]*string, opts *dshrpc.RpcOpts) error {
-	_, err := sendRpcRequestCallHelper[any](w, "setsecrets", data, opts)
 	return err
 }
 

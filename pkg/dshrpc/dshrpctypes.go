@@ -1,7 +1,7 @@
 // Copyright 2025, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// types and methods for wsh rpc calls
+// types and methods for dsh rpc calls
 package dshrpc
 
 import (
@@ -110,12 +110,6 @@ type DshRpcInterface interface {
 	ElectronDecryptCommand(ctx context.Context, data CommandElectronDecryptData) (*CommandElectronDecryptRtnData, error)
 	NetworkOnlineCommand(ctx context.Context) (bool, error)
 	ElectronSystemBellCommand(ctx context.Context) error
-
-	// secrets
-	GetSecretsCommand(ctx context.Context, names []string) (map[string]string, error)
-	GetSecretsNamesCommand(ctx context.Context) ([]string, error)
-	SetSecretsCommand(ctx context.Context, secrets map[string]*string) error
-	GetSecretsLinuxStorageBackendCommand(ctx context.Context) (string, error)
 
 	WorkspaceListCommand(ctx context.Context) ([]WorkspaceInfoData, error)
 	GetUpdateChannelCommand(ctx context.Context) (string, error)

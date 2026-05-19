@@ -18,7 +18,7 @@ import (
 
 var tabIndicatorCmd = &cobra.Command{
 	Use:     "tabindicator [icon]",
-	Short:   "set or clear a tab indicator (deprecated: use 'wsh badge')",
+	Short:   "set or clear a tab indicator (deprecated: use 'dsh badge')",
 	Args:    cobra.MaximumNArgs(1),
 	RunE:    tabIndicatorRun,
 	PreRunE: preRunSetupRpcClient,
@@ -46,7 +46,7 @@ func tabIndicatorRun(cmd *cobra.Command, args []string) (rtnErr error) {
 		sendActivity("tabindicator", rtnErr == nil)
 	}()
 
-	fmt.Fprintf(os.Stderr, "tabindicator is deprecated, use 'wsh badge' instead\n")
+	fmt.Fprintf(os.Stderr, "tabindicator is deprecated, use 'dsh badge' instead\n")
 
 	tabId := tabIndicatorTabId
 	if tabId == "" {

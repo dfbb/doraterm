@@ -80,6 +80,9 @@ func EnsureInitialData() (bool, error) {
 	if err != nil {
 		return firstLaunch, fmt.Errorf("error creating window: %w", err)
 	}
+	if firstLaunch {
+		BootstrapStarterLayout(ctx)
+	}
 	return firstLaunch, nil
 }
 

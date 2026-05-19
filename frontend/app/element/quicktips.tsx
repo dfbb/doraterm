@@ -301,7 +301,7 @@ const QuickTips = () => {
                         </IconBox>
                         <a
                             target="_blank"
-                            href="https://docs.waveterm.dev/config"
+                            href="https://docs.doraterm.dev/config"
                             rel="noopener"
                             className="hover:text-accent-400 hover:underline transition-colors font-medium"
                         >
@@ -314,7 +314,7 @@ const QuickTips = () => {
                         </IconBox>
                         <a
                             target="_blank"
-                            href="https://docs.waveterm.dev/keybindings"
+                            href="https://docs.doraterm.dev/keybindings"
                             rel="noopener"
                             className="hover:text-accent-400 hover:underline transition-colors font-medium"
                         >
@@ -327,7 +327,7 @@ const QuickTips = () => {
                         </IconBox>
                         <a
                             target="_blank"
-                            href="https://docs.waveterm.dev"
+                            href="https://docs.doraterm.dev"
                             rel="noopener"
                             className="hover:text-accent-400 hover:underline transition-colors font-medium"
                         >

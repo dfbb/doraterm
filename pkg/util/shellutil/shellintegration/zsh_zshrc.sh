@@ -26,11 +26,11 @@ fi
 typeset -g _DORATERM_SI_FIRSTPRECMD=1
 
 # shell integration
-_waveterm_si_blocked() {
+_doraterm_si_blocked() {
   [[ -n "$TMUX" || -n "$STY" || "$TERM" == tmux* || "$TERM" == screen* ]]
 }
 
-_waveterm_si_urlencode() {
+_doraterm_si_urlencode() {
   if (( $+functions[omz_urlencode] )); then
     omz_urlencode "$1"
   else
@@ -48,7 +48,7 @@ _waveterm_si_urlencode() {
   fi
 }
 
-_waveterm_si_compmode() {
+_doraterm_si_compmode() {
   # fzf-based completion wins
   if typeset -f _fzf_tab_complete >/dev/null 2>&1 || typeset -f _fzf_complete >/dev/null 2>&1; then
     echo "fzf"
@@ -69,33 +69,33 @@ _waveterm_si_compmode() {
   echo "standard"
 }
 
-_waveterm_si_osc7() {
-  _waveterm_si_blocked && return
-  local encoded_pwd=$(_waveterm_si_urlencode "$PWD")
+_doraterm_si_osc7() {
+  _doraterm_si_blocked && return
+  local encoded_pwd=$(_doraterm_si_urlencode "$PWD")
   printf '\033]7;file://localhost%s\007' "$encoded_pwd"  # OSC 7 - current directory
 }
 
-_waveterm_si_precmd() {
-  local _waveterm_si_status=$?
-  _waveterm_si_blocked && return
+_doraterm_si_precmd() {
+  local _doraterm_si_status=$?
+  _doraterm_si_blocked && return
   # D;status for previous command (skip before first prompt)
   if (( !_DORATERM_SI_FIRSTPRECMD )); then
-    printf '\033]16162;D;{"exitcode":%d}\007' "$_waveterm_si_status"
+    printf '\033]16162;D;{"exitcode":%d}\007' "$_doraterm_si_status"
   else
     local uname_info=$(uname -smr 2>/dev/null)
     local omz=false
-    local comp=$(_waveterm_si_compmode)
+    local comp=$(_doraterm_si_compmode)
     [[ -n "$ZSH" && -r "$ZSH/oh-my-zsh.sh" ]] && omz=true
     printf '\033]16162;M;{"shell":"zsh","shellversion":"%s","uname":"%s","integration":true,"omz":%s,"comp":"%s"}\007' "$ZSH_VERSION" "$uname_info" "$omz" "$comp"
     # OSC 7 only sent on first prompt - chpwd hook handles directory changes
-    _waveterm_si_osc7
+    _doraterm_si_osc7
   fi
   printf '\033]16162;A\007'
   _DORATERM_SI_FIRSTPRECMD=0
 }
 
-_waveterm_si_preexec() {
-  _waveterm_si_blocked && return
+_doraterm_si_preexec() {
+  _doraterm_si_blocked && return
   local cmd="$1"
   local cmd_length=${#cmd}
   if [ "$cmd_length" -gt 8192 ]; then
@@ -112,8 +112,8 @@ _waveterm_si_preexec() {
 
 typeset -g DORATERM_SI_INPUTEMPTY=1
 
-_waveterm_si_inputempty() {
-  _waveterm_si_blocked && return
+_doraterm_si_inputempty() {
+  _doraterm_si_blocked && return
   
   local current_empty=1
   if [[ -n "$BUFFER" ]]; then
@@ -132,11 +132,11 @@ _waveterm_si_inputempty() {
 
 autoload -Uz add-zle-hook-widget 2>/dev/null
 if (( $+functions[add-zle-hook-widget] )); then
-  add-zle-hook-widget zle-line-init _waveterm_si_inputempty
-  add-zle-hook-widget zle-line-pre-redraw _waveterm_si_inputempty
+  add-zle-hook-widget zle-line-init _doraterm_si_inputempty
+  add-zle-hook-widget zle-line-pre-redraw _doraterm_si_inputempty
 fi
 
 autoload -U add-zsh-hook
-add-zsh-hook precmd  _waveterm_si_precmd
-add-zsh-hook preexec _waveterm_si_preexec
-add-zsh-hook chpwd   _waveterm_si_osc7
+add-zsh-hook precmd  _doraterm_si_precmd
+add-zsh-hook preexec _doraterm_si_preexec
+add-zsh-hook chpwd   _doraterm_si_osc7
