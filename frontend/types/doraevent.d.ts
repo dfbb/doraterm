@@ -20,6 +20,7 @@ declare global {
         | "workspace:update"
         | "block:jobstatus"
         | "badge"
+        | "electron:control"
     ;
 
     type DoraEvent = {
@@ -41,7 +42,8 @@ declare global {
         { event: "route:up"; data?: null; } | 
         { event: "workspace:update"; data?: null; } | 
         { event: "block:jobstatus"; data?: BlockJobStatusData; } | 
-        { event: "badge"; data?: BadgeEvent; }
+        { event: "badge"; data?: BadgeEvent; } | 
+        { event: "electron:control"; data?: WSEventType; }
     );
 
 }

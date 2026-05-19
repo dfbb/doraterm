@@ -279,6 +279,15 @@
         },
         "debug:webglstatus": {
           "type": "boolean"
+        },
+        "remote:password": {
+          "type": "string"
+        },
+        "remote:listenport": {
+          "type": "integer"
+        },
+        "remote:bindaddr": {
+          "type": "string"
         }
       },
       "additionalProperties": false,

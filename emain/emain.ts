@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { RpcApi } from "@/app/store/dshclientapi";
+import { waveEventSubscribeSingle } from "@/app/store/wps";
 import * as electron from "electron";
 import { globalEvents } from "emain/emain-events";
 import { sprintf } from "sprintf-js";
@@ -9,6 +10,7 @@ import * as services from "../frontend/app/store/services";
 import { initElectronWshrpc, shutdownWshrpc } from "../frontend/app/store/dshrpcutil-base";
 import { fireAndForget, sleep } from "../frontend/util/util";
 import { AuthKey, configureAuthKeyRequestInjection } from "./authkey";
+import { configureRemotePasswordInjection, setRemotePassword } from "./remoteauth";
 import {
     getActivityState,
     getAndClearTermCommandsDurable,
@@ -32,6 +34,7 @@ import {
     getElectronAppUnpackedBasePath,
     getDoraConfigDir,
     getDoraDataDir,
+    getRemoteState,
     isDev,
     unameArch,
     unamePlatform,
@@ -116,6 +119,39 @@ function handleWSEvent(evtMsg: WSEventType) {
             console.log("unhandled electron ws eventtype", evtMsg.eventtype);
         }
     });
+}
+
+async function initElectronControlEventSubscription(): Promise<void> {
+    waveEventSubscribeSingle({
+        eventType: "electron:control",
+        handler: (event) => {
+            const evtMsg = event?.data as WSEventType;
+            if (evtMsg == null) return;
+            handleWSEvent(evtMsg);
+        },
+    });
+    try {
+        await RpcApi.EventSubCommand(ElectronDshClient, {
+            event: "electron:control",
+            scopes: [],
+            allscopes: true,
+        });
+    } catch (e) {
+        console.log("error acknowledging electron:control subscription", e);
+    }
+}
+
+async function alignAllWindowsActiveTab() {
+    for (const ww of getAllDoraWindows()) {
+        try {
+            const workspace = await services.WorkspaceService.GetWorkspace(ww.workspaceId);
+            if (workspace?.activetabid == null) continue;
+            if (ww.activeTabView?.waveTabId == workspace.activetabid) continue;
+            await ww.setActiveTab(workspace.activetabid, false);
+        } catch (e) {
+            console.log("error aligning window", ww.waveWindowId, e);
+        }
+    }
 }
 
 function hideWindowWithCatch(window: DoraBrowserWindow) {
@@ -269,14 +305,22 @@ async function appMain() {
     const ready = await getDoraSrvReady();
     console.log("dorasrv ready signal received", ready, Date.now() - startTs, "ms");
     await electronApp.whenReady();
-    configureAuthKeyRequestInjection(electron.session.defaultSession);
+    const remote = getRemoteState();
+    if (remote.isRemote) {
+        setRemotePassword(remote.password!);
+        configureRemotePasswordInjection(electron.session.defaultSession);
+    } else {
+        configureAuthKeyRequestInjection(electron.session.defaultSession);
+    }
     initIpcHandlers();
 
     await sleep(10); // wait a bit for dorasrv to be ready
     try {
         initElectronDshClient();
-        initElectronWshrpc(ElectronDshClient, { authKey: AuthKey });
+        const dshOpts = remote.isRemote ? { remotePassword: remote.password! } : { authKey: AuthKey };
+        initElectronWshrpc(ElectronDshClient, dshOpts);
         initMenuEventSubscriptions();
+        await initElectronControlEventSubscription();
     } catch (e) {
         console.log("error initializing wshrpc", e);
     }
@@ -287,10 +331,13 @@ async function appMain() {
     }
     ensureHotSpareTab(fullConfig);
     await relaunchBrowserWindows();
+    await alignAllWindowsActiveTab();
 
     makeAndSetAppMenu();
-    makeDockTaskbar();
-    await configureAutoUpdater();
+    if (!remote.isRemote) {
+        makeDockTaskbar();
+        await configureAutoUpdater();
+    }
     setGlobalIsStarting(false);
     if (fullConfig?.settings?.["window:maxtabcachesize"] != null) {
         setMaxTabCacheSize(fullConfig.settings["window:maxtabcachesize"]);
@@ -312,11 +359,13 @@ async function appMain() {
             fireAndForget(createNewDoraWindow);
         }
     });
-    const rawGlobalHotKey = launchSettings?.["app:globalhotkey"];
-    if (rawGlobalHotKey) {
-        registerGlobalHotkey(rawGlobalHotKey);
+    if (!remote.isRemote) {
+        const rawGlobalHotKey = launchSettings?.["app:globalhotkey"];
+        if (rawGlobalHotKey) {
+            registerGlobalHotkey(rawGlobalHotKey);
+        }
+        initGlobalHotkeyEventSubscription();
     }
-    initGlobalHotkeyEventSubscription();
 }
 
 appMain().catch((e) => {

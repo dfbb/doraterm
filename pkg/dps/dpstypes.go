@@ -28,6 +28,7 @@ const (
 	Event_WorkspaceUpdate     = "workspace:update"     // type: none
 	Event_BlockJobStatus      = "block:jobstatus"      // type: dshrpc.BlockJobStatusData
 	Event_Badge               = "badge"                // type: baseds.BadgeEvent
+	Event_ElectronControl     = "electron:control"     // type: eventbus.WSEventType
 )
 
 var AllEvents []string = []string{
@@ -44,6 +45,7 @@ var AllEvents []string = []string{
 	Event_WorkspaceUpdate,
 	Event_BlockJobStatus,
 	Event_Badge,
+	Event_ElectronControl,
 }
 
 type DoraEvent struct {

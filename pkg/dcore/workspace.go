@@ -360,9 +360,14 @@ func SetActiveTab(ctx context.Context, workspaceId string, tabId string) error {
 }
 
 func SendActiveTabUpdate(ctx context.Context, workspaceId string, newActiveTabId string) {
-	eventbus.SendEventToElectron(eventbus.WSEventType{
+	evt := eventbus.WSEventType{
 		EventType: eventbus.WSEvent_ElectronUpdateActiveTab,
 		Data:      &doraobj.ActiveTabUpdate{WorkspaceId: workspaceId, NewActiveTabId: newActiveTabId},
+	}
+	eventbus.SendEventToElectron(evt)
+	dps.Broker.Publish(dps.DoraEvent{
+		Event: dps.Event_ElectronControl,
+		Data:  evt,
 	})
 }
 

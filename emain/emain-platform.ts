@@ -3,6 +3,7 @@
 
 import { fireAndForget } from "@/util/util";
 import { app, dialog, ipcMain, shell } from "electron";
+import { RemoteModeState, resolveRemoteMode } from "./remotemode";
 import envPaths from "env-paths";
 import { existsSync, mkdirSync } from "fs";
 import os from "os";
@@ -40,6 +41,39 @@ keyutil.setKeyUtilPlatform(unamePlatform);
 const DoraConfigHomeVarName = "DORATERM_CONFIG_HOME";
 const DoraDataHomeVarName = "DORATERM_DATA_HOME";
 const DoraHomeVarName = "DORATERM_HOME";
+
+function computeLocalConfigDir(): string {
+    const xdgConfigHome = process.env.XDG_CONFIG_HOME;
+    if (xdgConfigHome) return path.join(xdgConfigHome, waveDirName);
+    return path.join(app.getPath("home"), ".config", waveDirName);
+}
+
+let remoteState: RemoteModeState;
+try {
+    remoteState = resolveRemoteMode(process.argv, computeLocalConfigDir());
+} catch (e) {
+    console.error("[remote-mode] failed to parse --remote-host:", (e as Error).message);
+    process.exit(1);
+    remoteState = { isRemote: false, target: null, password: null, safeSuffix: null };
+}
+
+if (remoteState.isRemote) {
+    if (!remoteState.password) {
+        console.error("[remote-mode] remote:password missing from local settings.json");
+        process.exit(1);
+    }
+    const baseUserData = app.getPath("userData");
+    const remoteUserData = path.join(
+        path.dirname(baseUserData),
+        `doraterm-remote-${remoteState.safeSuffix}`,
+    );
+    app.setPath("userData", remoteUserData);
+    app.setPath("sessionData", path.join(remoteUserData, "Session"));
+}
+
+export function getRemoteState(): RemoteModeState {
+    return remoteState;
+}
 
 export function checkIfRunningUnderARM64Translation(fullConfig: FullConfigType) {
     if (!fullConfig.settings["app:dismissarchitecturewarning"] && app.runningUnderARM64Translation) {
@@ -197,10 +231,10 @@ ipcMain.on("get-webview-preload", (event) => {
     event.returnValue = path.join(getElectronAppBasePath(), "preload", "preload-webview.cjs");
 });
 ipcMain.on("get-data-dir", (event) => {
-    event.returnValue = getDoraDataDir();
+    event.returnValue = remoteState.isRemote ? null : getDoraDataDir();
 });
 ipcMain.on("get-config-dir", (event) => {
-    event.returnValue = getDoraConfigDir();
+    event.returnValue = remoteState.isRemote ? null : getDoraConfigDir();
 });
 ipcMain.on("get-home-dir", (event) => {
     event.returnValue = app.getPath("home");

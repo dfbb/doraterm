@@ -38,6 +38,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/dshutil"
 	"github.com/dfbb/doraterm/pkg/dstore"
 
+	"net"
 	"net/http"
 	_ "net/http/pprof"
 )
@@ -311,6 +312,37 @@ func main() {
 		// use fmt instead of log here to make sure it goes directly to stderr
 		fmt.Fprintf(os.Stderr, "DORASRV-ESTART ws:%s web:%s version:%s buildtime:%s\n", wsListener.Addr(), webListener.Addr(), DoraVersion, BuildTime)
 	}()
+	cfgSettings := dconfig.GetWatcher().GetFullConfig().Settings
+	if cfgSettings.RemotePassword != "" {
+		bindAddr := cfgSettings.RemoteBindAddr
+		if bindAddr == "" {
+			bindAddr = "127.0.0.1"
+		}
+		port := cfgSettings.RemoteListenPort
+		if port == 0 {
+			port = 31577
+		}
+		entryAddr := fmt.Sprintf("%s:%d", bindAddr, port)
+		entryLn, err := net.Listen("tcp", entryAddr)
+		if err != nil {
+			log.Printf("error creating remote-entry listener at %s: %v\n", entryAddr, err)
+			return
+		}
+		log.Printf("Server [remote-entry] listening on %s\n", entryLn.Addr())
+		entry := web.NewRemoteEntry(
+			cfgSettings.RemotePassword,
+			webListener.Addr().String(),
+			wsListener.Addr().String(),
+			authkey.GetAuthKey(),
+		)
+		go func() {
+			if err := entry.Serve(entryLn); err != nil {
+				log.Printf("remote-entry serve error: %v\n", err)
+			}
+		}()
+	} else {
+		log.Printf("remote-entry disabled (no remote:password)\n")
+	}
 	go dshutil.RunDshRpcOverListener(unixListener, nil)
 	web.RunWebServer(webListener) // blocking
 	runtime.KeepAlive(waveLock)
