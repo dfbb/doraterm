@@ -14,23 +14,23 @@ import (
 	"github.com/dfbb/doraterm/pkg/dshrpc/dshclient"
 )
 
-var wavepathCmd = &cobra.Command{
-	Use:     "wavepath {config|data|log}",
+var dorapathCmd = &cobra.Command{
+	Use:     "dorapath {config|data|log}",
 	Short:   "Get paths to various doraterm files and directories",
-	RunE:    wavepathRun,
+	RunE:    dorapathRun,
 	PreRunE: preRunSetupRpcClient,
 }
 
 func init() {
-	wavepathCmd.Flags().BoolP("open", "o", false, "Open the path in a new block")
-	wavepathCmd.Flags().BoolP("open-external", "O", false, "Open the path in the default external application")
-	wavepathCmd.Flags().BoolP("tail", "t", false, "Tail the last 100 lines of the log")
-	rootCmd.AddCommand(wavepathCmd)
+	dorapathCmd.Flags().BoolP("open", "o", false, "Open the path in a new block")
+	dorapathCmd.Flags().BoolP("open-external", "O", false, "Open the path in the default external application")
+	dorapathCmd.Flags().BoolP("tail", "t", false, "Tail the last 100 lines of the log")
+	rootCmd.AddCommand(dorapathCmd)
 }
 
-func wavepathRun(cmd *cobra.Command, args []string) (rtnErr error) {
+func dorapathRun(cmd *cobra.Command, args []string) (rtnErr error) {
 	defer func() {
-		sendActivity("wavepath", rtnErr == nil)
+		sendActivity("dorapath", rtnErr == nil)
 	}()
 
 	if len(args) == 0 {
