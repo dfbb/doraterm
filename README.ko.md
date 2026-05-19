@@ -1,9 +1,9 @@
 <p align="center">
   <a href="https://www.doraterm.dev">
 	<picture>
-		<source media="(prefers-color-scheme: dark)" srcset="./assets/wave-dark.png">
-		<source media="(prefers-color-scheme: light)" srcset="./assets/wave-light.png">
-		<img alt="Dora Terminal Logo" src="./assets/wave-light.png" width="240">
+		<source media="(prefers-color-scheme: dark)" srcset="./assets/dora-dark.png">
+		<source media="(prefers-color-scheme: light)" srcset="./assets/dora-light.png">
+		<img alt="Dora Terminal Logo" src="./assets/dora-light.png" width="240">
 	</picture>
   </a>
   <br/>
@@ -25,7 +25,7 @@ Wave는 macOS, Linux, Windows에서 동작하는 오픈소스 AI 통합 터미�
 
 또한 Wave는 네트워크 중단이나 재시작 이후에도 유지되는 내구성 있는 SSH 세션을 지원하며, 자동 재연결 기능을 제공합니다. 내장 그래픽 에디터로 원격 파일을 편집하고, 터미널을 벗어나지 않고도 파일을 인라인으로 미리볼 수 있습니다.
 
-![WaveTerm Screenshot](./assets/wave-screenshot.webp)
+![WaveTerm Screenshot](./assets/dora-screenshot.webp)
 
 ## 주요 기능
 
@@ -103,7 +103,7 @@ Wave는 GitHub Issues를 이슈 추적에 사용합니다.
 
 [기여 가이드](CONTRIBUTING.md)에서 더 많은 정보를 확인할 수 있습니다.
 
-- [기여 방법](CONTRIBUTING.md#contributing-to-wave-terminal)
+- [기여 방법](CONTRIBUTING.md#contributing-to-dora-terminal)
 - [기여 가이드라인](CONTRIBUTING.md#high-level-expectations)
 
 ## 라이선스

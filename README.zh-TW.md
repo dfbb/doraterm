@@ -1,9 +1,9 @@
 <p align="center">
   <a href="https://www.doraterm.dev">
 	<picture>
-		<source media="(prefers-color-scheme: dark)" srcset="./assets/wave-dark.png">
-		<source media="(prefers-color-scheme: light)" srcset="./assets/wave-light.png">
-		<img alt="Dora Terminal Logo" src="./assets/wave-light.png" width="240">
+		<source media="(prefers-color-scheme: dark)" srcset="./assets/dora-dark.png">
+		<source media="(prefers-color-scheme: light)" srcset="./assets/dora-light.png">
+		<img alt="Dora Terminal Logo" src="./assets/dora-light.png" width="240">
 	</picture>
   </a>
   <br/>
@@ -152,7 +152,7 @@ Wave 使用 GitHub Issues 進行問題追蹤。
 
 更多資訊請參閱[貢獻指南](CONTRIBUTING.md)，其中包含：
 
-- [貢獻方式](CONTRIBUTING.md#contributing-to-wave-terminal)
+- [貢獻方式](CONTRIBUTING.md#contributing-to-dora-terminal)
 - [貢獻規範](CONTRIBUTING.md#before-you-start)
 
 ### 贊助 Wave ❤️

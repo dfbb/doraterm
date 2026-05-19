@@ -24,6 +24,7 @@ import { ElectronDshClient } from "./emain-dsh";
 import { updater } from "./updater";
 
 const DevInitTimeoutMs = 5000;
+const ProdInitTimeoutMs = 30000;
 
 export type WindowOpts = {
     unamePlatform: NodeJS.Platform;
@@ -189,7 +190,7 @@ export class DoraBrowserWindow extends BaseWindow {
                 symbolColor: "white",
                 color: "#00000000",
             };
-            winOpts.icon = path.join(getElectronAppBasePath(), "public/logos/wave-logo-dark.png");
+            winOpts.icon = path.join(getElectronAppBasePath(), "public/logos/dora-logo-dark.png");
             winOpts.autoHideMenuBar = !settings?.["window:showmenubar"];
             if (isTransparent) {
                 winOpts.transparent = true;
@@ -441,33 +442,31 @@ export class DoraBrowserWindow extends BaseWindow {
         delete tabView.savedInitOpts.primaryTabStartup;
         const startTime = Date.now();
         console.log(
-            "before wave ready, init tab, sending wave-init",
+            "before wave ready, init tab, sending dora-init",
             tabView.waveTabId,
             primaryStartupTab ? "(primary startup)" : ""
         );
         tabView.webContents.send("dora-init", initOpts);
         await this.awaitWithDevTimeout(tabView.waveReadyPromise, "waveReadyPromise", tabView.waveTabId);
-        console.log("wave-ready init time", Date.now() - startTime + "ms");
+        console.log("dora-ready init time", Date.now() - startTime + "ms");
     }
 
     private async awaitWithDevTimeout<T>(promise: Promise<T>, name: string, tabId: string): Promise<T> {
-        if (!isDev) {
-            return promise;
-        }
         let timeoutHandle: ReturnType<typeof setTimeout> = null;
+        const timeoutMs = isDev ? DevInitTimeoutMs : ProdInitTimeoutMs;
         const timeoutPromise = new Promise<never>((_, reject) => {
             timeoutHandle = setTimeout(() => {
                 console.log(
-                    `[dev] ${name} timed out after ${DevInitTimeoutMs}ms for tab ${tabId}, showing window for devtools`
+                    `[${isDev ? "dev" : "prod"}] ${name} timed out after ${timeoutMs}ms for tab ${tabId}, showing window`
                 );
                 if (!this.isDestroyed() && !this.isVisible()) {
                     this.show();
                 }
-                if (this.activeTabView?.webContents && !this.activeTabView.webContents.isDevToolsOpened()) {
+                if (isDev && this.activeTabView?.webContents && !this.activeTabView.webContents.isDevToolsOpened()) {
                     this.activeTabView.webContents.openDevTools();
                 }
-                reject(new Error(`[dev] ${name} timed out after ${DevInitTimeoutMs}ms`));
-            }, DevInitTimeoutMs);
+                reject(new Error(`[${isDev ? "dev" : "prod"}] ${name} timed out after ${timeoutMs}ms`));
+            }, timeoutMs);
         });
         try {
             return await Promise.race([promise, timeoutPromise]);
@@ -492,7 +491,7 @@ export class DoraBrowserWindow extends BaseWindow {
             await this.initializeTab(tabView, primaryStartupTab);
             this.finalizePositioning();
         } else {
-            console.log("reusing an existing tab, calling wave-init", tabView.waveTabId);
+            console.log("reusing an existing tab, calling dora-init", tabView.waveTabId);
             tabView.webContents.send("dora-init", tabView.savedInitOpts); // reinit
             this.finalizePositioning();
         }
@@ -737,6 +736,7 @@ export async function createBrowserWindow(
 
     if (workspace.activetabid) {
         await bwin.setActiveTab(workspace.activetabid, false, opts.isPrimaryStartupWindow ?? false);
+    } else {
     }
     return bwin;
 }

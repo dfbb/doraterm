@@ -32,7 +32,7 @@ const waveDirName = `${doraDirNamePrefix}${waveDirNameSuffix ? `-${waveDirNameSu
 
 const paths = envPaths("doraterm", { suffix: waveDirNameSuffix });
 
-app.setName(isDev ? "Wave (Dev)" : "Wave");
+app.setName(isDev ? "Dora (Dev)" : "Dora");
 const unamePlatform = process.platform;
 const unameArch: string = process.arch;
 keyutil.setKeyUtilPlatform(unamePlatform);
@@ -57,7 +57,7 @@ export function checkIfRunningUnderARM64Translation(fullConfig: FullConfigType) 
             console.log("User chose to learn more");
             fireAndForget(() =>
                 shell.openExternal(
-                    "https://docs.doraterm.dev/faq#why-does-wave-warn-me-about-arm64-translation-when-it-launches"
+                    "https://docs.doraterm.dev/faq#why-does-dora-warn-me-about-arm64-translation-when-it-launches"
                 )
             );
             throw new Error("User redirected to docsite to learn more about ARM64 translation, exiting");
