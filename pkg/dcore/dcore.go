@@ -70,7 +70,7 @@ func EnsureInitialData() (bool, error) {
 	wsId := ""
 	if firstLaunch {
 		log.Println("client has no windows and first launch, creating starter workspace")
-		starterWs, err := CreateWorkspace(ctx, "Starter workspace", "custom@dora-logo-solid", "#58C142", false, true)
+		starterWs, err := CreateWorkspace(ctx, "Starter workspace", "custom@dora-logo-solid", "#4287F5", false, true)
 		if err != nil {
 			return firstLaunch, fmt.Errorf("error creating starter workspace: %w", err)
 		}
