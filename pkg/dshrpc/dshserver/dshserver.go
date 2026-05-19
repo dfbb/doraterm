@@ -543,7 +543,7 @@ func termCtxWithLogBlockId(ctx context.Context, logBlockId string) context.Conte
 }
 
 
-func waveFileToDoraFileInfo(wf *filestore.DoraFile) *dshrpc.DoraFileInfo {
+func doraFileToDoraFileInfo(wf *filestore.DoraFile) *dshrpc.DoraFileInfo {
 	return &dshrpc.DoraFileInfo{
 		ZoneId:    wf.ZoneId,
 		Name:      wf.Name,
@@ -574,7 +574,7 @@ func (ws *DshServer) BlockInfoCommand(ctx context.Context, blockId string) (*dsh
 	}
 	var fileInfoList []*dshrpc.DoraFileInfo
 	for _, wf := range fileList {
-		fileInfoList = append(fileInfoList, waveFileToDoraFileInfo(wf))
+		fileInfoList = append(fileInfoList, doraFileToDoraFileInfo(wf))
 	}
 	return &dshrpc.BlockInfoData{
 		BlockId:     blockId,
@@ -592,7 +592,7 @@ func (ws *DshServer) DebugTermCommand(ctx context.Context, data dshrpc.CommandDe
 	if data.Size <= 0 {
 		return nil, fmt.Errorf("size must be greater than 0")
 	}
-	waveFile, err := filestore.WFS.Stat(ctx, data.BlockId, dorabase.BlockFile_Term)
+	doraFile, err := filestore.WFS.Stat(ctx, data.BlockId, dorabase.BlockFile_Term)
 	if err == fs.ErrNotExist {
 		return &dshrpc.CommandDebugTermRtnData{}, nil
 	}
@@ -600,11 +600,11 @@ func (ws *DshServer) DebugTermCommand(ctx context.Context, data dshrpc.CommandDe
 		return nil, fmt.Errorf("error statting term file: %w", err)
 	}
 	readSize := data.Size
-	dataLength := waveFile.DataLength()
+	dataLength := doraFile.DataLength()
 	if readSize > dataLength {
 		readSize = dataLength
 	}
-	readOffset := waveFile.Size - readSize
+	readOffset := doraFile.Size - readSize
 	readOffset, readData, err := filestore.WFS.ReadAt(ctx, data.BlockId, dorabase.BlockFile_Term, readOffset, readSize)
 	if err != nil {
 		return nil, fmt.Errorf("error reading term file: %w", err)
@@ -792,7 +792,7 @@ func (ws *DshServer) PathCommand(ctx context.Context, data dshrpc.PathCommandDat
 	case "data":
 		path = dorabase.GetDoraDataDir()
 	case "log":
-		path = filepath.Join(dorabase.GetDoraDataDir(), "waveapp.log")
+		path = filepath.Join(dorabase.GetDoraDataDir(), "doraapp.log")
 	}
 
 	if openInternal && openExternal {
@@ -889,4 +889,57 @@ func (ws *DshServer) JobControllerDetachJobCommand(ctx context.Context, jobId st
 
 func (ws *DshServer) BlockJobStatusCommand(ctx context.Context, blockId string) (*dshrpc.BlockJobStatusData, error) {
 	return jobcontroller.GetBlockJobStatus(ctx, blockId)
+}
+
+func (ws *DshServer) DoraFileReadStreamCommand(ctx context.Context, data dshrpc.CommandDoraFileReadStreamData) (*dshrpc.DoraFileInfo, error) {
+	const maxStreamFileSize = 5 * 1024 * 1024
+
+	doraFile, err := filestore.WFS.Stat(ctx, data.ZoneId, data.Name)
+	if err != nil {
+		return nil, fmt.Errorf("error statting dorafile: %w", err)
+	}
+
+	dataLength := doraFile.DataLength()
+	if dataLength > maxStreamFileSize {
+		return nil, fmt.Errorf("file size %d exceeds maximum streaming size of %d bytes", dataLength, maxStreamFileSize)
+	}
+
+	dshRpc := dshutil.GetDshRpcFromContext(ctx)
+	if dshRpc == nil || dshRpc.StreamBroker == nil {
+		return nil, fmt.Errorf("no stream broker available")
+	}
+
+	writer, err := dshRpc.StreamBroker.CreateStreamWriter(&data.StreamMeta)
+	if err != nil {
+		return nil, fmt.Errorf("error creating stream writer: %w", err)
+	}
+
+	_, fileData, err := filestore.WFS.ReadFile(ctx, data.ZoneId, data.Name)
+	if err != nil {
+		writer.Close()
+		return nil, fmt.Errorf("error reading dorafile: %w", err)
+	}
+
+	go func() {
+		defer func() {
+			panichandler.PanicHandler("DoraFileReadStreamCommand", recover())
+		}()
+		defer writer.Close()
+
+		_, err := writer.Write(fileData)
+		if err != nil {
+			log.Printf("error writing to stream for dorafile %s:%s: %v\n", data.ZoneId, data.Name, err)
+		}
+	}()
+
+	rtnInfo := &dshrpc.DoraFileInfo{
+		ZoneId:    doraFile.ZoneId,
+		Name:      doraFile.Name,
+		Opts:      doraFile.Opts,
+		CreatedTs: doraFile.CreatedTs,
+		Size:      doraFile.Size,
+		ModTs:     doraFile.ModTs,
+		Meta:      doraFile.Meta,
+	}
+	return rtnInfo, nil
 }
