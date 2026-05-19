@@ -138,14 +138,6 @@ tasks:
         deps:
             - go:mod:tidy
             - generate
-        sources:
-            - "cmd/server/*.go"
-            - "pkg/**/*.go"
-            - "pkg/**/*.json"
-            - "pkg/**/*.sh"
-            - package.json
-        generates:
-            - dist/bin/dorasrv.*
 
     build:server:macos:
         desc: Build the dorasrv component for macOS (Darwin) platforms (generates artifacts for both arm64 and amd64).
@@ -245,12 +237,6 @@ tasks:
         deps:
             - go:mod:tidy
             - generate
-        sources:
-            - "cmd/dsh/**/*.go"
-            - "pkg/**/*.go"
-            - package.json
-        generates:
-            - "dist/bin/dsh*"
 
     build:dsh:parallel:
         deps:
