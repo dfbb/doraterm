@@ -155,6 +155,9 @@ function makeIconClass(icon: string, fw: boolean, opts?: { spin?: boolean; defau
         baseClass = `fa fa-brands fa-${icon}`;
     } else if (icon.match(/^custom@[a-z0-9-]+$/)) {
         icon = icon.replace(/^custom@/, "");
+        if (icon.startsWith("wave-")) {
+            icon = "dora-" + icon.slice(5);
+        }
         baseClass = `fa fa-kit fa-${icon}`;
     } else {
         if (opts?.defaultIcon != null) {
