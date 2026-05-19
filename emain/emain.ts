@@ -8,6 +8,7 @@ import { globalEvents } from "emain/emain-events";
 import { sprintf } from "sprintf-js";
 import * as services from "../frontend/app/store/services";
 import { initElectronWshrpc, shutdownWshrpc } from "../frontend/app/store/dshrpcutil-base";
+import { addWSReconnectHandler } from "../frontend/app/store/ws";
 import { fireAndForget, sleep } from "../frontend/util/util";
 import { AuthKey, configureAuthKeyRequestInjection } from "./authkey";
 import { configureRemotePasswordInjection, setRemotePassword } from "./remoteauth";
@@ -319,6 +320,9 @@ async function appMain() {
         initElectronDshClient();
         const dshOpts = remote.isRemote ? { remotePassword: remote.password! } : { authKey: AuthKey };
         initElectronWshrpc(ElectronDshClient, dshOpts);
+        addWSReconnectHandler(() => {
+            fireAndForget(alignAllWindowsActiveTab);
+        });
         initMenuEventSubscriptions();
         await initElectronControlEventSubscription();
     } catch (e) {
