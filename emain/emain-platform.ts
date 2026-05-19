@@ -28,10 +28,10 @@ if (isDevVite) {
 }
 
 const doraDirNamePrefix = "doraterm";
-const waveDirNameSuffix = isDev ? "dev" : "";
-const waveDirName = `${doraDirNamePrefix}${waveDirNameSuffix ? `-${waveDirNameSuffix}` : ""}`;
+const doraDirNameSuffix = isDev ? "dev" : "";
+const doraDirName = `${doraDirNamePrefix}${doraDirNameSuffix ? `-${doraDirNameSuffix}` : ""}`;
 
-const paths = envPaths("doraterm", { suffix: waveDirNameSuffix });
+const paths = envPaths("doraterm", { suffix: doraDirNameSuffix });
 
 app.setName(isDev ? "Dora (Dev)" : "Dora");
 const unamePlatform = process.platform;
@@ -44,8 +44,8 @@ const DoraHomeVarName = "DORATERM_HOME";
 
 function computeLocalConfigDir(): string {
     const xdgConfigHome = process.env.XDG_CONFIG_HOME;
-    if (xdgConfigHome) return path.join(xdgConfigHome, waveDirName);
-    return path.join(app.getPath("home"), ".config", waveDirName);
+    if (xdgConfigHome) return path.join(xdgConfigHome, doraDirName);
+    return path.join(app.getPath("home"), ".config", doraDirName);
 }
 
 let remoteState: RemoteModeState;
@@ -81,8 +81,8 @@ export function checkIfRunningUnderARM64Translation(fullConfig: FullConfigType) 
         const dialogOpts: Electron.MessageBoxOptions = {
             type: "warning",
             buttons: ["Dismiss", "Learn More"],
-            title: "Wave has detected a performance issue",
-            message: `Wave is running in ARM64 translation mode which may impact performance.\n\nRecommendation: Download the native ARM64 version from our website for optimal performance.`,
+            title: "Dora has detected a performance issue",
+            message: `Dora is running in ARM64 translation mode which may impact performance.\n\nRecommendation: Download the native ARM64 version from our website for optimal performance.`,
         };
 
         const choice = dialog.showMessageBoxSync(null, dialogOpts);
@@ -102,7 +102,7 @@ export function checkIfRunningUnderARM64Translation(fullConfig: FullConfigType) 
 }
 
 /**
- * Gets the path to the old Wave home directory (defaults to `~/.doraterm`).
+ * Gets the path to the old Dora home directory (defaults to `~/.doraterm`).
  * @returns The path to the directory if it exists and contains valid data for the current app, otherwise null.
  */
 function getDoraHomeDir(): string {
@@ -110,11 +110,11 @@ function getDoraHomeDir(): string {
     if (!home) {
         const homeDir = app.getPath("home");
         if (homeDir) {
-            home = path.join(homeDir, `.${waveDirName}`);
+            home = path.join(homeDir, `.${doraDirName}`);
         }
     }
-    // If home exists and it has `wave.lock` in it, we know it has valid data from Wave >=v0.8. Otherwise, it could be for DoraLegacy (<v0.8)
-    if (home && existsSync(home) && existsSync(path.join(home, "wave.lock"))) {
+    // If home exists and it has `dora.lock` in it, we know it has valid data from Dora >=v0.8. Otherwise, it could be for DoraLegacy (<v0.8)
+    if (home && existsSync(home) && existsSync(path.join(home, "dora.lock"))) {
         return home;
     }
     return null;
@@ -133,15 +133,15 @@ function ensurePathExists(path: string): string {
 }
 
 /**
- * Gets the path to the directory where Wave configurations are stored. Creates the directory if it does not exist.
- * Handles backwards compatibility with the old Wave Home directory model, where configurations and data were stored together.
+ * Gets the path to the directory where Dora configurations are stored. Creates the directory if it does not exist.
+ * Handles backwards compatibility with the old Dora Home directory model, where configurations and data were stored together.
  * @returns The path where configurations should be stored.
  */
 function getDoraConfigDir(): string {
-    // If wave home dir exists, use it for backwards compatibility
-    const waveHomeDir = getDoraHomeDir();
-    if (waveHomeDir) {
-        return path.join(waveHomeDir, "config");
+    // If dora home dir exists, use it for backwards compatibility
+    const doraHomeDir = getDoraHomeDir();
+    if (doraHomeDir) {
+        return path.join(doraHomeDir, "config");
     }
 
     const override = process.env[DoraConfigHomeVarName];
@@ -150,23 +150,23 @@ function getDoraConfigDir(): string {
     if (override) {
         retVal = override;
     } else if (xdgConfigHome) {
-        retVal = path.join(xdgConfigHome, waveDirName);
+        retVal = path.join(xdgConfigHome, doraDirName);
     } else {
-        retVal = path.join(app.getPath("home"), ".config", waveDirName);
+        retVal = path.join(app.getPath("home"), ".config", doraDirName);
     }
     return ensurePathExists(retVal);
 }
 
 /**
- * Gets the path to the directory where Wave data is stored. Creates the directory if it does not exist.
- * Handles backwards compatibility with the old Wave Home directory model, where configurations and data were stored together.
+ * Gets the path to the directory where Dora data is stored. Creates the directory if it does not exist.
+ * Handles backwards compatibility with the old Dora Home directory model, where configurations and data were stored together.
  * @returns The path where data should be stored.
  */
 function getDoraDataDir(): string {
-    // If wave home dir exists, use it for backwards compatibility
-    const waveHomeDir = getDoraHomeDir();
-    if (waveHomeDir) {
-        return waveHomeDir;
+    // If dora home dir exists, use it for backwards compatibility
+    const doraHomeDir = getDoraHomeDir();
+    if (doraHomeDir) {
+        return doraHomeDir;
     }
 
     const override = process.env[DoraDataHomeVarName];
@@ -175,7 +175,7 @@ function getDoraDataDir(): string {
     if (override) {
         retVal = override;
     } else if (xdgDataHome) {
-        retVal = path.join(xdgDataHome, waveDirName);
+        retVal = path.join(xdgDataHome, doraDirName);
     } else {
         retVal = paths.data;
     }
@@ -183,7 +183,7 @@ function getDoraDataDir(): string {
 }
 
 function getElectronAppBasePath(): string {
-    // import.meta.dirname in dev points to waveterm/dist/main
+    // import.meta.dirname in dev points to doraterm/dist/main
     return path.dirname(import.meta.dirname);
 }
 
@@ -193,7 +193,7 @@ function getElectronAppUnpackedBasePath(): string {
 
 function getElectronAppResourcesPath(): string {
     if (isDev) {
-        // import.meta.dirname in dev points to waveterm/dist/main
+        // import.meta.dirname in dev points to doraterm/dist/main
         return path.dirname(import.meta.dirname);
     }
     return process.resourcesPath;

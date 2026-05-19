@@ -30,7 +30,7 @@ import { isTabWindow } from "./windowtype";
 type KeyHandler = (event: DoraKeyboardEvent) => boolean;
 
 const simpleControlShiftAtom = jotai.atom(false);
-const globalKeyMap = new Map<string, (waveEvent: DoraKeyboardEvent) => boolean>();
+const globalKeyMap = new Map<string, (doraEvent: DoraKeyboardEvent) => boolean>();
 const globalChordMap = new Map<string, Map<string, KeyHandler>>();
 let globalKeybindingsDisabled = false;
 
@@ -322,9 +322,9 @@ async function handleSplitVertical(position: "before" | "after") {
 let lastHandledEvent: KeyboardEvent | null = null;
 
 // returns [keymatch, T]
-function checkKeyMap<T>(waveEvent: DoraKeyboardEvent, keyMap: Map<string, T>): [string, T] {
+function checkKeyMap<T>(doraEvent: DoraKeyboardEvent, keyMap: Map<string, T>): [string, T] {
     for (const key of keyMap.keys()) {
-        if (keyutil.checkKeyPressed(waveEvent, key)) {
+        if (keyutil.checkKeyPressed(doraEvent, key)) {
             const val = keyMap.get(key);
             return [key, val];
         }
@@ -332,11 +332,11 @@ function checkKeyMap<T>(waveEvent: DoraKeyboardEvent, keyMap: Map<string, T>): [
     return [null, null];
 }
 
-function appHandleKeyDown(waveEvent: DoraKeyboardEvent): boolean {
+function appHandleKeyDown(doraEvent: DoraKeyboardEvent): boolean {
     if (globalKeybindingsDisabled) {
         return false;
     }
-    const nativeEvent = (waveEvent as any).nativeEvent;
+    const nativeEvent = (doraEvent as any).nativeEvent;
     if (lastHandledEvent != null && nativeEvent != null && lastHandledEvent === nativeEvent) {
         return false;
     }
@@ -345,25 +345,25 @@ function appHandleKeyDown(waveEvent: DoraKeyboardEvent): boolean {
         console.log("handle activeChord", activeChord);
         // If we're in chord mode, look for the second key.
         const chordBindings = globalChordMap.get(activeChord);
-        const [, handler] = checkKeyMap(waveEvent, chordBindings);
+        const [, handler] = checkKeyMap(doraEvent, chordBindings);
         if (handler) {
             resetChord();
-            return handler(waveEvent);
+            return handler(doraEvent);
         } else {
             // invalid chord; reset state and consume key
             resetChord();
             return true;
         }
     }
-    const [chordKeyMatch] = checkKeyMap(waveEvent, globalChordMap);
+    const [chordKeyMatch] = checkKeyMap(doraEvent, globalChordMap);
     if (chordKeyMatch) {
         setActiveChord(chordKeyMatch);
         return true;
     }
 
-    const [, globalHandler] = checkKeyMap(waveEvent, globalKeyMap);
+    const [, globalHandler] = checkKeyMap(doraEvent, globalKeyMap);
     if (globalHandler) {
-        const handled = globalHandler(waveEvent);
+        const handled = globalHandler(doraEvent);
         if (handled) {
             return true;
         }
@@ -372,11 +372,11 @@ function appHandleKeyDown(waveEvent: DoraKeyboardEvent): boolean {
         const layoutModel = getLayoutModelForStaticTab();
         const focusedNode = globalStore.get(layoutModel.focusedNode);
         const blockId = focusedNode?.data?.blockId;
-        if (blockId != null && shouldDispatchToBlock(waveEvent)) {
+        if (blockId != null && shouldDispatchToBlock(doraEvent)) {
             const bcm = getBlockComponentModel(blockId);
             const viewModel = bcm?.viewModel;
             if (viewModel?.keyDownHandler) {
-                const handledByBlock = viewModel.keyDownHandler(waveEvent);
+                const handledByBlock = viewModel.keyDownHandler(doraEvent);
                 if (handledByBlock) {
                     return true;
                 }

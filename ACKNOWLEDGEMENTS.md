@@ -1,7 +1,7 @@
 # Acknowledgements
 
-Dora Terminal is a derivative work based on Wave Terminal
-(https://github.com/wavetermdev/waveterm). The original Wave Terminal
+Dora Terminal is a derivative work based on Dora Terminal
+(https://github.com/wavetermdev/waveterm). The original Dora Terminal
 is developed by Command Line Inc., licensed under Apache 2.0.
 
 ---

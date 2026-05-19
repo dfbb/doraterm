@@ -65,7 +65,7 @@ func (b *PtyBuffer) setEOF() {
 	b.CVar.Broadcast()
 }
 
-func (b *PtyBuffer) processWaveEscSeq(escSeq []byte) {
+func (b *PtyBuffer) processDoraEscSeq(escSeq []byte) {
 	b.MessageCh <- baseds.RpcInputChType{MsgBytes: escSeq}
 }
 
@@ -97,11 +97,11 @@ func (b *PtyBuffer) processData(data []byte) {
 				outputBuf = append(outputBuf, ch)
 				b.EscSeqBuf = nil
 			} else if ch == BEL || ch == ST {
-				// terminates the escpae sequence (is a valid Wave OSC command)
+				// terminates the escpae sequence (is a valid Dora OSC command)
 				b.EscMode = Mode_Normal
-				waveEscSeq := b.EscSeqBuf[DoraOSCPrefixLen:]
+				doraEscSeq := b.EscSeqBuf[DoraOSCPrefixLen:]
 				b.EscSeqBuf = nil
-				b.processWaveEscSeq(waveEscSeq)
+				b.processDoraEscSeq(doraEscSeq)
 			} else {
 				b.EscSeqBuf = append(b.EscSeqBuf, ch)
 			}
@@ -109,7 +109,7 @@ func (b *PtyBuffer) processData(data []byte) {
 		}
 		if b.EscMode == Mode_Esc {
 			if ch == ESC || ch == BEL || ch == ST {
-				// these all terminate the escape sequence (invalid, not a Wave OSC)
+				// these all terminate the escape sequence (invalid, not a Dora OSC)
 				b.EscMode = Mode_Normal
 				outputBuf = append(outputBuf, b.EscSeqBuf...)
 				outputBuf = append(outputBuf, ch)
@@ -117,16 +117,16 @@ func (b *PtyBuffer) processData(data []byte) {
 				continue
 			}
 			if ch != b.OSCPrefix[len(b.EscSeqBuf)] {
-				// this is not a Wave OSC sequence, just an escape sequence
+				// this is not a Dora OSC sequence, just an escape sequence
 				b.EscMode = Mode_Normal
 				outputBuf = append(outputBuf, b.EscSeqBuf...)
 				outputBuf = append(outputBuf, ch)
 				b.EscSeqBuf = nil
 				continue
 			}
-			// we're still building what could be a Wave OSC sequence
+			// we're still building what could be a Dora OSC sequence
 			b.EscSeqBuf = append(b.EscSeqBuf, ch)
-			// check to see if we have a full Wave OSC prefix
+			// check to see if we have a full Dora OSC prefix
 			if len(b.EscSeqBuf) == len(b.OSCPrefix) {
 				b.EscMode = Mode_DoraEsc
 			}

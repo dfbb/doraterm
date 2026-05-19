@@ -14,17 +14,17 @@ type SchemaInfo = {
 const MonacoSchemas: SchemaInfo[] = [
     {
         uri: "dora://schema/settings.json",
-        fileMatch: ["*/WAVECONFIGPATH/settings.json"],
+        fileMatch: ["*/DORACONFIGPATH/settings.json"],
         schema: settingsSchema,
     },
     {
         uri: "dora://schema/backgrounds.json",
-        fileMatch: ["*/WAVECONFIGPATH/backgrounds.json"],
+        fileMatch: ["*/DORACONFIGPATH/backgrounds.json"],
         schema: backgroundsSchema,
     },
     {
         uri: "dora://schema/widgets.json",
-        fileMatch: ["*/WAVECONFIGPATH/widgets.json"],
+        fileMatch: ["*/DORACONFIGPATH/widgets.json"],
         schema: widgetsSchema,
     },
 ];

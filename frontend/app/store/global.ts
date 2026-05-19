@@ -35,7 +35,7 @@ import { modalsModel } from "./modalmodel";
 import { ClientService, ObjectService } from "./services";
 import { isPreviewWindow } from "./windowtype";
 import * as WOS from "./wos";
-import { getFileSubject, waveEventSubscribeSingle } from "./wps";
+import { getFileSubject, doraEventSubscribeSingle } from "./wps";
 
 let globalPrimaryTabStartup: boolean = false;
 
@@ -53,21 +53,21 @@ function initGlobal(initOpts: GlobalInitOptions) {
 }
 
 function initGlobalDoraEventSubs(initOpts: DoraInitOpts) {
-    waveEventSubscribeSingle({
-        eventType: "waveobj:update",
+    doraEventSubscribeSingle({
+        eventType: "doraobj:update",
         handler: (event) => {
-            // console.log("waveobj:update wave event handler", event);
+            // console.log("doraobj:update dora event handler", event);
             WOS.updateDoraObject(event.data);
         },
     });
-    waveEventSubscribeSingle({
+    doraEventSubscribeSingle({
         eventType: "config",
         handler: (event) => {
-            // console.log("config wave event handler", event);
+            // console.log("config dora event handler", event);
             globalStore.set(atoms.fullConfigAtom, event.data.fullconfig);
         },
     });
-    waveEventSubscribeSingle({
+    doraEventSubscribeSingle({
         eventType: "userinput",
         handler: (event) => {
             // console.log("userinput event handler", event);
@@ -75,7 +75,7 @@ function initGlobalDoraEventSubs(initOpts: DoraInitOpts) {
         },
         scope: initOpts.windowId,
     });
-    waveEventSubscribeSingle({
+    doraEventSubscribeSingle({
         eventType: "blockfile",
         handler: (event) => {
             // console.log("blockfile event update", event);
@@ -444,12 +444,12 @@ async function fetchDoraFile(
     if (offset != null) {
         usp.set("offset", offset.toString());
     }
-    const resp = await fetch(getWebServerEndpoint() + "/wave/file?" + usp.toString());
+    const resp = await fetch(getWebServerEndpoint() + "/dora/file?" + usp.toString());
     if (!resp.ok) {
         if (resp.status === 404) {
             return { data: null, fileInfo: null };
         }
-        throw new Error("error getting wave file: " + resp.statusText);
+        throw new Error("error getting dora file: " + resp.statusText);
     }
     if (resp.status == 204) {
         return { data: null, fileInfo: null };
@@ -575,7 +575,7 @@ async function loadConnStatus() {
 }
 
 function subscribeToConnEvents() {
-    waveEventSubscribeSingle({
+    doraEventSubscribeSingle({
         eventType: "connchange",
         handler: (event) => {
             try {

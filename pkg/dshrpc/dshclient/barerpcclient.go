@@ -19,22 +19,22 @@ func (*DshServer) DshServerImpl() {}
 
 var DshServerImpl = DshServer{}
 
-var waveSrvClient_Singleton *dshutil.DshRpc
-var waveSrvClient_Once = &sync.Once{}
-var waveSrvClient_RouteId string
+var doraSrvClient_Singleton *dshutil.DshRpc
+var doraSrvClient_Once = &sync.Once{}
+var doraSrvClient_RouteId string
 
 func GetBareRpcClient() *dshutil.DshRpc {
-	waveSrvClient_Once.Do(func() {
-		waveSrvClient_Singleton = dshutil.MakeDshRpc(dshrpc.RpcContext{}, &DshServerImpl, "bare-client")
-		waveSrvClient_RouteId = fmt.Sprintf("bare:%s", uuid.New().String())
+	doraSrvClient_Once.Do(func() {
+		doraSrvClient_Singleton = dshutil.MakeDshRpc(dshrpc.RpcContext{}, &DshServerImpl, "bare-client")
+		doraSrvClient_RouteId = fmt.Sprintf("bare:%s", uuid.New().String())
 		// we can safely ignore the error from RegisterTrustedLeaf since the route is valid
-		dshutil.DefaultRouter.RegisterTrustedLeaf(waveSrvClient_Singleton, waveSrvClient_RouteId)
+		dshutil.DefaultRouter.RegisterTrustedLeaf(doraSrvClient_Singleton, doraSrvClient_RouteId)
 		dps.Broker.SetClient(dshutil.DefaultRouter)
 	})
-	return waveSrvClient_Singleton
+	return doraSrvClient_Singleton
 }
 
 func GetBareRpcClientRouteId() string {
 	GetBareRpcClient()
-	return waveSrvClient_RouteId
+	return doraSrvClient_RouteId
 }

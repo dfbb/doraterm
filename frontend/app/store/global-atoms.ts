@@ -111,7 +111,7 @@ function initGlobalAtoms(initOpts: GlobalInitOptions) {
     });
     const reinitVersion = atom(0);
     atoms = {
-        // initialized in wave.ts (will not be null inside of application)
+        // initialized in dora.ts (will not be null inside of application)
         uiContext: uiContextAtom,
         workspaceId: workspaceIdAtom,
         workspace: workspaceAtom,

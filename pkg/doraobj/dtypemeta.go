@@ -105,13 +105,6 @@ type MetaTSType struct {
 	LayoutVTabBarWidth      int  `json:"layout:vtabbarwidth,omitempty"`
 	LayoutWidgetsVisible    *bool `json:"layout:widgetsvisible,omitempty"`
 
-	// for tabs+waveai
-	DoraAiPanelOpen     bool   `json:"waveai:panelopen,omitempty"`
-	DoraAiPanelWidth    int    `json:"waveai:panelwidth,omitempty"`
-	DoraAiModel         string `json:"waveai:model,omitempty"`
-	DoraAiChatId        string `json:"waveai:chatid,omitempty"`
-	DoraAiWidgetContext *bool  `json:"waveai:widgetcontext,omitempty"` // default is true
-
 	TermClear               bool     `json:"term:*,omitempty"`
 	TermFontSize            int      `json:"term:fontsize,omitempty"`
 	TermFontFamily          string   `json:"term:fontfamily,omitempty"`

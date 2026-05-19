@@ -3,7 +3,7 @@
 
 package filestore
 
-// the blockstore package implements a write cache for wave files
+// the blockstore package implements a write cache for dora files
 // it is not a read cache (reads still go to the DB -- unless items are in the cache)
 // but all writes only go to the cache, and then the cache is periodically flushed to the DB
 

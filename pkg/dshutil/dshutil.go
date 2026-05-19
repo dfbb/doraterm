@@ -410,9 +410,9 @@ func GetInfo() dshrpc.RemoteInfo {
 
 func InstallRcFiles() error {
 	home := dorabase.GetHomeDir()
-	waveDir := filepath.Join(home, dorabase.RemoteDoraHomeDirName)
-	wshBinDir := filepath.Join(waveDir, dorabase.RemoteDshBinDirName)
-	return shellutil.InitRcFiles(waveDir, wshBinDir)
+	doraDir := filepath.Join(home, dorabase.RemoteDoraHomeDirName)
+	wshBinDir := filepath.Join(doraDir, dorabase.RemoteDshBinDirName)
+	return shellutil.InitRcFiles(doraDir, wshBinDir)
 }
 
 func SendErrCh[T any](err error) <-chan dshrpc.RespOrErrorUnion[T] {

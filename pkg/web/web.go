@@ -445,17 +445,17 @@ const schemaPrefix = "/schema/"
 func RunWebServer(listener net.Listener) {
 	gr := mux.NewRouter()
 
-	// Streaming routes must be registered before the /wave/ prefix catch-all to bypass TimeoutHandler.
+	// Streaming routes must be registered before the /dora/ prefix catch-all to bypass TimeoutHandler.
 	// http.TimeoutHandler buffers the entire response before flushing, which stalls streaming.
-	gr.HandleFunc("/wave/stream-local-file", WebFnWrap(WebFnOpts{AllowCaching: true}, handleStreamLocalFile))
-	gr.HandleFunc("/wave/stream-file", WebFnWrap(WebFnOpts{AllowCaching: true}, handleStreamFile))
-	gr.PathPrefix("/wave/stream-file/").HandlerFunc(WebFnWrap(WebFnOpts{AllowCaching: true}, handleStreamFile))
-	// Non-streaming /wave/ routes get timeout protection
-	waveRouter := mux.NewRouter()
-	waveRouter.HandleFunc("/wave/file", WebFnWrap(WebFnOpts{AllowCaching: false}, handleDoraFile))
-	waveRouter.HandleFunc("/wave/service", WebFnWrap(WebFnOpts{JsonErrors: true}, handleService))
+	gr.HandleFunc("/dora/stream-local-file", WebFnWrap(WebFnOpts{AllowCaching: true}, handleStreamLocalFile))
+	gr.HandleFunc("/dora/stream-file", WebFnWrap(WebFnOpts{AllowCaching: true}, handleStreamFile))
+	gr.PathPrefix("/dora/stream-file/").HandlerFunc(WebFnWrap(WebFnOpts{AllowCaching: true}, handleStreamFile))
+	// Non-streaming /dora/ routes get timeout protection
+	doraRouter := mux.NewRouter()
+	doraRouter.HandleFunc("/dora/file", WebFnWrap(WebFnOpts{AllowCaching: false}, handleDoraFile))
+	doraRouter.HandleFunc("/dora/service", WebFnWrap(WebFnOpts{JsonErrors: true}, handleService))
 
-	gr.PathPrefix("/wave/").Handler(http.TimeoutHandler(waveRouter, HttpTimeoutDuration, "Timeout"))
+	gr.PathPrefix("/dora/").Handler(http.TimeoutHandler(doraRouter, HttpTimeoutDuration, "Timeout"))
 
 	// Other routes without timeout
 	gr.PathPrefix(schemaPrefix).Handler(http.StripPrefix(schemaPrefix, schema.GetSchemaHandler()))

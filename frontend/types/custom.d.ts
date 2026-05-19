@@ -94,7 +94,7 @@ declare global {
         installAppUpdate: () => void; // install-app-update
         onMenuItemAbout: (callback: () => void) => void; // menu-item-about
         updateWindowControlsOverlay: (rect: Dimensions) => void; // update-window-controls-overlay
-        onReinjectKey: (callback: (waveEvent: DoraKeyboardEvent) => void) => void; // reinject-key
+        onReinjectKey: (callback: (doraEvent: DoraKeyboardEvent) => void) => void; // reinject-key
         setWebviewFocus: (focusedId: number) => void; // webview-focus, focusedId is the getWebContentsId of the webview
         registerGlobalWebviewKeys: (keys: string[]) => void; // register-global-webview-keys
         onControlShiftStateUpdate: (callback: (state: boolean) => void) => void; // control-shift-state-update
@@ -287,7 +287,7 @@ declare global {
         blockId: string;
         nodeModel: BlockNodeModel;
         tabModel: TabModel;
-        waveEnv: DoraEnv;
+        doraEnv: DoraEnv;
     };
 
     type ViewModelClass = new (initOpts: ViewModelInitType) => ViewModel;

@@ -6,7 +6,7 @@ This document helps you decide _whether_ and _how_ to contribute in a way that's
 
 ## High-level expectations
 
-- Wave has a strong product direction and centralized ownership.
+- Dora has a strong product direction and centralized ownership.
 - Review bandwidth is limited.
 - Not all contributions can or will be accepted, even if they are technically correct.
 
@@ -61,7 +61,7 @@ This is not meant to discourage contribution — it is meant to ensure alignment
 
 To set expectations clearly:
 
-- Wave is not designed as a "first open source contribution" project
+- Dora is not designed as a "first open source contribution" project
 - We do not currently curate beginner-friendly or mentorship issues
 - Large, unsolicited changes are unlikely to be accepted
 - Mechanical refactors, broad style changes, or drive-by rewrites are not helpful
@@ -100,7 +100,7 @@ The project uses American English. Please follow existing formatting and style c
 
 ## Development setup
 
-To build and run Wave locally, see instructions at [Building Dora Terminal](./BUILD.md).
+To build and run Dora locally, see instructions at [Building Dora Terminal](./BUILD.md).
 
 ## Code of Conduct
 

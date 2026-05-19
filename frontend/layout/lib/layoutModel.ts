@@ -89,7 +89,7 @@ export class LayoutModel {
     /**
      * DoraObject atom for persistence
      */
-    private waveObjectAtom: Atom<LayoutState>;
+    private doraObjectAtom: Atom<LayoutState>;
     /**
      * Debounce timer for persistence
      */
@@ -262,7 +262,7 @@ export class LayoutModel {
         this.persistDebounceTimer = null;
         this.processedActionIds = new Set();
 
-        this.waveObjectAtom = getLayoutStateAtomFromTab(tabAtom, getter);
+        this.doraObjectAtom = getLayoutStateAtomFromTab(tabAtom, getter);
 
         this.localTreeStateAtom = atom<LayoutTreeState>({
             rootNode: undefined,
@@ -355,14 +355,14 @@ export class LayoutModel {
     }
 
     private initializeFromDoraObject() {
-        const waveObjState = this.getter(this.waveObjectAtom);
+        const doraObjState = this.getter(this.doraObjectAtom);
 
         const initialState: LayoutTreeState = {
-            rootNode: waveObjState?.rootnode,
-            focusedNodeId: waveObjState?.focusednodeid,
-            magnifiedNodeId: waveObjState?.magnifiednodeid,
+            rootNode: doraObjState?.rootnode,
+            focusedNodeId: doraObjState?.focusednodeid,
+            magnifiedNodeId: doraObjState?.magnifiednodeid,
             leafOrder: undefined,
-            pendingBackendActions: waveObjState?.pendingbackendactions,
+            pendingBackendActions: doraObjState?.pendingbackendactions,
         };
 
         this.treeState = initialState;
@@ -377,16 +377,16 @@ export class LayoutModel {
     }
 
     onBackendUpdate() {
-        const waveObj = this.getter(this.waveObjectAtom);
-        const pendingActions = waveObj?.pendingbackendactions;
+        const doraObj = this.getter(this.doraObjectAtom);
+        const pendingActions = doraObj?.pendingbackendactions;
         if (pendingActions?.length) {
             fireAndForget(() => this.processPendingBackendActions());
         }
     }
 
     private async processPendingBackendActions() {
-        const waveObj = this.getter(this.waveObjectAtom);
-        const actions = waveObj?.pendingbackendactions;
+        const doraObj = this.getter(this.doraObjectAtom);
+        const actions = doraObj?.pendingbackendactions;
         if (!actions?.length) return;
 
         this.treeState.pendingBackendActions = undefined;
@@ -579,16 +579,16 @@ export class LayoutModel {
         }
 
         this.persistDebounceTimer = setTimeout(() => {
-            const waveObj = this.getter(this.waveObjectAtom);
-            if (!waveObj) return;
+            const doraObj = this.getter(this.doraObjectAtom);
+            if (!doraObj) return;
 
-            waveObj.rootnode = this.treeState.rootNode;
-            waveObj.focusednodeid = this.treeState.focusedNodeId;
-            waveObj.magnifiednodeid = this.treeState.magnifiedNodeId;
-            waveObj.leaforder = this.treeState.leafOrder;
-            waveObj.pendingbackendactions = this.treeState.pendingBackendActions;
+            doraObj.rootnode = this.treeState.rootNode;
+            doraObj.focusednodeid = this.treeState.focusedNodeId;
+            doraObj.magnifiednodeid = this.treeState.magnifiedNodeId;
+            doraObj.leaforder = this.treeState.leafOrder;
+            doraObj.pendingbackendactions = this.treeState.pendingBackendActions;
 
-            WOS.setObjectValue(waveObj, this.setter, true);
+            WOS.setObjectValue(doraObj, this.setter, true);
             this.persistDebounceTimer = null;
         }, 100);
     }

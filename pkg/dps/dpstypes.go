@@ -19,7 +19,7 @@ const (
 	Event_ConnChange          = "connchange"           // type: dshrpc.ConnStatus
 	Event_SysInfo             = "sysinfo"              // type: dshrpc.TimeSeriesData
 	Event_ControllerStatus    = "controllerstatus"     // type: *blockcontroller.BlockControllerRuntimeStatus
-	Event_DoraObjUpdate       = "waveobj:update"       // type: doraobj.DoraObjUpdate
+	Event_DoraObjUpdate       = "doraobj:update"       // type: doraobj.DoraObjUpdate
 	Event_BlockFile           = "blockfile"            // type: *WSFileEventData
 	Event_Config              = "config"               // type: dconfig.WatcherUpdate
 	Event_UserInput           = "userinput"            // type: *userinput.UserInputRequest

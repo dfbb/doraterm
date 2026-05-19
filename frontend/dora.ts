@@ -35,7 +35,7 @@ import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 
 const platform = getApi().getPlatform();
-document.title = `Wave Terminal`;
+document.title = `Dora Terminal`;
 let savedInitOpts: DoraInitOpts = null;
 
 (window as any).WOS = WOS;
@@ -59,7 +59,7 @@ async function initBare() {
     document.body.style.visibility = "hidden";
     document.body.style.opacity = "0";
     document.body.classList.add("is-transparent");
-    getApi().onDoraInit(initWaveWrap);
+    getApi().onDoraInit(initDoraWrap);
     setKeyUtilPlatform(platform);
     loadFonts();
     updateZoomFactor(getApi().getZoomFactor());
@@ -74,17 +74,17 @@ async function initBare() {
 
 document.addEventListener("DOMContentLoaded", initBare);
 
-async function initWaveWrap(initOpts: DoraInitOpts) {
+async function initDoraWrap(initOpts: DoraInitOpts) {
     try {
         if (savedInitOpts) {
-            await reinitWave();
+            await reinitDora();
             return;
         }
         savedInitOpts = initOpts;
-        await initWave(initOpts);
+        await initDora(initOpts);
     } catch (e) {
-        getApi().sendLog("Error in initWave " + e.message + "\n" + e.stack);
-        console.error("Error in initWave", e);
+        getApi().sendLog("Error in initDora " + e.message + "\n" + e.stack);
+        console.error("Error in initDora", e);
     } finally {
         document.body.style.visibility = null;
         document.body.style.opacity = null;
@@ -92,9 +92,9 @@ async function initWaveWrap(initOpts: DoraInitOpts) {
     }
 }
 
-async function reinitWave() {
-    console.log("Reinit Wave");
-    getApi().sendLog("Reinit Wave");
+async function reinitDora() {
+    console.log("Reinit Dora");
+    getApi().sendLog("Reinit Dora");
 
     // We use this hack to prevent a flicker of the previously-hovered tab when this view was last active.
     document.body.classList.add("nohover");
@@ -105,12 +105,12 @@ async function reinitWave() {
     );
 
     await WOS.reloadDoraObject<Client>(WOS.makeORef("client", savedInitOpts.clientId));
-    const waveWindow = await WOS.reloadDoraObject<DoraWindow>(WOS.makeORef("window", savedInitOpts.windowId));
-    const ws = await WOS.reloadDoraObject<Workspace>(WOS.makeORef("workspace", waveWindow.workspaceid));
+    const doraWindow = await WOS.reloadDoraObject<DoraWindow>(WOS.makeORef("window", savedInitOpts.windowId));
+    const ws = await WOS.reloadDoraObject<Workspace>(WOS.makeORef("workspace", doraWindow.workspaceid));
     const initialTab = await WOS.reloadDoraObject<Tab>(WOS.makeORef("tab", savedInitOpts.tabId));
     await WOS.reloadDoraObject<LayoutState>(WOS.makeORef("layout", initialTab.layoutstate));
     reloadAllWorkspaceTabs(ws);
-    document.title = `Wave Terminal - ${initialTab.name}`; // TODO update with tab name change
+    document.title = `Dora Terminal - ${initialTab.name}`; // TODO update with tab name change
     getApi().setWindowInitStatus("dora-ready");
     globalStore.set(atoms.reinitVersion, globalStore.get(atoms.reinitVersion) + 1);
     globalStore.set(atoms.updaterStatusAtom, getApi().getUpdaterStatus());
@@ -137,8 +137,8 @@ function loadAllWorkspaceTabs(ws: Workspace) {
     });
 }
 
-async function initWave(initOpts: DoraInitOpts) {
-    getApi().sendLog("Init Wave " + JSON.stringify(initOpts));
+async function initDora(initOpts: DoraInitOpts) {
+    getApi().sendLog("Init Dora " + JSON.stringify(initOpts));
     const globalInitOpts: GlobalInitOptions = {
         tabId: initOpts.tabId,
         clientId: initOpts.clientId,
@@ -147,7 +147,7 @@ async function initWave(initOpts: DoraInitOpts) {
         environment: "renderer",
         primaryTabStartup: initOpts.primaryTabStartup,
     };
-    console.log("Wave Init", globalInitOpts);
+    console.log("Dora Init", globalInitOpts);
     globalStore.set(activeTabIdAtom, initOpts.tabId);
     await GlobalModel.getInstance().initialize(globalInitOpts);
     initGlobal(globalInitOpts);
@@ -168,21 +168,21 @@ async function initWave(initOpts: DoraInitOpts) {
             const macOSVersion = await RpcApi.MacOSVersionCommand(TabRpcClient);
             setMacOSVersion(macOSVersion);
         }
-        const [_client, waveWindow, initialTab] = await Promise.all([
+        const [_client, doraWindow, initialTab] = await Promise.all([
             WOS.loadAndPinDoraObject<Client>(WOS.makeORef("client", initOpts.clientId)),
             WOS.loadAndPinDoraObject<DoraWindow>(WOS.makeORef("window", initOpts.windowId)),
             WOS.loadAndPinDoraObject<Tab>(WOS.makeORef("tab", initOpts.tabId)),
         ]);
         const [ws, _layoutState] = await Promise.all([
-            WOS.loadAndPinDoraObject<Workspace>(WOS.makeORef("workspace", waveWindow.workspaceid)),
+            WOS.loadAndPinDoraObject<Workspace>(WOS.makeORef("workspace", doraWindow.workspaceid)),
             WOS.reloadDoraObject<LayoutState>(WOS.makeORef("layout", initialTab.layoutstate)),
         ]);
         loadAllWorkspaceTabs(ws);
-        WOS.wpsSubscribeToObject(WOS.makeORef("workspace", waveWindow.workspaceid));
-        document.title = `Wave Terminal - ${initialTab.name}`; // TODO update with tab name change
+        WOS.wpsSubscribeToObject(WOS.makeORef("workspace", doraWindow.workspaceid));
+        document.title = `Dora Terminal - ${initialTab.name}`; // TODO update with tab name change
     } catch (e) {
         console.error("Failed initialization error", e);
-        getApi().sendLog("Error in initialization (wave.ts, loading required objects) " + e.message + "\n" + e.stack);
+        getApi().sendLog("Error in initialization (dora.ts, loading required objects) " + e.message + "\n" + e.stack);
     }
     registerGlobalKeys();
     registerElectronReinjectKeyHandler();
@@ -191,7 +191,7 @@ async function initWave(initOpts: DoraInitOpts) {
     const fullConfig = await RpcApi.GetFullConfigCommand(TabRpcClient);
     console.log("fullconfig", fullConfig);
     globalStore.set(atoms.fullConfigAtom, fullConfig);
-    console.log("Wave First Render");
+    console.log("Dora First Render");
     let firstRenderResolveFn: () => void = null;
     const firstRenderPromise = new Promise<void>((resolve) => {
         firstRenderResolveFn = resolve;
@@ -201,7 +201,7 @@ async function initWave(initOpts: DoraInitOpts) {
     const root = createRoot(elem);
     root.render(reactElem);
     await firstRenderPromise;
-    console.log("Wave First Render Done");
+    console.log("Dora First Render Done");
     getApi().setWindowInitStatus("dora-ready");
 }
 

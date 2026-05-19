@@ -1,7 +1,7 @@
 // Copyright 2025, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// wave core application coordinator
+// dora core application coordinator
 package dcore
 
 import (
@@ -24,7 +24,7 @@ import (
 )
 
 // the wcore package coordinates actions across the storage layer
-// orchestrating the wave object store, the wave pubsub system, and the wave rpc system
+// orchestrating the dora object store, the dora pubsub system, and the dora rpc system
 
 // Ensures that the initial data is present in the store, creates an initial window if needed
 func EnsureInitialData() (bool, error) {
@@ -109,8 +109,8 @@ func GetClientData(ctx context.Context) (*doraobj.Client, error) {
 func SendDoraObjUpdate(oref doraobj.ORef) {
 	ctx, cancelFn := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancelFn()
-	// send a waveobj:update event
-	waveObj, err := dstore.DBGetORef(ctx, oref)
+	// send a doraobj:update event
+	doraObj, err := dstore.DBGetORef(ctx, oref)
 	if err != nil {
 		log.Printf("error getting object for update event: %v", err)
 		return
@@ -120,9 +120,9 @@ func SendDoraObjUpdate(oref doraobj.ORef) {
 		Scopes: []string{oref.String()},
 		Data: doraobj.DoraObjUpdate{
 			UpdateType: doraobj.UpdateType_Update,
-			OType:      waveObj.GetOType(),
-			OID:        doraobj.GetOID(waveObj),
-			Obj:        waveObj,
+			OType:      doraObj.GetOType(),
+			OID:        doraobj.GetOID(doraObj),
+			Obj:        doraObj,
 		},
 	})
 }

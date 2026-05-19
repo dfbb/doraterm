@@ -33,11 +33,11 @@ var ServiceMap = map[string]any{
 var contextRType = reflect.TypeOf((*context.Context)(nil)).Elem()
 var errorRType = reflect.TypeOf((*error)(nil)).Elem()
 var updatesRType = reflect.TypeOf(([]doraobj.DoraObjUpdate{}))
-var waveObjRType = reflect.TypeOf((*doraobj.DoraObj)(nil)).Elem()
-var waveObjSliceRType = reflect.TypeOf([]doraobj.DoraObj{})
-var waveObjMapRType = reflect.TypeOf(map[string]doraobj.DoraObj{})
+var doraObjRType = reflect.TypeOf((*doraobj.DoraObj)(nil)).Elem()
+var doraObjSliceRType = reflect.TypeOf([]doraobj.DoraObj{})
+var doraObjMapRType = reflect.TypeOf(map[string]doraobj.DoraObj{})
 var methodMetaRType = reflect.TypeOf(tsgenmeta.MethodMeta{})
-var waveObjUpdateRType = reflect.TypeOf(doraobj.DoraObjUpdate{})
+var doraObjUpdateRType = reflect.TypeOf(doraobj.DoraObjUpdate{})
 var uiContextRType = reflect.TypeOf((*doraobj.UIContext)(nil)).Elem()
 var wsCommandRType = reflect.TypeOf((*webcmd.WSCommandType)(nil)).Elem()
 var orefRType = reflect.TypeOf((*doraobj.ORef)(nil)).Elem()
@@ -95,8 +95,8 @@ func convertComplex(argType reflect.Type, jsonArg any) (any, error) {
 	return nativeArgVal.Elem().Interface(), nil
 }
 
-func isSpecialWaveArgType(argType reflect.Type) bool {
-	return argType == waveObjRType || argType == waveObjSliceRType || argType == waveObjMapRType || argType == wsCommandRType
+func isSpecialDoraArgType(argType reflect.Type) bool {
+	return argType == doraObjRType || argType == doraObjSliceRType || argType == doraObjMapRType || argType == wsCommandRType
 }
 
 func convertWSCommand(argType reflect.Type, jsonArg any) (any, error) {
@@ -123,12 +123,12 @@ func convertSpecial(argType reflect.Type, jsonArg any) (any, error) {
 		return oref, nil
 	} else if argType == wsCommandRType {
 		return convertWSCommand(argType, jsonArg)
-	} else if argType == waveObjRType {
+	} else if argType == doraObjRType {
 		if jsonType.Kind() != reflect.Map {
 			return nil, fmt.Errorf("cannot convert %T to %s", jsonArg, argType)
 		}
 		return doraobj.FromJsonMap(jsonArg.(map[string]any))
-	} else if argType == waveObjSliceRType {
+	} else if argType == doraObjSliceRType {
 		if jsonType.Kind() != reflect.Slice {
 			return nil, fmt.Errorf("cannot convert %T to %s", jsonArg, argType)
 		}
@@ -137,16 +137,16 @@ func convertSpecial(argType reflect.Type, jsonArg any) (any, error) {
 		for idx, elem := range sliceArg {
 			elemMap, ok := elem.(map[string]any)
 			if !ok {
-				return nil, fmt.Errorf("cannot convert %T to %s (idx %d is not a map, is %T)", jsonArg, waveObjSliceRType, idx, elem)
+				return nil, fmt.Errorf("cannot convert %T to %s (idx %d is not a map, is %T)", jsonArg, doraObjSliceRType, idx, elem)
 			}
 			nativeObj, err := doraobj.FromJsonMap(elemMap)
 			if err != nil {
-				return nil, fmt.Errorf("cannot convert %T to %s (idx %d) error: %v", jsonArg, waveObjSliceRType, idx, err)
+				return nil, fmt.Errorf("cannot convert %T to %s (idx %d) error: %v", jsonArg, doraObjSliceRType, idx, err)
 			}
 			nativeSlice[idx] = nativeObj
 		}
 		return nativeSlice, nil
-	} else if argType == waveObjMapRType {
+	} else if argType == doraObjMapRType {
 		if jsonType.Kind() != reflect.Map {
 			return nil, fmt.Errorf("cannot convert %T to %s", jsonArg, argType)
 		}
@@ -155,24 +155,24 @@ func convertSpecial(argType reflect.Type, jsonArg any) (any, error) {
 		for key, elem := range mapArg {
 			elemMap, ok := elem.(map[string]any)
 			if !ok {
-				return nil, fmt.Errorf("cannot convert %T to %s (key %s is not a map, is %T)", jsonArg, waveObjMapRType, key, elem)
+				return nil, fmt.Errorf("cannot convert %T to %s (key %s is not a map, is %T)", jsonArg, doraObjMapRType, key, elem)
 			}
 			nativeObj, err := doraobj.FromJsonMap(elemMap)
 			if err != nil {
-				return nil, fmt.Errorf("cannot convert %T to %s (key %s) error: %v", jsonArg, waveObjMapRType, key, err)
+				return nil, fmt.Errorf("cannot convert %T to %s (key %s) error: %v", jsonArg, doraObjMapRType, key, err)
 			}
 			nativeMap[key] = nativeObj
 		}
 		return nativeMap, nil
 	} else {
-		return nil, fmt.Errorf("invalid special wave argument type %s", argType)
+		return nil, fmt.Errorf("invalid special dora argument type %s", argType)
 	}
 }
 
 func convertSpecialForReturn(argType reflect.Type, nativeArg any) (any, error) {
-	if argType == waveObjRType {
+	if argType == doraObjRType {
 		return doraobj.ToJsonMap(nativeArg.(doraobj.DoraObj))
-	} else if argType == waveObjSliceRType {
+	} else if argType == doraObjSliceRType {
 		nativeSlice := nativeArg.([]doraobj.DoraObj)
 		jsonSlice := make([]map[string]any, len(nativeSlice))
 		for idx, elem := range nativeSlice {
@@ -183,7 +183,7 @@ func convertSpecialForReturn(argType reflect.Type, nativeArg any) (any, error) {
 			jsonSlice[idx] = elemMap
 		}
 		return jsonSlice, nil
-	} else if argType == waveObjMapRType {
+	} else if argType == doraObjMapRType {
 		nativeMap := nativeArg.(map[string]doraobj.DoraObj)
 		jsonMap := make(map[string]map[string]any)
 		for key, elem := range nativeMap {
@@ -195,7 +195,7 @@ func convertSpecialForReturn(argType reflect.Type, nativeArg any) (any, error) {
 		}
 		return jsonMap, nil
 	} else {
-		return nil, fmt.Errorf("invalid special wave argument type %s", argType)
+		return nil, fmt.Errorf("invalid special dora argument type %s", argType)
 	}
 }
 
@@ -203,7 +203,7 @@ func convertArgument(argType reflect.Type, jsonArg any) (any, error) {
 	if jsonArg == nil {
 		return reflect.Zero(argType).Interface(), nil
 	}
-	if isSpecialWaveArgType(argType) {
+	if isSpecialDoraArgType(argType) {
 		return convertSpecial(argType, jsonArg)
 	}
 	jsonType := reflect.TypeOf(jsonArg)
@@ -291,7 +291,7 @@ func convertReturnValues(rtnVals []reflect.Value) *WebReturnType {
 			rtn.Updates = val.Interface().([]doraobj.DoraObjUpdate)
 			continue
 		}
-		if isSpecialWaveArgType(valType) {
+		if isSpecialDoraArgType(valType) {
 			jsonVal, err := convertSpecialForReturn(valType, val.Interface())
 			if err != nil {
 				rtn.Error = fmt.Errorf("cannot convert special return value: %v", err).Error()
@@ -354,9 +354,9 @@ func CallService(ctx context.Context, webCall WebCallType) *WebReturnType {
 
 // ValidateServiceArg validates the argument type for a service method
 // does not allow interfaces (and the obvious invalid types)
-// arguments + return values have special handling for wave objects
+// arguments + return values have special handling for dora objects
 func baseValidateServiceArg(argType reflect.Type) error {
-	if argType == waveObjUpdateRType {
+	if argType == doraObjUpdateRType {
 		// has special MarshalJSON method, so it is safe
 		return nil
 	}
@@ -385,7 +385,7 @@ func baseValidateServiceArg(argType reflect.Type) error {
 
 func validateMethodReturnArg(retType reflect.Type) error {
 	// specifically allow doraobj.DoraObj, []doraobj.DoraObj, map[string]doraobj.DoraObj, and error
-	if isSpecialWaveArgType(retType) || retType == errorRType {
+	if isSpecialDoraArgType(retType) || retType == errorRType {
 		return nil
 	}
 	return baseValidateServiceArg(retType)
@@ -393,7 +393,7 @@ func validateMethodReturnArg(retType reflect.Type) error {
 
 func validateMethodArg(argType reflect.Type) error {
 	// specifically allow doraobj.DoraObj, []doraobj.DoraObj, map[string]doraobj.DoraObj, and context.Context
-	if isSpecialWaveArgType(argType) || argType == contextRType {
+	if isSpecialDoraArgType(argType) || argType == contextRType {
 		return nil
 	}
 	return baseValidateServiceArg(argType)

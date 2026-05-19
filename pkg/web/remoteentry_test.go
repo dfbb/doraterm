@@ -67,7 +67,7 @@ func httpGet(t *testing.T, url string, headers map[string]string) (int, string) 
 func TestRemoteEntryHTTP_NoPassword401(t *testing.T) {
 	backend := startBackend(t)
 	addr := startEntry(t, strings.TrimPrefix(backend.URL, "http://"), "127.0.0.1:0")
-	status, _ := httpGet(t, "http://"+addr+"/wave/file", nil)
+	status, _ := httpGet(t, "http://"+addr+"/dora/file", nil)
 	if status != http.StatusUnauthorized {
 		t.Fatalf("want 401, got %d", status)
 	}
@@ -76,7 +76,7 @@ func TestRemoteEntryHTTP_NoPassword401(t *testing.T) {
 func TestRemoteEntryHTTP_WrongPassword401(t *testing.T) {
 	backend := startBackend(t)
 	addr := startEntry(t, strings.TrimPrefix(backend.URL, "http://"), "127.0.0.1:0")
-	status, _ := httpGet(t, "http://"+addr+"/wave/file",
+	status, _ := httpGet(t, "http://"+addr+"/dora/file",
 		map[string]string{"X-Remote-Password": "wrong"})
 	if status != http.StatusUnauthorized {
 		t.Fatalf("want 401, got %d", status)
@@ -86,7 +86,7 @@ func TestRemoteEntryHTTP_WrongPassword401(t *testing.T) {
 func TestRemoteEntryHTTP_CorrectPasswordTranslatesHeaders(t *testing.T) {
 	backend := startBackend(t)
 	addr := startEntry(t, strings.TrimPrefix(backend.URL, "http://"), "127.0.0.1:0")
-	status, body := httpGet(t, "http://"+addr+"/wave/file",
+	status, body := httpGet(t, "http://"+addr+"/dora/file",
 		map[string]string{"X-Remote-Password": testPassword})
 	if status != http.StatusOK {
 		t.Fatalf("want 200, got %d body=%q", status, body)
@@ -102,12 +102,12 @@ func TestRemoteEntryHTTP_CorrectPasswordTranslatesHeaders(t *testing.T) {
 func TestRemoteEntryHTTP_ConstantTimeCompareDifferentLengths(t *testing.T) {
 	backend := startBackend(t)
 	addr := startEntry(t, strings.TrimPrefix(backend.URL, "http://"), "127.0.0.1:0")
-	st, _ := httpGet(t, "http://"+addr+"/wave/file",
+	st, _ := httpGet(t, "http://"+addr+"/dora/file",
 		map[string]string{"X-Remote-Password": "x"})
 	if st != http.StatusUnauthorized {
 		t.Fatalf("want 401 for short pw, got %d", st)
 	}
-	st, _ = httpGet(t, "http://"+addr+"/wave/file",
+	st, _ = httpGet(t, "http://"+addr+"/dora/file",
 		map[string]string{"X-Remote-Password": strings.Repeat("a", 1024)})
 	if st != http.StatusUnauthorized {
 		t.Fatalf("want 401 for long pw, got %d", st)

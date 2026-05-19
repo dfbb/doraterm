@@ -19,16 +19,16 @@
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdoratermdev%2Fdoraterm.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdoratermdev%2Fdoraterm?ref=badge_shield)
 
-Wave is an open-source, AI-integrated terminal for macOS, Linux, and Windows. It works with any AI model. Bring your own API keys for OpenAI, Claude, or Gemini, or run local models via Ollama and LM Studio. No accounts required.
+Dora is an open-source, AI-integrated terminal for macOS, Linux, and Windows. It works with any AI model. Bring your own API keys for OpenAI, Claude, or Gemini, or run local models via Ollama and LM Studio. No accounts required.
 
-Wave also supports durable SSH sessions that survive network interruptions and restarts, with automatic reconnection. Edit remote files with a built-in graphical editor and preview files inline without leaving the terminal.
+Dora also supports durable SSH sessions that survive network interruptions and restarts, with automatic reconnection. Edit remote files with a built-in graphical editor and preview files inline without leaving the terminal.
 
 ![WaveTerm Screenshot](./assets/dora-screenshot.webp)
 
 ## Key Features
 
-- Wave AI - Context-aware terminal assistant that reads your terminal output, analyzes widgets, and performs file operations
-- Durable SSH Sessions - Remote terminal sessions survive connection interruptions, network changes, and Wave restarts with automatic reconnection
+- Dora AI - Context-aware terminal assistant that reads your terminal output, analyzes widgets, and performs file operations
+- Durable SSH Sessions - Remote terminal sessions survive connection interruptions, network changes, and Dora restarts with automatic reconnection
 - Flexible drag & drop interface to organize terminal blocks, editors, web browsers, and AI assistants
 - Built-in editor for editing remote files with syntax highlighting and modern editor features
 - Rich file preview system for remote files (markdown, images, video, PDFs, CSVs, directories)
@@ -41,9 +41,9 @@ Wave also supports durable SSH sessions that survive network interruptions and r
 - Powerful `wsh` command system for managing your workspace from the CLI and sharing data between terminal sessions
 - Connected file management with `wsh file` - seamlessly copy and sync files between local and remote SSH hosts
 
-## Wave AI
+## Dora AI
 
-Wave AI is your context-aware terminal assistant with access to your workspace:
+Dora AI is your context-aware terminal assistant with access to your workspace:
 
 - **Terminal Context**: Reads terminal output and scrollback for debugging and analysis
 - **File Operations**: Read, write, and edit files with automatic backups and user approval
@@ -53,7 +53,7 @@ Wave AI is your context-aware terminal assistant with access to your workspace:
 - **Free Beta**: Included AI credits while we refine the experience
 - **Coming Soon**: Command execution (with approval)
 
-Learn more in our [Wave AI documentation](https://docs.doraterm.dev/waveai) and [Wave AI Modes documentation](https://docs.doraterm.dev/waveai-modes).
+Learn more in our [Dora AI documentation](https://docs.doraterm.dev/waveai) and [Dora AI Modes documentation](https://docs.doraterm.dev/waveai-modes).
 
 ## Installation
 
@@ -79,7 +79,7 @@ The WSH helper runs on the following platforms:
 
 ## Roadmap
 
-Wave is constantly improving! Our roadmap will be continuously updated with our goals for each release. You can find it [here](./ROADMAP.md).
+Dora is constantly improving! Our roadmap will be continuously updated with our goals for each release. You can find it [here](./ROADMAP.md).
 
 Want to provide input to our future releases? Connect with us on [Discord](https://discord.gg/XfvZ334gwU) or open a [Feature Request](https://github.com/doratermdev/doraterm/issues/new/choose)!
 
@@ -97,14 +97,14 @@ See [Building Dora Terminal](BUILD.md).
 
 ## Contributing
 
-Wave uses GitHub Issues for issue tracking.
+Dora uses GitHub Issues for issue tracking.
 
 Find more information in our [Contributions Guide](CONTRIBUTING.md), which includes:
 
 - [Ways to contribute](CONTRIBUTING.md#contributing-to-dora-terminal)
 - [Contribution guidelines](CONTRIBUTING.md#before-you-start)
 
-### Sponsoring Wave ❤️
+### Sponsoring Dora ❤️
 
 If Dora Terminal is useful to you or your company, consider sponsoring development.
 

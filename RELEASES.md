@@ -60,7 +60,7 @@ With each release, YAML files will be produced that point to the newest release 
 
 #### Update channels
 
-We utilize update channels to roll out beta and stable releases. These are determined based on the package versioning [described above](#bump-version-workflow). Users can select their update channel using the `autoupdate:channel` setting in Wave. See [here](https://www.electron.build/tutorials/release-using-channels.html) for more information.
+We utilize update channels to roll out beta and stable releases. These are determined based on the package versioning [described above](#bump-version-workflow). Users can select their update channel using the `autoupdate:channel` setting in Dora. See [here](https://www.electron.build/tutorials/release-using-channels.html) for more information.
 
 ### Package Managers
 
@@ -68,11 +68,11 @@ We currently publish to Homebrew (macOS), WinGet (Windows), Chocolatey (Windows)
 
 #### Homebrew
 
-Homebrew maintains an Autobump bot that regularly checks our release feed for new general releases and updates our Cask automatically. You can find the configuration for our cask [here](https://github.com/Homebrew/homebrew-cask/blob/master/Casks/w/wave.rb). We added ourselves to [this list](https://github.com/Homebrew/homebrew-cask/blob/master/.github/autobump.txt) to indicate that we want the bot to autobump us.
+Homebrew maintains an Autobump bot that regularly checks our release feed for new general releases and updates our Cask automatically. You can find the configuration for our cask [here](https://github.com/Homebrew/homebrew-cask/blob/master/Casks/w/dora.rb). We added ourselves to [this list](https://github.com/Homebrew/homebrew-cask/blob/master/.github/autobump.txt) to indicate that we want the bot to autobump us.
 
 #### WinGet
 
-WinGet uses PRs to manage version bumps for packages. They ship a tool called [`wingetcreate`](https://github.com/microsoft/winget-create) which automates most of this process. We run this tool in our [Publish Release workflow](https://github.com/doratermdev/doraterm/actions/workflows/publish-release.yml) for all general releases. This publishes a PR to their repository using our [Wave Release Bot](https://github.com/dora-releaser) service account. They usually pick up these changes within a day.
+WinGet uses PRs to manage version bumps for packages. They ship a tool called [`wingetcreate`](https://github.com/microsoft/winget-create) which automates most of this process. We run this tool in our [Publish Release workflow](https://github.com/doratermdev/doraterm/actions/workflows/publish-release.yml) for all general releases. This publishes a PR to their repository using our [Dora Release Bot](https://github.com/dora-releaser) service account. They usually pick up these changes within a day.
 
 #### Chocolatey
 

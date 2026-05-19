@@ -64,10 +64,10 @@ Dora Terminal's AI assistant is already powerful and continues to evolve. Here's
 
 - 🔷 Remote file operations - Read and write files on SSH connections
 - 🔷 Custom AI-powered widgets (Tsunami framework)
-- 🔷 AI Can spawn Wave Blocks
-- 🔷 Drag&Drop from Preview Widgets to Wave AI
+- 🔷 AI Can spawn Dora Blocks
+- 🔷 Drag&Drop from Preview Widgets to Dora AI
 
-### Wave AI Widget Builder
+### Dora AI Widget Builder
 
 - 🔷 Visual builder for creating custom AI-powered widgets
 - 🔷 Template library for common AI workflows

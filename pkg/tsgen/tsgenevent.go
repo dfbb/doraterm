@@ -19,7 +19,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/eventbus"
 )
 
-var waveEventRType = reflect.TypeOf(dps.DoraEvent{})
+var doraEventRType = reflect.TypeOf(dps.DoraEvent{})
 
 var DoraEventDataTypes = map[string]reflect.Type{
 	dps.Event_BlockClose:          reflect.TypeOf(""),
@@ -58,7 +58,7 @@ func GenerateDoraEventTypes(tsTypesMap map[reflect.Type]string) string {
 		GenerateTSType(rtype, tsTypesMap)
 	}
 	// suppress default struct generation, this type is custom generated
-	tsTypesMap[waveEventRType] = ""
+	tsTypesMap[doraEventRType] = ""
 
 	var buf bytes.Buffer
 	buf.WriteString("// dps.DoraEvent\n")

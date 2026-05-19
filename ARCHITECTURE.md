@@ -52,7 +52,7 @@ doraterm/
 │   ├── preview/           # 独立组件预览站（与 Electron 解耦）
 │   ├── types/             # TS 类型声明（gotypes.d.ts 由 Go 生成）
 │   ├── util/              # 工具函数
-│   └── wave.ts            # 渲染入口
+│   └── dora.ts            # 渲染入口
 ├── emain/                 # Electron 主进程（TypeScript）
 ├── pkg/                   # Go 后端模块（wavesrv 主代码）
 ├── cmd/                   # Go 可执行入口（server、wsh、generatets…）
@@ -128,7 +128,7 @@ doraterm/
 - **staticcheck** Go 静态检查（`staticcheck.conf`）
 - **ESLint 9 + typescript-eslint + prettier** 前端规范
 - **Vitest** 单元 / 组件测试
-- **electron-builder** 多平台打包，winget 渠道为 `CommandLine.Wave`
+- **electron-builder** 多平台打包，winget 渠道为 `CommandLine.Dora`
 
 ---
 
@@ -152,7 +152,7 @@ Dora Terminal 在物理上是 **3 个独立进程**（外加远端 wsh），逻�
 
 ### 4.1 表现层（Frontend / React）
 
-入口：`frontend/wave.ts` → `frontend/app/app.tsx`。
+入口：`frontend/dora.ts` → `frontend/app/app.tsx`。
 
 主要子目录：
 
@@ -161,7 +161,7 @@ Dora Terminal 在物理上是 **3 个独立进程**（外加远端 wsh），逻�
 | `frontend/app/app.tsx` / `app.scss` | 顶层应用 shell |
 | `frontend/app/block/` | Block 容器，**`blockregistry.ts`** 维护 `view → ViewModel` 映射 |
 | `frontend/app/view/` | 各类 view 实现（`term/`、`preview/`、`codeeditor/`、`waveai/`、`webview/`、`sysinfo/`、`vdom/`、`tsunami/`、`processviewer/`、`waveconfig/`、`aifilediff/`、`helpview/`、`quicktipsview/`、`launcher/`） |
-| `frontend/app/store/` | 全局 atoms、jotaiStore、wshrpc 客户端封装、`wos`（Wave Object Store）、`wps`（订阅）等 |
+| `frontend/app/store/` | 全局 atoms、jotaiStore、wshrpc 客户端封装、`wos`（Dora Object Store）、`wps`（订阅）等 |
 | `frontend/app/tab/` | Tab 模型与 UI |
 | `frontend/app/workspace/` | 工作区管理 |
 | `frontend/app/layout-*` / `frontend/layout/` | 布局引擎，提供 `LayoutNode` + `LayoutTreeAction*` |
@@ -169,7 +169,7 @@ Dora Terminal 在物理上是 **3 个独立进程**（外加远端 wsh），逻�
 | `frontend/app/monaco/` | Monaco 初始化 |
 | `frontend/app/treeview/` | 通用树形控件 |
 | `frontend/app/aipanel/` | AI 主侧栏 |
-| `frontend/app/waveenv/` | "WaveEnv" 环境窄化（组件依赖注入） |
+| `frontend/app/waveenv/` | "DoraEnv" 环境窄化（组件依赖注入） |
 | `frontend/app/shadcn/` | 引入的 shadcn 组件 |
 | `frontend/app/element/` | 基础元素（按钮、菜单等） |
 | `frontend/app/hook/` | 自定义 React hooks |
@@ -223,13 +223,13 @@ tips · help · launcher · tsunami · aifilediff · waveconfig · processviewer
 
 | 包 | 职责 |
 |---|---|
-| `waveobj` | Wave 对象类型注册表（Block、Tab、Workspace 等元数据） |
+| `waveobj` | Dora 对象类型注册表（Block、Tab、Workspace 等元数据） |
 | `wstore` | SQLite 持久化（`wstore_dbops.go`、`wstore_dbsetup.go`、`wstore_rtinfo.go`、迁移） |
 | `filestore` | Block 内容文件存储（`WFS` 缓存写回） |
 | `filebackup` | 文件备份 |
 | `wcore` | 核心业务逻辑（创建 Block/Tab/Workspace 等） |
 | `wavebase` | 基础常量、路径、版本、运行时模式 |
-| `waveapp` / `waveappstore` / `waveapputil` | wave app 注册与运行支持 |
+| `waveapp` / `waveappstore` / `waveapputil` | dora app 注册与运行支持 |
 | `wconfig` | 用户配置（带文件监听 `filewatcher.go`、默认配置 `defaultconfig/`、`metaconsts.go`） |
 | `schema` | JSON schema 加载与校验 |
 
@@ -242,7 +242,7 @@ tips · help · launcher · tsunami · aifilediff · waveconfig · processviewer
 | `wshrpc/wshclient` | RPC 客户端（含 `barerpcclient`） |
 | `wshrpc/wshremote` | 远端 wsh 暴露的命令（系统信息、远端文件、远端进程） |
 | `wshutil` | wshrpc 编解码、路由工具 |
-| `wps` | Wave PubSub 系统（事件总线，broker + 订阅 + 持久化） |
+| `wps` | Dora PubSub 系统（事件总线，broker + 订阅 + 持久化） |
 | `eventbus` | 进程内事件桥 |
 | `web` | HTTP / WebSocket 服务，挂载在 `gorilla/mux` 之上 |
 | `service` | 高层服务对象（`ClientService`、`ObjectService` 等，由前端通过 thin RPC 调用） |
@@ -304,7 +304,7 @@ tips · help · launcher · tsunami · aifilediff · waveconfig · processviewer
 
 ### 4.5 Tsunami 子项目
 
-位于 `tsunami/`，**拥有独立的 `go.mod`**（v0.12.3），是一个用于在 Wave Block 中托管「Go + 前端」的微型应用框架：
+位于 `tsunami/`，**拥有独立的 `go.mod`**（v0.12.3），是一个用于在 Dora Block 中托管「Go + 前端」的微型应用框架：
 
 ```
 tsunami/
@@ -348,7 +348,7 @@ tsunami/
 | Electron Main ↔ wavesrv | stdin（关闭信号） + 端口握手 | 生命周期监管 |
 | wavesrv ↔ wsh（local） | Unix domain socket (wshrpc) | 本地 CLI 调用 |
 | wavesrv ↔ wsh（remote） | SSH 通道 + wshrpc | 远端文件、进程、系统信息 |
-| 进程内 | `wps`（Wave PubSub） | `waveobj:update`、`config`、`userinput`、`waveai:modeconfig` 等事件 |
+| 进程内 | `wps`（Dora PubSub） | `waveobj:update`、`config`、`userinput`、`waveai:modeconfig` 等事件 |
 
 ---
 
@@ -410,7 +410,7 @@ type RpcContext struct { ... }           // 调用上下文，含 BlockId / TabI
 
 ### 7.2 全局入口
 
-`frontend/wave.ts`：
+`frontend/dora.ts`：
 
 1. `getApi().getPlatform()` 获取平台信息
 2. `initGlobal(initOpts)` → 初始化 `atoms`、菜单事件
@@ -654,7 +654,7 @@ graph LR
 | 上下文菜单 | `context-menu/SKILL.md` |
 | 新增 Electron API | `electron-api/SKILL.md` |
 | 发布 wps 事件 | `wps-events/SKILL.md` |
-| 定义 WaveEnv 窄化 | `waveenv/SKILL.md` |
+| 定义 DoraEnv 窄化 | `waveenv/SKILL.md` |
 
 ### 11.1 通用流程
 
@@ -662,7 +662,7 @@ graph LR
 2. 运行 `task generate` 同步 TS 类型与客户端
 3. 在 `pkg/wshrpc/wshserver/wshserver.go` 实现服务端方法
 4. 前端通过 `RpcApi.<Method>(TabRpcClient, ...)` 调用
-5. 必要时通过 `wps` 推事件，前端 `waveEventSubscribeSingle` 订阅
+5. 必要时通过 `wps` 推事件，前端 `doraEventSubscribeSingle` 订阅
 6. 端到端验证（不要 `go build`，依赖 IDE / 编译器报错；前端 `task electron:dev`）
 
 ---

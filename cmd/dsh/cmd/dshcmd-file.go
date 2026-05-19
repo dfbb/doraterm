@@ -106,7 +106,7 @@ var fileCatCmd = &cobra.Command{
 
 var fileInfoCmd = &cobra.Command{
 	Use:     "info [uri]",
-	Short:   "show wave file information",
+	Short:   "show dora file information",
 	Long:    "Show information about a file." + UriHelpText,
 	Example: "  dsh file info dsh://user@ec2/home/user/config.txt",
 	Args:    cobra.ExactArgs(1),

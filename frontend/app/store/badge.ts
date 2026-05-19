@@ -9,7 +9,7 @@ import { atom, Atom, PrimitiveAtom } from "jotai";
 import { v7 as uuidv7, version as uuidVersion } from "uuid";
 import { globalStore } from "./jotaiStore";
 import * as WOS from "./wos";
-import { waveEventSubscribeSingle } from "./wps";
+import { doraEventSubscribeSingle } from "./wps";
 
 export type BadgeEnv = DoraEnvSubset<{
     rpc: {
@@ -191,7 +191,7 @@ function clearBadgeById(blockId: string, badgeId: string, env?: BadgeEnv) {
 }
 
 function setupBadgesSubscription() {
-    waveEventSubscribeSingle({
+    doraEventSubscribeSingle({
         eventType: "badge",
         handler: (event) => {
             const data = event.data;

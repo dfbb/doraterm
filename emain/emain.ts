@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { RpcApi } from "@/app/store/dshclientapi";
-import { waveEventSubscribeSingle } from "@/app/store/wps";
+import { doraEventSubscribeSingle } from "@/app/store/wps";
 import * as electron from "electron";
 import { globalEvents } from "emain/emain-events";
 import { sprintf } from "sprintf-js";
@@ -62,7 +62,7 @@ const electronApp = electron.app;
 
 let confirmQuit = true;
 
-const waveDataDir = getDoraDataDir();
+const doraDataDir = getDoraDataDir();
 const doraConfigDir = getDoraConfigDir();
 
 electron.nativeTheme.themeSource = "dark";
@@ -71,7 +71,7 @@ console.log = log;
 console.log(
     sprintf(
         "doraterm-app starting, data_dir=%s, config_dir=%s electronpath=%s gopath=%s arch=%s/%s electron=%s",
-        waveDataDir,
+        doraDataDir,
         doraConfigDir,
         getElectronAppBasePath(),
         getElectronAppUnpackedBasePath(),
@@ -122,7 +122,7 @@ function handleWSEvent(evtMsg: WSEventType) {
 }
 
 async function initElectronControlEventSubscription(): Promise<void> {
-    waveEventSubscribeSingle({
+    doraEventSubscribeSingle({
         eventType: "electron:control",
         handler: (event) => {
             const evtMsg = event?.data as WSEventType;
@@ -146,10 +146,10 @@ async function alignAllWindowsActiveTab() {
         try {
             const workspace = await services.WorkspaceService.GetWorkspace(ww.workspaceId);
             if (workspace?.activetabid == null) continue;
-            if (ww.activeTabView?.waveTabId == workspace.activetabid) continue;
+            if (ww.activeTabView?.doraTabId == workspace.activetabid) continue;
             await ww.setActiveTab(workspace.activetabid, false);
         } catch (e) {
-            console.log("error aligning window", ww.waveWindowId, e);
+            console.log("error aligning window", ww.doraWindowId, e);
         }
     }
 }
@@ -192,7 +192,7 @@ electronApp.on("before-quit", (e) => {
             type: "question",
             buttons: ["Cancel", "Quit"],
             title: "Confirm Quit",
-            message: "Are you sure you want to quit Wave Terminal?",
+            message: "Are you sure you want to quit Dora Terminal?",
             defaultId: 0,
             cancelId: 0,
         });

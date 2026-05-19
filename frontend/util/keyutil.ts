@@ -19,11 +19,11 @@ function getKeyUtilPlatform(): NodeJS.Platform {
 }
 
 function keydownWrapper(
-    fn: (waveEvent: DoraKeyboardEvent) => boolean
+    fn: (doraEvent: DoraKeyboardEvent) => boolean
 ): (event: KeyboardEvent | React.KeyboardEvent) => void {
     return (event: KeyboardEvent | React.KeyboardEvent) => {
-        const waveEvent = adaptFromReactOrNativeKeyEvent(event);
-        const rtnVal = fn(waveEvent);
+        const doraEvent = adaptFromReactOrNativeKeyEvent(event);
+        const rtnVal = fn(doraEvent);
         if (rtnVal) {
             event.preventDefault();
             event.stopPropagation();
@@ -31,31 +31,31 @@ function keydownWrapper(
     };
 }
 
-function waveEventToKeyDesc(waveEvent: DoraKeyboardEvent): string {
+function doraEventToKeyDesc(doraEvent: DoraKeyboardEvent): string {
     let keyDesc: string[] = [];
-    if (waveEvent.cmd) {
+    if (doraEvent.cmd) {
         keyDesc.push("Cmd");
     }
-    if (waveEvent.option) {
+    if (doraEvent.option) {
         keyDesc.push("Option");
     }
-    if (waveEvent.meta) {
+    if (doraEvent.meta) {
         keyDesc.push("Meta");
     }
-    if (waveEvent.control) {
+    if (doraEvent.control) {
         keyDesc.push("Ctrl");
     }
-    if (waveEvent.shift) {
+    if (doraEvent.shift) {
         keyDesc.push("Shift");
     }
-    if (waveEvent.key != null && waveEvent.key != "") {
-        if (waveEvent.key == " ") {
+    if (doraEvent.key != null && doraEvent.key != "") {
+        if (doraEvent.key == " ") {
             keyDesc.push("Space");
         } else {
-            keyDesc.push(waveEvent.key);
+            keyDesc.push(doraEvent.key);
         }
     } else {
-        keyDesc.push("c{" + waveEvent.code + "}");
+        keyDesc.push("c{" + doraEvent.code + "}");
     }
     return keyDesc.join(":");
 }
@@ -332,5 +332,5 @@ export {
     keydownWrapper,
     parseKeyDescription,
     setKeyUtilPlatform,
-    waveEventToKeyDesc,
+    doraEventToKeyDesc,
 };

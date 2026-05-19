@@ -135,11 +135,11 @@ func StartLocalShellProc(logCtx context.Context, termSize doraobj.TermSize, cmdS
 			if cmdOpts.Login {
 				shellOpts = append(shellOpts, "-l")
 			}
-			waveFishPath := shellutil.GetLocalWaveFishFilePath()
-			carg := fmt.Sprintf("source %s", shellutil.HardQuoteFish(waveFishPath))
+			doraFishPath := shellutil.GetLocalDoraFishFilePath()
+			carg := fmt.Sprintf("source %s", shellutil.HardQuoteFish(doraFishPath))
 			shellOpts = append(shellOpts, "-C", carg)
 		} else if shellType == shellutil.ShellType_pwsh {
-			shellOpts = append(shellOpts, "-ExecutionPolicy", "Bypass", "-NoExit", "-File", shellutil.GetLocalWavePowershellEnv())
+			shellOpts = append(shellOpts, "-ExecutionPolicy", "Bypass", "-NoExit", "-File", shellutil.GetLocalDoraPowershellEnv())
 		} else {
 			if cmdOpts.Login {
 				shellOpts = append(shellOpts, "-l")
@@ -202,7 +202,7 @@ func StartLocalShellProc(logCtx context.Context, termSize doraobj.TermSize, cmdS
 	if cwdErr := checkCwd(ecmd.Dir); cwdErr != nil {
 		ecmd.Dir = dorabase.GetHomeDir()
 	}
-	envToAdd := shellutil.WaveshellLocalEnvVars(shellutil.DefaultTermType)
+	envToAdd := shellutil.DorashellLocalEnvVars(shellutil.DefaultTermType)
 	if os.Getenv("LANG") == "" {
 		envToAdd["LANG"] = dorabase.DetermineLang()
 	}
@@ -225,7 +225,7 @@ func StartLocalShellProc(logCtx context.Context, termSize doraobj.TermSize, cmdS
 
 func RunSimpleCmdInPty(ecmd *exec.Cmd, termSize doraobj.TermSize) ([]byte, error) {
 	ecmd.Env = os.Environ()
-	shellutil.UpdateCmdEnv(ecmd, shellutil.WaveshellLocalEnvVars(shellutil.DefaultTermType))
+	shellutil.UpdateCmdEnv(ecmd, shellutil.DorashellLocalEnvVars(shellutil.DefaultTermType))
 	if termSize.Rows == 0 || termSize.Cols == 0 {
 		termSize.Rows = shellutil.DefaultTermRows
 		termSize.Cols = shellutil.DefaultTermCols

@@ -66,26 +66,26 @@ export function handleCtrlShiftFocus(sender: Electron.WebContents, focused: bool
     }
 }
 
-export function handleCtrlShiftState(sender: Electron.WebContents, waveEvent: DoraKeyboardEvent) {
-    if (waveEvent.type == "keyup") {
-        if (waveEvent.key === "Control" || waveEvent.key === "Shift") {
+export function handleCtrlShiftState(sender: Electron.WebContents, doraEvent: DoraKeyboardEvent) {
+    if (doraEvent.type == "keyup") {
+        if (doraEvent.key === "Control" || doraEvent.key === "Shift") {
             setCtrlShift(sender, false);
         }
-        if (waveEvent.key == "Meta") {
-            if (waveEvent.control && waveEvent.shift) {
+        if (doraEvent.key == "Meta") {
+            if (doraEvent.control && doraEvent.shift) {
                 setCtrlShift(sender, true);
             }
         }
         if (lastCtrlShiftSate) {
-            if (!waveEvent.control || !waveEvent.shift) {
+            if (!doraEvent.control || !doraEvent.shift) {
                 setCtrlShift(sender, false);
             }
         }
         return;
     }
-    if (waveEvent.type == "keydown") {
-        if (waveEvent.key === "Control" || waveEvent.key === "Shift" || waveEvent.key === "Meta") {
-            if (waveEvent.control && waveEvent.shift && !waveEvent.meta) {
+    if (doraEvent.type == "keydown") {
+        if (doraEvent.key === "Control" || doraEvent.key === "Shift" || doraEvent.key === "Meta") {
+            if (doraEvent.control && doraEvent.shift && !doraEvent.meta) {
                 // Set the control and shift without the Meta key
                 setCtrlShift(sender, true);
             } else {
@@ -149,9 +149,9 @@ export function shFrameNavHandler(event: Electron.Event<Electron.WebContentsWill
         frameOrAncestorHasName(event.frame, "pdfview") &&
         (url.startsWith("blob:file:///") ||
             url.startsWith("chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/") ||
-            url.startsWith(getWebServerEndpoint() + "/wave/stream-file?") ||
-            url.startsWith(getWebServerEndpoint() + "/wave/stream-file/") ||
-            url.startsWith(getWebServerEndpoint() + "/wave/stream-local-file?"))
+            url.startsWith(getWebServerEndpoint() + "/dora/stream-file?") ||
+            url.startsWith(getWebServerEndpoint() + "/dora/stream-file/") ||
+            url.startsWith(getWebServerEndpoint() + "/dora/stream-local-file?"))
     ) {
         // allowed
         return;
@@ -240,9 +240,9 @@ export function ensureBoundsAreVisible(bounds: electron.Rectangle): electron.Rec
     return bounds;
 }
 
-export function waveKeyToElectronKey(waveKey: string): string {
-    const waveParts = waveKey.split(":");
-    const electronParts: Array<string> = waveParts.map((part: string) => {
+export function doraKeyToElectronKey(doraKey: string): string {
+    const doraParts = doraKey.split(":");
+    const electronParts: Array<string> = doraParts.map((part: string) => {
         const digitRegexpMatch = new RegExp("^c{Digit([0-9])}$").exec(part);
         const numpadRegexpMatch = new RegExp("^c{Numpad([0-9])}$").exec(part);
         const lowercaseCharMatch = new RegExp("^([a-z])$").exec(part);

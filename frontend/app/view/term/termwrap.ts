@@ -127,13 +127,13 @@ export class TermWrap {
         blockId: string,
         connectElem: HTMLDivElement,
         options: TermTypes.ITerminalOptions & TermTypes.ITerminalInitOnlyOptions,
-        waveOptions: TermWrapOptions
+        doraOptions: TermWrapOptions
     ) {
         this.loaded = false;
         this.tabId = tabId;
         this.blockId = blockId;
-        this.sendDataHandler = waveOptions.sendDataHandler;
-        this.nodeModel = waveOptions.nodeModel;
+        this.sendDataHandler = doraOptions.sendDataHandler;
+        this.nodeModel = doraOptions.nodeModel;
         this.ptyOffset = 0;
         this.dataBytesProcessed = 0;
         this.hasResized = false;
@@ -179,7 +179,7 @@ export class TermWrap {
                 }
             )
         );
-        this.setTermRenderer(WebGLSupported && waveOptions.useWebGl ? "webgl" : "dom");
+        this.setTermRenderer(WebGLSupported && doraOptions.useWebGl ? "webgl" : "dom");
         // Register OSC handlers
         this.terminal.parser.registerOscHandler(7, (data: string) => {
             try {
@@ -272,10 +272,10 @@ export class TermWrap {
             })
         );
         this.terminal.attachCustomKeyEventHandler((e: KeyboardEvent) => {
-            if (!waveOptions.keydownHandler) {
+            if (!doraOptions.keydownHandler) {
                 return true;
             }
-            return waveOptions.keydownHandler(e);
+            return doraOptions.keydownHandler(e);
         });
         this.connectElem = connectElem;
         this.mainFileSubject = null;

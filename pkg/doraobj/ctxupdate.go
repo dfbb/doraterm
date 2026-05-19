@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-var waveObjUpdateKey = struct{}{}
+var doraObjUpdateKey = struct{}{}
 
 type contextUpdatesType struct {
 	UpdatesStack []map[ORef]DoraObjUpdate
@@ -30,17 +30,17 @@ func dumpUpdateStack(updates *contextUpdatesType) {
 }
 
 func ContextWithUpdates(ctx context.Context) context.Context {
-	updatesVal := ctx.Value(waveObjUpdateKey)
+	updatesVal := ctx.Value(doraObjUpdateKey)
 	if updatesVal != nil {
 		return ctx
 	}
-	return context.WithValue(ctx, waveObjUpdateKey, &contextUpdatesType{
+	return context.WithValue(ctx, doraObjUpdateKey, &contextUpdatesType{
 		UpdatesStack: []map[ORef]DoraObjUpdate{make(map[ORef]DoraObjUpdate)},
 	})
 }
 
 func ContextGetUpdates(ctx context.Context) map[ORef]DoraObjUpdate {
-	updatesVal := ctx.Value(waveObjUpdateKey)
+	updatesVal := ctx.Value(doraObjUpdateKey)
 	if updatesVal == nil {
 		return nil
 	}
@@ -58,7 +58,7 @@ func ContextGetUpdates(ctx context.Context) map[ORef]DoraObjUpdate {
 }
 
 func ContextGetUpdate(ctx context.Context, oref ORef) *DoraObjUpdate {
-	updatesVal := ctx.Value(waveObjUpdateKey)
+	updatesVal := ctx.Value(doraObjUpdateKey)
 	if updatesVal == nil {
 		return nil
 	}
@@ -72,7 +72,7 @@ func ContextGetUpdate(ctx context.Context, oref ORef) *DoraObjUpdate {
 }
 
 func ContextAddUpdate(ctx context.Context, update DoraObjUpdate) {
-	updatesVal := ctx.Value(waveObjUpdateKey)
+	updatesVal := ctx.Value(doraObjUpdateKey)
 	if updatesVal == nil {
 		return
 	}
@@ -85,7 +85,7 @@ func ContextAddUpdate(ctx context.Context, update DoraObjUpdate) {
 }
 
 func ContextUpdatesBeginTx(ctx context.Context) context.Context {
-	updatesVal := ctx.Value(waveObjUpdateKey)
+	updatesVal := ctx.Value(doraObjUpdateKey)
 	if updatesVal == nil {
 		return ctx
 	}
@@ -95,7 +95,7 @@ func ContextUpdatesBeginTx(ctx context.Context) context.Context {
 }
 
 func ContextUpdatesCommitTx(ctx context.Context) {
-	updatesVal := ctx.Value(waveObjUpdateKey)
+	updatesVal := ctx.Value(doraObjUpdateKey)
 	if updatesVal == nil {
 		return
 	}
@@ -113,7 +113,7 @@ func ContextUpdatesCommitTx(ctx context.Context) {
 }
 
 func ContextUpdatesRollbackTx(ctx context.Context) {
-	updatesVal := ctx.Value(waveObjUpdateKey)
+	updatesVal := ctx.Value(doraObjUpdateKey)
 	if updatesVal == nil {
 		return
 	}
@@ -137,7 +137,7 @@ func ContextGetUpdatesRtn(ctx context.Context) UpdatesRtnType {
 }
 
 func ContextPrintUpdates(ctx context.Context) {
-	updatesVal := ctx.Value(waveObjUpdateKey)
+	updatesVal := ctx.Value(doraObjUpdateKey)
 	if updatesVal == nil {
 		log.Print("no updates\n")
 		return
