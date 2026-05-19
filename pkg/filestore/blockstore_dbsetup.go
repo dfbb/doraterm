@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -42,6 +43,26 @@ func InitFilestore() error {
 	if err != nil {
 		return err
 	}
+	// Self-heal: if the old db_wave_file table still exists (migration ran before
+	// the wave→dora rename was applied), nuke the filestore DB and start fresh.
+	var oldTableExists bool
+	_ = globalDB.Get(&oldTableExists, "SELECT COUNT(*) > 0 FROM sqlite_master WHERE type='table' AND name='db_wave_file'")
+	if oldTableExists {
+		globalDB.Close()
+		dbPath := GetDBName()
+		if err := os.Remove(dbPath); err != nil {
+			return fmt.Errorf("removing stale filestore db (db_wave_file exists): %w", err)
+		}
+		log.Printf("filestore: removed stale db with db_wave_file table, recreating\n")
+		globalDB, err = MakeDB(ctx)
+		if err != nil {
+			return err
+		}
+		err = migrateutil.Migrate("filestore", globalDB.DB, dbfs.FilestoreMigrationFS, "migrations-filestore")
+		if err != nil {
+			return err
+		}
+	}
 	if !stopFlush.Load() {
 		go WFS.runFlusher()
 	}
@@ -50,8 +71,8 @@ func InitFilestore() error {
 }
 
 func GetDBName() string {
-	waveHome := dorabase.GetDoraDataDir()
-	return filepath.Join(waveHome, dorabase.DoraDBDir, FilestoreDBName)
+	doraHome := dorabase.GetDoraDataDir()
+	return filepath.Join(doraHome, dorabase.DoraDBDir, FilestoreDBName)
 }
 
 func MakeDB(ctx context.Context) (*sqlx.DB, error) {
