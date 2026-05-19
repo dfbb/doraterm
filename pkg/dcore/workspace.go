@@ -238,7 +238,11 @@ func CreateTab(ctx context.Context, workspaceId string, tabName string, activate
 	if err != nil {
 		return "", fmt.Errorf("error creating tab: %w", err)
 	}
+	prevActiveTabId := ""
 	if activateTab {
+		if ws, err := GetWorkspace(ctx, workspaceId); err == nil {
+			prevActiveTabId = ws.ActiveTabId
+		}
 		err = SetActiveTab(ctx, workspaceId, tab.OID)
 		if err != nil {
 			return "", fmt.Errorf("error setting active tab: %w", err)
@@ -248,8 +252,8 @@ func CreateTab(ctx context.Context, workspaceId string, tabName string, activate
 	// No need to apply an initial layout for the initial launch, since the starter layout will get applied after onboarding modal dismissal
 	if !isInitialLaunch {
 		layout := GetNewTabLayout()
-		if ws, err := GetWorkspace(ctx, workspaceId); err == nil && len(ws.TabIds) > 0 {
-			if cwd := getActiveTabCwd(ctx, ws.ActiveTabId); cwd != "" {
+		if prevActiveTabId != "" {
+			if cwd := getActiveTabCwd(ctx, prevActiveTabId); cwd != "" {
 				layout[0].BlockDef.Meta[doraobj.MetaKey_CmdCwd] = cwd
 			}
 		}
