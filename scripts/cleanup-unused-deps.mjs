@@ -13,7 +13,7 @@ const FORCE = process.argv.includes("--force");
 const BUILD_TIMEOUT_MS = 5 * 60 * 1000;
 
 // depcheck can't see packages referenced only in these non-JS-import contexts
-const SKIP_PATTERNS = [/^@types\//];
+const SKIP_PATTERNS = [/^@types\//, /^tailwindcss$/];
 
 // Rollback state for SIGINT handler
 let currentBackup = null;
