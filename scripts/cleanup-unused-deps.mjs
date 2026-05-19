@@ -3,12 +3,13 @@ import { execSync, spawnSync } from "child_process";
 import { readFileSync, writeFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
-import { createInterface } from "readline";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const ROOT = resolve(dirname(__filename), "..");
 const PKG_PATH = resolve(ROOT, "package.json");
 const DRY_RUN = process.argv.includes("--dry-run");
+const FORCE = process.argv.includes("--force");
 const BUILD_TIMEOUT_MS = 5 * 60 * 1000;
 
 // depcheck can't see packages referenced only in these non-JS-import contexts
@@ -16,14 +17,28 @@ const SKIP_PATTERNS = [/^@types\//];
 
 // Rollback state for SIGINT handler
 let currentBackup = null;
+let rollbackInProgress = false;
 process.on("SIGINT", () => {
+    if (rollbackInProgress) {
+        console.log("\n  Rollback interrupted! Run 'npm install' to recover.");
+        process.exit(1);
+    }
     if (currentBackup) {
+        rollbackInProgress = true;
         console.log("\n  Interrupted. Rolling back current package...");
-        writeFileSync(PKG_PATH, currentBackup);
-        execSync("npm install --silent", { cwd: ROOT, stdio: "inherit" });
+        try {
+            writeFileSync(PKG_PATH, currentBackup);
+            execSync("npm install --silent", { cwd: ROOT, stdio: "inherit" });
+        } catch {
+            console.log("  Rollback failed! Run 'npm install' to recover.");
+        }
     }
     process.exit(1);
 });
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 function getConfigReferencedPackages() {
     const pkg = JSON.parse(readFileSync(PKG_PATH, "utf8"));
@@ -43,7 +58,9 @@ function getConfigReferencedPackages() {
         try {
             const content = readFileSync(resolve(ROOT, file), "utf8");
             for (const p of allPkgs) {
-                if (content.includes(p)) referenced.add(p);
+                const escaped = escapeRegex(p);
+                const pattern = new RegExp(`(?<![a-z0-9@._/-])${escaped}(?![a-z0-9@._/-])`);
+                if (pattern.test(content)) referenced.add(p);
             }
         } catch {}
     }
@@ -77,14 +94,8 @@ function runBuild() {
     return result.status === 0 && !result.error;
 }
 
-async function confirmProceed(msg) {
-    const rl = createInterface({ input: process.stdin, output: process.stdout });
-    return new Promise((resolve) => {
-        rl.question(msg + " [Enter to continue, Ctrl+C to abort] ", () => {
-            rl.close();
-            resolve();
-        });
-    });
+function isValidPackageName(pkg) {
+    return /^@?[a-z0-9][a-z0-9._/-]*$/.test(pkg);
 }
 
 async function main() {
@@ -97,13 +108,15 @@ async function main() {
             const code = l.slice(0, 2).trim();
             return code !== "D" && code !== "??";
         });
-        if (hasNonDelete && !DRY_RUN) {
-            await confirmProceed(`  ⚠  git status has non-deletion changes (${lines.length} total).`);
+        if (hasNonDelete && !FORCE) {
+            console.error("  Error: Non-deletion changes found in working tree.");
+            console.error("  Commit or stash your changes first, or use --force to override.");
+            process.exit(1);
         }
         if (DRY_RUN) {
             console.log(`  [dry-run] Would commit ${lines.length} changes`);
         } else {
-            run("git add -A");
+            run("git add -u");
             run('git commit -m "chore: remove stale files"');
             console.log(`  ✓ Committed (${lines.length} files)`);
         }
@@ -138,12 +151,20 @@ async function main() {
     const removed = [];
     const skipped = [];
 
+    const MaxPkgLen = Math.max(...candidates.map((p) => p.length));
     for (let i = 0; i < candidates.length; i++) {
         const pkg = candidates[i];
         const label = `[${i + 1}/${candidates.length}] ${pkg}`;
-        process.stdout.write(`  ${label.padEnd(55)} ... `);
+        process.stdout.write(`  ${label.padEnd(MaxPkgLen + 15)} ... `);
 
         currentBackup = readFileSync(PKG_PATH, "utf8");
+
+        if (!isValidPackageName(pkg)) {
+            process.stdout.write("✗ skipped (invalid package name)\n");
+            currentBackup = null;
+            skipped.push(pkg);
+            continue;
+        }
 
         try {
             run(`npm uninstall ${pkg}`);
