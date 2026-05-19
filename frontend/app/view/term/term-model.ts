@@ -726,6 +726,17 @@ export class TermViewModel implements ViewModel {
             }
             if (hoveredURL) {
                 menu.push({
+                    label: hoveredURL.hostname ? "Open URL (" + hoveredURL.hostname + ")" : "Open URL",
+                    click: () => {
+                        createBlock({
+                            meta: {
+                                view: "web",
+                                url: hoveredURL.toString(),
+                            },
+                        });
+                    },
+                });
+                menu.push({
                     label: "Open URL in External Browser",
                     click: () => {
                         getApi().openExternal(hoveredURL.toString());
