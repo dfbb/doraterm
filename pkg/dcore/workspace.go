@@ -247,7 +247,13 @@ func CreateTab(ctx context.Context, workspaceId string, tabName string, activate
 
 	// No need to apply an initial layout for the initial launch, since the starter layout will get applied after onboarding modal dismissal
 	if !isInitialLaunch {
-		err = ApplyPortableLayout(ctx, tab.OID, GetNewTabLayout(), true)
+		layout := GetNewTabLayout()
+		if ws, err := GetWorkspace(ctx, workspaceId); err == nil && len(ws.TabIds) > 0 {
+			if cwd := getActiveTabCwd(ctx, ws.ActiveTabId); cwd != "" {
+				layout[0].BlockDef.Meta[doraobj.MetaKey_CmdCwd] = cwd
+			}
+		}
+		err = ApplyPortableLayout(ctx, tab.OID, layout, true)
 		if err != nil {
 			return tab.OID, fmt.Errorf("error applying new tab layout: %w", err)
 		}
@@ -258,6 +264,26 @@ func CreateTab(ctx context.Context, workspaceId string, tabName string, activate
 		}
 	}
 	return tab.OID, nil
+}
+
+func getActiveTabCwd(ctx context.Context, activeTabId string) string {
+	if activeTabId == "" {
+		return ""
+	}
+	tab, err := dstore.DBMustGet[*doraobj.Tab](ctx, activeTabId)
+	if err != nil || tab == nil {
+		return ""
+	}
+	for _, blockId := range tab.BlockIds {
+		block, err := dstore.DBMustGet[*doraobj.Block](ctx, blockId)
+		if err != nil || block == nil {
+			continue
+		}
+		if cwd := block.Meta.GetString(doraobj.MetaKey_CmdCwd, ""); cwd != "" {
+			return cwd
+		}
+	}
+	return ""
 }
 
 func createTabObj(ctx context.Context, workspaceId string, name string, meta doraobj.MetaMapType) (*doraobj.Tab, error) {
