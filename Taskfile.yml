@@ -187,13 +187,10 @@ tasks:
             - dist/bin/dorasrv.x64.exe
 
     build:server:windows:
-        desc: Build the dorasrv component for Windows platforms (cross-compiles on macOS/Linux).
+        desc: Build the dorasrv component for Windows platforms (cross-compiles on macOS/Linux with zig).
+        platforms: [windows]
         cmds:
-            - cmd: rm -f dist/bin/dorasrv*.exe
-              platforms: [darwin, linux]
-              ignore_error: true
             - cmd: powershell -NoProfile -NonInteractive -Command "Remove-Item -Force -ErrorAction SilentlyContinue -Path dist/bin/dorasrv*.exe"
-              platforms: [windows]
               ignore_error: true
             - task: build:server:internal
               vars:
@@ -201,6 +198,15 @@ tasks:
                       sh: echo {{if eq "arm" ARCH}}arm64{{else}}{{ARCH}}{{end}}
                   GO_ENV_VARS:
                       sh: echo "{{if eq "amd64" ARCH}}CC=\"zig cc -target x86_64-windows-gnu\"{{else}}CC=\"zig cc -target aarch64-windows-gnu\"{{end}}"
+
+    build:server:windows:cross:
+        desc: Cross-compile the dorasrv component for Windows from macOS/Linux using zig.
+        platforms: [darwin, linux]
+        cmds:
+            - cmd: rm -f dist/bin/dorasrv*.exe
+              ignore_error: true
+            - cmd: CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC="zig cc -target x86_64-windows-gnu" go build -tags "osusergo,sqlite_omit_load_extension" -ldflags="-s -w -X main.BuildTime=$(date +'%Y%m%d%H%M') -X main.WaveVersion={{.VERSION}}" -o dist/bin/dorasrv.x64.exe cmd/server/main-server.go
+            - cmd: CGO_ENABLED=1 GOOS=windows GOARCH=arm64 CC="zig cc -target aarch64-windows-gnu" go build -tags "osusergo,sqlite_omit_load_extension" -ldflags="-s -w -X main.BuildTime=$(date +'%Y%m%d%H%M') -X main.WaveVersion={{.VERSION}}" -o dist/bin/dorasrv.arm64.exe cmd/server/main-server.go
 
     build:server:linux:
         desc: Build the dorasrv component for Linux platforms (only generates artifacts for the current architecture).
