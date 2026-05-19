@@ -31,7 +31,7 @@ var WorkspaceColors = [...]string{
 }
 
 var WorkspaceIcons = [...]string{
-	"custom@wave-logo-solid",
+	"custom@dora-logo-solid",
 	"triangle",
 	"star",
 	"heart",

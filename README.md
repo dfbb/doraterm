@@ -1,9 +1,9 @@
 <p align="center">
   <a href="https://www.doraterm.dev">
 	<picture>
-		<source media="(prefers-color-scheme: dark)" srcset="./assets/wave-dark.png">
-		<source media="(prefers-color-scheme: light)" srcset="./assets/wave-light.png">
-		<img alt="Dora Terminal Logo" src="./assets/wave-light.png" width="240">
+		<source media="(prefers-color-scheme: dark)" srcset="./assets/dora-dark.png">
+		<source media="(prefers-color-scheme: light)" srcset="./assets/dora-light.png">
+		<img alt="Dora Terminal Logo" src="./assets/dora-light.png" width="240">
 	</picture>
   </a>
   <br/>
@@ -101,7 +101,7 @@ Wave uses GitHub Issues for issue tracking.
 
 Find more information in our [Contributions Guide](CONTRIBUTING.md), which includes:
 
-- [Ways to contribute](CONTRIBUTING.md#contributing-to-wave-terminal)
+- [Ways to contribute](CONTRIBUTING.md#contributing-to-dora-terminal)
 - [Contribution guidelines](CONTRIBUTING.md#before-you-start)
 
 ### Sponsoring Wave ❤️
