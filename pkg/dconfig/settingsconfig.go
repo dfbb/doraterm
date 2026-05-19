@@ -132,6 +132,10 @@ type SettingsType struct {
 	DebugPprofPort           *int `json:"debug:pprofport,omitempty"`
 	DebugPprofMemProfileRate *int `json:"debug:pprofmemprofilerate,omitempty"`
 	DebugWebGlStatus         bool `json:"debug:webglstatus,omitempty"`
+
+	RemotePassword   string `json:"remote:password,omitempty"`
+	RemoteListenPort int    `json:"remote:listenport,omitempty"`
+	RemoteBindAddr   string `json:"remote:bindaddr,omitempty"`
 }
 
 type ConfigError struct {

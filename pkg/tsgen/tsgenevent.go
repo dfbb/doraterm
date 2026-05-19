@@ -16,6 +16,7 @@ import (
 	"github.com/dfbb/doraterm/pkg/dconfig"
 	"github.com/dfbb/doraterm/pkg/dps"
 	"github.com/dfbb/doraterm/pkg/dshrpc"
+	"github.com/dfbb/doraterm/pkg/eventbus"
 )
 
 var waveEventRType = reflect.TypeOf(dps.DoraEvent{})
@@ -34,6 +35,7 @@ var DoraEventDataTypes = map[string]reflect.Type{
 	dps.Event_WorkspaceUpdate:     nil,
 	dps.Event_BlockJobStatus:      reflect.TypeOf(dshrpc.BlockJobStatusData{}),
 	dps.Event_Badge:               reflect.TypeOf(baseds.BadgeEvent{}),
+	dps.Event_ElectronControl:     reflect.TypeOf(eventbus.WSEventType{}),
 }
 
 func getDoraEventDataTSType(eventName string, tsTypesMap map[reflect.Type]string) string {

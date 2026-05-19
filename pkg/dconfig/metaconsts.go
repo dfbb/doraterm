@@ -102,5 +102,9 @@ const (
 	ConfigKey_DebugPprofPort                 = "debug:pprofport"
 	ConfigKey_DebugPprofMemProfileRate       = "debug:pprofmemprofilerate"
 	ConfigKey_DebugWebGlStatus               = "debug:webglstatus"
+
+	ConfigKey_RemotePassword                 = "remote:password"
+	ConfigKey_RemoteListenPort               = "remote:listenport"
+	ConfigKey_RemoteBindAddr                 = "remote:bindaddr"
 )
 

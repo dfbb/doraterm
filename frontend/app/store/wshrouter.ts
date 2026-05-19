@@ -16,12 +16,14 @@ type RouteInfo = {
     destRouteId: string;
 };
 
+const RendererRouteSuffix: string = crypto.randomUUID();
+
 function makeFeBlockRouteId(feBlockId: string): string {
-    return `feblock:${feBlockId}`;
+    return `feblock:${feBlockId}:${RendererRouteSuffix}`;
 }
 
 function makeTabRouteId(tabId: string): string {
-    return `tab:${tabId}`;
+    return `tab:${tabId}:${RendererRouteSuffix}`;
 }
 
 class DshRouter {
@@ -153,4 +155,4 @@ class DshRouter {
     }
 }
 
-export { makeFeBlockRouteId, makeTabRouteId, DshRouter };
+export { makeFeBlockRouteId, makeTabRouteId, RendererRouteSuffix, DshRouter };

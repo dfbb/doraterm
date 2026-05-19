@@ -17,7 +17,7 @@ import {
     setWasInFg,
 } from "./emain-activity";
 import { log } from "./emain-log";
-import { getElectronAppBasePath, isDev, unamePlatform } from "./emain-platform";
+import { getElectronAppBasePath, getRemoteState, isDev, unamePlatform } from "./emain-platform";
 import { getOrCreateWebViewForTab, getDoraTabViewByWebContentsId, DoraTabView } from "./emain-tabview";
 import { delay, ensureBoundsAreVisible, waveKeyToElectronKey } from "./emain-util";
 import { ElectronDshClient } from "./emain-dsh";
@@ -159,6 +159,11 @@ export class DoraBrowserWindow extends BaseWindow {
 
         console.log("create win", waveWindow.oid);
         const winBounds = calculateWindowBounds(waveWindow.winsize, waveWindow.pos, settings);
+        const remote = getRemoteState();
+        const winTitle =
+            remote.isRemote && remote.target
+                ? `Dora — [remote: ${remote.target.host}:${remote.target.port}]`
+                : "Dora";
         const winOpts: BaseWindowConstructorOptions = {
             x: winBounds.x,
             y: winBounds.y,
@@ -167,6 +172,7 @@ export class DoraBrowserWindow extends BaseWindow {
             minWidth: MinWindowWidth,
             minHeight: MinWindowHeight,
             show: false,
+            title: winTitle,
         };
 
         const isTransparent = settings?.["window:transparent"] ?? false;

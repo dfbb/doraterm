@@ -195,6 +195,7 @@ func (svc *WorkspaceService) SetActiveTab(workspaceId string, tabId string) (dor
 		}()
 		dps.Broker.SendUpdateEvents(updates)
 	}()
+	dcore.SendActiveTabUpdate(ctx, workspaceId, tabId)
 	var extraUpdates doraobj.UpdatesRtnType
 	extraUpdates = append(extraUpdates, updates...)
 	extraUpdates = append(extraUpdates, doraobj.MakeUpdate(tab))

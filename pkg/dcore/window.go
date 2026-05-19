@@ -9,6 +9,7 @@ import (
 	"log"
 
 	"github.com/google/uuid"
+	"github.com/dfbb/doraterm/pkg/dps"
 	"github.com/dfbb/doraterm/pkg/eventbus"
 	"github.com/dfbb/doraterm/pkg/util/utilfn"
 	"github.com/dfbb/doraterm/pkg/doraobj"
@@ -160,9 +161,14 @@ func CloseWindow(ctx context.Context, windowId string, fromElectron bool) error 
 	}
 	log.Printf("updated client\n")
 	if !fromElectron {
-		eventbus.SendEventToElectron(eventbus.WSEventType{
+		evt := eventbus.WSEventType{
 			EventType: eventbus.WSEvent_ElectronCloseWindow,
 			Data:      windowId,
+		}
+		eventbus.SendEventToElectron(evt)
+		dps.Broker.Publish(dps.DoraEvent{
+			Event: dps.Event_ElectronControl,
+			Data:  evt,
 		})
 	}
 	return nil

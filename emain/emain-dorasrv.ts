@@ -14,6 +14,7 @@ import {
     getDoraDataDir,
     getDoraSrvCwd,
     getDoraSrvPath,
+    getRemoteState,
     getXdgCurrentDesktop,
     DoraConfigHomeVarName,
     DoraDataHomeVarName,
@@ -53,6 +54,13 @@ export function getIsDoraSrvDead(): boolean {
 }
 
 export function runDoraSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promise<boolean> {
+    const remote = getRemoteState();
+    if (remote.isRemote && remote.target != null) {
+        process.env[WSServerEndpointVarName] = remote.target.baseUrl;
+        process.env[WebServerEndpointVarName] = remote.target.baseUrl;
+        waveSrvReadyResolve(true);
+        return Promise.resolve(true);
+    }
     let pResolve: (value: boolean) => void;
     let pReject: (reason?: any) => void;
     const rtnPromise = new Promise<boolean>((argResolve, argReject) => {

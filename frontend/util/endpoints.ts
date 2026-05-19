@@ -10,10 +10,15 @@ export const WSServerEndpointVarName = "WAVE_SERVER_WS_ENDPOINT";
 
 export const getWebServerEndpoint = lazy(() => {
     if (isPreviewWindow()) return null;
-    return `http://${getEnv(WebServerEndpointVarName)}`;
+    const v = getEnv(WebServerEndpointVarName);
+    if (v.startsWith("http://") || v.startsWith("https://")) return v;
+    return `http://${v}`;
 });
 
 export const getWSServerEndpoint = lazy(() => {
     if (isPreviewWindow()) return null;
-    return `ws://${getEnv(WSServerEndpointVarName)}`;
+    const v = getEnv(WSServerEndpointVarName);
+    if (v.startsWith("https://")) return `wss://${v.slice("https://".length)}`;
+    if (v.startsWith("http://")) return `ws://${v.slice("http://".length)}`;
+    return `ws://${v}`;
 });

@@ -429,6 +429,10 @@ outer:
 				w.handleStreamAck(&msg)
 				continue
 			}
+			if msg.Command == dshrpc.Command_EventRecv {
+				w.handleEventRecv(&msg)
+				continue
+			}
 
 			ingressLinkId := inputVal.IngressLinkId
 			go func() {

@@ -1167,6 +1167,9 @@ declare global {
         "debug:pprofport"?: number;
         "debug:pprofmemprofilerate"?: number;
         "debug:webglstatus"?: boolean;
+        "remote:password"?: string;
+        "remote:listenport"?: number;
+        "remote:bindaddr"?: string;
     };
 
     // doraobj.StickerClickOptsType

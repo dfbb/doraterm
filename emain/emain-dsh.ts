@@ -10,9 +10,11 @@ import { unamePlatform } from "./emain-platform";
 import { getWebContentsByBlockId, webGetSelector } from "./emain-web";
 import { createBrowserWindow, getDoraWindowById, getDoraWindowByWorkspaceId } from "./emain-window";
 
+export const ElectronRouteId = "electron:" + crypto.randomUUID();
+
 export class ElectronDshClientType extends DshClient {
     constructor() {
-        super("electron");
+        super(ElectronRouteId);
     }
 
     async handle_webselector(rh: RpcResponseHelper, data: CommandWebSelectorData): Promise<string[]> {
