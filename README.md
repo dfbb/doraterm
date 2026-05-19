@@ -1,117 +1,27 @@
-<p align="center">
-  <a href="https://www.doraterm.dev">
-	<picture>
-		<source media="(prefers-color-scheme: dark)" srcset="./assets/dora-dark.png">
-		<source media="(prefers-color-scheme: light)" srcset="./assets/dora-light.png">
-		<img alt="Dora Terminal Logo" src="./assets/dora-light.png" width="240">
-	</picture>
-  </a>
-  <br/>
-</p>
+# DoraTerm
 
-# Dora Terminal
+DoraTerm is a terminal-focused derivative of [WaveTerm](https://github.com/wavetermdev/waveterm), an open-source, AI-integrated terminal originally created by [Command Line Inc.](https://www.commandline.dev)
 
-<div align="center">
+## Relationship to WaveTerm
 
-[English](README.md) | [한국어](README.ko.md) | [繁體中文](README.zh-TW.md)
+This project is a fork of WaveTerm, developed and maintained independently. We are grateful to Command Line Inc. and all WaveTerm contributors for building the foundation that DoraTerm is built upon.
 
-</div>
+DoraTerm focuses specifically on the terminal experience:
 
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdoratermdev%2Fdoraterm.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdoratermdev%2Fdoraterm?ref=badge_shield)
+- **Trimmed**: Non-terminal features present in WaveTerm have been removed to keep the application lean and focused on core terminal use cases.
+- **Attach**: Added the ability to attach to existing terminal sessions, making it easy to reconnect to running processes.
+- **Remote**: Enhanced remote terminal capabilities for seamless work across machines.
 
-Dora is an open-source, AI-integrated terminal for macOS, Linux, and Windows. It works with any AI model. Bring your own API keys for OpenAI, Claude, or Gemini, or run local models via Ollama and LM Studio. No accounts required.
+These changes reflect our opinionated view that a terminal should excel at being a terminal, while remaining open to integration with other tools through the existing extension mechanisms inherited from WaveTerm.
 
-Dora also supports durable SSH sessions that survive network interruptions and restarts, with automatic reconnection. Edit remote files with a built-in graphical editor and preview files inline without leaving the terminal.
+## Acknowledgments
 
-![WaveTerm Screenshot](./assets/dora-screenshot.webp)
+WaveTerm was created and is maintained by Command Line Inc., with contributions from the open-source community. DoraTerm would not exist without their work. We thank them for building and open-sourcing WaveTerm under the Apache 2.0 license.
 
-## Key Features
-
-- Dora AI - Context-aware terminal assistant that reads your terminal output, analyzes widgets, and performs file operations
-- Durable SSH Sessions - Remote terminal sessions survive connection interruptions, network changes, and Dora restarts with automatic reconnection
-- Flexible drag & drop interface to organize terminal blocks, editors, web browsers, and AI assistants
-- Built-in editor for editing remote files with syntax highlighting and modern editor features
-- Rich file preview system for remote files (markdown, images, video, PDFs, CSVs, directories)
-- Quick full-screen toggle for any block - expand terminals, editors, and previews for better visibility, then instantly return to multi-block view
-- AI chat widget with support for multiple models (OpenAI, Claude, Azure, Perplexity, Ollama)
-- Command Blocks for isolating and monitoring individual commands
-- One-click remote connections with full terminal and file system access
-- Secure secret storage using native system backends - store API keys and credentials locally, access them across SSH sessions
-- Rich customization including tab themes, terminal styles, and background images
-- Powerful `wsh` command system for managing your workspace from the CLI and sharing data between terminal sessions
-- Connected file management with `wsh file` - seamlessly copy and sync files between local and remote SSH hosts
-
-## Dora AI
-
-Dora AI is your context-aware terminal assistant with access to your workspace:
-
-- **Terminal Context**: Reads terminal output and scrollback for debugging and analysis
-- **File Operations**: Read, write, and edit files with automatic backups and user approval
-- **CLI Integration**: Use `wsh ai` to pipe output or attach files directly from the command line
-- **BYOK Support**: Bring your own API keys for OpenAI, Claude, Gemini, Azure, and other providers
-- **Local Models**: Run local models with Ollama, LM Studio, and other OpenAI-compatible providers
-- **Free Beta**: Included AI credits while we refine the experience
-- **Coming Soon**: Command execution (with approval)
-
-Learn more in our [Dora AI documentation](https://docs.doraterm.dev/waveai) and [Dora AI Modes documentation](https://docs.doraterm.dev/waveai-modes).
-
-## Installation
-
-Dora Terminal works on macOS, Linux, and Windows.
-
-Platform-specific installation instructions can be found [here](https://docs.doraterm.dev/gettingstarted).
-
-You can also install Dora Terminal directly from: [www.doraterm.dev/download](https://www.doraterm.dev/download).
-
-### Minimum requirements
-
-Dora Terminal runs on the following platforms:
-
-- macOS 11 or later (arm64, x64)
-- Windows 10 1809 or later (x64)
-- Linux based on glibc-2.28 or later (Debian 10, RHEL 8, Ubuntu 20.04, etc.) (arm64, x64)
-
-The WSH helper runs on the following platforms:
-
-- macOS 11 or later (arm64, x64)
-- Windows 10 or later (x64)
-- Linux Kernel 2.6.32 or later (x64), Linux Kernel 3.1 or later (arm64)
-
-## Roadmap
-
-Dora is constantly improving! Our roadmap will be continuously updated with our goals for each release. You can find it [here](./ROADMAP.md).
-
-Want to provide input to our future releases? Connect with us on [Discord](https://discord.gg/XfvZ334gwU) or open a [Feature Request](https://github.com/doratermdev/doraterm/issues/new/choose)!
-
-## Links
-
-- Homepage &mdash; https://www.doraterm.dev
-- Download Page &mdash; https://www.doraterm.dev/download
-- Documentation &mdash; https://docs.doraterm.dev
-- X &mdash; https://x.com/doratermdev
-- Discord Community &mdash; https://discord.gg/XfvZ334gwU
-
-## Building from Source
-
-See [Building Dora Terminal](BUILD.md).
-
-## Contributing
-
-Dora uses GitHub Issues for issue tracking.
-
-Find more information in our [Contributions Guide](CONTRIBUTING.md), which includes:
-
-- [Ways to contribute](CONTRIBUTING.md#contributing-to-dora-terminal)
-- [Contribution guidelines](CONTRIBUTING.md#before-you-start)
-
-### Sponsoring Dora ❤️
-
-If Dora Terminal is useful to you or your company, consider sponsoring development.
-
-Sponsorship helps support the time spent building and maintaining the project.
-
-- https://github.com/sponsors/doratermdev
+For the original project, visit [github.com/wavetermdev/waveterm](https://github.com/wavetermdev/waveterm).
 
 ## License
 
-Dora Terminal is licensed under the Apache-2.0 License. For more information on our dependencies, see [here](./ACKNOWLEDGEMENTS.md).
+DoraTerm is licensed under the Apache License, Version 2.0, as is the original WaveTerm. See [LICENSE](./LICENSE) for the full license text.
+
+Copyright notices for the original WaveTerm codebase are retained in [NOTICE](./NOTICE).
