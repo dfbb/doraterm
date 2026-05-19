@@ -9,26 +9,5 @@
                 "controller": "shell"
             }
         }
-    },
-    "defwidget@files": {
-        "display:order": -4,
-        "icon": "folder",
-        "label": "files",
-        "blockdef": {
-            "meta": {
-                "view": "preview",
-                "file": "~"
-            }
-        }
-    },
-    "defwidget@processviewer": {
-        "display:order": -1,
-        "icon": "list-tree",
-        "label": "processes",
-        "blockdef": {
-            "meta": {
-                "view": "processviewer"
-            }
-        }
     }
 }

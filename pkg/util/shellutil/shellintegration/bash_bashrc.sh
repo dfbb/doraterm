@@ -55,12 +55,12 @@ fi
 
 _DORATERM_SI_FIRSTPROMPT=1
 
-# Wave Terminal Shell Integration
-_waveterm_si_blocked() {
+# Dora Terminal Shell Integration
+_doraterm_si_blocked() {
     [[ -n "$TMUX" || -n "$STY" || "$TERM" == tmux* || "$TERM" == screen* ]]
 }
 
-_waveterm_si_urlencode() {
+_doraterm_si_urlencode() {
     local s="$1"
     s="${s//%/%25}"
     s="${s// /%20}"
@@ -72,31 +72,31 @@ _waveterm_si_urlencode() {
     printf '%s' "$s"
 }
 
-_waveterm_si_osc7() {
-    _waveterm_si_blocked && return
-    local encoded_pwd=$(_waveterm_si_urlencode "$PWD")
+_doraterm_si_osc7() {
+    _doraterm_si_blocked && return
+    local encoded_pwd=$(_doraterm_si_urlencode "$PWD")
     printf '\033]7;file://localhost%s\007' "$encoded_pwd"
 }
 
-_waveterm_si_precmd() {
-    local _waveterm_si_status=$?
-    _waveterm_si_blocked && return
+_doraterm_si_precmd() {
+    local _doraterm_si_status=$?
+    _doraterm_si_blocked && return
     
     if [ "$_DORATERM_SI_FIRSTPROMPT" -eq 1 ]; then
         local uname_info
         uname_info=$(uname -smr 2>/dev/null)
         printf '\033]16162;M;{"shell":"bash","shellversion":"%s","uname":"%s","integration":true}\007' "$BASH_VERSION" "$uname_info"
     else
-        printf '\033]16162;D;{"exitcode":%d}\007' "$_waveterm_si_status"
+        printf '\033]16162;D;{"exitcode":%d}\007' "$_doraterm_si_status"
     fi
     # OSC 7 sent on every prompt - bash has no chpwd hook for directory changes
-    _waveterm_si_osc7
+    _doraterm_si_osc7
     printf '\033]16162;A\007'
     _DORATERM_SI_FIRSTPROMPT=0
 }
 
-_waveterm_si_preexec() {
-    _waveterm_si_blocked && return
+_doraterm_si_preexec() {
+    _doraterm_si_blocked && return
     
     local cmd="$1"
     local cmd_length=${#cmd}
@@ -113,5 +113,5 @@ _waveterm_si_preexec() {
 }
 
 # Add our functions to the bash-preexec arrays
-precmd_functions+=(_waveterm_si_precmd)
-preexec_functions+=(_waveterm_si_preexec)
+precmd_functions+=(_doraterm_si_precmd)
+preexec_functions+=(_doraterm_si_preexec)

@@ -19,7 +19,7 @@ import (
 	dbfs "github.com/dfbb/doraterm/db"
 )
 
-const WStoreDBName = "waveterm.db"
+const WStoreDBName = "doraterm.db"
 
 type TxWrap = txwrap.TxWrap
 

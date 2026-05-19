@@ -225,7 +225,7 @@ func WaveshellLocalEnvVars(termType string) map[string]string {
 	if os.Getenv("COLORTERM") == "" {
 		rtn["COLORTERM"] = "truecolor"
 	}
-	rtn["WAVETERM"], _ = os.Executable()
+	rtn["DORATERM"], _ = os.Executable()
 	rtn["DORATERM_VERSION"] = dorabase.DoraVersion
 	rtn["DORATERM_DSHBINDIR"] = filepath.Join(dorabase.GetDoraDataDir(), DoraHomeBinDir)
 	return rtn
@@ -346,9 +346,9 @@ func GetLocalDshBinaryPath(version string, goos string, goarch string) (string, 
 		ext = ".exe"
 	}
 	if !dorabase.SupportedDshBinaries[fmt.Sprintf("%s-%s", goos, goarch)] {
-		return "", fmt.Errorf("unsupported wsh platform: %s-%s", goos, goarch)
+		return "", fmt.Errorf("unsupported dsh platform: %s-%s", goos, goarch)
 	}
-	baseName := fmt.Sprintf("wsh-%s-%s.%s%s", version, goos, goarch, ext)
+	baseName := fmt.Sprintf("dsh-%s-%s.%s%s", version, goos, goarch, ext)
 	return filepath.Join(dorabase.GetDoraAppBinPath(), baseName), nil
 }
 
@@ -427,7 +427,7 @@ func InitRcFiles(waveHome string, absDshBinDir string) error {
 }
 
 func initCustomShellStartupFilesInternal() error {
-	log.Printf("initializing wsh and shell startup files\n")
+	log.Printf("initializing dsh and shell startup files\n")
 	waveDataHome := dorabase.GetDoraDataDir()
 	binDir := filepath.Join(waveDataHome, DoraHomeBinDir)
 	err := InitRcFiles(waveDataHome, binDir)
@@ -443,10 +443,10 @@ func initCustomShellStartupFilesInternal() error {
 	// copy the correct binary to bin
 	wshFullPath, err := GetLocalDshBinaryPath(dorabase.DoraVersion, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
-		log.Printf("error (non-fatal), could not resolve wsh binary path: %v\n", err)
+		log.Printf("error (non-fatal), could not resolve dsh binary path: %v\n", err)
 	}
 	if _, err := os.Stat(wshFullPath); err != nil {
-		log.Printf("error (non-fatal), could not resolve wsh binary %q: %v\n", wshFullPath, err)
+		log.Printf("error (non-fatal), could not resolve dsh binary %q: %v\n", wshFullPath, err)
 		return nil
 	}
 	wshDstPath := filepath.Join(binDir, "dsh")

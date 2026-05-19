@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	IssuerDoraTerm = "waveterm"
+	IssuerDoraTerm = "doraterm"
 )
 
 var (

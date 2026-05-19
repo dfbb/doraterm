@@ -46,10 +46,6 @@ export class ClientServiceType {
         this.doraEnv = doraEnv;
     }
 
-    // @returns object updates
-    AgreeTos(): Promise<void> {
-        return callBackendService(this?.doraEnv, "client", "AgreeTos", Array.from(arguments))
-    }
     FocusWindow(arg2: string): Promise<void> {
         return callBackendService(this?.doraEnv, "client", "FocusWindow", Array.from(arguments))
     }

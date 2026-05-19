@@ -43,7 +43,6 @@ const (
 const (
 	BlockFile_Term  = "term"            // used for main pty output
 	BlockFile_Cache = "cache:term:full" // for cached block
-	BlockFile_VDom  = "vdom"            // used for alt html layout
 	BlockFile_Env   = "env"
 )
 
@@ -63,8 +62,8 @@ const DoraDBDir = "db"
 const ConfigDir = "config"
 const RemoteDoraHomeDirName = ".doraterm"
 const RemoteDshBinDirName = "bin"
-const RemoteFullDshBinPath = "~/.waveterm/bin/wsh"
-const RemoteFullDomainSocketPath = "~/.waveterm/wave-remote.sock"
+const RemoteFullDshBinPath = "~/.doraterm/bin/dsh"
+const RemoteFullDomainSocketPath = "~/.doraterm/dora-remote.sock"
 
 const AppPathBinDir = "bin"
 
@@ -186,7 +185,7 @@ func GetDomainSocketName() string {
 // returns a Unix-style path for the remote socket (using fmt.Sprintf instead of filepath.Join
 // because this path is for a remote Unix system, not the local OS which might be Windows)
 func GetPersistentRemoteSockName(clientId string) string {
-	return fmt.Sprintf("~/.waveterm/client/%s/doraterm.sock", clientId)
+	return fmt.Sprintf("~/.doraterm/client/%s/doraterm.sock", clientId)
 }
 
 func EnsureDoraDataDir() error {

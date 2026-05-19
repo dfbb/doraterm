@@ -6,7 +6,6 @@ import { globalStore } from "@/app/store/jotaiStore";
 import type { TabModel } from "@/app/store/tab-model";
 import { makeORef } from "@/app/store/wos";
 import { TabRpcClient } from "@/app/store/dshrpcutil";
-import { SecretsContent } from "@/app/view/doraconfig/secretscontent";
 import { DoraConfigView } from "@/app/view/doraconfig/doraconfig";
 import type { DoraConfigEnv } from "@/app/view/doraconfig/doraconfigenv";
 import { base64ToString, stringToBase64 } from "@/util/util";
@@ -25,14 +24,9 @@ export type ConfigFile = {
     description?: string;
     docsUrl?: string;
     validator?: ConfigValidator;
-    isSecrets?: boolean;
     hasJsonView?: boolean;
     visualComponent?: React.ComponentType<{ model: DoraConfigViewModel }>;
 };
-
-export const SecretNameRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
-
-
 
 function makeConfigFiles(isWindows: boolean): ConfigFile[] {
     return [
@@ -40,29 +34,22 @@ function makeConfigFiles(isWindows: boolean): ConfigFile[] {
             name: "General",
             path: "settings.json",
             language: "json",
-            docsUrl: "https://docs.waveterm.dev/config",
+            docsUrl: "https://docs.doraterm.dev/config",
             hasJsonView: true,
         },
         {
             name: "Sidebar Widgets",
             path: "widgets.json",
             language: "json",
-            docsUrl: "https://docs.waveterm.dev/customwidgets",
+            docsUrl: "https://docs.doraterm.dev/customwidgets",
             hasJsonView: true,
         },
         {
             name: "Tab Backgrounds",
             path: "backgrounds.json",
             language: "json",
-            docsUrl: "https://docs.waveterm.dev/tab-backgrounds",
+            docsUrl: "https://docs.doraterm.dev/tab-backgrounds",
             hasJsonView: true,
-        },
-        {
-            name: "Secrets",
-            path: "secrets",
-            isSecrets: true,
-            hasJsonView: false,
-            visualComponent: SecretsContent,
         },
     ];
 }
@@ -104,15 +91,6 @@ export class DoraConfigViewModel implements ViewModel {
     saveShortcut: string;
     editorRef: React.RefObject<MonacoTypes.editor.IStandaloneCodeEditor>;
 
-    secretNamesAtom: PrimitiveAtom<string[]>;
-    selectedSecretAtom: PrimitiveAtom<string | null>;
-    secretValueAtom: PrimitiveAtom<string>;
-    secretShownAtom: PrimitiveAtom<boolean>;
-    isAddingNewAtom: PrimitiveAtom<boolean>;
-    newSecretNameAtom: PrimitiveAtom<string>;
-    newSecretValueAtom: PrimitiveAtom<string>;
-    storageBackendErrorAtom: PrimitiveAtom<string | null>;
-    secretValueRef: HTMLTextAreaElement | null = null;
 
     constructor({ blockId, nodeModel, tabModel, waveEnv }: ViewModelInitType) {
         this.blockId = blockId;
@@ -143,15 +121,6 @@ export class DoraConfigViewModel implements ViewModel {
             return errorSet;
         });
         this.editorRef = React.createRef();
-
-        this.secretNamesAtom = atom<string[]>([]);
-        this.selectedSecretAtom = atom<string | null>(null) as PrimitiveAtom<string | null>;
-        this.secretValueAtom = atom<string>("");
-        this.secretShownAtom = atom<boolean>(false);
-        this.isAddingNewAtom = atom<boolean>(false);
-        this.newSecretNameAtom = atom<string>("");
-        this.newSecretValueAtom = atom<string>("");
-        this.storageBackendErrorAtom = atom<string | null>(null) as PrimitiveAtom<string | null>;
 
         this.checkPresetsJsonExists();
         this.initialize();
@@ -238,18 +207,6 @@ export class DoraConfigViewModel implements ViewModel {
         globalStore.set(this.isLoadingAtom, true);
         globalStore.set(this.errorMessageAtom, null);
         globalStore.set(this.hasEditedAtom, false);
-
-        if (file.isSecrets) {
-            globalStore.set(this.selectedFileAtom, file);
-            this.env.rpc.SetMetaCommand(TabRpcClient, {
-                oref: makeORef("block", this.blockId),
-                meta: { file: file.path },
-            });
-            globalStore.set(this.isLoadingAtom, false);
-            this.checkStorageBackend();
-            this.refreshSecrets();
-            return;
-        }
 
         try {
             const fullPath = `${this.configDir}/${file.path}`;
@@ -360,175 +317,7 @@ export class DoraConfigViewModel implements ViewModel {
         globalStore.set(this.validationErrorAtom, null);
     }
 
-    async checkStorageBackend() {
-        try {
-            const backend = await this.env.rpc.GetSecretsLinuxStorageBackendCommand(TabRpcClient);
-            if (backend === "basic_text" || backend === "unknown") {
-                globalStore.set(
-                    this.storageBackendErrorAtom,
-                    "No appropriate secret manager found. Cannot manage secrets securely."
-                );
-            } else {
-                globalStore.set(this.storageBackendErrorAtom, null);
-            }
-        } catch (error) {
-            globalStore.set(this.storageBackendErrorAtom, `Error checking storage backend: ${error.message}`);
-        }
-    }
-
-    async refreshSecrets() {
-        globalStore.set(this.isLoadingAtom, true);
-        globalStore.set(this.errorMessageAtom, null);
-
-        try {
-            const names = await this.env.rpc.GetSecretsNamesCommand(TabRpcClient);
-            globalStore.set(this.secretNamesAtom, names || []);
-        } catch (error) {
-            globalStore.set(this.errorMessageAtom, `Failed to load secrets: ${error.message}`);
-        } finally {
-            globalStore.set(this.isLoadingAtom, false);
-        }
-    }
-
-    async viewSecret(name: string) {
-        globalStore.set(this.errorMessageAtom, null);
-        globalStore.set(this.selectedSecretAtom, name);
-        globalStore.set(this.secretShownAtom, false);
-        globalStore.set(this.secretValueAtom, "");
-    }
-
-    closeSecretView() {
-        globalStore.set(this.selectedSecretAtom, null);
-        globalStore.set(this.secretValueAtom, "");
-        globalStore.set(this.errorMessageAtom, null);
-    }
-
-    async showSecret() {
-        const selectedSecret = globalStore.get(this.selectedSecretAtom);
-        if (!selectedSecret) {
-            return;
-        }
-
-        globalStore.set(this.isLoadingAtom, true);
-        globalStore.set(this.errorMessageAtom, null);
-
-        try {
-            const secrets = await this.env.rpc.GetSecretsCommand(TabRpcClient, [selectedSecret]);
-            const value = secrets[selectedSecret];
-            if (value !== undefined) {
-                globalStore.set(this.secretValueAtom, value);
-                globalStore.set(this.secretShownAtom, true);
-            } else {
-                globalStore.set(this.errorMessageAtom, `Secret not found: ${selectedSecret}`);
-            }
-        } catch (error) {
-            globalStore.set(this.errorMessageAtom, `Failed to load secret: ${error.message}`);
-        } finally {
-            globalStore.set(this.isLoadingAtom, false);
-        }
-    }
-
-    async saveSecret() {
-        const selectedSecret = globalStore.get(this.selectedSecretAtom);
-        const secretValue = globalStore.get(this.secretValueAtom);
-
-        if (!selectedSecret) {
-            return;
-        }
-
-        globalStore.set(this.isLoadingAtom, true);
-        globalStore.set(this.errorMessageAtom, null);
-
-        try {
-            await this.env.rpc.SetSecretsCommand(TabRpcClient, { [selectedSecret]: secretValue });
-            this.closeSecretView();
-        } catch (error) {
-            globalStore.set(this.errorMessageAtom, `Failed to save secret: ${error.message}`);
-        } finally {
-            globalStore.set(this.isLoadingAtom, false);
-        }
-    }
-
-    async deleteSecret() {
-        const selectedSecret = globalStore.get(this.selectedSecretAtom);
-
-        if (!selectedSecret) {
-            return;
-        }
-
-        globalStore.set(this.isLoadingAtom, true);
-        globalStore.set(this.errorMessageAtom, null);
-
-        try {
-            await this.env.rpc.SetSecretsCommand(TabRpcClient, { [selectedSecret]: null });
-            this.closeSecretView();
-            await this.refreshSecrets();
-        } catch (error) {
-            globalStore.set(this.errorMessageAtom, `Failed to delete secret: ${error.message}`);
-        } finally {
-            globalStore.set(this.isLoadingAtom, false);
-        }
-    }
-
-    startAddingSecret() {
-        globalStore.set(this.isAddingNewAtom, true);
-        globalStore.set(this.newSecretNameAtom, "");
-        globalStore.set(this.newSecretValueAtom, "");
-        globalStore.set(this.errorMessageAtom, null);
-    }
-
-    cancelAddingSecret() {
-        globalStore.set(this.isAddingNewAtom, false);
-        globalStore.set(this.newSecretNameAtom, "");
-        globalStore.set(this.newSecretValueAtom, "");
-        globalStore.set(this.errorMessageAtom, null);
-    }
-
-    async addNewSecret() {
-        const name = globalStore.get(this.newSecretNameAtom).trim();
-        const value = globalStore.get(this.newSecretValueAtom);
-
-        if (!name) {
-            globalStore.set(this.errorMessageAtom, "Secret name cannot be empty");
-            return;
-        }
-
-        if (!SecretNameRegex.test(name)) {
-            globalStore.set(
-                this.errorMessageAtom,
-                "Invalid secret name: must start with a letter and contain only letters, numbers, and underscores"
-            );
-            return;
-        }
-
-        const existingNames = globalStore.get(this.secretNamesAtom);
-        if (existingNames.includes(name)) {
-            globalStore.set(this.errorMessageAtom, `Secret "${name}" already exists`);
-            return;
-        }
-
-        globalStore.set(this.isLoadingAtom, true);
-        globalStore.set(this.errorMessageAtom, null);
-
-        try {
-            await this.env.rpc.SetSecretsCommand(TabRpcClient, { [name]: value });
-            globalStore.set(this.isAddingNewAtom, false);
-            globalStore.set(this.newSecretNameAtom, "");
-            globalStore.set(this.newSecretValueAtom, "");
-            await this.refreshSecrets();
-        } catch (error) {
-            globalStore.set(this.errorMessageAtom, `Failed to add secret: ${error.message}`);
-        } finally {
-            globalStore.set(this.isLoadingAtom, false);
-        }
-    }
-
     giveFocus(): boolean {
-        const selectedFile = globalStore.get(this.selectedFileAtom);
-        if (selectedFile?.isSecrets && this.secretValueRef) {
-            this.secretValueRef.focus();
-            return true;
-        }
         if (this.editorRef?.current) {
             this.editorRef.current.focus();
             return true;

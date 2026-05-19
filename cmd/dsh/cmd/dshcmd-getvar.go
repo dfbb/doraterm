@@ -16,7 +16,7 @@ var getVarCmd = &cobra.Command{
 	Short: "get variable(s) from a block",
 	Long: `Get variable(s) from a block. Without --all, requires a key argument.
 With --all, prints all variables. Use -0 for null-terminated output.`,
-	Example: "  wsh getvar FOO\n  wsh getvar --all\n  wsh getvar --all -0",
+	Example: "  dsh getvar FOO\n  dsh getvar --all\n  dsh getvar --all -0",
 	RunE:    getVarRun,
 	PreRunE: preRunSetupRpcClient,
 }

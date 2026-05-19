@@ -40,23 +40,6 @@ func GetStarterLayout() PortableLayout {
 				doraobj.MetaKey_Controller: "shell",
 			},
 		}, Focused: true},
-		{IndexArr: []int{1}, BlockDef: &doraobj.BlockDef{
-			Meta: doraobj.MetaMapType{
-				doraobj.MetaKey_View: "sysinfo",
-			},
-		}},
-		{IndexArr: []int{1, 1}, BlockDef: &doraobj.BlockDef{
-			Meta: doraobj.MetaMapType{
-				doraobj.MetaKey_View: "web",
-				doraobj.MetaKey_Url:  "https://github.com/dfbb/doraterm",
-			},
-		}},
-		{IndexArr: []int{1, 2}, BlockDef: &doraobj.BlockDef{
-			Meta: doraobj.MetaMapType{
-				doraobj.MetaKey_View: "preview",
-				doraobj.MetaKey_File: "~",
-			},
-		}},
 	}
 }
 

@@ -342,24 +342,6 @@ export class RpcApiType {
         return client.wshRpcCall("getrtinfo", data, opts);
     }
 
-    // command "getsecrets" [call]
-    GetSecretsCommand(client: DshClient, data: string[], opts?: RpcOpts): Promise<{[key: string]: string}> {
-        if (this.mockClient) return this.mockClient.mockDshRpcCall(client, "getsecrets", data, opts);
-        return client.wshRpcCall("getsecrets", data, opts);
-    }
-
-    // command "getsecretslinuxstoragebackend" [call]
-    GetSecretsLinuxStorageBackendCommand(client: DshClient, opts?: RpcOpts): Promise<string> {
-        if (this.mockClient) return this.mockClient.mockDshRpcCall(client, "getsecretslinuxstoragebackend", null, opts);
-        return client.wshRpcCall("getsecretslinuxstoragebackend", null, opts);
-    }
-
-    // command "getsecretsnames" [call]
-    GetSecretsNamesCommand(client: DshClient, opts?: RpcOpts): Promise<string[]> {
-        if (this.mockClient) return this.mockClient.mockDshRpcCall(client, "getsecretsnames", null, opts);
-        return client.wshRpcCall("getsecretsnames", null, opts);
-    }
-
     // command "gettab" [call]
     GetTabCommand(client: DshClient, data: string, opts?: RpcOpts): Promise<Tab> {
         if (this.mockClient) return this.mockClient.mockDshRpcCall(client, "gettab", data, opts);
@@ -670,12 +652,6 @@ export class RpcApiType {
     SetRTInfoCommand(client: DshClient, data: CommandSetRTInfoData, opts?: RpcOpts): Promise<void> {
         if (this.mockClient) return this.mockClient.mockDshRpcCall(client, "setrtinfo", data, opts);
         return client.wshRpcCall("setrtinfo", data, opts);
-    }
-
-    // command "setsecrets" [call]
-    SetSecretsCommand(client: DshClient, data: {[key: string]: string}, opts?: RpcOpts): Promise<void> {
-        if (this.mockClient) return this.mockClient.mockDshRpcCall(client, "setsecrets", data, opts);
-        return client.wshRpcCall("setsecrets", data, opts);
     }
 
     // command "setvar" [call]

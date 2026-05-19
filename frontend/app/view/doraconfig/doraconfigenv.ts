@@ -13,10 +13,6 @@ export type DoraConfigEnv = DoraEnvSubset<{
         FileReadCommand: DoraEnv["rpc"]["FileReadCommand"];
         FileWriteCommand: DoraEnv["rpc"]["FileWriteCommand"];
         SetMetaCommand: DoraEnv["rpc"]["SetMetaCommand"];
-        GetSecretsLinuxStorageBackendCommand: DoraEnv["rpc"]["GetSecretsLinuxStorageBackendCommand"];
-        GetSecretsNamesCommand: DoraEnv["rpc"]["GetSecretsNamesCommand"];
-        GetSecretsCommand: DoraEnv["rpc"]["GetSecretsCommand"];
-        SetSecretsCommand: DoraEnv["rpc"]["SetSecretsCommand"];
     };
     atoms: {
         fullConfigAtom: DoraEnv["atoms"]["fullConfigAtom"];

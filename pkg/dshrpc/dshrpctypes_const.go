@@ -1,7 +1,7 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// types and methods for wsh rpc calls
+// types and methods for dsh rpc calls
 package dshrpc
 
 const (

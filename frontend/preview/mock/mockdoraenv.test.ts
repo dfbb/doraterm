@@ -56,16 +56,16 @@ describe("makeMockDoraEnv", () => {
         expect(allHomeEntries.some((entry) => entry.name === ".bashrc")).toBe(true);
 
         const dirRead = await env.rpc.FileReadCommand(null as any, {
-            info: { path: "/Users/mike/waveterm" },
+            info: { path: "/Users/mike/doraterm" },
         });
         expect(dirRead.entries.some((entry) => entry.name === "docs" && entry.isdir)).toBe(true);
 
         const joined = await env.rpc.FileJoinCommand(null as any, [
             "dsh://local//Users/mike/Documents",
-            "../waveterm/docs",
+            "../doraterm/docs",
             "preview-notes.md",
         ]);
-        expect(joined.path).toBe("/Users/mike/waveterm/docs/preview-notes.md");
+        expect(joined.path).toBe("/Users/mike/doraterm/docs/preview-notes.md");
         expect(joined.mimetype).toBe("text/markdown");
     });
 

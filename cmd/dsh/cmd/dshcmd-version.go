@@ -20,7 +20,7 @@ var versionJSON bool
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version [-v] [--json]",
-	Short: "Print the version number of wsh",
+	Short: "Print the version number of dsh",
 	RunE:  runVersionCmd,
 }
 

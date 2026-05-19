@@ -21,7 +21,7 @@ var setVarCmd = &cobra.Command{
 Use --remove/-r to remove variables instead of setting them.
 When setting, each argument must be in KEY=VALUE format.
 When removing, each argument is treated as a key to remove.`,
-	Example: "  wsh setvar FOO=bar BAZ=123\n  wsh setvar -r FOO BAZ",
+	Example: "  dsh setvar FOO=bar BAZ=123\n  dsh setvar -r FOO BAZ",
 	Args:    cobra.MinimumNArgs(1),
 	RunE:    setVarRun,
 	PreRunE: preRunSetupRpcClient,

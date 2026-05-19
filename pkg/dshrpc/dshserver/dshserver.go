@@ -3,7 +3,7 @@
 
 package dshserver
 
-// this file contains the implementation of the wsh server methods
+// this file contains the implementation of the dsh server methods
 
 import (
 	"context"
@@ -27,7 +27,6 @@ import (
 	"github.com/dfbb/doraterm/pkg/jobcontroller"
 	"github.com/dfbb/doraterm/pkg/panichandler"
 	"github.com/dfbb/doraterm/pkg/remote/fileshare/dshfs"
-	"github.com/dfbb/doraterm/pkg/secretstore"
 	"github.com/dfbb/doraterm/pkg/util/envutil"
 	"github.com/dfbb/doraterm/pkg/dorabase"
 	"github.com/dfbb/doraterm/pkg/dorajwt"
@@ -412,7 +411,7 @@ func (ws *DshServer) WriteTempFileCommand(ctx context.Context, data dshrpc.Comma
 	if name == "" || name == "." || name == ".." {
 		return "", fmt.Errorf("invalid filename")
 	}
-	tempDir, err := os.MkdirTemp("", "waveterm-")
+	tempDir, err := os.MkdirTemp("", "doraterm-")
 	if err != nil {
 		return "", fmt.Errorf("error creating temp directory: %w", err)
 	}
@@ -835,52 +834,6 @@ func (ws *DshServer) GetAllBadgesCommand(ctx context.Context) ([]baseds.BadgeEve
 	return dcore.GetAllBadges(), nil
 }
 
-func (ws *DshServer) GetSecretsCommand(ctx context.Context, names []string) (map[string]string, error) {
-	result := make(map[string]string)
-	for _, name := range names {
-		value, exists, err := secretstore.GetSecret(name)
-		if err != nil {
-			return nil, fmt.Errorf("error getting secret %q: %w", name, err)
-		}
-		if exists {
-			result[name] = value
-		}
-	}
-	return result, nil
-}
-
-func (ws *DshServer) GetSecretsNamesCommand(ctx context.Context) ([]string, error) {
-	names, err := secretstore.GetSecretNames()
-	if err != nil {
-		return nil, fmt.Errorf("error getting secret names: %w", err)
-	}
-	return names, nil
-}
-
-func (ws *DshServer) SetSecretsCommand(ctx context.Context, secrets map[string]*string) error {
-	for name, value := range secrets {
-		if value == nil {
-			err := secretstore.DeleteSecret(name)
-			if err != nil {
-				return fmt.Errorf("error deleting secret %q: %w", name, err)
-			}
-		} else {
-			err := secretstore.SetSecret(name, *value)
-			if err != nil {
-				return fmt.Errorf("error setting secret %q: %w", name, err)
-			}
-		}
-	}
-	return nil
-}
-
-func (ws *DshServer) GetSecretsLinuxStorageBackendCommand(ctx context.Context) (string, error) {
-	backend, err := secretstore.GetLinuxStorageBackend()
-	if err != nil {
-		return "", fmt.Errorf("error getting linux storage backend: %w", err)
-	}
-	return backend, nil
-}
 
 func (ws *DshServer) JobCmdExitedCommand(ctx context.Context, data dshrpc.CommandJobCmdExitedData) error {
 	return jobcontroller.HandleCmdJobExited(ctx, data.JobId, data)

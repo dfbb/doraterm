@@ -30,7 +30,7 @@ func SetClientId(clientId string) {
 }
 
 // in the main server, this will not return empty string
-// it does return empty in wsh, but all wstore methods are invalid in wsh mode, so that shouldn't be an issue
+// it does return empty in dsh, but all wstore methods are invalid in dsh mode, so that shouldn't be an issue
 func GetClientId() string {
 	clientIdLock.Lock()
 	defer clientIdLock.Unlock()
