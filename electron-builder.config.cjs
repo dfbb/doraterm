@@ -49,7 +49,7 @@ const config = {
             {
                 from: "./dist",
                 to: "./dist",
-                filter: ["bin/dorasrv.*", "!bin/dorasrv.*.exe", "bin/dsh*-darwin-*"],
+                filter: ["bin/dorasrv.${arch}", "bin/dsh*-darwin.${arch}*"],
             },
         ],
         target: [
@@ -108,7 +108,7 @@ const config = {
             {
                 from: "./dist",
                 to: "./dist",
-                filter: ["bin/dorasrv.${arch}.exe", "bin/dsh*.exe"],
+                filter: ["bin/dorasrv.${arch}.exe", "bin/dsh*-windows.${arch}*"],
             },
         ],
         target: ["nsis", "msi", "zip"],

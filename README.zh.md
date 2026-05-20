@@ -141,13 +141,50 @@ cloudflared tunnel --url http://127.0.0.1:31577
 
 #### 配置
 
-`dsh` 随每个 DoraTerm 安装包一起发布。GUI 在首次启动时会把 `dsh` 二进制装到系统 PATH。验证：
+`dsh` 随每个 DoraTerm 安装包一起发布。在 DoraTerm GUI 内的任意终端 block 里，`dsh` 已经在 PATH 中 — 试试 `dsh version`。要在 *外部* 终端（例如 SSH 会话）里使用 `dsh attach`，需要手动把它放到系统 PATH 上。
+
+**macOS：**
+
+```bash
+sudo ln -s "/Applications/Dora.app/Contents/Resources/app.asar.unpacked/dist/bin/dsh-*-darwin.$(uname -m | sed 's/x86_64/x64/')" /usr/local/bin/dsh
+```
+
+或者把 bin 目录加进 shell rc：
+
+```bash
+echo 'export PATH="/Applications/Dora.app/Contents/Resources/app.asar.unpacked/dist/bin:$PATH"' >> ~/.zshrc
+# 给带版本号的二进制起别名
+echo 'alias dsh="dsh-*-darwin.$(uname -m | sed s/x86_64/x64/)"' >> ~/.zshrc
+```
+
+最简单也最可移植的方式 — 直接复制对应平台的二进制：
+
+```bash
+sudo cp /Applications/Dora.app/Contents/Resources/app.asar.unpacked/dist/bin/dsh-*-darwin.arm64 /usr/local/bin/dsh   # Apple Silicon
+sudo cp /Applications/Dora.app/Contents/Resources/app.asar.unpacked/dist/bin/dsh-*-darwin.x64   /usr/local/bin/dsh   # Intel
+sudo chmod +x /usr/local/bin/dsh
+```
+
+**Linux：**
+
+```bash
+# 把路径换成 Dora 解压的实际位置（典型：/opt/Dora/resources/app.asar.unpacked/dist/bin 或 AppImage 解压目录）
+sudo cp /opt/Dora/resources/app.asar.unpacked/dist/bin/dsh-*-linux.x64 /usr/local/bin/dsh
+sudo chmod +x /usr/local/bin/dsh
+```
+
+**Windows（以管理员身份打开 PowerShell）：**
+
+```powershell
+# 把对应平台的二进制复制到已经在 PATH 上的目录
+Copy-Item "C:\Program Files\Dora\resources\app.asar.unpacked\dist\bin\dsh-*-windows.x64.exe" "C:\Windows\dsh.exe"
+```
+
+安装完成后验证：
 
 ```bash
 which dsh && dsh version
 ```
-
-如果找不到 `dsh`，打开 DoraTerm → `Cmd+Shift+P` → `Install dsh`（或重启 DoraTerm 触发自动安装）。
 
 #### 使用方法
 

@@ -141,13 +141,50 @@ This is the same mental model as `tmux attach` or `screen -r`, but for DoraTerm 
 
 #### Setup
 
-`dsh` ships with every DoraTerm install. The GUI installs the `dsh` binary into the system PATH on first launch. Verify:
+`dsh` ships with every DoraTerm install. Inside any terminal block in the DoraTerm GUI, `dsh` is already on the PATH — try `dsh version`. To use `dsh attach` from an *external* terminal (e.g. an SSH session), put it on the system PATH manually:
+
+**macOS:**
+
+```bash
+sudo ln -s "/Applications/Dora.app/Contents/Resources/app.asar.unpacked/dist/bin/dsh-*-darwin.$(uname -m | sed 's/x86_64/x64/')" /usr/local/bin/dsh
+```
+
+Or just add the bin directory to your shell rc:
+
+```bash
+echo 'export PATH="/Applications/Dora.app/Contents/Resources/app.asar.unpacked/dist/bin:$PATH"' >> ~/.zshrc
+# then alias the versioned binary
+echo 'alias dsh="dsh-*-darwin.$(uname -m | sed s/x86_64/x64/)"' >> ~/.zshrc
+```
+
+The simplest portable option — copy the right binary directly:
+
+```bash
+sudo cp /Applications/Dora.app/Contents/Resources/app.asar.unpacked/dist/bin/dsh-*-darwin.arm64 /usr/local/bin/dsh   # Apple Silicon
+sudo cp /Applications/Dora.app/Contents/Resources/app.asar.unpacked/dist/bin/dsh-*-darwin.x64   /usr/local/bin/dsh   # Intel
+sudo chmod +x /usr/local/bin/dsh
+```
+
+**Linux:**
+
+```bash
+# Replace path with wherever Dora unpacked (typical: /opt/Dora/resources/app.asar.unpacked/dist/bin or your AppImage extract dir)
+sudo cp /opt/Dora/resources/app.asar.unpacked/dist/bin/dsh-*-linux.x64 /usr/local/bin/dsh
+sudo chmod +x /usr/local/bin/dsh
+```
+
+**Windows (PowerShell as Administrator):**
+
+```powershell
+# Copy the matching binary into a directory already on PATH
+Copy-Item "C:\Program Files\Dora\resources\app.asar.unpacked\dist\bin\dsh-*-windows.x64.exe" "C:\Windows\dsh.exe"
+```
+
+Verify after installation:
 
 ```bash
 which dsh && dsh version
 ```
-
-If `dsh` isn't found, open DoraTerm → `Cmd+Shift+P` → `Install dsh` (or restart DoraTerm to trigger the auto-install).
 
 #### Usage
 
