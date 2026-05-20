@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import * as electron from "electron";
-import { getWebServerEndpoint, getWSServerEndpoint } from "../frontend/util/endpoints";
+import { getWebServerEndpoint } from "../frontend/util/endpoints";
 
 export const RemotePasswordHeader = "X-Remote-Password";
 
@@ -18,8 +18,12 @@ export function getRemotePassword(): string | null {
 
 export function configureRemotePasswordInjection(session: electron.Session): void {
     if (!injectedPassword) return;
+    // Chromium's webRequest API only supports http/https schemes in URL patterns.
+    // WebSocket upgrade requests start as HTTP requests, so the http(s) pattern
+    // catches them before the upgrade to ws/wss completes.
+    const endpoint = getWebServerEndpoint();
     const filter: electron.WebRequestFilter = {
-        urls: [`${getWebServerEndpoint()}/*`, `${getWSServerEndpoint()}/*`],
+        urls: [`${endpoint}/*`],
     };
     session.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
         details.requestHeaders[RemotePasswordHeader] = injectedPassword!;
