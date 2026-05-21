@@ -3,15 +3,15 @@
 
 import * as electron from "electron";
 import * as path from "node:path";
-import { getElectronAppBasePath, isDev, unamePlatform } from "./emain-platform";
+import { getElectronAppBasePath, unamePlatform } from "./emain-platform";
 
 function getRemoteLogoPath(filename: string): string {
-    // In dev mode Vite serves public/ directly from the project root.
-    // In production the renderer's public/ is built into dist/frontend/.
-    if (isDev) {
-        return path.join(getElectronAppBasePath(), "public", "logos", filename);
-    }
-    return path.join(getElectronAppBasePath(), "dist", "frontend", "logos", filename);
+    // getElectronAppBasePath() returns path.dirname(import.meta.dirname).
+    // import.meta.dirname is dist/main (dev) or app.asar/dist/main (prod),
+    // so basePath is dist/ or app.asar/dist/.
+    // Vite copies public/logos/ → dist/frontend/logos/ on every build,
+    // so "frontend/logos" works for both dev (after build) and production.
+    return path.join(getElectronAppBasePath(), "frontend", "logos", filename);
 }
 
 let remoteIcon: electron.NativeImage | null = null;
