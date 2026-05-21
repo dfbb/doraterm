@@ -18,6 +18,7 @@ import {
 } from "./emain-activity";
 import { log } from "./emain-log";
 import { getElectronAppBasePath, getRemoteState, isDev, unamePlatform } from "./emain-platform";
+import { applyRemoteWindowIcon } from "./emain-appicon";
 import { getOrCreateWebViewForTab, getDoraTabViewByWebContentsId, DoraTabView } from "./emain-tabview";
 import { delay, ensureBoundsAreVisible, doraKeyToElectronKey } from "./emain-util";
 import { ElectronDshClient } from "./emain-dsh";
@@ -223,6 +224,10 @@ export class DoraBrowserWindow extends BaseWindow {
 
         if (opts.unamePlatform === "win32") {
             this.setMenu(null);
+        }
+
+        if (remote.isRemote) {
+            applyRemoteWindowIcon(this);
         }
 
         const fullscreenOnLaunch = fullConfig?.settings["window:fullscreenonlaunch"];

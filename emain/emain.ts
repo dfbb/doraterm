@@ -29,6 +29,7 @@ import {
 import { initIpcHandlers } from "./emain-ipc";
 import { log } from "./emain-log";
 import { initMenuEventSubscriptions, makeAndSetAppMenu, makeDockTaskbar } from "./emain-menu";
+import { applyRemoteDockIcon } from "./emain-appicon";
 import {
     checkIfRunningUnderARM64Translation,
     getElectronAppBasePath,
@@ -341,6 +342,8 @@ async function appMain() {
     if (!remote.isRemote) {
         makeDockTaskbar();
         await configureAutoUpdater();
+    } else {
+        applyRemoteDockIcon();
     }
     setGlobalIsStarting(false);
     if (fullConfig?.settings?.["window:maxtabcachesize"] != null) {
