@@ -162,7 +162,7 @@ export class DoraBrowserWindow extends BaseWindow {
         const remote = getRemoteState();
         const winTitle =
             remote.isRemote && remote.target
-                ? `Dora — [remote: ${remote.target.host}:${remote.target.port}]`
+                ? `Dora — [remote: ${remote.target.displayHost}:${remote.target.port}]`
                 : "Dora";
         const winOpts: BaseWindowConstructorOptions = {
             x: winBounds.x,

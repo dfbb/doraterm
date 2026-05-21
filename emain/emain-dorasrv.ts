@@ -5,6 +5,7 @@ import * as electron from "electron";
 import * as child_process from "node:child_process";
 import * as readline from "readline";
 import { WebServerEndpointVarName, WSServerEndpointVarName } from "../frontend/util/endpoints";
+import { resolveTargetIP } from "./remotemode";
 import { AuthKey, DoraAuthKeyEnv } from "./authkey";
 import { setForceQuit, setUserConfirmedQuit } from "./emain-activity";
 import {
@@ -53,13 +54,19 @@ export function getIsDoraSrvDead(): boolean {
     return isDoraSrvDead;
 }
 
-export function runDoraSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promise<boolean> {
+export async function runDoraSrv(handleWSEvent: (evtMsg: WSEventType) => void): Promise<boolean> {
     const remote = getRemoteState();
     if (remote.isRemote && remote.target != null) {
+        const resolved = await resolveTargetIP(remote.target);
+        remote.target.host = resolved.host;
+        remote.target.baseUrl = resolved.baseUrl;
+        if (resolved.host !== resolved.displayHost) {
+            console.log(`[remote-mode] resolved ${resolved.displayHost} -> ${resolved.host}:${resolved.port}`);
+        }
         process.env[WSServerEndpointVarName] = remote.target.baseUrl;
         process.env[WebServerEndpointVarName] = remote.target.baseUrl;
         doraSrvReadyResolve(true);
-        return Promise.resolve(true);
+        return true;
     }
     let pResolve: (value: boolean) => void;
     let pReject: (reason?: any) => void;
