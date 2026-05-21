@@ -7,7 +7,7 @@ import { AllServiceTypes } from "@/app/store/services";
 import { handleDoraEvent } from "@/app/store/wps";
 import { RpcApiType } from "@/app/store/dshclientapi";
 import { DoraEnv } from "@/app/doraenv/doraenv";
-import { PlatformLinux, PlatformMacOS, PlatformWindows } from "@/util/platformutil";
+import { PlatformMacOS, PlatformWindows } from "@/util/platformutil";
 import { NullAtom } from "@/util/util";
 import { Atom, atom, PrimitiveAtom, useAtomValue } from "jotai";
 import { showPreviewContextMenu } from "../preview-contextmenu";
@@ -26,13 +26,8 @@ export const PreviewClientId = crypto.randomUUID();
 //   - rpc.EventPublishCommand           -- dispatches to handleDoraEvent(); works when the subscriber
 //                                          is purely FE-based (registered via WPS on the frontend)
 //   - rpc.GetMetaCommand                -- reads .meta from the mock WOS atom for the given oref
-//   - rpc.GetSecretsCommand             -- reads secrets from an in-memory mock secret store
-//   - rpc.GetSecretsLinuxStorageBackendCommand
-//                                        returns "libsecret" on Linux previews and "" elsewhere
-//   - rpc.GetSecretsNamesCommand        -- lists secret names from the in-memory mock secret store
 //   - rpc.SetMetaCommand                -- writes .meta to the mock WOS atom (null values delete keys)
 //   - rpc.SetConfigCommand              -- merges settings into fullConfigAtom (null values delete keys)
-//   - rpc.SetSecretsCommand             -- writes/deletes secrets in the in-memory mock secret store
 //   - rpc.UpdateTabNameCommand          -- updates .name on the Tab DoraObj in the mock WOS
 //   - rpc.UpdateWorkspaceTabIdsCommand  -- updates .tabids on the Workspace DoraObj in the mock WOS
 //
@@ -207,7 +202,6 @@ export function makeMockRpc(
 } {
     const callDispatchMap = new Map<string, (...args: any[]) => Promise<any>>();
     const streamDispatchMap = new Map<string, (...args: any[]) => AsyncGenerator<any, void, boolean>>();
-    const secrets = new Map<string, string>();
     const setCallHandler = (command: string, fn: (...args: any[]) => Promise<any>) => {
         callDispatchMap.set(command, fn);
     };
@@ -259,35 +253,6 @@ export function makeMockRpc(
             }
         }
         globalStore.set(wos.fullConfigAtom, { ...current, settings: updatedSettings as SettingsType });
-        return null;
-    });
-    setCallHandler("getsecretslinuxstoragebackend", async () => {
-        if (wos.platform !== PlatformLinux) {
-            return "";
-        }
-        return "libsecret";
-    });
-    setCallHandler("getsecretsnames", async () => {
-        return Array.from(secrets.keys()).sort();
-    });
-    setCallHandler("getsecrets", async (_client, data: string[]) => {
-        const foundSecrets: Record<string, string> = {};
-        for (const name of data ?? []) {
-            const value = secrets.get(name);
-            if (value != null) {
-                foundSecrets[name] = value;
-            }
-        }
-        return foundSecrets;
-    });
-    setCallHandler("setsecrets", async (_client, data: Record<string, string>) => {
-        for (const [name, value] of Object.entries(data ?? {})) {
-            if (value == null) {
-                secrets.delete(name);
-                continue;
-            }
-            secrets.set(name, value);
-        }
         return null;
     });
     setCallHandler("updateworkspacetabids", async (_client, data: { args: [string, string[]] }) => {

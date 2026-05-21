@@ -84,29 +84,4 @@ describe("makeMockDoraEnv", () => {
         expect(listPackets[0].fileinfo).toHaveLength(4);
     });
 
-    it("implements secrets commands with in-memory storage", async () => {
-        const { makeMockDoraEnv } = await import("./mockdoraenv");
-        const env = makeMockDoraEnv({ platform: "linux" });
-
-        await env.rpc.SetSecretsCommand(
-            null as any,
-            {
-                OPENAI_API_KEY: "sk-test",
-                ANTHROPIC_API_KEY: "anthropic-test",
-            } as any
-        );
-
-        expect(await env.rpc.GetSecretsLinuxStorageBackendCommand(null as any)).toBe("libsecret");
-        expect(await env.rpc.GetSecretsNamesCommand(null as any)).toEqual(["ANTHROPIC_API_KEY", "OPENAI_API_KEY"]);
-        expect(await env.rpc.GetSecretsCommand(null as any, ["OPENAI_API_KEY", "MISSING_SECRET"])).toEqual({
-            OPENAI_API_KEY: "sk-test",
-        });
-
-        await env.rpc.SetSecretsCommand(null as any, { OPENAI_API_KEY: null } as any);
-
-        expect(await env.rpc.GetSecretsNamesCommand(null as any)).toEqual(["ANTHROPIC_API_KEY"]);
-        expect(await env.rpc.GetSecretsCommand(null as any, ["OPENAI_API_KEY", "ANTHROPIC_API_KEY"])).toEqual({
-            ANTHROPIC_API_KEY: "anthropic-test",
-        });
-    });
 });
