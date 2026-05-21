@@ -7,7 +7,7 @@
     "productName": "Dora",
     "description": "Open-Source Terminal Built for Seamless Workflows",
     "license": "Apache-2.0",
-    "version": "0.17.0",
+    "version": "0.18.0",
     "homepage": "https://github.com/dfbb/doraterm",
     "build": {
         "appId": "dev.dfbb.doraterm"
