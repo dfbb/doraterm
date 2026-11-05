@@ -143,11 +143,11 @@ jobs:
               env:
                   USE_SYSTEM_FPM: true # Ensure that the installed version of FPM is used rather than the bundled one.
                   CSC_IDENTITY_AUTO_DISCOVERY: false # Disable code signing when secrets are not available
-                  CSC_LINK: ${{ matrix.platform == 'darwin' && secrets.PROD_MACOS_CERTIFICATE_2}}
-                  CSC_KEY_PASSWORD: ${{ matrix.platform == 'darwin' && secrets.PROD_MACOS_CERTIFICATE_PWD_2 }}
-                  APPLE_ID: ${{ matrix.platform == 'darwin' && secrets.PROD_MACOS_NOTARIZATION_APPLE_ID_2 }}
-                  APPLE_APP_SPECIFIC_PASSWORD: ${{ matrix.platform == 'darwin' && secrets.PROD_MACOS_NOTARIZATION_PWD_2 }}
-                  APPLE_TEAM_ID: ${{ matrix.platform == 'darwin' && secrets.PROD_MACOS_NOTARIZATION_TEAM_ID_2 }}
+                  CSC_LINK: ${{ secrets.PROD_MACOS_CERTIFICATE_2 || '' }}
+                  CSC_KEY_PASSWORD: ${{ secrets.PROD_MACOS_CERTIFICATE_PWD_2 || '' }}
+                  APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID_2 || '' }}
+                  APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD_2 || '' }}
+                  APPLE_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID_2 || '' }}
                   STATIC_DOCSITE_PATH: ${{env.STATIC_DOCSITE_PATH}}
             - name: Build (Windows)
               if: matrix.platform == 'windows'
