@@ -443,13 +443,13 @@ func initCustomShellStartupFilesInternal() error {
 	// copy the correct binary to bin
 	wshFullPath, err := GetLocalDshBinaryPath(dorabase.DoraVersion, runtime.GOOS, runtime.GOARCH)
 	if err != nil {
-		log.Printf("error (non-fatal), could not resolve dsh binary path: %v\n", err)
+		log.Printf("error (non-fatal), could not resolve dorash binary path: %v\n", err)
 	}
 	if _, err := os.Stat(wshFullPath); err != nil {
-		log.Printf("error (non-fatal), could not resolve dsh binary %q: %v\n", wshFullPath, err)
+		log.Printf("error (non-fatal), could not resolve dorash binary %q: %v\n", wshFullPath, err)
 		return nil
 	}
-	wshDstPath := filepath.Join(binDir, "dsh")
+	wshDstPath := filepath.Join(binDir, "dorash")
 	if runtime.GOOS == "windows" {
 		wshDstPath = wshDstPath + ".exe"
 	}
@@ -458,7 +458,7 @@ func initCustomShellStartupFilesInternal() error {
 		return fmt.Errorf("error copying wsh binary to bin: %v", err)
 	}
 	wshBaseName := filepath.Base(wshFullPath)
-	log.Printf("dsh binary successfully copied from %q to %q\n", wshBaseName, wshDstPath)
+	log.Printf("dorash binary successfully copied from %q to %q\n", wshBaseName, wshDstPath)
 	return nil
 }
 

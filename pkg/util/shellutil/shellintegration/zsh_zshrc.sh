@@ -1,7 +1,7 @@
-# add dsh to path, source dynamic script from dsh token
-DORATERM_DSHBINDIR={{.WSHBINDIR}}
-export PATH="$DORATERM_DSHBINDIR:$PATH"
-source <(dsh token "$DORATERM_SWAPTOKEN" zsh 2>/dev/null)
+# add dorash to path, source dynamic script from dorash token
+DORATERM_DORASHBINDIR={{.WSHBINDIR}}
+export PATH="$DORATERM_DORASHBINDIR:$PATH"
+source <(dorash token "$DORATERM_SWAPTOKEN" zsh 2>/dev/null)
 unset DORATERM_SWAPTOKEN
 
 # Source the original zshrc only if ZDOTDIR has not been changed
@@ -9,13 +9,13 @@ if [ "$ZDOTDIR" = "$DORATERM_ZDOTDIR" ]; then
   [ -f ~/.zshrc ] && source ~/.zshrc
 fi
 
-if [[ ":$PATH:" != *":$DORATERM_DSHBINDIR:"* ]]; then
-  export PATH="$DORATERM_DSHBINDIR:$PATH"
+if [[ ":$PATH:" != *":$DORATERM_DORASHBINDIR:"* ]]; then
+  export PATH="$DORATERM_DORASHBINDIR:$PATH"
 fi
-unset DORATERM_DSHBINDIR
+unset DORATERM_DORASHBINDIR
 
 if [[ -n ${_comps+x} ]]; then
-  source <(dsh completion zsh)
+  source <(dorash completion zsh)
 fi
 
 # fix history (macos)

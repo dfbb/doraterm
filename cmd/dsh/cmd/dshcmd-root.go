@@ -19,9 +19,9 @@ import (
 
 var (
 	rootCmd = &cobra.Command{
-		Use:          "dsh",
+		Use:          "dorash",
 		Short:        "CLI tool to control Dora Terminal",
-		Long:         `dsh is a small utility that lets you do cool things with Dora Terminal, right from the command line`,
+		Long:         `dorash is a small utility that lets you do cool things with Dora Terminal, right from the command line`,
 		SilenceUsage: true,
 	}
 )
